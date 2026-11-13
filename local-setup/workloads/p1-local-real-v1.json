@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "declaration_id": "p1-local-real-v1",
+  "profile": "local_real",
+  "purpose": "Local prerecorded voice inference and durable continuity qualification under a withheld-worker cohort; this is not a throughput or production-capacity benchmark.",
+  "native_concurrency": 1,
+  "background_inquiries": 8,
+  "foreground_inquiries": 1,
+  "browser_cases": 2,
+  "models": {
+    "stt": "base.en",
+    "llm": "qwen3:4b-instruct",
+    "tts": "en_US-ljspeech-medium"
+  },
+  "model_manifest": "local-setup/models/local-model-manifest.json",
+  "fixture": {
+    "file": "input-investigate.wav",
+    "sha256": "11f5143ef2a1f0bdae93dfa136b5d5bed880c6dca4952ac28fb61340f3efe12f",
+    "frames": 63865,
+    "sample_rate_hz": 16000,
+    "channels": 1,
+    "sample_width_bytes": 2,
+    "capture_seconds": 4.25
+  },
+  "native_budgets_seconds": {
+    "stt": 10,
+    "llm": 30,
+    "tts": 10,
+    "commit_rpc": 11,
+    "browser_commit": 12,
+    "interruption": 1.5
+  },
+  "engine_children_seconds": 8,
+  "engine_queue": {
+    "active": 1,
+    "listen_backlog": 1
+  },
+  "native_speech_queue": {
+    "active": 1,
+    "waiting": 1
+  },
+  "browser_run_seconds": 300,
+  "worker_policy": {
+    "maximum_pending": 20,
+    "maximum_active": 2,
+    "maximum_records": 100,
+    "lease_seconds": 30
+  },
+  "cohort_schedule": [
+    "foreground_inquiry_succeeded",
+    "one_native_session_joined",
+    "pause_owned_idle_worker",
+    "accept_read_replay_eight_pending_inquiries",
+    "end_voice_with_eight_still_pending",
+    "resume_owned_worker",
+    "observe_eight_persisted_inquiry_results",
+    "reconcile_independent_effect_receipts",
+    "explicitly_cancel_eight_after_measurement",
+    "observe_eight_receiver_deliveries",
+    "fresh_native_consumer_same_foreground_case",
+    "human_exact_quote_confirmation"
+  ],
+  "final_counts": {
+    "tasks": 9,
+    "inquiries": 9,
+    "intents": 1,
+    "consumptions": 1,
+    "apply_calls": 1,
+    "mutations": 1,
+    "receiver_events": 9
+  },
+  "consent": "Investigation and exact quote/revision approval are separate; model statements, generated audio and observed playback grant no mutation authority.",
+  "claims_excluded": [
+    "physical_microphone_capture",
+    "human_hearing",
+    "word_error_rate",
+    "production_capacity",
+    "eight_concurrent_model_sessions",
+    "remote_ci"
+  ],
+  "resource_limits": {
+    "llm": {
+      "memory_bytes": 4294967296,
+      "cpus": 4,
+      "pids": 128
+    },
+    "stt": {
+      "memory_bytes": 1073741824,
+      "cpus": 4,
+      "pids": 128
+    },
+    "tts": {
+      "memory_bytes": 536870912,
+      "cpus": 2,
+      "pids": 128
+    },
+    "native": {
+      "memory_bytes": 536870912,
+      "cpus": 1.5,
+      "pids": 256
+    }
+  },
+  "resource_observation": {
+    "samples": 2,
+    "cpu": "positive delta over the declared browser window; includes instrumentation overhead",
+    "memory": "cgroup accounted bytes; container lifetime peak is an upper bound including the measurement, not RSS or an isolated model peak"
+  },
+  "engine_request_seconds": 9,
+  "llm_limits": {
+    "server_context_tokens": 2048,
+    "output_tokens": 128,
+    "loaded_models": 1,
+    "parallel": 1,
+    "pending": 1
+  },
+  "orchestrator_work_seconds": 600,
+  "owned_cleanup_seconds": 180
+}

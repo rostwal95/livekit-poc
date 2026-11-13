@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "playwright.config.ts",
+    "playwright.real.config.ts",
+    "playwright.native.config.ts",
+    "vite.native.config.ts",
+    "e2e/**/*.pw.ts",
+    "e2e/**/*.media.ts",
+    "playwright.playback.config.ts",
+    "playwright.rehydration.config.ts",
+    "vite.operations.config.ts",
+    "playwright.operations.config.ts",
+    "e2e/**/*.browser.ts",
+    "vite.p3-background.config.ts",
+    "playwright.p3-background.config.ts"
+  ]
+}

@@ -1,0 +1,7 @@
+# Explicit runtime-only override. Credentials are never build arguments or mounts.
+services:
+  conversation-agent:
+    environment:
+      DEEPGRAM_API_KEY: ${DEEPGRAM_API_KEY:?Populate the private provider credential file}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Populate the private provider credential file}
+      ELEVEN_API_KEY: ${ELEVEN_API_KEY:?Populate the private provider credential file}

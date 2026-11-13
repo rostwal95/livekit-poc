@@ -1,0 +1,632 @@
+{
+  "recovery-authority.json": {
+    "counts": {
+      "accepted": 7,
+      "acks": 1,
+      "action_receipts": 1,
+      "attempts": 11,
+      "business_completions": 1,
+      "delivery_intents": 2,
+      "delivery_receipts": 1,
+      "events": 7,
+      "intents": 1,
+      "projected": 2,
+      "receiver_accept_calls": 1,
+      "receiver_receipts": 1,
+      "results": 7,
+      "supplier_apply_calls": 1,
+      "supplier_receipts": 1
+    },
+    "exact_reconciliation": true,
+    "gap": {
+      "acknowledged": false,
+      "delivery_state": "unknown",
+      "sequence": 1,
+      "work_id": "b0da748c-ac75-4fca-8c57-21e121dc032f"
+    },
+    "inventory_sha256": "2309aa05dae89643dcf9f56b5ce8a1a98460a460f2d0d79dd07c9a94d38f415d",
+    "processing": {
+      "scan_after": 1,
+      "terminal_count": 1,
+      "terminal_watermark": 0
+    },
+    "records": [
+      {
+        "attempt_id": "a5c3a8a8-e53b-4ccc-afc5-c5dc688fe5ed",
+        "command_id": "recovery_i_2",
+        "event_id": "c50f4e00-e18d-4796-b3d2-7bf117093ace",
+        "input_fingerprint": "3c1a2465e0373807e3f349d1906d6a5c800cdf3d43b9c0660f0f62b0c0840b24",
+        "kind": "result",
+        "label": "i",
+        "number": 2,
+        "owner_id": "c979b8b6-792a-48a1-a2ab-3187dcec3841",
+        "request_sha256": "85ed538603ea4e6f4e38849ef1e8dbec21cb49cc7a02128b6fce34d66db13e18",
+        "result_sha256": "bb25ac54c124f7e18496e8a9ee30ef696022e3b84c5f53b8ede2f0c6a20bfb96",
+        "scope": {
+          "account_id": "execution",
+          "tenant_id": "tenant_recovery"
+        },
+        "sequence": 1,
+        "work_id": "2ca7664a-5d12-4d58-80c4-f2b2ca534443"
+      },
+      {
+        "attempt_id": "edcf508e-05da-4cfb-b06b-9e4734263689",
+        "command_id": "recovery_s_2",
+        "event_id": "862417b9-e7c3-420b-8b32-63cd873b0989",
+        "input_fingerprint": "32381523e63197c929b67f793a8098bed0ae3a6fa902634fdbcc6fa4567f3346",
+        "kind": "result",
+        "label": "s",
+        "number": 2,
+        "owner_id": "230c9816-e0d7-444f-8b31-74b9d9fa27b1",
+        "request_sha256": "0f359e10a88054c3c91155025bf2d8c5b88ca23a5bdbaf100442ab3c27a9a7d7",
+        "result_sha256": "c099142bc3186ded72786ba27e9ea6d2da240fb9fd3fe79b479ecf8e734b2850",
+        "scope": {
+          "account_id": "execution",
+          "tenant_id": "tenant_recovery"
+        },
+        "sequence": 2,
+        "work_id": "93f6e11d-9ce3-4407-a0ee-f9c87aacabf3"
+      },
+      {
+        "attempt_id": "b3fba8d7-29d3-4379-9c2e-5ad7213d4177",
+        "command_id": "recovery_c_2",
+        "event_id": "cd80f98f-0368-4867-b85d-7c96857e0fe6",
+        "input_fingerprint": "dd07a874ca4e8d537c9ebc614b0ad5d4a8dc20293a91b3bd0fb1796d5d4145de",
+        "kind": "result",
+        "label": "c",
+        "number": 2,
+        "owner_id": "55dc6b23-1d1c-4bea-a28a-30361f57340a",
+        "request_sha256": "46d23ea9091f637afa48cc64e356fbd96a42b7290eb3132d88f76396daa36bbc",
+        "result_sha256": "d7edb622dfdd480326f8bd42bdc2927a13c6c4fb32b99ae76540867f0033ca8d",
+        "scope": {
+          "account_id": "execution",
+          "tenant_id": "tenant_recovery"
+        },
+        "sequence": 3,
+        "work_id": "5ec760b1-855d-474d-b8fe-3d5083ff9ff1"
+      },
+      {
+        "attempt_id": "44bb5602-c2cc-42aa-b1c8-3e9d8138735a",
+        "command_id": "recovery_u_2",
+        "event_id": "09ec9af8-05e5-4e5f-932c-5f5fd146e33e",
+        "input_fingerprint": "4ab7affb9547c0cee913d76ab7c73bae45b7489239bb9ba909242ef66f9785c8",
+        "kind": "result",
+        "label": "u",
+        "number": 2,
+        "owner_id": "8950a560-f8e9-40d5-9db1-86a187794c54",
+        "request_sha256": "f14c5331087d38ca78e596a675f935eea39e70403e04652cce7431ddb3940101",
+        "result_sha256": "d15117d90d6be71f0f93bfca058136e34a34cb1dd57407ee08ac36b9f53bfcb4",
+        "scope": {
+          "account_id": "execution",
+          "tenant_id": "tenant_recovery"
+        },
+        "sequence": 4,
+        "work_id": "b934fd1c-00b4-4e00-a6b3-b9b130cdabec"
+      },
+      {
+        "attempt_id": "6df94888-5082-40f6-a89f-5f817dedfeb7",
+        "command_id": "recovery_v_1",
+        "event_id": "70442fc4-bfa8-4465-afa6-a8a22192aecf",
+        "input_fingerprint": "11010e85369c2e0e8fb9b4f8677588b5a43ceb507af9cff3984779fa24404bf7",
+        "kind": "result",
+        "label": "v",
+        "number": 1,
+        "owner_id": "fd8f8e68-09a1-4462-a1bb-303e6ea52538",
+        "request_sha256": "acd6e935003a24bbcd334a9151719676c9816b39aa300254bbd42a7682be9bb1",
+        "result_sha256": "fd69f3b2eed4b48332280ea619f6ecfef7bfb0dd7945bd347ae8c40f20b03bc7",
+        "scope": {
+          "account_id": "execution",
+          "tenant_id": "tenant_recovery"
+        },
+        "sequence": 5,
+        "work_id": "38a04202-1611-466b-a3f2-f6fda50237be"
+      },
+      {
+        "attempt_id": "9b9a9aac-0af9-4dfd-b0eb-a8f054450204",
+        "command_id": "recovery_g_1",
+        "event_id": "1a661c8a-eea4-4519-aa0e-d02535b77eb0",
+        "input_fingerprint": "8580d8070a530738ed34ab5f97f655a6c0e81b0b6aa86ebcc97a37d1809acd96",
+        "kind": "result",
+        "label": "g",
+        "number": 1,
+        "owner_id": "bc6e78d6-de68-46ee-878c-76eb7ae635a7",
+        "request_sha256": "33b0febb93ccb8acb7182dfcac0b3b662397eabec74c55bcf82d3afc3f88575e",
+        "result_sha256": "eca134660b0c105b1d1aa90df8de86e27aceb4d6e497e70021423ae36cfaed09",
+        "scope": {
+          "account_id": "completion",
+          "tenant_id": "tenant_recovery"
+        },
+        "sequence": 1,
+        "work_id": "b0da748c-ac75-4fca-8c57-21e121dc032f"
+      },
+      {
+        "attempt_id": "573ee983-4e7b-4463-bf05-7203aa2cbb5e",
+        "command_id": "recovery_m_1",
+        "event_id": "2b0943aa-5df6-4f2f-841b-bea5f31cb46b",
+        "input_fingerprint": "860152a8eebed84f4d2ce0c491b4d3232bbfa978d1f9c463725ce6e8c07252fa",
+        "kind": "result",
+        "label": "m",
+        "number": 1,
+        "owner_id": "3620fd34-7f7b-45db-bd2b-cac80c54929c",
+        "request_sha256": "b6da9442ee17d1446684929f5d6abacb24265451b05576d4ee24f1c3930ba45f",
+        "result_sha256": "353d6afe0fae795614940331d28b7baf69dcf65168e336ae276156a3ee166f72",
+        "scope": {
+          "account_id": "completion",
+          "tenant_id": "tenant_recovery"
+        },
+        "sequence": 2,
+        "work_id": "11ca7873-14ec-443d-a60c-ce05984392b1"
+      },
+      {
+        "account_id": "execution",
+        "attempt_id": "0e4510b7-394c-4c21-a41b-5b94c1e0bfc9",
+        "command_id": "recovery_i_1",
+        "epoch": 1,
+        "issued_at_ms": 1800000010000,
+        "kind": "grant",
+        "lease_until_ms": 1800000015000,
+        "number": 1,
+        "owner_id": "f95da267-4979-4f5e-80ab-12a3876d0cd9",
+        "tenant_id": "tenant_recovery",
+        "work_id": "2ca7664a-5d12-4d58-80c4-f2b2ca534443"
+      },
+      {
+        "account_id": "execution",
+        "attempt_id": "a5c3a8a8-e53b-4ccc-afc5-c5dc688fe5ed",
+        "command_id": "recovery_i_2",
+        "epoch": 2,
+        "issued_at_ms": 1800000020000,
+        "kind": "grant",
+        "lease_until_ms": 1800000025000,
+        "number": 2,
+        "owner_id": "c979b8b6-792a-48a1-a2ab-3187dcec3841",
+        "tenant_id": "tenant_recovery",
+        "work_id": "2ca7664a-5d12-4d58-80c4-f2b2ca534443"
+      },
+      {
+        "account_id": "execution",
+        "attempt_id": "dd29f788-6a85-4315-b141-586338f6c80e",
+        "command_id": "recovery_s_1",
+        "epoch": 1,
+        "issued_at_ms": 1800000010000,
+        "kind": "grant",
+        "lease_until_ms": 1800000015000,
+        "number": 1,
+        "owner_id": "00fce12b-00bb-479d-bf1f-f7d9d06d4058",
+        "tenant_id": "tenant_recovery",
+        "work_id": "93f6e11d-9ce3-4407-a0ee-f9c87aacabf3"
+      },
+      {
+        "account_id": "execution",
+        "attempt_id": "edcf508e-05da-4cfb-b06b-9e4734263689",
+        "command_id": "recovery_s_2",
+        "epoch": 2,
+        "issued_at_ms": 1800000020000,
+        "kind": "grant",
+        "lease_until_ms": 1800000025000,
+        "number": 2,
+        "owner_id": "230c9816-e0d7-444f-8b31-74b9d9fa27b1",
+        "tenant_id": "tenant_recovery",
+        "work_id": "93f6e11d-9ce3-4407-a0ee-f9c87aacabf3"
+      },
+      {
+        "account_id": "execution",
+        "attempt_id": "4e7a3bec-403f-47de-acb2-d8b41235509e",
+        "command_id": "recovery_c_1",
+        "epoch": 1,
+        "issued_at_ms": 1800000010000,
+        "kind": "grant",
+        "lease_until_ms": 1800000015000,
+        "number": 1,
+        "owner_id": "bcdbd981-1f26-4751-955a-ea8c3bbd7e2f",
+        "tenant_id": "tenant_recovery",
+        "work_id": "5ec760b1-855d-474d-b8fe-3d5083ff9ff1"
+      },
+      {
+        "account_id": "execution",
+        "attempt_id": "b3fba8d7-29d3-4379-9c2e-5ad7213d4177",
+        "command_id": "recovery_c_2",
+        "epoch": 2,
+        "issued_at_ms": 1800000020000,
+        "kind": "grant",
+        "lease_until_ms": 1800000025000,
+        "number": 2,
+        "owner_id": "55dc6b23-1d1c-4bea-a28a-30361f57340a",
+        "tenant_id": "tenant_recovery",
+        "work_id": "5ec760b1-855d-474d-b8fe-3d5083ff9ff1"
+      },
+      {
+        "account_id": "execution",
+        "attempt_id": "92eedf63-5e6c-446e-a711-bdcb6823c115",
+        "command_id": "recovery_u_1",
+        "epoch": 1,
+        "issued_at_ms": 1800000010000,
+        "kind": "grant",
+        "lease_until_ms": 1800000015000,
+        "number": 1,
+        "owner_id": "2ecc060f-9312-4b65-a922-224e13445191",
+        "tenant_id": "tenant_recovery",
+        "work_id": "b934fd1c-00b4-4e00-a6b3-b9b130cdabec"
+      },
+      {
+        "account_id": "execution",
+        "attempt_id": "44bb5602-c2cc-42aa-b1c8-3e9d8138735a",
+        "command_id": "recovery_u_2",
+        "epoch": 2,
+        "issued_at_ms": 1800000020000,
+        "kind": "grant",
+        "lease_until_ms": 1800000025000,
+        "number": 2,
+        "owner_id": "8950a560-f8e9-40d5-9db1-86a187794c54",
+        "tenant_id": "tenant_recovery",
+        "work_id": "b934fd1c-00b4-4e00-a6b3-b9b130cdabec"
+      },
+      {
+        "account_id": "execution",
+        "attempt_id": "6df94888-5082-40f6-a89f-5f817dedfeb7",
+        "command_id": "recovery_v_1",
+        "epoch": 1,
+        "issued_at_ms": 1800000010000,
+        "kind": "grant",
+        "lease_until_ms": 1800000015000,
+        "number": 1,
+        "owner_id": "fd8f8e68-09a1-4462-a1bb-303e6ea52538",
+        "tenant_id": "tenant_recovery",
+        "work_id": "38a04202-1611-466b-a3f2-f6fda50237be"
+      },
+      {
+        "account_id": "completion",
+        "attempt_id": "9b9a9aac-0af9-4dfd-b0eb-a8f054450204",
+        "command_id": "recovery_g_1",
+        "epoch": 1,
+        "issued_at_ms": 1800000010000,
+        "kind": "grant",
+        "lease_until_ms": 1800000015000,
+        "number": 1,
+        "owner_id": "bc6e78d6-de68-46ee-878c-76eb7ae635a7",
+        "tenant_id": "tenant_recovery",
+        "work_id": "b0da748c-ac75-4fca-8c57-21e121dc032f"
+      },
+      {
+        "account_id": "completion",
+        "attempt_id": "573ee983-4e7b-4463-bf05-7203aa2cbb5e",
+        "command_id": "recovery_m_1",
+        "epoch": 1,
+        "issued_at_ms": 1800000010000,
+        "kind": "grant",
+        "lease_until_ms": 1800000015000,
+        "number": 1,
+        "owner_id": "3620fd34-7f7b-45db-bd2b-cac80c54929c",
+        "tenant_id": "tenant_recovery",
+        "work_id": "11ca7873-14ec-443d-a60c-ce05984392b1"
+      },
+      {
+        "attempt_id": "a5c3a8a8-e53b-4ccc-afc5-c5dc688fe5ed",
+        "kind": "invoke",
+        "label": "issued_recovery",
+        "outcome": "completed",
+        "request_sha256": "4cc90e99a0f040d0456a8519dd30c008d74606dcf517e05fd6659e6b3f3d9ede"
+      },
+      {
+        "attempt_id": "dd29f788-6a85-4315-b141-586338f6c80e",
+        "kind": "invoke",
+        "label": "specialist_loss",
+        "outcome": "running",
+        "request_sha256": "8e2da930475b54eb00e084a32bd310029a34041caaf72b1a454918fa7171114c"
+      },
+      {
+        "attempt_id": "edcf508e-05da-4cfb-b06b-9e4734263689",
+        "kind": "invoke",
+        "label": "specialist_recovery",
+        "outcome": "completed",
+        "request_sha256": "5aefecf35679d2f1395b3075378a6f00c47f4050075ae3a6c9f7d9b62a0e86cd"
+      },
+      {
+        "attempt_id": "4e7a3bec-403f-47de-acb2-d8b41235509e",
+        "kind": "invoke",
+        "label": "coordinator_loss",
+        "outcome": "aborted",
+        "request_sha256": "8c49c6d5fd36d8a675475c7dc04ecd5f33576650992879293316fd3589467a32"
+      },
+      {
+        "attempt_id": "b3fba8d7-29d3-4379-9c2e-5ad7213d4177",
+        "kind": "invoke",
+        "label": "coordinator_recovery",
+        "outcome": "completed",
+        "request_sha256": "971c2bab6d076569d1db6e1590b6f5552c551389a41ea636f0fbb52fa9511383"
+      },
+      {
+        "attempt_id": "92eedf63-5e6c-446e-a711-bdcb6823c115",
+        "kind": "invoke",
+        "label": "result_precommit",
+        "outcome": "completed",
+        "request_sha256": "704f3f201e087d62bf52750c64d208b906035c040f8bd0f33f44de5f42d2b58b"
+      },
+      {
+        "attempt_id": "44bb5602-c2cc-42aa-b1c8-3e9d8138735a",
+        "kind": "invoke",
+        "label": "result_precommit_recovery",
+        "outcome": "completed",
+        "request_sha256": "01d19e4d0ee1285b08d0db779955b13a1018f7fb19e6802568a1b575990b3e83"
+      },
+      {
+        "attempt_id": "6df94888-5082-40f6-a89f-5f817dedfeb7",
+        "kind": "invoke",
+        "label": "result_postcommit",
+        "outcome": "completed",
+        "request_sha256": "edf9e7295c56d086bc1d95b073788f5c45d5440b0ff9ae18d0c452f4e5290953"
+      },
+      {
+        "attempt_id": "9b9a9aac-0af9-4dfd-b0eb-a8f054450204",
+        "kind": "invoke",
+        "label": "unknown_delivery",
+        "outcome": "completed",
+        "request_sha256": "82b63a8c6a37f2c214c9e71591d97c2720e3fd3c2ec948752a9d306423c133e2"
+      },
+      {
+        "attempt_id": "573ee983-4e7b-4463-bf05-7203aa2cbb5e",
+        "kind": "invoke",
+        "label": "useful_current",
+        "outcome": "completed",
+        "request_sha256": "86db70a2c73b53f19d62d3791fb86174bbf3db7b6af91acef5f4e7e2e86e03b2"
+      },
+      {
+        "action_id": "bd938c68-8f49-477c-bfc5-37c6b9222e2c",
+        "attempt_id": "573ee983-4e7b-4463-bf05-7203aa2cbb5e",
+        "business_event_id": "11d40417-9596-41d3-9242-0e8cd8709893",
+        "confirmation_sha256": "3f267c2ab422e502bad8e60ff9e55666ec59b725e561bf1629c48a1578a08c79",
+        "delivery_id": "b4af39d5-b65a-4484-9e88-5a9d65f0efe4",
+        "effect_id": "dcb57642-6a17-47df-9390-7007cb02a1f1",
+        "event_id": "2b0943aa-5df6-4f2f-841b-bea5f31cb46b",
+        "intent_id": "282bcbc3-f0a3-4a8a-8ac6-f00c276fcf66",
+        "kind": "completion",
+        "receipt_id": "6f328609-10ca-4fb2-a20c-7fda143666b0",
+        "result_sha256": "353d6afe0fae795614940331d28b7baf69dcf65168e336ae276156a3ee166f72",
+        "supplier_result_sha256": "955ed10b73d6265b1adcf768b94f8dd5d91f33309db94b6b3af4efa822f1d9af",
+        "work_id": "11ca7873-14ec-443d-a60c-ce05984392b1"
+      }
+    ],
+    "schema_version": 1,
+    "status": "passed"
+  },
+  "recovery-lock.json": {
+    "graphs": 1,
+    "lock_target": "p1_work_admission",
+    "observed_db_clock_ms": 1800000015000,
+    "old_attempt_id": "0e4510b7-394c-4c21-a41b-5b94c1e0bfc9",
+    "old_lease_until_ms": 1800000015000,
+    "owned_writers": [
+      {
+        "backend_pid": 124,
+        "process_pid": 30000,
+        "role": "race-a"
+      },
+      {
+        "backend_pid": 125,
+        "process_pid": 30001,
+        "role": "race-b"
+      }
+    ],
+    "owner_backend_pid": 123,
+    "query_visibility": "redacted",
+    "schema_version": 1,
+    "status": "passed",
+    "waiters": [
+      {
+        "blockers": [
+          123
+        ],
+        "pid": 124
+      },
+      {
+        "blockers": [
+          123,
+          124
+        ],
+        "pid": 125
+      }
+    ],
+    "work_id": "2ca7664a-5d12-4d58-80c4-f2b2ca534443",
+    "work_schema": "p1_work_recovery_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "recovery-peer.json": {
+    "generations": [
+      {
+        "counters": {
+          "active": 1,
+          "cancel_requests": 0,
+          "disconnects": 0,
+          "invoked": 2,
+          "requests": 1,
+          "sockets": 1,
+          "strict_completed": 1
+        },
+        "generation": "a",
+        "node_version": "24.22.2",
+        "records": [
+          {
+            "attempt_id": "attempt_a5c3a8a8e53b4cccafc5c5dc688fe5ed",
+            "case_id": "case_execution",
+            "delegation_id": "delegation_recovery_i",
+            "finished_at_ms": 1800000030001,
+            "input_fingerprint": "3c1a2465e0373807e3f349d1906d6a5c800cdf3d43b9c0660f0f62b0c0840b24",
+            "label": "issued_recovery",
+            "outcome": "completed",
+            "request_revision": 2,
+            "request_sha256": "4cc90e99a0f040d0456a8519dd30c008d74606dcf517e05fd6659e6b3f3d9ede",
+            "scope": {
+              "account_id": "execution",
+              "tenant_id": "tenant_recovery"
+            },
+            "started_at_ms": 1800000030000
+          },
+          {
+            "attempt_id": "attempt_dd29f7886a854315b141586338f6c80e",
+            "case_id": "case_execution",
+            "delegation_id": "delegation_recovery_s",
+            "finished_at_ms": null,
+            "input_fingerprint": "32381523e63197c929b67f793a8098bed0ae3a6fa902634fdbcc6fa4567f3346",
+            "label": "specialist_loss",
+            "outcome": "running",
+            "request_revision": 2,
+            "request_sha256": "8e2da930475b54eb00e084a32bd310029a34041caaf72b1a454918fa7171114c",
+            "scope": {
+              "account_id": "execution",
+              "tenant_id": "tenant_recovery"
+            },
+            "started_at_ms": 1800000030000
+          }
+        ],
+        "schema_version": 1,
+        "status": "running"
+      },
+      {
+        "counters": {
+          "active": 0,
+          "cancel_requests": 0,
+          "disconnects": 1,
+          "invoked": 8,
+          "requests": 0,
+          "sockets": 0,
+          "strict_completed": 7
+        },
+        "generation": "b",
+        "node_version": "24.22.2",
+        "records": [
+          {
+            "attempt_id": "attempt_edcf508e05da4cfbb06b9e4734263689",
+            "case_id": "case_execution",
+            "delegation_id": "delegation_recovery_s",
+            "finished_at_ms": 1800000030001,
+            "input_fingerprint": "32381523e63197c929b67f793a8098bed0ae3a6fa902634fdbcc6fa4567f3346",
+            "label": "specialist_recovery",
+            "outcome": "completed",
+            "request_revision": 2,
+            "request_sha256": "5aefecf35679d2f1395b3075378a6f00c47f4050075ae3a6c9f7d9b62a0e86cd",
+            "scope": {
+              "account_id": "execution",
+              "tenant_id": "tenant_recovery"
+            },
+            "started_at_ms": 1800000030000
+          },
+          {
+            "attempt_id": "attempt_4e7a3bec403f47deacb2d8b41235509e",
+            "case_id": "case_execution",
+            "delegation_id": "delegation_recovery_c",
+            "finished_at_ms": 1800000030001,
+            "input_fingerprint": "dd07a874ca4e8d537c9ebc614b0ad5d4a8dc20293a91b3bd0fb1796d5d4145de",
+            "label": "coordinator_loss",
+            "outcome": "aborted",
+            "request_revision": 2,
+            "request_sha256": "8c49c6d5fd36d8a675475c7dc04ecd5f33576650992879293316fd3589467a32",
+            "scope": {
+              "account_id": "execution",
+              "tenant_id": "tenant_recovery"
+            },
+            "started_at_ms": 1800000030000
+          },
+          {
+            "attempt_id": "attempt_b3fba8d729d343799c2e5ad7213d4177",
+            "case_id": "case_execution",
+            "delegation_id": "delegation_recovery_c",
+            "finished_at_ms": 1800000030001,
+            "input_fingerprint": "dd07a874ca4e8d537c9ebc614b0ad5d4a8dc20293a91b3bd0fb1796d5d4145de",
+            "label": "coordinator_recovery",
+            "outcome": "completed",
+            "request_revision": 2,
+            "request_sha256": "971c2bab6d076569d1db6e1590b6f5552c551389a41ea636f0fbb52fa9511383",
+            "scope": {
+              "account_id": "execution",
+              "tenant_id": "tenant_recovery"
+            },
+            "started_at_ms": 1800000030000
+          },
+          {
+            "attempt_id": "attempt_92eedf635e6c446ea711bdcb6823c115",
+            "case_id": "case_execution",
+            "delegation_id": "delegation_recovery_u",
+            "finished_at_ms": 1800000030001,
+            "input_fingerprint": "4ab7affb9547c0cee913d76ab7c73bae45b7489239bb9ba909242ef66f9785c8",
+            "label": "result_precommit",
+            "outcome": "completed",
+            "request_revision": 2,
+            "request_sha256": "704f3f201e087d62bf52750c64d208b906035c040f8bd0f33f44de5f42d2b58b",
+            "scope": {
+              "account_id": "execution",
+              "tenant_id": "tenant_recovery"
+            },
+            "started_at_ms": 1800000030000
+          },
+          {
+            "attempt_id": "attempt_44bb5602c2cc42aab1c83e9d8138735a",
+            "case_id": "case_execution",
+            "delegation_id": "delegation_recovery_u",
+            "finished_at_ms": 1800000030001,
+            "input_fingerprint": "4ab7affb9547c0cee913d76ab7c73bae45b7489239bb9ba909242ef66f9785c8",
+            "label": "result_precommit_recovery",
+            "outcome": "completed",
+            "request_revision": 2,
+            "request_sha256": "01d19e4d0ee1285b08d0db779955b13a1018f7fb19e6802568a1b575990b3e83",
+            "scope": {
+              "account_id": "execution",
+              "tenant_id": "tenant_recovery"
+            },
+            "started_at_ms": 1800000030000
+          },
+          {
+            "attempt_id": "attempt_6df94888508240f6a89f5f817dedfeb7",
+            "case_id": "case_execution",
+            "delegation_id": "delegation_recovery_v",
+            "finished_at_ms": 1800000030001,
+            "input_fingerprint": "11010e85369c2e0e8fb9b4f8677588b5a43ceb507af9cff3984779fa24404bf7",
+            "label": "result_postcommit",
+            "outcome": "completed",
+            "request_revision": 2,
+            "request_sha256": "edf9e7295c56d086bc1d95b073788f5c45d5440b0ff9ae18d0c452f4e5290953",
+            "scope": {
+              "account_id": "execution",
+              "tenant_id": "tenant_recovery"
+            },
+            "started_at_ms": 1800000030000
+          },
+          {
+            "attempt_id": "attempt_9b9a9aac0af94dfdb0eba8f054450204",
+            "case_id": "case_completion",
+            "delegation_id": "delegation_recovery_g",
+            "finished_at_ms": 1800000030001,
+            "input_fingerprint": "8580d8070a530738ed34ab5f97f655a6c0e81b0b6aa86ebcc97a37d1809acd96",
+            "label": "unknown_delivery",
+            "outcome": "completed",
+            "request_revision": 2,
+            "request_sha256": "82b63a8c6a37f2c214c9e71591d97c2720e3fd3c2ec948752a9d306423c133e2",
+            "scope": {
+              "account_id": "completion",
+              "tenant_id": "tenant_recovery"
+            },
+            "started_at_ms": 1800000030000
+          },
+          {
+            "attempt_id": "attempt_573ee9834e7b4463bf057203aa2cbb5e",
+            "case_id": "case_completion",
+            "delegation_id": "delegation_recovery_m",
+            "finished_at_ms": 1800000030001,
+            "input_fingerprint": "860152a8eebed84f4d2ce0c491b4d3232bbfa978d1f9c463725ce6e8c07252fa",
+            "label": "useful_current",
+            "outcome": "completed",
+            "request_revision": 2,
+            "request_sha256": "86db70a2c73b53f19d62d3791fb86174bbf3db7b6af91acef5f4e7e2e86e03b2",
+            "scope": {
+              "account_id": "completion",
+              "tenant_id": "tenant_recovery"
+            },
+            "started_at_ms": 1800000030000
+          }
+        ],
+        "schema_version": 1,
+        "status": "closed"
+      }
+    ],
+    "schema_version": 1,
+    "status": "passed"
+  }
+}

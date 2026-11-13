@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "kind": "booking.notice_facts",
+  "observations": [
+    {
+      "fact_id": "notice_primary",
+      "days_before_arrival": 10
+    }
+  ],
+  "note": "Synthetic asserted fact evidence."
+}

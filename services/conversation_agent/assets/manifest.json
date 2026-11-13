@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "kind": "synthetic-spoken-fixtures",
+  "purpose": "Deterministic local RTC transport and SDK lifecycle verification; these clips do not demonstrate speech recognition or model inference.",
+  "source": "Locally generated with macOS say (Albert voice), converted using afconvert to uncompressed mono PCM16 WAV at 16000 Hz. No microphone or remote provider was used.",
+  "regenerate": "say -v Albert -o <temporary.aiff> <declared phrase>; afconvert -f WAVE -d LEI16@16000 -c 1 <temporary.aiff> <fixture.wav>",
+  "files": [
+    {
+      "file": "accepted.wav",
+      "sha256": "35322c2d1c74c73cca050f948c7d2ce30387e743b57d0e5855c7e03739e83842",
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "frames": 78035,
+      "duration_seconds": 4.877187,
+      "phrase": "Your investigation was accepted and continues independently."
+    },
+    {
+      "file": "cancelled.wav",
+      "sha256": "e8f9d11a49eeb30741fee149121baf918ecf71b2523f50c1af144ecf9ed9d157",
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "frames": 88809,
+      "duration_seconds": 5.550562,
+      "phrase": "Your cancellation request was recorded for the current investigation."
+    },
+    {
+      "file": "demo.wav",
+      "sha256": "16823db29ea200ea34d02aae250e1ffee8fc7b5f267bb208a480da8c4eb8ca98",
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "frames": 61219,
+      "duration_seconds": 3.826188,
+      "phrase": "This is a scripted local voice demonstration."
+    },
+    {
+      "file": "guard.wav",
+      "sha256": "9508076b65fafb62c3a89ced214f3d092ee430d2f5d42f51bee4ac9fa558b962",
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "frames": 65828,
+      "duration_seconds": 4.11425,
+      "phrase": "Confirm the exact quote only in the workflow panel."
+    },
+    {
+      "file": "input-investigate.wav",
+      "sha256": "11f5143ef2a1f0bdae93dfa136b5d5bed880c6dca4952ac28fb61340f3efe12f",
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "frames": 63865,
+      "duration_seconds": 3.991563,
+      "purpose": "Non-silent synthetic spoken input fixture; scripted STT assigns investigate on the first qualified turn and status on subsequent qualified turns."
+    },
+    {
+      "file": "input-status.wav",
+      "sha256": "fb9b5ed6b7824f05fce6fa6c5d3fd061eab3d7bc539f1e223fa5ff6e2cd2b78e",
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "frames": 39345,
+      "duration_seconds": 2.459062,
+      "purpose": "Non-silent synthetic spoken input fixture; scripted STT assigns investigate on the first qualified turn and status on subsequent qualified turns."
+    },
+    {
+      "file": "no-case.wav",
+      "sha256": "febbea19ec3850836e6808c7e81a3120abff5d333650e2c284874966e4a2b5fd",
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "frames": 81756,
+      "duration_seconds": 5.10975,
+      "phrase": "No investigation has been accepted for this conversation yet."
+    },
+    {
+      "file": "status.wav",
+      "sha256": "5006065301ff499dd682f967ada0fb744e47cc9f7a866f0f2efd75247dce82b2",
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "frames": 65863,
+      "duration_seconds": 4.116437,
+      "phrase": "The workflow panel shows the latest durable state."
+    },
+    {
+      "file": "unavailable.wav",
+      "sha256": "8830882cb5a892dcf749014550820d03cd04e6f4d7598f1199ecd5030b315d56",
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "frames": 106359,
+      "duration_seconds": 6.647437,
+      "phrase": "The operation could not be completed; please inspect the workflow panel."
+    }
+  ]
+}

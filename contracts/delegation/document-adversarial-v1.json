@@ -1,0 +1,529 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-11-12",
+  "scope": "Synthetic independent shared negative data, not instructions or execution authority. Both public codecs consume these exact patches.",
+  "base_fixture": "document-v1.json",
+  "cases": [
+    {
+      "name": "unknown_request_field",
+      "phase": "request",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "unexpected"
+          ],
+          "value": true
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "unsupported_request_version",
+      "phase": "request",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "schema_version"
+          ],
+          "value": 2
+        }
+      ],
+      "code": "unsupported_version"
+    },
+    {
+      "name": "unknown_document_capability",
+      "phase": "request",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "capability"
+          ],
+          "value": "booking.mutate"
+        }
+      ],
+      "code": "unknown_capability"
+    },
+    {
+      "name": "requested_field_missing",
+      "phase": "request",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "context_snapshot",
+            "requested_fields"
+          ],
+          "value": [
+            "booking_reference",
+            "property_name",
+            "check_in"
+          ]
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "requested_fields_reordered",
+      "phase": "request",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "context_snapshot",
+            "requested_fields"
+          ],
+          "value": [
+            "property_name",
+            "booking_reference",
+            "check_in",
+            "check_out"
+          ]
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "requested_fields_duplicated",
+      "phase": "request",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "context_snapshot",
+            "requested_fields"
+          ],
+          "value": [
+            "booking_reference",
+            "property_name",
+            "check_in",
+            "check_in"
+          ]
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "inline_image_not_a_contract_field",
+      "phase": "request",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "context_snapshot",
+            "image_bytes"
+          ],
+          "value": "iVBORw0KGgo="
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "arbitrary_fetch_url_not_source_id",
+      "phase": "request",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "context_snapshot",
+            "document_source_id"
+          ],
+          "value": "https://example.invalid/image.png"
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "unknown_eligible_authority_field",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "eligible"
+          ],
+          "value": true
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "known_field_cannot_be_null",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "property_name",
+            "value"
+          ],
+          "value": null
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "known_field_cannot_be_empty",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "property_name",
+            "value"
+          ],
+          "value": ""
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "known_field_cannot_be_whitespace",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "property_name",
+            "value"
+          ],
+          "value": " \t "
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "text_bound_is_UTF8_bytes",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "property_name",
+            "value"
+          ],
+          "value": "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé"
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "invalid_calendar_rollover",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_in",
+            "value"
+          ],
+          "value": "2027-02-30"
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "date_before_approved_year_floor",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_in",
+            "value"
+          ],
+          "value": "1969-12-31"
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "date_after_approved_year_ceiling",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_out",
+            "value"
+          ],
+          "value": "2101-01-01"
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "checkout_must_follow_checkin",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_in",
+            "value"
+          ],
+          "value": "2027-08-20"
+        },
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_out",
+            "value"
+          ],
+          "value": "2027-08-19"
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "boolean_region_width_is_not_integer",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_in",
+            "evidence_refs",
+            "0",
+            "region",
+            "width"
+          ],
+          "value": true
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "empty_region_is_not_evidence",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_in",
+            "evidence_refs",
+            "0",
+            "region",
+            "width"
+          ],
+          "value": 0
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "missing_field_cannot_cite_evidence",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_in",
+            "state"
+          ],
+          "value": "missing"
+        },
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_in",
+            "value"
+          ],
+          "value": null
+        },
+        {
+          "op": "set",
+          "path": [
+            "outcome"
+          ],
+          "value": "clarification_required"
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "ambiguous_field_needs_two_witnesses",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_in",
+            "state"
+          ],
+          "value": "ambiguous"
+        },
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_in",
+            "value"
+          ],
+          "value": null
+        },
+        {
+          "op": "set",
+          "path": [
+            "outcome"
+          ],
+          "value": "clarification_required"
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "clarification_cannot_hide_all_known_fields",
+      "phase": "result",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "outcome"
+          ],
+          "value": "clarification_required"
+        }
+      ],
+      "code": "invalid_contract"
+    },
+    {
+      "name": "foreign_account_cannot_match_request",
+      "phase": "match",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "scope",
+            "account_id"
+          ],
+          "value": "account_other"
+        }
+      ],
+      "code": "result_mismatch"
+    },
+    {
+      "name": "other_attempt_cannot_match_request",
+      "phase": "match",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "attempt_id"
+          ],
+          "value": "attempt_other"
+        }
+      ],
+      "code": "result_mismatch"
+    },
+    {
+      "name": "schema_valid_wrong_value_is_not_factual",
+      "phase": "facts",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "booking_reference",
+            "value"
+          ],
+          "value": "OTHER123"
+        }
+      ],
+      "code": "unsupported_facts"
+    },
+    {
+      "name": "schema_valid_swapped_region_is_not_factual",
+      "phase": "facts",
+      "patches": [
+        {
+          "op": "copy",
+          "from": [
+            "fields",
+            "check_out",
+            "evidence_refs",
+            "0",
+            "region"
+          ],
+          "path": [
+            "fields",
+            "check_in",
+            "evidence_refs",
+            "0",
+            "region"
+          ]
+        }
+      ],
+      "code": "unsupported_facts"
+    },
+    {
+      "name": "schema_valid_wrong_source_is_not_factual",
+      "phase": "facts",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_in",
+            "evidence_refs",
+            "0",
+            "source_id"
+          ],
+          "value": "other_source"
+        }
+      ],
+      "code": "unsupported_facts"
+    },
+    {
+      "name": "schema_valid_wrong_version_is_not_factual",
+      "phase": "facts",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_in",
+            "evidence_refs",
+            "0",
+            "version"
+          ],
+          "value": "other_v1"
+        }
+      ],
+      "code": "unsupported_facts"
+    },
+    {
+      "name": "schema_valid_wrong_digest_is_not_factual",
+      "phase": "facts",
+      "patches": [
+        {
+          "op": "set",
+          "path": [
+            "fields",
+            "check_in",
+            "evidence_refs",
+            "0",
+            "sha256"
+          ],
+          "value": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ],
+      "code": "unsupported_facts"
+    }
+  ]
+}

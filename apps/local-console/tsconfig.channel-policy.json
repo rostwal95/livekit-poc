@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/channel-policy*.ts", "vite.channel-policy.config.ts"],
+  "exclude": []
+}

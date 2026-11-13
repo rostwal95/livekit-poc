@@ -1,0 +1,246 @@
+{
+  "fixtures": {
+    "adversarial": {
+      "channels": 3,
+      "file": "adversarial.png",
+      "pixel_sha256": "78716ee61fe394813acf77adc5595f85ecef35543dde156c6a4ff04eb1aa3709",
+      "regions": {
+        "booking_reference": [
+          {
+            "height": 13,
+            "width": 117,
+            "x": 230,
+            "y": 77
+          }
+        ],
+        "check_in": [
+          {
+            "height": 13,
+            "width": 92,
+            "x": 230,
+            "y": 165
+          }
+        ],
+        "check_out": [
+          {
+            "height": 13,
+            "width": 92,
+            "x": 230,
+            "y": 209
+          }
+        ],
+        "property_name": [
+          {
+            "height": 17,
+            "width": 125,
+            "x": 230,
+            "y": 121
+          }
+        ]
+      },
+      "source": {
+        "byte_length": 25453,
+        "height": 360,
+        "media_type": "image/png",
+        "sha256": "6a86d7bcb120211a9010b527dba1bfb20f2f9b267220f9007b9749d9efc408b7",
+        "source_id": "document_adversarial",
+        "version": "document_v1",
+        "width": 640
+      }
+    },
+    "ambiguous": {
+      "channels": 3,
+      "file": "ambiguous.png",
+      "pixel_sha256": "990a033b080bd31aefdb1d7a37f8b99a388018fe33f2249143a580fcb87bd177",
+      "regions": {
+        "booking_reference": [
+          {
+            "height": 13,
+            "width": 117,
+            "x": 230,
+            "y": 77
+          }
+        ],
+        "check_in": [
+          {
+            "height": 13,
+            "width": 92,
+            "x": 230,
+            "y": 165
+          },
+          {
+            "height": 13,
+            "width": 92,
+            "x": 230,
+            "y": 187
+          }
+        ],
+        "check_out": [
+          {
+            "height": 13,
+            "width": 92,
+            "x": 230,
+            "y": 219
+          }
+        ],
+        "property_name": [
+          {
+            "height": 17,
+            "width": 125,
+            "x": 230,
+            "y": 121
+          }
+        ]
+      },
+      "source": {
+        "byte_length": 20297,
+        "height": 360,
+        "media_type": "image/png",
+        "sha256": "c80a8724a075791c1a810c7dd2b9e6d9fe8fa73766251c37450b8d083d33f6e6",
+        "source_id": "document_ambiguous",
+        "version": "document_v1",
+        "width": 640
+      }
+    },
+    "complete": {
+      "channels": 3,
+      "file": "complete.png",
+      "pixel_sha256": "da0dc18113c018e56848e1e0cee983874643a379f8a3b280713089214c14a6b7",
+      "regions": {
+        "booking_reference": [
+          {
+            "height": 13,
+            "width": 117,
+            "x": 230,
+            "y": 77
+          }
+        ],
+        "check_in": [
+          {
+            "height": 13,
+            "width": 92,
+            "x": 230,
+            "y": 165
+          }
+        ],
+        "check_out": [
+          {
+            "height": 13,
+            "width": 92,
+            "x": 230,
+            "y": 209
+          }
+        ],
+        "property_name": [
+          {
+            "height": 17,
+            "width": 125,
+            "x": 230,
+            "y": 121
+          }
+        ]
+      },
+      "source": {
+        "byte_length": 19338,
+        "height": 360,
+        "media_type": "image/png",
+        "sha256": "e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb",
+        "source_id": "document_complete",
+        "version": "document_v1",
+        "width": 640
+      }
+    },
+    "missing": {
+      "channels": 3,
+      "file": "missing.png",
+      "pixel_sha256": "9f7d213b91a3ceefeb97c86a79ab0a2682e8aa188020c7a1c9b1d878beb71f7d",
+      "regions": {
+        "booking_reference": [
+          {
+            "height": 13,
+            "width": 117,
+            "x": 230,
+            "y": 77
+          }
+        ],
+        "check_in": [
+          {
+            "height": 13,
+            "width": 92,
+            "x": 230,
+            "y": 165
+          }
+        ],
+        "check_out": [],
+        "property_name": [
+          {
+            "height": 17,
+            "width": 125,
+            "x": 230,
+            "y": 121
+          }
+        ]
+      },
+      "source": {
+        "byte_length": 20141,
+        "height": 360,
+        "media_type": "image/png",
+        "sha256": "ffb909b4ae2010cd922d78ec151e0b7b69e40806325bc063aa21bcf3bf767006",
+        "source_id": "document_missing",
+        "version": "document_v1",
+        "width": 640
+      }
+    },
+    "other-source": {
+      "channels": 3,
+      "file": "other-source.png",
+      "pixel_sha256": "b80e53aeda5b5cd490a6dcad982ed7cae7bfa4022550a3295421fb220c011dac",
+      "regions": {
+        "booking_reference": [
+          {
+            "height": 13,
+            "width": 117,
+            "x": 230,
+            "y": 77
+          }
+        ],
+        "check_in": [
+          {
+            "height": 13,
+            "width": 92,
+            "x": 230,
+            "y": 165
+          }
+        ],
+        "check_out": [
+          {
+            "height": 13,
+            "width": 92,
+            "x": 230,
+            "y": 209
+          }
+        ],
+        "property_name": [
+          {
+            "height": 14,
+            "width": 181,
+            "x": 230,
+            "y": 120
+          }
+        ]
+      },
+      "source": {
+        "byte_length": 20446,
+        "height": 360,
+        "media_type": "image/png",
+        "sha256": "31a35e072fa51fd2130b6daf99fdf43fba210998bc1e8537eb87ec33dad502e5",
+        "source_id": "document_other_source",
+        "version": "document_v1",
+        "width": 640
+      }
+    }
+  },
+  "format_subset": "static_png_rgb8_noninterlaced_critical_chunks_only",
+  "generator": "generate_document_fixtures.py; frozen Pillow13.0.0; explicit authoring only",
+  "schema_version": 1
+}

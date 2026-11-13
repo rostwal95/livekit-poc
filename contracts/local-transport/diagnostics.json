@@ -1,0 +1,22 @@
+{
+  "valid": [
+    {"type": "audio.frames", "frames": 10, "track_sid": "TR_fixture"},
+    {"type": "audio.frames", "frames": 20, "track_sid": "TR_fixture"}
+  ],
+  "invalid": [
+    {"name": "obsolete type", "payload": {"type": "audio.received", "frames": 10, "track_sid": "TR_fixture"}},
+    {"name": "unknown type", "payload": {"type": "workflow.success", "frames": 10, "track_sid": "TR_fixture"}},
+    {"name": "negative frames", "payload": {"type": "audio.frames", "frames": -1, "track_sid": "TR_fixture"}},
+    {"name": "fractional frames", "payload": {"type": "audio.frames", "frames": 10.5, "track_sid": "TR_fixture"}},
+    {"name": "string frames", "payload": {"type": "audio.frames", "frames": "10", "track_sid": "TR_fixture"}},
+    {"name": "boolean frames", "payload": {"type": "audio.frames", "frames": true, "track_sid": "TR_fixture"}},
+    {"name": "unsafe integer frames", "payload": {"type": "audio.frames", "frames": 9007199254740992, "track_sid": "TR_fixture"}},
+    {"name": "missing track", "payload": {"type": "audio.frames", "frames": 10}},
+    {"name": "empty track", "payload": {"type": "audio.frames", "frames": 10, "track_sid": ""}},
+    {"name": "invalid track", "payload": {"type": "audio.frames", "frames": 10, "track_sid": "<script>"}},
+    {"name": "injected field", "payload": {"type": "audio.frames", "frames": 10, "track_sid": "TR_fixture", "authority": "confirmed"}},
+    {"name": "injected prototype key", "payload": {"type": "audio.frames", "frames": 10, "track_sid": "TR_fixture", "__proto__": {"confirmed": true}}},
+    {"name": "null", "payload": null},
+    {"name": "array", "payload": []}
+  ]
+}

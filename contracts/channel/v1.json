@@ -1,0 +1,870 @@
+{
+  "schemaVersion": 1,
+  "producerInput": {
+    "eventId": "event-demo",
+    "providerScope": {
+      "tenantId": "tenant-demo",
+      "provider": "fake_sms",
+      "providerAccountId": "provider-demo"
+    },
+    "accountScope": {
+      "tenantId": "tenant-demo",
+      "accountId": "account-demo"
+    },
+    "conversationId": "conversation-demo",
+    "caseId": "case-demo",
+    "receivedAt": "2030-12-01T10:00:00.000Z",
+    "occurredAt": "2030-12-01T09:59:59.000Z",
+    "causationId": "cause-demo",
+    "channel": "sms",
+    "messageId": "message-demo",
+    "senderId": "sender-demo",
+    "body": "Please check Caf\u00e9 \ud83e\udded\n\t\"quote\"\\trail\u007f",
+    "expectedCaseRevision": 9007199254740991,
+    "replyToResponseId": "response-demo"
+  },
+  "valid": [
+    {
+      "name": "text.received",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "event": {
+        "schemaVersion": 1,
+        "type": "text.received",
+        "eventId": "event-demo",
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        },
+        "conversationId": "conversation-demo",
+        "caseId": "case-demo",
+        "receivedAt": "2030-12-01T10:00:00.000Z",
+        "occurredAt": "2030-12-01T09:59:59.000Z",
+        "causationId": "cause-demo",
+        "channel": "sms",
+        "messageId": "message-demo",
+        "senderId": "sender-demo",
+        "body": "Please check Caf\u00e9 \ud83e\udded\n\t\"quote\"\\trail\u007f",
+        "expectedCaseRevision": 9007199254740991,
+        "replyToResponseId": "response-demo"
+      },
+      "canonical": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "identity": "[\"tenant-demo\",\"fake_sms\",\"provider-demo\",\"event-demo\"]"
+    },
+    {
+      "name": "response.generated",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "event": {
+        "schemaVersion": 1,
+        "type": "response.generated",
+        "eventId": "event-demo",
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        },
+        "conversationId": "conversation-demo",
+        "caseId": "case-demo",
+        "receivedAt": "2030-12-01T10:00:00.000Z",
+        "occurredAt": "2030-12-01T09:59:59.000Z",
+        "causationId": "cause-demo",
+        "responseId": "response-demo",
+        "body": "Information only"
+      },
+      "canonical": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Information only\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"responseId\":\"response-demo\",\"schemaVersion\":1,\"type\":\"response.generated\"}",
+      "identity": "[\"tenant-demo\",\"fake_sms\",\"provider-demo\",\"event-demo\"]"
+    },
+    {
+      "name": "playback.reported",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "event": {
+        "schemaVersion": 1,
+        "type": "playback.reported",
+        "eventId": "event-demo",
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        },
+        "conversationId": "conversation-demo",
+        "caseId": "case-demo",
+        "receivedAt": "2030-12-01T10:00:00.000Z",
+        "occurredAt": "2030-12-01T09:59:59.000Z",
+        "causationId": "cause-demo",
+        "responseId": "response-demo",
+        "source": "browser_client",
+        "state": "partial",
+        "playedText": "Information"
+      },
+      "canonical": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"playedText\":\"Information\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"responseId\":\"response-demo\",\"schemaVersion\":1,\"source\":\"browser_client\",\"state\":\"partial\",\"type\":\"playback.reported\"}",
+      "identity": "[\"tenant-demo\",\"fake_sms\",\"provider-demo\",\"event-demo\"]"
+    },
+    {
+      "name": "delivery.reported",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "event": {
+        "schemaVersion": 1,
+        "type": "delivery.reported",
+        "eventId": "event-demo",
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        },
+        "conversationId": "conversation-demo",
+        "caseId": "case-demo",
+        "receivedAt": "2030-12-01T10:00:00.000Z",
+        "occurredAt": "2030-12-01T09:59:59.000Z",
+        "causationId": "cause-demo",
+        "messageId": "message-demo",
+        "state": "unknown"
+      },
+      "canonical": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"schemaVersion\":1,\"state\":\"unknown\",\"type\":\"delivery.reported\"}",
+      "identity": "[\"tenant-demo\",\"fake_sms\",\"provider-demo\",\"event-demo\"]"
+    },
+    {
+      "name": "user.acknowledged",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "event": {
+        "schemaVersion": 1,
+        "type": "user.acknowledged",
+        "eventId": "event-demo",
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        },
+        "conversationId": "conversation-demo",
+        "caseId": "case-demo",
+        "receivedAt": "2030-12-01T10:00:00.000Z",
+        "occurredAt": "2030-12-01T09:59:59.000Z",
+        "causationId": "cause-demo",
+        "responseId": "response-demo",
+        "messageId": "message-demo"
+      },
+      "canonical": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"responseId\":\"response-demo\",\"schemaVersion\":1,\"type\":\"user.acknowledged\"}",
+      "identity": "[\"tenant-demo\",\"fake_sms\",\"provider-demo\",\"event-demo\"]"
+    },
+    {
+      "name": "all-ascii-control-escapes",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "event": {
+        "schemaVersion": 1,
+        "type": "text.received",
+        "eventId": "event-demo",
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        },
+        "conversationId": "conversation-demo",
+        "caseId": "case-demo",
+        "receivedAt": "2030-12-01T10:00:00.000Z",
+        "occurredAt": "2030-12-01T09:59:59.000Z",
+        "causationId": "cause-demo",
+        "channel": "sms",
+        "messageId": "message-demo",
+        "senderId": "sender-demo",
+        "body": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007f\u00e9\ud83e\udded",
+        "expectedCaseRevision": 9007199254740991,
+        "replyToResponseId": "response-demo"
+      },
+      "canonical": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"\\u0000\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007\\b\\t\\n\\u000b\\f\\r\\u000e\\u000f\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017\\u0018\\u0019\\u001a\\u001b\\u001c\\u001d\\u001e\\u001f !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\\u007f\\u00e9\\ud83e\\udded\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "identity": "[\"tenant-demo\",\"fake_sms\",\"provider-demo\",\"event-demo\"]"
+    }
+  ],
+  "invalid": [
+    {
+      "name": "future-version",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":2,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "UnsupportedEventVersion"
+    },
+    {
+      "name": "boolean-version",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":true,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "unknown-variant",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"tool.execute\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "extra-field",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"secret\":\"SENTINEL_DO_NOT_ECHO\",\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "missing-body",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "boolean-revision",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":true,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "negative-revision",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":-1,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "unsafe-revision",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740992,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "bad-channel",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"unknown\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "null-account",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":null,\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "wrong-provider",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"other-provider\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "AccessDenied"
+    },
+    {
+      "name": "wrong-account",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"other-account\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "AccessDenied"
+    },
+    {
+      "name": "missing-association",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "AssociationRequired"
+    },
+    {
+      "name": "nested-extra",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"authority\":\"admin\",\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "invalid-calendar-date",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-02-30T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "timestamp-offset",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00+00:00\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "empty-event-id",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "oversize-id",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "body-is-number",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":23,\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "lone-surrogate",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"\\ud800\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "event-id-lf",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\\n\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "provider-id-lf",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\\n\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "event-id-cr",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\\r\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "provider-id-cr",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\\r\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "event-id-line-separator",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\\u2028\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "provider-id-line-separator",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\\u2028\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "event-id-paragraph-separator",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\\u2029\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "provider-id-paragraph-separator",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\\u2029\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "duplicate-event-key",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"eventId\":\"other\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "escaped-duplicate-event-key",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"event\\u0049d\":\"other\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "nested-duplicate-key",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "float-version",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1.0,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "exponent-version",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1e0,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "negative-zero-version",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":-0,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "trailing-data",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\"} null",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "trailing-comma",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":1,\"senderId\":\"sender-demo\",\"type\":\"text.received\",}",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "array-root",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "[]",
+      "code": "InvalidEvent"
+    },
+    {
+      "name": "nonfinite",
+      "principal": {
+        "providerScope": {
+          "tenantId": "tenant-demo",
+          "provider": "fake_sms",
+          "providerAccountId": "provider-demo"
+        },
+        "accountScope": {
+          "tenantId": "tenant-demo",
+          "accountId": "account-demo"
+        }
+      },
+      "raw": "{\"accountScope\":{\"accountId\":\"account-demo\",\"tenantId\":\"tenant-demo\"},\"body\":\"Please check Caf\\u00e9 \\ud83e\\udded\\n\\t\\\"quote\\\"\\\\trail\\u007f\",\"caseId\":\"case-demo\",\"causationId\":\"cause-demo\",\"channel\":\"sms\",\"conversationId\":\"conversation-demo\",\"eventId\":\"event-demo\",\"expectedCaseRevision\":9007199254740991,\"messageId\":\"message-demo\",\"occurredAt\":\"2030-12-01T09:59:59.000Z\",\"providerScope\":{\"provider\":\"fake_sms\",\"providerAccountId\":\"provider-demo\",\"tenantId\":\"tenant-demo\"},\"receivedAt\":\"2030-12-01T10:00:00.000Z\",\"replyToResponseId\":\"response-demo\",\"schemaVersion\":NaN,\"senderId\":\"sender-demo\",\"type\":\"text.received\"}",
+      "code": "InvalidEvent"
+    }
+  ]
+}

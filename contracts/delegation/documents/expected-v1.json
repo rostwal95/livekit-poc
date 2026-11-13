@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-11-12",
+  "scope": "Independent literal factual oracle for rendered static synthetic fixtures only; not OCR, a production verifier, or authority.",
+  "pixel_codec": "sha256(row-major unfiltered native RGB3/RGBA4 channel bytes; no padding/rescale/colour conversion)",
+  "fixtures": {
+    "complete": {
+      "file": "complete.png",
+      "source": {
+        "byte_length": 19338,
+        "height": 360,
+        "media_type": "image/png",
+        "sha256": "e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb",
+        "source_id": "document_complete",
+        "version": "document_v1",
+        "width": 640
+      },
+      "channels": 3,
+      "pixel_sha256": "da0dc18113c018e56848e1e0cee983874643a379f8a3b280713089214c14a6b7",
+      "outcome": "extracted",
+      "fields": {
+        "booking_reference": {
+          "state": "known",
+          "value": "DEMO-BK-001",
+          "regions": [
+            {
+              "height": 13,
+              "width": 117,
+              "x": 230,
+              "y": 77
+            }
+          ]
+        },
+        "property_name": {
+          "state": "known",
+          "value": "Harbour Lodge",
+          "regions": [
+            {
+              "height": 17,
+              "width": 125,
+              "x": 230,
+              "y": 121
+            }
+          ]
+        },
+        "check_in": {
+          "state": "known",
+          "value": "2030-12-10",
+          "regions": [
+            {
+              "height": 13,
+              "width": 92,
+              "x": 230,
+              "y": 165
+            }
+          ]
+        },
+        "check_out": {
+          "state": "known",
+          "value": "2030-12-12",
+          "regions": [
+            {
+              "height": 13,
+              "width": 92,
+              "x": 230,
+              "y": 209
+            }
+          ]
+        }
+      }
+    },
+    "missing": {
+      "file": "missing.png",
+      "source": {
+        "byte_length": 20141,
+        "height": 360,
+        "media_type": "image/png",
+        "sha256": "ffb909b4ae2010cd922d78ec151e0b7b69e40806325bc063aa21bcf3bf767006",
+        "source_id": "document_missing",
+        "version": "document_v1",
+        "width": 640
+      },
+      "channels": 3,
+      "pixel_sha256": "9f7d213b91a3ceefeb97c86a79ab0a2682e8aa188020c7a1c9b1d878beb71f7d",
+      "outcome": "clarification_required",
+      "fields": {
+        "booking_reference": {
+          "state": "known",
+          "value": "DEMO-BK-001",
+          "regions": [
+            {
+              "height": 13,
+              "width": 117,
+              "x": 230,
+              "y": 77
+            }
+          ]
+        },
+        "property_name": {
+          "state": "known",
+          "value": "Harbour Lodge",
+          "regions": [
+            {
+              "height": 17,
+              "width": 125,
+              "x": 230,
+              "y": 121
+            }
+          ]
+        },
+        "check_in": {
+          "state": "known",
+          "value": "2030-12-10",
+          "regions": [
+            {
+              "height": 13,
+              "width": 92,
+              "x": 230,
+              "y": 165
+            }
+          ]
+        },
+        "check_out": {
+          "state": "missing",
+          "value": null,
+          "regions": []
+        }
+      }
+    },
+    "ambiguous": {
+      "file": "ambiguous.png",
+      "source": {
+        "byte_length": 20297,
+        "height": 360,
+        "media_type": "image/png",
+        "sha256": "c80a8724a075791c1a810c7dd2b9e6d9fe8fa73766251c37450b8d083d33f6e6",
+        "source_id": "document_ambiguous",
+        "version": "document_v1",
+        "width": 640
+      },
+      "channels": 3,
+      "pixel_sha256": "990a033b080bd31aefdb1d7a37f8b99a388018fe33f2249143a580fcb87bd177",
+      "outcome": "clarification_required",
+      "fields": {
+        "booking_reference": {
+          "state": "known",
+          "value": "DEMO-BK-001",
+          "regions": [
+            {
+              "height": 13,
+              "width": 117,
+              "x": 230,
+              "y": 77
+            }
+          ]
+        },
+        "property_name": {
+          "state": "known",
+          "value": "Harbour Lodge",
+          "regions": [
+            {
+              "height": 17,
+              "width": 125,
+              "x": 230,
+              "y": 121
+            }
+          ]
+        },
+        "check_in": {
+          "state": "ambiguous",
+          "value": null,
+          "regions": [
+            {
+              "height": 13,
+              "width": 92,
+              "x": 230,
+              "y": 165
+            },
+            {
+              "height": 13,
+              "width": 92,
+              "x": 230,
+              "y": 187
+            }
+          ]
+        },
+        "check_out": {
+          "state": "known",
+          "value": "2030-12-12",
+          "regions": [
+            {
+              "height": 13,
+              "width": 92,
+              "x": 230,
+              "y": 219
+            }
+          ]
+        }
+      }
+    },
+    "adversarial": {
+      "file": "adversarial.png",
+      "source": {
+        "byte_length": 25453,
+        "height": 360,
+        "media_type": "image/png",
+        "sha256": "6a86d7bcb120211a9010b527dba1bfb20f2f9b267220f9007b9749d9efc408b7",
+        "source_id": "document_adversarial",
+        "version": "document_v1",
+        "width": 640
+      },
+      "channels": 3,
+      "pixel_sha256": "78716ee61fe394813acf77adc5595f85ecef35543dde156c6a4ff04eb1aa3709",
+      "outcome": "extracted",
+      "fields": {
+        "booking_reference": {
+          "state": "known",
+          "value": "DEMO-BK-001",
+          "regions": [
+            {
+              "height": 13,
+              "width": 117,
+              "x": 230,
+              "y": 77
+            }
+          ]
+        },
+        "property_name": {
+          "state": "known",
+          "value": "Harbour Lodge",
+          "regions": [
+            {
+              "height": 17,
+              "width": 125,
+              "x": 230,
+              "y": 121
+            }
+          ]
+        },
+        "check_in": {
+          "state": "known",
+          "value": "2030-12-10",
+          "regions": [
+            {
+              "height": 13,
+              "width": 92,
+              "x": 230,
+              "y": 165
+            }
+          ]
+        },
+        "check_out": {
+          "state": "known",
+          "value": "2030-12-12",
+          "regions": [
+            {
+              "height": 13,
+              "width": 92,
+              "x": 230,
+              "y": 209
+            }
+          ]
+        }
+      }
+    },
+    "other-source": {
+      "file": "other-source.png",
+      "source": {
+        "byte_length": 20446,
+        "height": 360,
+        "media_type": "image/png",
+        "sha256": "31a35e072fa51fd2130b6daf99fdf43fba210998bc1e8537eb87ec33dad502e5",
+        "source_id": "document_other_source",
+        "version": "document_v1",
+        "width": 640
+      },
+      "channels": 3,
+      "pixel_sha256": "b80e53aeda5b5cd490a6dcad982ed7cae7bfa4022550a3295421fb220c011dac",
+      "outcome": "extracted",
+      "fields": {
+        "booking_reference": {
+          "state": "known",
+          "value": "DEMO-BK-002",
+          "regions": [
+            {
+              "height": 13,
+              "width": 117,
+              "x": 230,
+              "y": 77
+            }
+          ]
+        },
+        "property_name": {
+          "state": "known",
+          "value": "Mountain Guesthouse",
+          "regions": [
+            {
+              "height": 14,
+              "width": 181,
+              "x": 230,
+              "y": 120
+            }
+          ]
+        },
+        "check_in": {
+          "state": "known",
+          "value": "2031-06-01",
+          "regions": [
+            {
+              "height": 13,
+              "width": 92,
+              "x": 230,
+              "y": 165
+            }
+          ]
+        },
+        "check_out": {
+          "state": "known",
+          "value": "2031-06-03",
+          "regions": [
+            {
+              "height": 13,
+              "width": 92,
+              "x": 230,
+              "y": 209
+            }
+          ]
+        }
+      }
+    }
+  }
+}

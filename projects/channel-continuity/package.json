@@ -1,0 +1,130 @@
+{
+  "name": "@livekit-ecosystem/channel-continuity",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist",
+    "STARTER.md",
+    "starter/bounded-v1.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./security": {
+      "types": "./dist/security.d.ts",
+      "import": "./dist/security.js"
+    },
+    "./postgres": {
+      "types": "./dist/postgres.d.ts",
+      "import": "./dist/postgres.js"
+    },
+    "./migrations": {
+      "types": "./dist/migrations.d.ts",
+      "import": "./dist/migrations.js"
+    },
+    "./standalone": {
+      "types": "./dist/standalone.d.ts",
+      "import": "./dist/standalone.js"
+    },
+    "./dispatch": {
+      "types": "./dist/dispatch.d.ts",
+      "import": "./dist/dispatch.js"
+    },
+    "./gateway": {
+      "types": "./dist/gateway.d.ts",
+      "import": "./dist/gateway.js"
+    },
+    "./agent-process": {
+      "types": "./dist/agent-process.d.ts",
+      "import": "./dist/agent-process.js"
+    },
+    "./routing": {
+      "types": "./dist/routing.d.ts",
+      "import": "./dist/routing.js"
+    },
+    "./reference-case": {
+      "types": "./dist/reference-case.d.ts",
+      "import": "./dist/reference-case.js"
+    },
+    "./confirmation": {
+      "types": "./dist/confirmation.d.ts",
+      "import": "./dist/confirmation.js"
+    },
+    "./prompt-registry": {
+      "types": "./dist/prompt-registry.d.ts",
+      "import": "./dist/prompt-registry.js"
+    },
+    "./outbox": {
+      "types": "./dist/outbox.d.ts",
+      "import": "./dist/outbox.js"
+    },
+    "./fake-sms-send": {
+      "types": "./dist/fake-sms-send.d.ts",
+      "import": "./dist/fake-sms-send.js"
+    },
+    "./callbacks": {
+      "types": "./dist/callbacks.d.ts",
+      "import": "./dist/callbacks.js"
+    },
+    "./idempotent-fake-sms": {
+      "types": "./dist/idempotent-fake-sms.d.ts",
+      "import": "./dist/idempotent-fake-sms.js"
+    },
+    "./native": {
+      "types": "./dist/native.d.ts",
+      "import": "./dist/native.js"
+    },
+    "./communication": {
+      "types": "./dist/communication.d.ts",
+      "import": "./dist/communication.js"
+    },
+    "./rehydration": {
+      "types": "./dist/rehydration.d.ts",
+      "import": "./dist/rehydration.js"
+    },
+    "./operations": {
+      "types": "./dist/operations.d.ts",
+      "import": "./dist/operations.js"
+    },
+    "./operations-types": {
+      "types": "./dist/operations-types.d.ts",
+      "import": "./dist/operations-types.js"
+    },
+    "./starter": {
+      "types": "./dist/examples/standalone/application.d.ts",
+      "import": "./dist/examples/standalone/application.js"
+    },
+    "./result-receiver": {
+      "types": "./dist/result-receiver.d.ts",
+      "import": "./dist/result-receiver.js"
+    },
+    "./result-receiver-types": {
+      "types": "./dist/result-receiver-types.d.ts",
+      "import": "./dist/result-receiver-types.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit --project tsconfig.json && tsc --noEmit --project tsconfig.test.json && tsc --noEmit --project tsconfig.examples.json",
+    "test": "vitest run",
+    "build": "tsc --project tsconfig.json && tsc --project tsconfig.examples.json && tsc --project tsconfig.starter.json",
+    "demo": "pnpm build && node dist/examples/fake-carrier.js"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "typescript": "7.0.2",
+    "vitest": "5.1.0",
+    "@types/pg": "8.23.1"
+  },
+  "dependencies": {
+    "pg": "8.23.1"
+  },
+  "engines": {
+    "node": "^24.22.2 || >=26.13.0 <27"
+  },
+  "bin": {
+    "p2-channel-starter": "dist/examples/standalone-channel.js"
+  }
+}

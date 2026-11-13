@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools==84.2.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "delegation-reliability"
+version = "0.1.0"
+description = "Typed delegation acceptance, bounded specialist clients and native LiveKit baseline"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = ["livekit-agents==1.8.11", "agent-continuity[postgres]==0.1.0", "psycopg[binary]==3.3.8"]
+
+[project.scripts]
+delegation-native-baseline = "delegation_reliability.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["delegation_reliability*"]
+
+[tool.setuptools.package-data]
+delegation_reliability = ["py.typed"]

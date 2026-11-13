@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools==84.2.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "channel-continuity"
+version = "0.1.0"
+description = "Strict versioned channel event codec for the LiveKit continuity adapter"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = []
+
+[project.optional-dependencies]
+native = ["livekit-agents==1.8.11"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["channel_continuity*"]
+
+[tool.setuptools.package-data]
+channel_continuity = ["py.typed"]

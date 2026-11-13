@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "workload_id": "p1-reliability-v1",
+  "base_manifest_sha256": "442c9a05f40532a006f09fd4336092f76e2f72e531a178b7852e4859506f7aaf",
+  "seed": 20261110,
+  "overall_deadline_seconds": 600,
+  "maximum_samples": 4096,
+  "cases": [
+    {
+      "kind": "restart",
+      "workers": 1,
+      "accepted": 8,
+      "rejected": 24,
+      "deadline_seconds": 180,
+      "control_deadline_ms": 1500,
+      "supplier_delay_ms": 0,
+      "maximum_hold_ms": 4500,
+      "stop_seconds": 10
+    },
+    {
+      "kind": "restart",
+      "workers": 2,
+      "accepted": 8,
+      "rejected": 24,
+      "deadline_seconds": 180,
+      "control_deadline_ms": 1500,
+      "supplier_delay_ms": 0,
+      "maximum_hold_ms": 4500,
+      "stop_seconds": 10
+    },
+    {
+      "kind": "slow-shutdown",
+      "workers": 1,
+      "accepted": 8,
+      "rejected": 24,
+      "deadline_seconds": 180,
+      "control_deadline_ms": 1500,
+      "supplier_delay_ms": 1000,
+      "maximum_hold_ms": 4500,
+      "stop_seconds": 10
+    },
+    {
+      "kind": "slow-shutdown",
+      "workers": 2,
+      "accepted": 8,
+      "rejected": 24,
+      "deadline_seconds": 180,
+      "control_deadline_ms": 1500,
+      "supplier_delay_ms": 1000,
+      "maximum_hold_ms": 4500,
+      "stop_seconds": 10
+    }
+  ]
+}

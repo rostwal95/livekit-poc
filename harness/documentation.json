@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "include": [
+    "AGENTS.md",
+    "Design.md",
+    "README.md",
+    "harness/*.md",
+    "docs/*.md",
+    "docs/projects/*.md",
+    "docs/work-items/*.md",
+    "projects/*/*.md",
+    "local-setup/*.md",
+    "services/*/*.md",
+    "apps/*/*.md",
+    "CONTRIBUTING.md",
+    "docs/decisions/*.md",
+    "contracts/*.md",
+    "docs/implementation/*.md",
+    "projects/agent-continuity/python/README.md",
+    "projects/channel-continuity/python/README.md",
+    "projects/delegation-reliability/python/README.md",
+    "projects/delegation-reliability/specialist-ts/README.md"
+  ],
+  "requiredDocuments": [
+    "AGENTS.md",
+    "Design.md",
+    "README.md",
+    "harness/AGENTS.md",
+    "harness/Design.md",
+    "harness/README.md",
+    "docs/portfolio-scope.md",
+    "docs/validation-plan.md",
+    "docs/technology-baseline.md",
+    "docs/harness-architecture.md",
+    "docs/documentation-standards.md",
+    "docs/documentation-audit.md",
+    "docs/build-plan.md",
+    "docs/work-items/0002-documentation-audit.md",
+    "projects/agent-continuity/AGENTS.md",
+    "projects/agent-continuity/Design.md",
+    "projects/agent-continuity/README.md",
+    "projects/channel-continuity/AGENTS.md",
+    "projects/channel-continuity/Design.md",
+    "projects/channel-continuity/README.md",
+    "projects/delegation-reliability/AGENTS.md",
+    "projects/delegation-reliability/Design.md",
+    "projects/delegation-reliability/README.md",
+    "local-setup/AGENTS.md",
+    "local-setup/Design.md",
+    "local-setup/README.md",
+    "services/control_api/AGENTS.md",
+    "services/control_api/Design.md",
+    "services/control_api/README.md",
+    "services/rtc_agent/AGENTS.md",
+    "services/rtc_agent/Design.md",
+    "services/rtc_agent/README.md",
+    "apps/local-console/AGENTS.md",
+    "apps/local-console/Design.md",
+    "apps/local-console/README.md",
+    "CONTRIBUTING.md",
+    "docs/work-items/0003-local-project-foundation.md",
+    "contracts/AGENTS.md",
+    "contracts/Design.md",
+    "contracts/README.md",
+    "docs/implementation-plan.md",
+    "docs/implementation/p1-agent-continuity.md",
+    "docs/implementation/p2-channel-continuity.md",
+    "docs/implementation/p3-delegation-reliability.md",
+    "docs/work-items/0005-granular-implementation-plan.md",
+    "docs/design-template.md",
+    "docs/python-engineering.md",
+    "docs/work-items/0006-design-and-engineering-gates.md",
+    "docs/decisions/0002-sqlite-inquiry-subset.md",
+    "docs/work-items/0007-p1-phase-a-execution-foundation.md",
+    "docs/work-items/0008-p1-phase-b-inquiry-recovery.md",
+    "docs/decisions/0003-postgres-cutover-and-scope.md",
+    "docs/work-items/0009-p1-phase-c-postgres-cutover.md",
+    "docs/decisions/0004-case-authority-and-continuation.md",
+    "docs/work-items/0010-p1-phase-d-authority-and-waits.md",
+    "docs/case-and-continuation.md",
+    "docs/decisions/0005-effects-cancellation-and-outbox.md",
+    "docs/work-items/0011-p1-phase-e-effects-and-completion.md",
+    "docs/effects-and-completion.md",
+    "docs/decisions/0006-database-leases-and-bounded-worker.md",
+    "docs/leases-and-workers.md",
+    "docs/work-items/0012-p1-phase-f-leases-and-deployment.md",
+    "docs/work-items/0013-p1-phase-g-conversation-and-showcase.md",
+    "docs/conversation-and-showcase.md",
+    "services/conversation_agent/AGENTS.md",
+    "services/conversation_agent/Design.md",
+    "services/conversation_agent/README.md",
+    "docs/decisions/0007-native-conversation-and-local-media.md",
+    "docs/work-items/0014-p1-phase-h-workload-baseline.md",
+    "docs/work-items/0015-p1-reliability-workloads.md",
+    "projects/agent-continuity/python/README.md",
+    "docs/work-items/0016-p1-standalone-package.md",
+    "docs/work-items/0017-p1-local-real-inference.md",
+    "docs/work-items/0018-p1-provider-demo.md",
+    "docs/provider-demo.md",
+    "docs/work-items/0019-p1-phase-h-release-qualification.md",
+    "docs/work-items/0020-architecture-audit-reconciliation.md",
+    "docs/work-items/0021-p1-operational-safety-extensions.md",
+    "projects/channel-continuity/python/README.md",
+    "projects/delegation-reliability/python/README.md",
+    "docs/work-items/0022-p2-channel-contracts.md",
+    "docs/work-items/0023-p3-native-baseline.md",
+    "docs/work-items/0024-p2-verified-durable-intake.md",
+    "docs/work-items/0025-p3-specialist-contracts-and-trust.md",
+    "docs/work-items/0026-p2-postgres-inbox.md",
+    "projects/delegation-reliability/specialist-ts/README.md",
+    "docs/work-items/0027-p2-standalone-and-p3-http.md",
+    "docs/work-items/0028-p2-dispatch-and-p3-coordinator.md",
+    "docs/work-items/0029-p2-gateway-and-p3-issued-execution.md",
+    "docs/work-items/0030-p2-agent-recovery-and-p3-completion.md",
+    "docs/work-items/0031-revision-routing-and-delegation-acceptance.md",
+    "docs/work-items/0032-linked-confirmation-and-result-projections.md",
+    "docs/work-items/0033-outbound-replies-and-completion-processing.md",
+    "docs/work-items/0034-callback-evidence-and-applicability-refresh.md",
+    "docs/work-items/0035-send-policy-and-action-races.md",
+    "docs/work-items/0036-native-input-and-deadline-cancellation.md",
+    "docs/work-items/0037-playback-evidence-and-process-recovery.md",
+    "docs/work-items/0038-case-rehydration-and-standalone-release.md",
+    "projects/channel-continuity/REHYDRATION.md",
+    "docs/work-items/0039-bounded-channel-workloads-and-image-evidence.md",
+    "projects/channel-continuity/WORKLOAD.md",
+    "docs/work-items/0040-operations-ui-and-fixed-policy-evidence.md",
+    "projects/channel-continuity/OPERATIONS.md",
+    "docs/work-items/0041-standalone-channel-and-durable-policy.md",
+    "projects/channel-continuity/STARTER.md",
+    "docs/work-items/0042-responsive-native-policy-and-compact-demo.md",
+    "docs/work-items/0043-stable-result-delivery-and-return-context.md"
+  ],
+  "statuses": [
+    "Active",
+    "Planned",
+    "Completed",
+    "Template"
+  ],
+  "roles": [
+    {
+      "name": "readme",
+      "patterns": [
+        "README.md",
+        "harness/README.md",
+        "projects/*/README.md",
+        "local-setup/README.md",
+        "services/*/README.md",
+        "apps/*/README.md",
+        "contracts/README.md",
+        "projects/agent-continuity/python/README.md",
+        "projects/channel-continuity/python/README.md",
+        "projects/delegation-reliability/python/README.md",
+        "projects/delegation-reliability/specialist-ts/README.md"
+      ],
+      "requiredHeadings": [
+        "Overview",
+        "Implementation status",
+        "Documentation",
+        "Requirements",
+        "Commands",
+        "Validation",
+        "Next milestone"
+      ]
+    },
+    {
+      "name": "instructions",
+      "patterns": [
+        "AGENTS.md",
+        "harness/AGENTS.md",
+        "projects/*/AGENTS.md",
+        "local-setup/AGENTS.md",
+        "services/*/AGENTS.md",
+        "apps/*/AGENTS.md",
+        "contracts/AGENTS.md"
+      ],
+      "requiredHeadings": [
+        "Read first",
+        "Owned paths",
+        "Development rules",
+        "Verification",
+        "Handoff"
+      ]
+    },
+    {
+      "name": "design",
+      "patterns": [
+        "Design.md",
+        "harness/Design.md",
+        "projects/*/Design.md",
+        "local-setup/Design.md",
+        "services/*/Design.md",
+        "apps/*/Design.md",
+        "contracts/Design.md",
+        "docs/design-template.md"
+      ],
+      "requiredHeadings": [
+        "Overview",
+        "Objectives",
+        "Functional requirements",
+        "Non-functional requirements",
+        "Back-of-the-envelope calculations",
+        "High-level design",
+        "Sequence diagram",
+        "Low-level design",
+        "Components and related details",
+        "Security and privacy",
+        "Observability",
+        "Metrics",
+        "Exception handling",
+        "Design considerations and trade-offs",
+        "Validation and acceptance gates"
+      ],
+      "orderedHeadings": true,
+      "requiredTables": [
+        "Objectives",
+        "Functional requirements",
+        "Non-functional requirements"
+      ],
+      "requiredDiagrams": {
+        "High-level design": [
+          "flowchart",
+          "graph"
+        ],
+        "Sequence diagram": [
+          "sequenceDiagram"
+        ],
+        "Low-level design": [
+          "classDiagram",
+          "stateDiagram-v2"
+        ]
+      }
+    }
+  ],
+  "forbiddenTerms": [
+    "Cisco"
+  ],
+  "forbiddenPatterns": [
+    {
+      "id": "private_repository_host",
+      "pattern": "(?i)(?:sqbu-github\\.[^\\s/)]+|CCBU-CCOne)"
+    },
+    {
+      "id": "hashed_source_url",
+      "pattern": "(?i)https?://(?:www\\.)?github\\.com/[^/\\s]+/[^/\\s]+/(?:blob|tree)/[0-9a-f]{40}(?:/|\\b)"
+    },
+    {
+      "id": "explicit_source_identifier",
+      "pattern": "(?i)\\b(?:commit(?:\\s+(?:id|hash))?|revision)\\s*[:=@]?\\s*[`\"']?[0-9a-f]{7,40}\\b"
+    }
+  ]
+}

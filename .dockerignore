@@ -1,0 +1,17 @@
+.git
+.venv
+.local
+**/.local
+**/__pycache__
+**/node_modules
+**/dist
+local-setup/.env
+local-setup/.secrets.env
+local-setup/.generated
+*.sqlite3
+.DS_Store
+local-setup/.local
+**/.env
+**/.env.*
+**/dist-operations
+**/dist-p3-background

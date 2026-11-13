@@ -1,0 +1,23 @@
+{
+  "name": "@livekit-ecosystem/channel-policy-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^24.22.2 || >=26.13.0 <27"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit --project tsconfig.json && tsc --project tsconfig.test.json",
+    "test": "vitest run",
+    "build": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@livekit-ecosystem/channel-continuity": "workspace:*",
+    "@livekit-ecosystem/delegation-specialist": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "typescript": "7.0.2",
+    "vitest": "5.1.0"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "groups": ["docs", "boundary", "contract"],
+  "sourceSuffixes": [".py", ".ts", ".tsx", ".js", ".mjs"],
+  "ignoredDirectories": ["__pycache__", "node_modules", ".venv", "build", "dist"]
+}

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="color-scheme" content="dark" />
+    <title>Channel continuity · LiveKit lab</title>
+    <script type="module" crossorigin src="/assets/channel-policy-47fp-4C7.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/channel-policy-DJ90M4i5.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#cp-conversation">Skip to conversation</a>
+    <header class="cp-topbar">
+      <a href="/" aria-label="LiveKit continuity lab home"
+        ><img src="/vendor/livekit/lk-logo-dark.svg" alt="LiveKit" width="112" height="28" /></a
+      ><span>LOCAL / SCRIPTED</span>
+    </header>
+    <main class="cp-shell">
+      <div class="cp-intro">
+        <p class="eyebrow">ONE CASE. EVERY CONVERSATION.</p>
+        <h1>Pick up where you left off.</h1>
+        <p>Talk with the agent. Let the policy check continue in the background.</p>
+      </div>
+      <section class="cp-session" aria-label="Session">
+        <div>
+          <strong data-cp-state role="status" aria-live="polite">Not connected</strong
+          ><span data-cp-native>Recorded input · scripted</span>
+        </div>
+        <div class="cp-actions">
+          <button class="primary" data-cp-join type="button">Join session</button
+          ><button class="secondary" data-cp-end type="button" disabled>End</button
+          ><button class="cp-link" data-cp-forget type="button" disabled>Forget</button>
+        </div>
+      </section>
+      <p class="cp-notice" data-cp-notice role="status" aria-live="polite">
+        Enter the local browser access key to begin.
+      </p>
+      <details class="cp-setup" data-cp-setup>
+        <summary>Connection setup <span>Private browser access</span></summary>
+        <form data-cp-access-form>
+          <label for="cp-access">Local browser access key</label>
+          <div class="cp-row">
+            <input
+              id="cp-access"
+              data-cp-access
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+              aria-describedby="cp-access-help"
+            /><button class="secondary" type="submit">Use key</button>
+          </div>
+          <p id="cp-access-help">
+            Kept only in this page’s memory. End keeps access for messages and progress; Forget or
+            leaving the page clears it.
+          </p>
+        </form>
+      </details>
+      <div class="cp-workspace">
+        <section
+          class="cp-card cp-conversation"
+          id="cp-conversation"
+          aria-labelledby="cp-conversation-title"
+        >
+          <header class="cp-card-head">
+            <div>
+              <h2 id="cp-conversation-title">Conversation</h2>
+              <p data-cp-speech>Join to send text or a recorded voice turn.</p>
+            </div>
+            <button class="secondary" data-cp-enable-audio type="button" disabled>
+              Enable audio
+            </button>
+          </header>
+          <div
+            class="cp-transcript"
+            data-cp-transcript
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions text"
+          >
+            <div class="cp-empty" data-cp-empty>
+              <h3>Start with your question.</h3>
+              <p>Your accepted request keeps running after this session ends.</p>
+            </div>
+          </div>
+          <div class="cp-compose">
+            <div class="cp-input-modes" role="group" aria-label="Input mode">
+              <button class="cp-mode" data-cp-mode-text type="button" aria-pressed="true">
+                Text</button
+              ><button class="cp-mode" data-cp-mode-voice type="button" aria-pressed="false">
+                Recorded voice
+              </button>
+            </div>
+            <form data-cp-compose-form>
+              <label for="cp-message">Message</label>
+              <div class="cp-row">
+                <textarea
+                  id="cp-message"
+                  data-cp-message
+                  rows="2"
+                  maxlength="2048"
+                  placeholder="Ask about the current case…"
+                  disabled
+                ></textarea
+                ><button class="primary" data-cp-send type="submit" disabled>Send</button>
+              </div>
+              <div class="cp-compose-foot">
+                <span>Enter to send · Shift+Enter for a new line</span
+                ><button class="cp-link" data-cp-retry-text type="button" hidden>
+                  Retry original message
+                </button>
+              </div>
+            </form>
+            <div class="cp-voice" data-cp-voice hidden>
+              <p>
+                Plays a declared local recording into the real RTC track. No microphone access or
+                general speech recognition.
+              </p>
+              <div class="cp-actions">
+                <button class="primary" data-cp-prepare-voice type="button" disabled>
+                  Enable recorded voice</button
+                ><button class="secondary" data-cp-start-voice type="button" disabled>
+                  Start turn</button
+                ><button class="secondary" data-cp-commit-voice type="button" disabled>
+                  Commit turn
+                </button>
+              </div>
+            </div>
+            <div class="cp-interrupt">
+              <span data-cp-playback>No audio playback observed</span
+              ><button class="secondary" data-cp-interrupt type="button" disabled>
+                Interrupt reply
+              </button>
+            </div>
+          </div>
+        </section>
+        <aside data-cp-case class="cp-card cp-case" aria-labelledby="cp-case-title">
+          <header class="cp-card-head">
+            <div>
+              <h2 id="cp-case-title">Current case</h2>
+              <p>Policy and case are separate observations.</p>
+            </div>
+            <button class="secondary" data-cp-refresh type="button" disabled>Refresh</button>
+          </header>
+          <div class="cp-case-body">
+            <dl class="cp-case-facts">
+              <div>
+                <dt>Case revision</dt>
+                <dd data-cp-revision>Not observed</dd>
+              </div>
+              <div>
+                <dt>Case observed</dt>
+                <dd data-cp-case-time>—</dd>
+              </div>
+            </dl>
+            <div class="cp-policy" data-cp-policy>
+              <span class="cp-label">POLICY CHECK</span>
+              <h3 data-cp-policy-title>No result observed</h3>
+              <p data-cp-policy-detail>Join a session to ask the agent for a check.</p>
+              <p class="cp-asof">Result read <time data-cp-result-time>—</time></p>
+            </div>
+            <div class="cp-background">
+              <span class="cp-label">BACKGROUND OBSERVATION</span>
+              <p data-cp-progress>No input or work counts read yet.</p>
+              <time data-cp-progress-time></time>
+            </div>
+          </div>
+        </aside>
+      </div>
+      <section class="cp-dormant" data-cp-dormant hidden aria-labelledby="cp-dormant-title">
+        <div>
+          <p class="cp-label">BETWEEN SESSIONS</p>
+          <h2 id="cp-dormant-title">Continue by simulated SMS.</h2>
+          <p>
+            The fixed local sender routes to the same case. Sending does not change its revision.
+          </p>
+        </div>
+        <form data-cp-sms-form>
+          <label for="cp-sms-message">Simulated SMS</label>
+          <div class="cp-row">
+            <textarea
+              id="cp-sms-message"
+              data-cp-sms-message
+              rows="2"
+              maxlength="4096"
+              placeholder="Add a follow-up for the same case…"
+            ></textarea
+            ><button class="secondary" data-cp-sms type="submit">Send simulated SMS</button>
+          </div>
+          <p data-cp-sms-state role="status"></p>
+        </form>
+      </section>
+      <details class="cp-details">
+        <summary>
+          Recent evidence
+          <span>Source observations, not a progress animation</span>
+        </summary>
+        <p>
+          End closes this media activation; it does not cancel accepted work. SDK speech, actual
+          selected-track playback and durable input receipts are different observations. Result
+          reads are as-of, not an atomic snapshot. No response-specific playback receipt is produced
+          in this profile.
+        </p>
+        <pre data-cp-evidence aria-label="Bounded source observations"></pre>
+      </details>
+      <div data-cp-audio></div>
+    </main>
+  </body>
+</html>

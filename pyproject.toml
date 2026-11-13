@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools==84.2.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "livekit-agent-ecosystem"
+version = "0.1.0"
+description = "Local-first engineering foundation for reliable LiveKit agents"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = ["agent-continuity==0.1.0"]
+
+[project.optional-dependencies]
+channel-demo = ["channel-continuity[native]==0.1.0", "delegation-reliability==0.1.0", "aiohttp==3.14.5", "h11==0.16.0", "livekit-api==1.2.2"]
+local = [
+  "agent-continuity[postgres,telemetry]==0.1.0",
+  "aiohttp==3.14.5",
+  "fastapi==0.162.2",
+  "uvicorn==0.54.0",
+  "psycopg[binary]==3.3.8",
+  "pydantic==2.14.3",
+  "httpx==0.28.1",
+  "livekit-api==1.2.2",
+  "prometheus-client==0.26.0",
+  "opentelemetry-api==1.45.2",
+  "opentelemetry-sdk==1.45.2",
+  "opentelemetry-exporter-otlp-proto-http==1.45.2",
+]
+agent = ["livekit-agents==1.8.11"]
+inference = ["livekit-plugins-openai==1.8.11", "openai==3.46.0", "httpx2==2.16.0"]
+
+provider = ["livekit-plugins-deepgram==1.8.11", "livekit-plugins-elevenlabs==1.8.11"]
+
+[dependency-groups]
+dev = ["h11==0.16.0", "pytest==9.2.0", "httpx==0.28.1", "ruff==0.17.4", "mypy==2.4.1", "channel-continuity==0.1.0", "delegation-reliability==0.1.0"]
+
+[tool.setuptools.packages.find]
+include = ["services*"]
+exclude = ["services.channel-policy-gateway*"]
+
+[tool.ruff]
+src = [".", "projects/agent-continuity/python/src", "projects/channel-continuity/python/src", "projects/delegation-reliability/python/src"]
+target-version = "py311"
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.setuptools.package-data]
+"services.channel_policy_demo" = ["*.md", "py.typed"]
+"services.conversation_agent" = ["assets/*.wav", "assets/*.json"]
+
+[tool.uv.workspace]
+members = ["projects/agent-continuity/python", "projects/channel-continuity/python", "projects/delegation-reliability/python"]
+
+[tool.uv.sources]
+agent-continuity = { workspace = true }
+channel-continuity = { workspace = true }
+delegation-reliability = { workspace = true }

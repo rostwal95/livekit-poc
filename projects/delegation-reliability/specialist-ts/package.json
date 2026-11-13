@@ -1,0 +1,42 @@
+{
+  "name": "@livekit-ecosystem/delegation-specialist",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist",
+    "examples"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./http": {
+      "types": "./dist/http.d.ts",
+      "import": "./dist/http.js"
+    },
+    "./document": {
+      "types": "./dist/document.d.ts",
+      "import": "./dist/document.js"
+    },
+    "./fixed-policy": {
+      "types": "./dist/fixed-policy.d.ts",
+      "import": "./dist/fixed-policy.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit --project tsconfig.json && tsc --noEmit --project tsconfig.test.json",
+    "test": "vitest run",
+    "build": "tsc --project tsconfig.json",
+    "demo": "pnpm build && node examples/policy-http.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "typescript": "7.0.2",
+    "vitest": "5.1.0"
+  },
+  "engines": {
+    "node": "^24.22.2 || >=26.13.0 <27"
+  }
+}

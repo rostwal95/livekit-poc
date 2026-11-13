@@ -1,0 +1,9 @@
+packages:
+  - apps/local-console
+  - services/channel-policy-gateway
+  - projects/channel-continuity
+  - projects/delegation-reliability/specialist-ts
+
+minimumReleaseAge: 1440
+onlyBuiltDependencies:
+  - esbuild

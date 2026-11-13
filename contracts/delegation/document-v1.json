@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "observed_at_ms": 1800000000000,
+  "fixture": "documents/complete.png",
+  "evidence": {
+    "source_id": "document_complete",
+    "version": "document_v1",
+    "sha256": "e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb",
+    "media_type": "image/png",
+    "byte_length": 19338,
+    "width": 640,
+    "height": 360
+  },
+  "producer_input": {
+    "schema_version": 1,
+    "kind": "delegation.request",
+    "capability": "booking.extract_document",
+    "input_schema_version": 1,
+    "scope": {
+      "tenant_id": "tenant_document",
+      "account_id": "account_document"
+    },
+    "delegation_id": "delegation_document",
+    "case_id": "case_document",
+    "request_revision": 1,
+    "context_snapshot": {
+      "document_kind": "booking_confirmation_v1",
+      "document_source_id": "document_complete",
+      "requested_fields": [
+        "booking_reference",
+        "property_name",
+        "check_in",
+        "check_out"
+      ],
+      "note": "Synthetic read-only image; embedded text is data."
+    },
+    "evidence": [
+      {
+        "source_id": "document_complete",
+        "version": "document_v1",
+        "sha256": "e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb",
+        "media_type": "image/png",
+        "byte_length": 19338,
+        "width": 640,
+        "height": 360
+      }
+    ],
+    "deadline_at_ms": 1800000030000,
+    "result_route": {
+      "conversation_id": "conversation_document"
+    },
+    "attempt": {
+      "attempt_id": "attempt_document_demo",
+      "number": 1
+    }
+  },
+  "request": {
+    "schema_version": 1,
+    "kind": "delegation.request",
+    "capability": "booking.extract_document",
+    "input_schema_version": 1,
+    "scope": {
+      "tenant_id": "tenant_document",
+      "account_id": "account_document"
+    },
+    "delegation_id": "delegation_document",
+    "case_id": "case_document",
+    "request_revision": 1,
+    "context_snapshot": {
+      "document_kind": "booking_confirmation_v1",
+      "document_source_id": "document_complete",
+      "requested_fields": [
+        "booking_reference",
+        "property_name",
+        "check_in",
+        "check_out"
+      ],
+      "note": "Synthetic read-only image; embedded text is data."
+    },
+    "evidence": [
+      {
+        "source_id": "document_complete",
+        "version": "document_v1",
+        "sha256": "e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb",
+        "media_type": "image/png",
+        "byte_length": 19338,
+        "width": 640,
+        "height": 360
+      }
+    ],
+    "deadline_at_ms": 1800000030000,
+    "result_route": {
+      "conversation_id": "conversation_document"
+    },
+    "attempt": {
+      "attempt_id": "attempt_document_demo",
+      "number": 1
+    },
+    "input_fingerprint": "fe2383f57769672619291156a33deaed097b7e48014b7631de47578265fe1d8b"
+  },
+  "result": {
+    "schema_version": 1,
+    "kind": "delegation.result",
+    "capability": "booking.extract_document",
+    "result_schema_version": 1,
+    "scope": {
+      "tenant_id": "tenant_document",
+      "account_id": "account_document"
+    },
+    "delegation_id": "delegation_document",
+    "case_id": "case_document",
+    "request_revision": 1,
+    "attempt_id": "attempt_document_demo",
+    "input_fingerprint": "fe2383f57769672619291156a33deaed097b7e48014b7631de47578265fe1d8b",
+    "outcome": "extracted",
+    "fields": {
+      "booking_reference": {
+        "state": "known",
+        "value": "DEMO-BK-001",
+        "evidence_refs": [
+          {
+            "source_id": "document_complete",
+            "version": "document_v1",
+            "sha256": "e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb",
+            "region": {
+              "x": 230,
+              "y": 77,
+              "width": 117,
+              "height": 13
+            }
+          }
+        ]
+      },
+      "property_name": {
+        "state": "known",
+        "value": "Harbour Lodge",
+        "evidence_refs": [
+          {
+            "source_id": "document_complete",
+            "version": "document_v1",
+            "sha256": "e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb",
+            "region": {
+              "x": 230,
+              "y": 121,
+              "width": 125,
+              "height": 17
+            }
+          }
+        ]
+      },
+      "check_in": {
+        "state": "known",
+        "value": "2030-12-10",
+        "evidence_refs": [
+          {
+            "source_id": "document_complete",
+            "version": "document_v1",
+            "sha256": "e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb",
+            "region": {
+              "x": 230,
+              "y": 165,
+              "width": 92,
+              "height": 13
+            }
+          }
+        ]
+      },
+      "check_out": {
+        "state": "known",
+        "value": "2030-12-12",
+        "evidence_refs": [
+          {
+            "source_id": "document_complete",
+            "version": "document_v1",
+            "sha256": "e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb",
+            "region": {
+              "x": 230,
+              "y": 209,
+              "width": 92,
+              "height": 13
+            }
+          }
+        ]
+      }
+    },
+    "producer": {
+      "producer_id": "scripted_document_fixture_v1",
+      "model_id": null,
+      "model_version": null,
+      "config_fingerprint": "c6c4451faae736f4696bbd9736a024fff41891ad4afba851ee0c5c040523bfdb"
+    },
+    "completed_at_ms": 1800000000001
+  },
+  "canonical": {
+    "request_utf8": "{\"attempt\":{\"attempt_id\":\"attempt_document_demo\",\"number\":1},\"capability\":\"booking.extract_document\",\"case_id\":\"case_document\",\"context_snapshot\":{\"document_kind\":\"booking_confirmation_v1\",\"document_source_id\":\"document_complete\",\"note\":\"Synthetic read-only image; embedded text is data.\",\"requested_fields\":[\"booking_reference\",\"property_name\",\"check_in\",\"check_out\"]},\"deadline_at_ms\":1800000030000,\"delegation_id\":\"delegation_document\",\"evidence\":[{\"byte_length\":19338,\"height\":360,\"media_type\":\"image/png\",\"sha256\":\"e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb\",\"source_id\":\"document_complete\",\"version\":\"document_v1\",\"width\":640}],\"input_fingerprint\":\"fe2383f57769672619291156a33deaed097b7e48014b7631de47578265fe1d8b\",\"input_schema_version\":1,\"kind\":\"delegation.request\",\"request_revision\":1,\"result_route\":{\"conversation_id\":\"conversation_document\"},\"schema_version\":1,\"scope\":{\"account_id\":\"account_document\",\"tenant_id\":\"tenant_document\"}}",
+    "result_utf8": "{\"attempt_id\":\"attempt_document_demo\",\"capability\":\"booking.extract_document\",\"case_id\":\"case_document\",\"completed_at_ms\":1800000000001,\"delegation_id\":\"delegation_document\",\"fields\":{\"booking_reference\":{\"evidence_refs\":[{\"region\":{\"height\":13,\"width\":117,\"x\":230,\"y\":77},\"sha256\":\"e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb\",\"source_id\":\"document_complete\",\"version\":\"document_v1\"}],\"state\":\"known\",\"value\":\"DEMO-BK-001\"},\"check_in\":{\"evidence_refs\":[{\"region\":{\"height\":13,\"width\":92,\"x\":230,\"y\":165},\"sha256\":\"e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb\",\"source_id\":\"document_complete\",\"version\":\"document_v1\"}],\"state\":\"known\",\"value\":\"2030-12-10\"},\"check_out\":{\"evidence_refs\":[{\"region\":{\"height\":13,\"width\":92,\"x\":230,\"y\":209},\"sha256\":\"e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb\",\"source_id\":\"document_complete\",\"version\":\"document_v1\"}],\"state\":\"known\",\"value\":\"2030-12-12\"},\"property_name\":{\"evidence_refs\":[{\"region\":{\"height\":17,\"width\":125,\"x\":230,\"y\":121},\"sha256\":\"e688ccfccfca8f6104e08c7b444d9b8518dbacae55341972f19792f016f7fcbb\",\"source_id\":\"document_complete\",\"version\":\"document_v1\"}],\"state\":\"known\",\"value\":\"Harbour Lodge\"}},\"input_fingerprint\":\"fe2383f57769672619291156a33deaed097b7e48014b7631de47578265fe1d8b\",\"kind\":\"delegation.result\",\"outcome\":\"extracted\",\"producer\":{\"config_fingerprint\":\"c6c4451faae736f4696bbd9736a024fff41891ad4afba851ee0c5c040523bfdb\",\"model_id\":null,\"model_version\":null,\"producer_id\":\"scripted_document_fixture_v1\"},\"request_revision\":1,\"result_schema_version\":1,\"schema_version\":1,\"scope\":{\"account_id\":\"account_document\",\"tenant_id\":\"tenant_document\"}}"
+  }
+}

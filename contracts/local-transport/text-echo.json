@@ -1,0 +1,42 @@
+{
+  "prefix": "Echo: ",
+  "max_request_bytes": 16384,
+  "max_reply_bytes": 16390,
+  "boundary_cases": [
+    {
+      "name": "ASCII exact request limit",
+      "unit": "a",
+      "repeat": 16384,
+      "suffix": "",
+      "accepted": true
+    },
+    {
+      "name": "two-byte Unicode exact request limit",
+      "unit": "é",
+      "repeat": 8192,
+      "suffix": "",
+      "accepted": true
+    },
+    {
+      "name": "mixed Unicode exact request limit",
+      "unit": "😀",
+      "repeat": 4095,
+      "suffix": "éaa",
+      "accepted": true
+    },
+    {
+      "name": "one byte over request limit",
+      "unit": "é",
+      "repeat": 8192,
+      "suffix": "a",
+      "accepted": false
+    },
+    {
+      "name": "four-byte Unicode over request limit",
+      "unit": "😀",
+      "repeat": 4097,
+      "suffix": "",
+      "accepted": false
+    }
+  ]
+}

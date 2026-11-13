@@ -1,0 +1,309 @@
+{
+  "description": "Synthetic native policy read/session compatibility examples. Observation examples are actual deterministic unit-producer output over typed in-memory ports, not storage/RTC/model evidence. The opaque session token is synthetic and cannot authenticate.",
+  "observations": {
+    "candidate": {
+      "app_read_completed_at_ms": 1794480000000,
+      "applicability": "candidate",
+      "attempt": {
+        "attempt_id": "22222222-2222-4222-8222-222222222222",
+        "number": 1
+      },
+      "binding": {
+        "case_id": "case_demo",
+        "delegation_id": "fixed_policy_demo",
+        "input_fingerprint": "62ed33b5d46c3d80f896fca0923c30e1bc74e878e784cf66df842fc5952e1620",
+        "request_revision": 1,
+        "scope": {
+          "account_id": "account_demo",
+          "tenant_id": "tenant_demo"
+        },
+        "sources": [
+          {
+            "byte_length": 293,
+            "role": "policy",
+            "sha256": "69647e013f57a132b8a1aafc4bfe44001b75a34a1e487bc656e96f097cf867e7",
+            "source_id": "policy_notice",
+            "version": "policy_source_v1"
+          },
+          {
+            "byte_length": 158,
+            "role": "facts",
+            "sha256": "e7b293906c9a04763d612596bb068801ae131691b7cde206d56b239e76ecbc74",
+            "source_id": "facts_notice",
+            "version": "facts_source_v1"
+          }
+        ]
+      },
+      "consistency": "as_of_non_atomic",
+      "error": null,
+      "kind": "native-policy.observation",
+      "owned_run": false,
+      "result": {
+        "attempt_id": "22222222-2222-4222-8222-222222222222",
+        "disposition": "eligible_at_commit",
+        "eligible": true,
+        "fact_refs": [
+          {
+            "days_before_arrival": 10,
+            "fact_id": "notice_0",
+            "sha256": "e7b293906c9a04763d612596bb068801ae131691b7cde206d56b239e76ecbc74",
+            "source_id": "facts_notice",
+            "version": "facts_source_v1"
+          }
+        ],
+        "recorded_at_ms": 1794480000000,
+        "rule_refs": [
+          {
+            "minimum_notice_days": 7,
+            "rule_id": "notice_minimum_days",
+            "sha256": "69647e013f57a132b8a1aafc4bfe44001b75a34a1e487bc656e96f097cf867e7",
+            "source_id": "policy_notice",
+            "version": "policy_source_v1"
+          }
+        ],
+        "sha256": "b826b6ce310da6c1ae7925ba2d912d6e1433f38787a8483b8438f7ce3e1a99dc",
+        "uncertainty": "none",
+        "wire_attempt_id": "attempt_22222222222242228222222222222222"
+      },
+      "schema_version": 1,
+      "state": "result",
+      "tool_waiter": "returned",
+      "work": {
+        "accepted_at_ms": 1794480000000,
+        "cancel_requested": false,
+        "request_sha256": "c7627b73cbb781db0122463b5b4d2f6406f38f1be9ccbc3c4efeb57a37f37e79",
+        "status": "result_recorded",
+        "work_id": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    "conflicting": {
+      "app_read_completed_at_ms": 1794480000000,
+      "applicability": "clarification",
+      "attempt": {
+        "attempt_id": "22222222-2222-4222-8222-222222222222",
+        "number": 1
+      },
+      "binding": {
+        "case_id": "case_demo",
+        "delegation_id": "fixed_policy_demo",
+        "input_fingerprint": "51e2f604e4c765ba0c2062ec69a8f56c43fdf64b40105985593f9eb974a38d08",
+        "request_revision": 1,
+        "scope": {
+          "account_id": "account_demo",
+          "tenant_id": "tenant_demo"
+        },
+        "sources": [
+          {
+            "byte_length": 293,
+            "role": "policy",
+            "sha256": "69647e013f57a132b8a1aafc4bfe44001b75a34a1e487bc656e96f097cf867e7",
+            "source_id": "policy_notice",
+            "version": "policy_source_v1"
+          },
+          {
+            "byte_length": 205,
+            "role": "facts",
+            "sha256": "dc88c5de2e96e987a267d94a9decaec587578341d278e91287e90ef4b3dc4ec1",
+            "source_id": "facts_notice",
+            "version": "facts_source_v1"
+          }
+        ]
+      },
+      "consistency": "as_of_non_atomic",
+      "error": null,
+      "kind": "native-policy.observation",
+      "owned_run": false,
+      "result": {
+        "attempt_id": "22222222-2222-4222-8222-222222222222",
+        "disposition": "eligible_at_commit",
+        "eligible": null,
+        "fact_refs": [
+          {
+            "days_before_arrival": 3,
+            "fact_id": "notice_0",
+            "sha256": "dc88c5de2e96e987a267d94a9decaec587578341d278e91287e90ef4b3dc4ec1",
+            "source_id": "facts_notice",
+            "version": "facts_source_v1"
+          },
+          {
+            "days_before_arrival": 10,
+            "fact_id": "notice_1",
+            "sha256": "dc88c5de2e96e987a267d94a9decaec587578341d278e91287e90ef4b3dc4ec1",
+            "source_id": "facts_notice",
+            "version": "facts_source_v1"
+          }
+        ],
+        "recorded_at_ms": 1794480000000,
+        "rule_refs": [
+          {
+            "minimum_notice_days": 7,
+            "rule_id": "notice_minimum_days",
+            "sha256": "69647e013f57a132b8a1aafc4bfe44001b75a34a1e487bc656e96f097cf867e7",
+            "source_id": "policy_notice",
+            "version": "policy_source_v1"
+          }
+        ],
+        "sha256": "77bc1608c9e838adbe9dc96d6f86ea3a91f9bd8770b75ad8798fbee36cd8f79f",
+        "uncertainty": "conflicting",
+        "wire_attempt_id": "attempt_22222222222242228222222222222222"
+      },
+      "schema_version": 1,
+      "state": "result",
+      "tool_waiter": "returned",
+      "work": {
+        "accepted_at_ms": 1794480000000,
+        "cancel_requested": false,
+        "request_sha256": "bae813016e4cb4e000e178fe15852fd46ceac5a7f2bba8ac27f9c3c6bf19dc4a",
+        "status": "result_recorded",
+        "work_id": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    "missing": {
+      "app_read_completed_at_ms": 1794480000000,
+      "applicability": "clarification",
+      "attempt": {
+        "attempt_id": "22222222-2222-4222-8222-222222222222",
+        "number": 1
+      },
+      "binding": {
+        "case_id": "case_demo",
+        "delegation_id": "fixed_policy_demo",
+        "input_fingerprint": "5e2eb8eee037738bfb903d433329a1da6a14eaa990d4e783f52d4dbe4edfb307",
+        "request_revision": 1,
+        "scope": {
+          "account_id": "account_demo",
+          "tenant_id": "tenant_demo"
+        },
+        "sources": [
+          {
+            "byte_length": 293,
+            "role": "policy",
+            "sha256": "69647e013f57a132b8a1aafc4bfe44001b75a34a1e487bc656e96f097cf867e7",
+            "source_id": "policy_notice",
+            "version": "policy_source_v1"
+          },
+          {
+            "byte_length": 111,
+            "role": "facts",
+            "sha256": "cc5b943d8aae0a4ba53fc9fedbca920da0cf1e2a108d552013554aea22c4900c",
+            "source_id": "facts_notice",
+            "version": "facts_source_v1"
+          }
+        ]
+      },
+      "consistency": "as_of_non_atomic",
+      "error": null,
+      "kind": "native-policy.observation",
+      "owned_run": false,
+      "result": {
+        "attempt_id": "22222222-2222-4222-8222-222222222222",
+        "disposition": "eligible_at_commit",
+        "eligible": null,
+        "fact_refs": [],
+        "recorded_at_ms": 1794480000000,
+        "rule_refs": [
+          {
+            "minimum_notice_days": 7,
+            "rule_id": "notice_minimum_days",
+            "sha256": "69647e013f57a132b8a1aafc4bfe44001b75a34a1e487bc656e96f097cf867e7",
+            "source_id": "policy_notice",
+            "version": "policy_source_v1"
+          }
+        ],
+        "sha256": "af642d5d13e5e3ad4a817890df48aea74025319e5527c6af9fc09b1c39eaeb0b",
+        "uncertainty": "missing",
+        "wire_attempt_id": "attempt_22222222222242228222222222222222"
+      },
+      "schema_version": 1,
+      "state": "result",
+      "tool_waiter": "returned",
+      "work": {
+        "accepted_at_ms": 1794480000000,
+        "cancel_requested": false,
+        "request_sha256": "76aa1097c3d95c2279a52b79ceb6fb151e74c7d8a29ab5400eca674c4614b835",
+        "status": "result_recorded",
+        "work_id": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    "no_work": {
+      "app_read_completed_at_ms": 1794480000000,
+      "applicability": null,
+      "attempt": null,
+      "binding": {
+        "case_id": "case_demo",
+        "delegation_id": "fixed_policy_demo",
+        "input_fingerprint": "62ed33b5d46c3d80f896fca0923c30e1bc74e878e784cf66df842fc5952e1620",
+        "request_revision": 1,
+        "scope": {
+          "account_id": "account_demo",
+          "tenant_id": "tenant_demo"
+        },
+        "sources": [
+          {
+            "byte_length": 293,
+            "role": "policy",
+            "sha256": "69647e013f57a132b8a1aafc4bfe44001b75a34a1e487bc656e96f097cf867e7",
+            "source_id": "policy_notice",
+            "version": "policy_source_v1"
+          },
+          {
+            "byte_length": 158,
+            "role": "facts",
+            "sha256": "e7b293906c9a04763d612596bb068801ae131691b7cde206d56b239e76ecbc74",
+            "source_id": "facts_notice",
+            "version": "facts_source_v1"
+          }
+        ]
+      },
+      "consistency": "as_of_non_atomic",
+      "error": null,
+      "kind": "native-policy.observation",
+      "owned_run": false,
+      "result": null,
+      "schema_version": 1,
+      "state": "no_work",
+      "tool_waiter": "idle",
+      "work": null
+    }
+  },
+  "schema_version": 1,
+  "session": {
+    "agent_identity": "p3_agent_demo",
+    "binding": {
+      "case_id": "case_demo",
+      "delegation_id": "fixed_policy_demo",
+      "input_fingerprint": "62ed33b5d46c3d80f896fca0923c30e1bc74e878e784cf66df842fc5952e1620",
+      "request_revision": 1,
+      "scope": {
+        "account_id": "account_demo",
+        "tenant_id": "tenant_demo"
+      },
+      "sources": [
+        {
+          "byte_length": 293,
+          "role": "policy",
+          "sha256": "69647e013f57a132b8a1aafc4bfe44001b75a34a1e487bc656e96f097cf867e7",
+          "source_id": "policy_notice",
+          "version": "policy_source_v1"
+        },
+        {
+          "byte_length": 158,
+          "role": "facts",
+          "sha256": "e7b293906c9a04763d612596bb068801ae131691b7cde206d56b239e76ecbc74",
+          "source_id": "facts_notice",
+          "version": "facts_source_v1"
+        }
+      ]
+    },
+    "expires_at_ms": 1893456000000,
+    "inference_mode": "scripted",
+    "kind": "native-policy.session",
+    "participant_identity": "p3_viewer_demo",
+    "profile": "p3_native_policy_text_v1",
+    "room_name": "p3_native_demo",
+    "rtc_token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.ccccccccccccccccccccccccccccccccccccccccccc",
+    "schema_version": 1,
+    "server_url": "ws://127.0.0.1:17880",
+    "session_id": "33333333-3333-4333-8333-333333333333"
+  }
+}

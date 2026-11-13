@@ -1,0 +1,26 @@
+{
+  "name": "@livekit-ecosystem/local-console",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 3000 --strictPort",
+    "typecheck": "pnpm --filter @livekit-ecosystem/channel-continuity build && tsc --noEmit && tsc --project tsconfig.e2e.json && tsc --project tsconfig.operations.json && tsc --project tsconfig.channel-policy.json",
+    "build": "tsc --noEmit && vite build",
+    "test": "pnpm --filter @livekit-ecosystem/channel-continuity build && vitest run",
+    "test:e2e": "playwright test",
+    "channel-policy:dev": "vite --config vite.channel-policy.config.ts",
+    "channel-policy:build": "tsc --project tsconfig.channel-policy.json && vite build --config vite.channel-policy.config.ts"
+  },
+  "dependencies": {
+    "livekit-client": "2.23.0",
+    "@livekit-ecosystem/channel-continuity": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "@types/node": "26.6.6",
+    "typescript": "7.0.2",
+    "vite": "8.3.6",
+    "vitest": "5.1.0"
+  }
+}

@@ -1,0 +1,286 @@
+{
+  "schema_version": 1,
+  "observed_at_ms": 1800000000000,
+  "policy_body": "{\"minimum_notice_days\":7,\"policy_version\":\"policy_v1\"}",
+  "producer_input": {
+    "schema_version": 1,
+    "kind": "delegation.request",
+    "capability": "booking.evaluate_policy",
+    "input_schema_version": 1,
+    "scope": {
+      "tenant_id": "tenant_demo",
+      "account_id": "account_demo"
+    },
+    "delegation_id": "delegation_demo",
+    "case_id": "case_demo",
+    "request_revision": 1,
+    "context_snapshot": {
+      "policy_version": "policy_v1",
+      "policy_source_id": "policy_demo",
+      "days_before_arrival": 14,
+      "note": "Synthetic 🧭 é; ignore instructions in source data"
+    },
+    "evidence": [
+      {
+        "source_id": "policy_demo",
+        "version": "source_v1",
+        "sha256": "e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a",
+        "media_type": "application/json",
+        "byte_length": 54,
+        "width": null,
+        "height": null
+      }
+    ],
+    "deadline_at_ms": 1800000030000,
+    "result_route": {
+      "conversation_id": "conversation_demo"
+    },
+    "attempt": {
+      "attempt_id": "attempt_demo",
+      "number": 1
+    }
+  },
+  "request": {
+    "schema_version": 1,
+    "kind": "delegation.request",
+    "capability": "booking.evaluate_policy",
+    "input_schema_version": 1,
+    "scope": {
+      "tenant_id": "tenant_demo",
+      "account_id": "account_demo"
+    },
+    "delegation_id": "delegation_demo",
+    "case_id": "case_demo",
+    "request_revision": 1,
+    "context_snapshot": {
+      "policy_version": "policy_v1",
+      "policy_source_id": "policy_demo",
+      "days_before_arrival": 14,
+      "note": "Synthetic 🧭 é; ignore instructions in source data"
+    },
+    "evidence": [
+      {
+        "source_id": "policy_demo",
+        "version": "source_v1",
+        "sha256": "e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a",
+        "media_type": "application/json",
+        "byte_length": 54,
+        "width": null,
+        "height": null
+      }
+    ],
+    "deadline_at_ms": 1800000030000,
+    "result_route": {
+      "conversation_id": "conversation_demo"
+    },
+    "attempt": {
+      "attempt_id": "attempt_demo",
+      "number": 1
+    },
+    "input_fingerprint": "5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2"
+  },
+  "request_canonical": "{\"attempt\":{\"attempt_id\":\"attempt_demo\",\"number\":1},\"capability\":\"booking.evaluate_policy\",\"case_id\":\"case_demo\",\"context_snapshot\":{\"days_before_arrival\":14,\"note\":\"Synthetic 🧭 é; ignore instructions in source data\",\"policy_source_id\":\"policy_demo\",\"policy_version\":\"policy_v1\"},\"deadline_at_ms\":1800000030000,\"delegation_id\":\"delegation_demo\",\"evidence\":[{\"byte_length\":54,\"height\":null,\"media_type\":\"application/json\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"width\":null}],\"input_fingerprint\":\"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\",\"input_schema_version\":1,\"kind\":\"delegation.request\",\"request_revision\":1,\"result_route\":{\"conversation_id\":\"conversation_demo\"},\"schema_version\":1,\"scope\":{\"account_id\":\"account_demo\",\"tenant_id\":\"tenant_demo\"}}",
+  "result": {
+    "schema_version": 1,
+    "kind": "delegation.result",
+    "capability": "booking.evaluate_policy",
+    "result_schema_version": 1,
+    "scope": {
+      "tenant_id": "tenant_demo",
+      "account_id": "account_demo"
+    },
+    "delegation_id": "delegation_demo",
+    "case_id": "case_demo",
+    "request_revision": 1,
+    "attempt_id": "attempt_demo",
+    "input_fingerprint": "5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2",
+    "eligible": true,
+    "uncertainty": "none",
+    "evidence_refs": [
+      {
+        "source_id": "policy_demo",
+        "version": "source_v1",
+        "sha256": "e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a",
+        "rule_id": "notice_minimum_days"
+      }
+    ],
+    "producer": {
+      "producer_id": "scripted_specialist",
+      "model_id": null,
+      "model_version": null,
+      "config_fingerprint": "2825f4fa1f970b2e962a846b310679cb5fa5086a261c5308c236b6bb56ed54b6"
+    },
+    "completed_at_ms": 1800000000001
+  },
+  "result_canonical": "{\"attempt_id\":\"attempt_demo\",\"capability\":\"booking.evaluate_policy\",\"case_id\":\"case_demo\",\"completed_at_ms\":1800000000001,\"delegation_id\":\"delegation_demo\",\"eligible\":true,\"evidence_refs\":[{\"rule_id\":\"notice_minimum_days\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"source_id\":\"policy_demo\",\"version\":\"source_v1\"}],\"input_fingerprint\":\"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\",\"kind\":\"delegation.result\",\"producer\":{\"config_fingerprint\":\"2825f4fa1f970b2e962a846b310679cb5fa5086a261c5308c236b6bb56ed54b6\",\"model_id\":null,\"model_version\":null,\"producer_id\":\"scripted_specialist\"},\"request_revision\":1,\"result_schema_version\":1,\"schema_version\":1,\"scope\":{\"account_id\":\"account_demo\",\"tenant_id\":\"tenant_demo\"},\"uncertainty\":\"none\"}",
+  "invalid": [
+    {
+      "name": "duplicate_root",
+      "phase": "request",
+      "raw": "{\"schema_version\": 1, \"kind\": \"delegation.request\", \"capability\": \"booking.evaluate_policy\", \"input_schema_version\": 1, \"scope\": {\"tenant_id\": \"tenant_demo\", \"account_id\": \"account_demo\"}, \"delegation_id\": \"delegation_demo\", \"case_id\": \"case_demo\", \"request_revision\": 1, \"context_snapshot\": {\"policy_version\": \"policy_v1\", \"policy_source_id\": \"policy_demo\", \"days_before_arrival\": 14, \"note\": \"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"}, \"evidence\": [{\"source_id\": \"policy_demo\", \"version\": \"source_v1\", \"sha256\": \"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\", \"media_type\": \"application/json\", \"byte_length\": 54, \"width\": null, \"height\": null}], \"deadline_at_ms\": 1800000030000, \"result_route\": {\"conversation_id\": \"conversation_demo\"}, \"attempt\": {\"attempt_id\": \"attempt_demo\", \"number\": 1}, \"input_fingerprint\": \"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\",\"schema_version\":1}",
+      "code": "invalid_json"
+    },
+    {
+      "name": "duplicate_nested",
+      "phase": "request",
+      "raw": "{\"schema_version\": 1, \"kind\": \"delegation.request\", \"capability\": \"booking.evaluate_policy\", \"input_schema_version\": 1, \"scope\": {\"tenant_id\":\"tenant_demo\",\"tenant_id\":\"tenant_other\", \"account_id\": \"account_demo\"}, \"delegation_id\": \"delegation_demo\", \"case_id\": \"case_demo\", \"request_revision\": 1, \"context_snapshot\": {\"policy_version\": \"policy_v1\", \"policy_source_id\": \"policy_demo\", \"days_before_arrival\": 14, \"note\": \"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"}, \"evidence\": [{\"source_id\": \"policy_demo\", \"version\": \"source_v1\", \"sha256\": \"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\", \"media_type\": \"application/json\", \"byte_length\": 54, \"width\": null, \"height\": null}], \"deadline_at_ms\": 1800000030000, \"result_route\": {\"conversation_id\": \"conversation_demo\"}, \"attempt\": {\"attempt_id\": \"attempt_demo\", \"number\": 1}, \"input_fingerprint\": \"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\"}",
+      "code": "invalid_json"
+    },
+    {
+      "name": "bad_utf8_literal_surrogate",
+      "phase": "request",
+      "raw": "{\"schema_version\": 1, \"kind\": \"delegation.request\", \"capability\": \"booking.evaluate_policy\", \"input_schema_version\": 1, \"scope\": {\"tenant_id\": \"tenant_demo\", \"account_id\": \"account_demo\"}, \"delegation_id\": \"delegation_demo\", \"case_id\": \"case_demo\", \"request_revision\": 1, \"context_snapshot\": {\"policy_version\": \"policy_v1\", \"policy_source_id\": \"policy_demo\", \"days_before_arrival\": 14, \"note\": \"\\ud800Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"}, \"evidence\": [{\"source_id\": \"policy_demo\", \"version\": \"source_v1\", \"sha256\": \"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\", \"media_type\": \"application/json\", \"byte_length\": 54, \"width\": null, \"height\": null}], \"deadline_at_ms\": 1800000030000, \"result_route\": {\"conversation_id\": \"conversation_demo\"}, \"attempt\": {\"attempt_id\": \"attempt_demo\", \"number\": 1}, \"input_fingerprint\": \"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\"}",
+      "code": "invalid_json"
+    },
+    {
+      "name": "depth",
+      "phase": "request",
+      "raw": "[[[[[[[[[[[[[]]]]]]]]]]]]]",
+      "code": "invalid_json"
+    },
+    {
+      "name": "nodes",
+      "phase": "request",
+      "raw": "[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]",
+      "code": "invalid_json"
+    },
+    {
+      "name": "fraction",
+      "phase": "request",
+      "raw": "{\"schema_version\": 1, \"kind\": \"delegation.request\", \"capability\": \"booking.evaluate_policy\", \"input_schema_version\": 1, \"scope\": {\"tenant_id\": \"tenant_demo\", \"account_id\": \"account_demo\"}, \"delegation_id\": \"delegation_demo\", \"case_id\": \"case_demo\", \"request_revision\": 1.0, \"context_snapshot\": {\"policy_version\": \"policy_v1\", \"policy_source_id\": \"policy_demo\", \"days_before_arrival\": 14, \"note\": \"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"}, \"evidence\": [{\"source_id\": \"policy_demo\", \"version\": \"source_v1\", \"sha256\": \"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\", \"media_type\": \"application/json\", \"byte_length\": 54, \"width\": null, \"height\": null}], \"deadline_at_ms\": 1800000030000, \"result_route\": {\"conversation_id\": \"conversation_demo\"}, \"attempt\": {\"attempt_id\": \"attempt_demo\", \"number\": 1}, \"input_fingerprint\": \"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\"}",
+      "code": "invalid_json"
+    },
+    {
+      "name": "exponent",
+      "phase": "request",
+      "raw": "{\"schema_version\": 1, \"kind\": \"delegation.request\", \"capability\": \"booking.evaluate_policy\", \"input_schema_version\": 1, \"scope\": {\"tenant_id\": \"tenant_demo\", \"account_id\": \"account_demo\"}, \"delegation_id\": \"delegation_demo\", \"case_id\": \"case_demo\", \"request_revision\": 1e0, \"context_snapshot\": {\"policy_version\": \"policy_v1\", \"policy_source_id\": \"policy_demo\", \"days_before_arrival\": 14, \"note\": \"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"}, \"evidence\": [{\"source_id\": \"policy_demo\", \"version\": \"source_v1\", \"sha256\": \"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\", \"media_type\": \"application/json\", \"byte_length\": 54, \"width\": null, \"height\": null}], \"deadline_at_ms\": 1800000030000, \"result_route\": {\"conversation_id\": \"conversation_demo\"}, \"attempt\": {\"attempt_id\": \"attempt_demo\", \"number\": 1}, \"input_fingerprint\": \"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\"}",
+      "code": "invalid_json"
+    },
+    {
+      "name": "negative_zero",
+      "phase": "request",
+      "raw": "{\"schema_version\": 1, \"kind\": \"delegation.request\", \"capability\": \"booking.evaluate_policy\", \"input_schema_version\": 1, \"scope\": {\"tenant_id\": \"tenant_demo\", \"account_id\": \"account_demo\"}, \"delegation_id\": \"delegation_demo\", \"case_id\": \"case_demo\", \"request_revision\": -0, \"context_snapshot\": {\"policy_version\": \"policy_v1\", \"policy_source_id\": \"policy_demo\", \"days_before_arrival\": 14, \"note\": \"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"}, \"evidence\": [{\"source_id\": \"policy_demo\", \"version\": \"source_v1\", \"sha256\": \"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\", \"media_type\": \"application/json\", \"byte_length\": 54, \"width\": null, \"height\": null}], \"deadline_at_ms\": 1800000030000, \"result_route\": {\"conversation_id\": \"conversation_demo\"}, \"attempt\": {\"attempt_id\": \"attempt_demo\", \"number\": 1}, \"input_fingerprint\": \"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\"}",
+      "code": "invalid_json"
+    },
+    {
+      "name": "unsafe_integer",
+      "phase": "request",
+      "raw": "{\"schema_version\": 1, \"kind\": \"delegation.request\", \"capability\": \"booking.evaluate_policy\", \"input_schema_version\": 1, \"scope\": {\"tenant_id\": \"tenant_demo\", \"account_id\": \"account_demo\"}, \"delegation_id\": \"delegation_demo\", \"case_id\": \"case_demo\", \"request_revision\": 9007199254740992, \"context_snapshot\": {\"policy_version\": \"policy_v1\", \"policy_source_id\": \"policy_demo\", \"days_before_arrival\": 14, \"note\": \"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"}, \"evidence\": [{\"source_id\": \"policy_demo\", \"version\": \"source_v1\", \"sha256\": \"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\", \"media_type\": \"application/json\", \"byte_length\": 54, \"width\": null, \"height\": null}], \"deadline_at_ms\": 1800000030000, \"result_route\": {\"conversation_id\": \"conversation_demo\"}, \"attempt\": {\"attempt_id\": \"attempt_demo\", \"number\": 1}, \"input_fingerprint\": \"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\"}",
+      "code": "invalid_json"
+    },
+    {
+      "name": "future_schema",
+      "phase": "request",
+      "raw": "{\"schema_version\":2,\"kind\":\"delegation.request\",\"capability\":\"booking.evaluate_policy\",\"input_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"context_snapshot\":{\"policy_version\":\"policy_v1\",\"policy_source_id\":\"policy_demo\",\"days_before_arrival\":14,\"note\":\"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"},\"evidence\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"media_type\":\"application/json\",\"byte_length\":54,\"width\":null,\"height\":null}],\"deadline_at_ms\":1800000030000,\"result_route\":{\"conversation_id\":\"conversation_demo\"},\"attempt\":{\"attempt_id\":\"attempt_demo\",\"number\":1},\"input_fingerprint\":\"6327ec4c4b1c855f7ac65f74f9ffb86831b013e345ec1b31cd042df3002a9c12\"}",
+      "code": "unsupported_version"
+    },
+    {
+      "name": "boolean_schema",
+      "phase": "request",
+      "raw": "{\"schema_version\":true,\"kind\":\"delegation.request\",\"capability\":\"booking.evaluate_policy\",\"input_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"context_snapshot\":{\"policy_version\":\"policy_v1\",\"policy_source_id\":\"policy_demo\",\"days_before_arrival\":14,\"note\":\"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"},\"evidence\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"media_type\":\"application/json\",\"byte_length\":54,\"width\":null,\"height\":null}],\"deadline_at_ms\":1800000030000,\"result_route\":{\"conversation_id\":\"conversation_demo\"},\"attempt\":{\"attempt_id\":\"attempt_demo\",\"number\":1},\"input_fingerprint\":\"8f67038df704b53e30f7037ef58f1a6e9226a17b6451024cf54eec18a36cc842\"}",
+      "code": "unsupported_version"
+    },
+    {
+      "name": "unknown_capability",
+      "phase": "request",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.request\",\"capability\":\"booking.apply\",\"input_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"context_snapshot\":{\"policy_version\":\"policy_v1\",\"policy_source_id\":\"policy_demo\",\"days_before_arrival\":14,\"note\":\"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"},\"evidence\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"media_type\":\"application/json\",\"byte_length\":54,\"width\":null,\"height\":null}],\"deadline_at_ms\":1800000030000,\"result_route\":{\"conversation_id\":\"conversation_demo\"},\"attempt\":{\"attempt_id\":\"attempt_demo\",\"number\":1},\"input_fingerprint\":\"7cf4ac83e59a59b01b023ac1d436d3d5c79916036c80f9f83477479a0ba99807\"}",
+      "code": "unknown_capability"
+    },
+    {
+      "name": "boolean_revision",
+      "phase": "request",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.request\",\"capability\":\"booking.evaluate_policy\",\"input_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":false,\"context_snapshot\":{\"policy_version\":\"policy_v1\",\"policy_source_id\":\"policy_demo\",\"days_before_arrival\":14,\"note\":\"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"},\"evidence\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"media_type\":\"application/json\",\"byte_length\":54,\"width\":null,\"height\":null}],\"deadline_at_ms\":1800000030000,\"result_route\":{\"conversation_id\":\"conversation_demo\"},\"attempt\":{\"attempt_id\":\"attempt_demo\",\"number\":1},\"input_fingerprint\":\"8ecb8be75d82fc98e814135ab728fccd9eddd12f985c6f0db12f96d73c8fa62f\"}",
+      "code": "invalid_contract"
+    },
+    {
+      "name": "case_revision_bound",
+      "phase": "request",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.request\",\"capability\":\"booking.evaluate_policy\",\"input_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1000001,\"context_snapshot\":{\"policy_version\":\"policy_v1\",\"policy_source_id\":\"policy_demo\",\"days_before_arrival\":14,\"note\":\"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"},\"evidence\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"media_type\":\"application/json\",\"byte_length\":54,\"width\":null,\"height\":null}],\"deadline_at_ms\":1800000030000,\"result_route\":{\"conversation_id\":\"conversation_demo\"},\"attempt\":{\"attempt_id\":\"attempt_demo\",\"number\":1},\"input_fingerprint\":\"37dbc70968eafe5d217b72774c51390aec484131acdbe144b595b16b0eb3231a\"}",
+      "code": "invalid_contract"
+    },
+    {
+      "name": "url_source",
+      "phase": "request",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.request\",\"capability\":\"booking.evaluate_policy\",\"input_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"context_snapshot\":{\"policy_version\":\"policy_v1\",\"policy_source_id\":\"policy_demo\",\"days_before_arrival\":14,\"note\":\"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"},\"evidence\":[{\"source_id\":\"https://attacker.invalid/source\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"media_type\":\"application/json\",\"byte_length\":54,\"width\":null,\"height\":null}],\"deadline_at_ms\":1800000030000,\"result_route\":{\"conversation_id\":\"conversation_demo\"},\"attempt\":{\"attempt_id\":\"attempt_demo\",\"number\":1},\"input_fingerprint\":\"4c648d6cec85dcf1483a699bb7d2629adc4aea9d5de8790f77eaab8e190df801\"}",
+      "code": "invalid_contract"
+    },
+    {
+      "name": "excess_image_dimensions",
+      "phase": "request",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.request\",\"capability\":\"booking.evaluate_policy\",\"input_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"context_snapshot\":{\"policy_version\":\"policy_v1\",\"policy_source_id\":\"policy_demo\",\"days_before_arrival\":14,\"note\":\"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"},\"evidence\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"media_type\":\"image/png\",\"byte_length\":54,\"width\":2049,\"height\":1}],\"deadline_at_ms\":1800000030000,\"result_route\":{\"conversation_id\":\"conversation_demo\"},\"attempt\":{\"attempt_id\":\"attempt_demo\",\"number\":1},\"input_fingerprint\":\"1235653347153dfff91a95aeb033f411acb0553e42e571a70e76423945cc419e\"}",
+      "code": "invalid_contract"
+    },
+    {
+      "name": "context_size",
+      "phase": "request",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.request\",\"capability\":\"booking.evaluate_policy\",\"input_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"context_snapshot\":{\"policy_version\":\"policy_v1\",\"policy_source_id\":\"policy_demo\",\"days_before_arrival\":14,\"note\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"evidence\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"media_type\":\"application/json\",\"byte_length\":54,\"width\":null,\"height\":null}],\"deadline_at_ms\":1800000030000,\"result_route\":{\"conversation_id\":\"conversation_demo\"},\"attempt\":{\"attempt_id\":\"attempt_demo\",\"number\":1},\"input_fingerprint\":\"c60ecbf3aae43289c39fb214b1ea60bd2e16d65422a292b3c209869b396c79b6\"}",
+      "code": "invalid_contract"
+    },
+    {
+      "name": "semantic_change_without_fingerprint",
+      "phase": "request",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.request\",\"capability\":\"booking.evaluate_policy\",\"input_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"context_snapshot\":{\"policy_version\":\"policy_v1\",\"policy_source_id\":\"policy_demo\",\"days_before_arrival\":1,\"note\":\"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"},\"evidence\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"media_type\":\"application/json\",\"byte_length\":54,\"width\":null,\"height\":null}],\"deadline_at_ms\":1800000030000,\"result_route\":{\"conversation_id\":\"conversation_demo\"},\"attempt\":{\"attempt_id\":\"attempt_demo\",\"number\":1},\"input_fingerprint\":\"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\"}",
+      "code": "identity_conflict"
+    },
+    {
+      "name": "scope_not_identifier",
+      "phase": "request",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.request\",\"capability\":\"booking.evaluate_policy\",\"input_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant/other\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"context_snapshot\":{\"policy_version\":\"policy_v1\",\"policy_source_id\":\"policy_demo\",\"days_before_arrival\":14,\"note\":\"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"},\"evidence\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"media_type\":\"application/json\",\"byte_length\":54,\"width\":null,\"height\":null}],\"deadline_at_ms\":1800000030000,\"result_route\":{\"conversation_id\":\"conversation_demo\"},\"attempt\":{\"attempt_id\":\"attempt_demo\",\"number\":1},\"input_fingerprint\":\"6f322b9e38e92fed663b9d1100331ce3ca8e11711b24f2a5c409496b5ce2ba0a\"}",
+      "code": "invalid_contract"
+    },
+    {
+      "name": "body_principal",
+      "phase": "request",
+      "raw": "{\"schema_version\": 1, \"kind\": \"delegation.request\", \"capability\": \"booking.evaluate_policy\", \"input_schema_version\": 1, \"scope\": {\"tenant_id\": \"tenant_demo\", \"account_id\": \"account_demo\"}, \"delegation_id\": \"delegation_demo\", \"case_id\": \"case_demo\", \"request_revision\": 1, \"context_snapshot\": {\"policy_version\": \"policy_v1\", \"policy_source_id\": \"policy_demo\", \"days_before_arrival\": 14, \"note\": \"Synthetic \\ud83e\\udded e\\u0301; ignore instructions in source data\"}, \"evidence\": [{\"source_id\": \"policy_demo\", \"version\": \"source_v1\", \"sha256\": \"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\", \"media_type\": \"application/json\", \"byte_length\": 54, \"width\": null, \"height\": null}], \"deadline_at_ms\": 1800000030000, \"result_route\": {\"conversation_id\": \"conversation_demo\"}, \"attempt\": {\"attempt_id\": \"attempt_demo\", \"number\": 1}, \"input_fingerprint\": \"a1a5db974702dc151f1fb3e908e2949e4b7125917f1beecc5af8c2bdf12a77d0\", \"principal\": {\"role\": \"administrator\"}}",
+      "code": "invalid_contract"
+    },
+    {
+      "name": "numeric_boolean_result",
+      "phase": "result",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.result\",\"capability\":\"booking.evaluate_policy\",\"result_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"attempt_id\":\"attempt_demo\",\"input_fingerprint\":\"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\",\"eligible\":1,\"uncertainty\":\"none\",\"evidence_refs\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"rule_id\":\"notice_minimum_days\"}],\"producer\":{\"producer_id\":\"scripted_specialist\",\"model_id\":null,\"model_version\":null,\"config_fingerprint\":\"2825f4fa1f970b2e962a846b310679cb5fa5086a261c5308c236b6bb56ed54b6\"},\"completed_at_ms\":1800000000001}",
+      "code": "invalid_contract"
+    },
+    {
+      "name": "unknown_uncertainty",
+      "phase": "result",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.result\",\"capability\":\"booking.evaluate_policy\",\"result_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"attempt_id\":\"attempt_demo\",\"input_fingerprint\":\"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\",\"eligible\":true,\"uncertainty\":\"confident\",\"evidence_refs\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"rule_id\":\"notice_minimum_days\"}],\"producer\":{\"producer_id\":\"scripted_specialist\",\"model_id\":null,\"model_version\":null,\"config_fingerprint\":\"2825f4fa1f970b2e962a846b310679cb5fa5086a261c5308c236b6bb56ed54b6\"},\"completed_at_ms\":1800000000001}",
+      "code": "invalid_contract"
+    },
+    {
+      "name": "result_time_bound",
+      "phase": "result",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.result\",\"capability\":\"booking.evaluate_policy\",\"result_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"attempt_id\":\"attempt_demo\",\"input_fingerprint\":\"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\",\"eligible\":true,\"uncertainty\":\"none\",\"evidence_refs\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"rule_id\":\"notice_minimum_days\"}],\"producer\":{\"producer_id\":\"scripted_specialist\",\"model_id\":null,\"model_version\":null,\"config_fingerprint\":\"2825f4fa1f970b2e962a846b310679cb5fa5086a261c5308c236b6bb56ed54b6\"},\"completed_at_ms\":4102444800001}",
+      "code": "invalid_contract"
+    },
+    {
+      "name": "wrong_attempt",
+      "phase": "match",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.result\",\"capability\":\"booking.evaluate_policy\",\"result_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"attempt_id\":\"attempt_other\",\"input_fingerprint\":\"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\",\"eligible\":true,\"uncertainty\":\"none\",\"evidence_refs\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"rule_id\":\"notice_minimum_days\"}],\"producer\":{\"producer_id\":\"scripted_specialist\",\"model_id\":null,\"model_version\":null,\"config_fingerprint\":\"2825f4fa1f970b2e962a846b310679cb5fa5086a261c5308c236b6bb56ed54b6\"},\"completed_at_ms\":1800000000001}",
+      "code": "result_mismatch"
+    },
+    {
+      "name": "wrong_account",
+      "phase": "match",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.result\",\"capability\":\"booking.evaluate_policy\",\"result_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_other\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"attempt_id\":\"attempt_demo\",\"input_fingerprint\":\"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\",\"eligible\":true,\"uncertainty\":\"none\",\"evidence_refs\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"rule_id\":\"notice_minimum_days\"}],\"producer\":{\"producer_id\":\"scripted_specialist\",\"model_id\":null,\"model_version\":null,\"config_fingerprint\":\"2825f4fa1f970b2e962a846b310679cb5fa5086a261c5308c236b6bb56ed54b6\"},\"completed_at_ms\":1800000000001}",
+      "code": "result_mismatch"
+    },
+    {
+      "name": "swapped_source",
+      "phase": "match",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.result\",\"capability\":\"booking.evaluate_policy\",\"result_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"attempt_id\":\"attempt_demo\",\"input_fingerprint\":\"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\",\"eligible\":true,\"uncertainty\":\"none\",\"evidence_refs\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"rule_id\":\"notice_minimum_days\"}],\"producer\":{\"producer_id\":\"scripted_specialist\",\"model_id\":null,\"model_version\":null,\"config_fingerprint\":\"2825f4fa1f970b2e962a846b310679cb5fa5086a261c5308c236b6bb56ed54b6\"},\"completed_at_ms\":1800000000001}",
+      "code": "evidence_mismatch"
+    },
+    {
+      "name": "wrong_fact",
+      "phase": "facts",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.result\",\"capability\":\"booking.evaluate_policy\",\"result_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"attempt_id\":\"attempt_demo\",\"input_fingerprint\":\"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\",\"eligible\":false,\"uncertainty\":\"none\",\"evidence_refs\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"rule_id\":\"notice_minimum_days\"}],\"producer\":{\"producer_id\":\"scripted_specialist\",\"model_id\":null,\"model_version\":null,\"config_fingerprint\":\"2825f4fa1f970b2e962a846b310679cb5fa5086a261c5308c236b6bb56ed54b6\"},\"completed_at_ms\":1800000000001}",
+      "code": "unsupported_facts"
+    },
+    {
+      "name": "invented_rule",
+      "phase": "facts",
+      "raw": "{\"schema_version\":1,\"kind\":\"delegation.result\",\"capability\":\"booking.evaluate_policy\",\"result_schema_version\":1,\"scope\":{\"tenant_id\":\"tenant_demo\",\"account_id\":\"account_demo\"},\"delegation_id\":\"delegation_demo\",\"case_id\":\"case_demo\",\"request_revision\":1,\"attempt_id\":\"attempt_demo\",\"input_fingerprint\":\"5a2380d5e14701da15ad9cb87b5f5b1d3d292d5b9665b231be8bb278e06928e2\",\"eligible\":true,\"uncertainty\":\"none\",\"evidence_refs\":[{\"source_id\":\"policy_demo\",\"version\":\"source_v1\",\"sha256\":\"e01be39563823e97c09fd7c3dfba056ae9fa971c3dea544cf7f2c04b174d289a\",\"rule_id\":\"invented_rule\"}],\"producer\":{\"producer_id\":\"scripted_specialist\",\"model_id\":null,\"model_version\":null,\"config_fingerprint\":\"2825f4fa1f970b2e962a846b310679cb5fa5086a261c5308c236b6bb56ed54b6\"},\"completed_at_ms\":1800000000001}",
+      "code": "unsupported_facts"
+    }
+  ]
+}
