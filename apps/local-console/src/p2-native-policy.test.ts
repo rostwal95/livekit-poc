@@ -101,6 +101,13 @@ describe('P2 native trusted session and readiness', () => {
     ])
       expect(nativeReady(true, bound, bound.agentId, 'agent', changed)).toBe(false);
   });
+  it('requires the native mode attribute to match the trusted expected profile', () => {
+    const bound = parseNativeSession(session());
+    const provider = { ...ready, 'p2.inference_mode': 'provider_real' };
+    expect(nativeReady(true, bound, bound.agentId, 'agent', provider, 'provider_real')).toBe(true);
+    expect(nativeReady(true, bound, bound.agentId, 'agent', ready, 'provider_real')).toBe(false);
+    expect(nativeReady(true, bound, bound.agentId, 'agent', provider)).toBe(false);
+  });
 });
 
 describe('P2 native input and truthful application acknowledgement', () => {

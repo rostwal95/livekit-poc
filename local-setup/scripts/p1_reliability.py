@@ -721,7 +721,7 @@ def execute(manifest: ReliabilityManifest, *, run: bool, selected_case: str | No
             "inspect",
             "--format",
             "{{.Id}}",
-            "livekit-agent-ecosystem-python:local",
+            stack.image_name("python"),
         ],
         values,
         ROOT / "local-setup",

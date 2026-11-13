@@ -22,9 +22,11 @@ from channel_continuity.native_models import NativeEndpoint
 
 from ._bounded_loopback_http import Endpoint, LoopbackEndpoint
 from .application import ChannelPolicyApplication
+from .native_provider_models import provider_environment as provider_keys
 from .native_room import CurrentResultAttachmentPort, NativeRoomOwner, NativeRoomRoute
 from .native_room_admin import LiveKitAdminSettings
 from .native_room_state import NodeRoomCursor
+from .native_worker_config import InferenceMode
 from .native_worker_process import _base
 from .operator import (
     ApplicationObservationPort,
@@ -91,9 +93,23 @@ class ParentSettings:
     room_directory: Path = field(repr=False)
     python_executable: Path = field(repr=False)
     base_environment: Mapping[str, str] = field(repr=False)
+    inference_mode: InferenceMode = "scripted"
+    provider_environment: Mapping[str, str] | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         try:
+            _need(
+                type(self.inference_mode) is str
+                and self.inference_mode in ("scripted", "provider_real")
+                and (self.inference_mode == "provider_real")
+                == (self.provider_environment is not None)
+            )
+            if self.provider_environment is not None:
+                object.__setattr__(
+                    self,
+                    "provider_environment",
+                    MappingProxyType(provider_keys(self.provider_environment)),
+                )
             profile = parse_owner_profile(encode_owner_profile(self.profile))
             _need(type(self.admin) is LiveKitAdminSettings)
             admin = LiveKitAdminSettings(self.admin.api_key, self.admin.api_secret, self.admin.url)
@@ -158,6 +174,7 @@ def _rooms(settings: ParentSettings, app: AppPort, cursor: NodeRoomCursor) -> Ro
         r.case_id,
         r.conversation_id,
         NativeEndpoint("127.0.0.1", p.ports.native),
+        inference_mode=settings.inference_mode,
     )
     return NativeRoomOwner(
         route,
@@ -169,6 +186,9 @@ def _rooms(settings: ParentSettings, app: AppPort, cursor: NodeRoomCursor) -> Ro
         directory=settings.room_directory,
         python_executable=settings.python_executable,
         base_environment=settings.base_environment,
+        # Real provider sessions need longer than scripted models to close cleanly.
+        cleanup_timeout_s=8 if settings.inference_mode == "provider_real" else 2,
+        provider_environment=settings.provider_environment,
     )
 
 
@@ -221,6 +241,8 @@ class ChannelPolicyParent:
             settings.room_directory,
             settings.python_executable,
             settings.base_environment,
+            settings.inference_mode,
+            settings.provider_environment,
         )
         for value in (startup_timeout_s, cleanup_timeout_s):
             _need(type(value) in (int, float) and 0.02 <= value <= 15 and math.isfinite(value))

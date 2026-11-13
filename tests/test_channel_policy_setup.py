@@ -860,5 +860,136 @@ class OwnedNodeTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(self.processes[0].returncode)
 
 
+ACCOUNT_TOKEN = "a" * 43
+ASSOCIATION_REQUEST = {
+    "schema_version": 1,
+    "port": 15432,
+    "schema": "cp45_channel_" + "c" * 32,
+    "tenantId": "tenant_demo",
+    "accountId": "account_demo",
+    "caseId": "case_demo",
+    "conversationId": "conversation_demo",
+    "providerAccountId": "joined_sms",
+    "senderId": "demo_sms_sender",
+}
+# Public-module stand-ins: the challenge secret must round-trip through a
+# signed LINK body, and the inbox must be closed, or the stub exits non-zero.
+_STUB_POSTGRES = """
+let issued, closed = false;
+export class SeededAccounts { constructor(seeds) { if (seeds.length !== 1 || seeds[0].caseId !== 'case_demo') throw Error(); } }
+export class ChannelInbox {
+  constructor(settings, integration, accounts, hooks, observer) {
+    if (settings.user !== 'livekit_lab' || settings.schema !== 'cp45_channel_' + 'c'.repeat(32)) throw Error();
+    if (typeof observer !== 'function') throw Error();
+    process.on('exit', () => { if (!closed) process.exitCode = 9; });
+  }
+  async createChallenge(token, sender) {
+    if (sender !== 'demo_sms_sender') throw Error();
+    issued = { challengeId: '11111111-2222-4333-8444-555555555555', secret: 's'.repeat(43) };
+    return { ...issued, expiresAt: new Date().toISOString() };
+  }
+  async completeAssociation(raw, headers) {
+    const body = JSON.parse(raw).body;
+    if (body !== 'LINK ' + issued.challengeId + ' ' + issued.secret || headers.signature !== 'f'.repeat(64)) throw Error();
+    return { associationVersion: '7' };
+  }
+  async close() { closed = true; }
+}
+"""
+_STUB_SECURITY = """
+export function createFakeSmsIntegration(scope, key) {
+  if (scope.provider !== 'fake_sms' || key.length !== 32 || key[0] !== 0x4f) throw Error();
+  return { scope };
+}
+export function signFakeSms(message, key, timestamp, scope) {
+  return { raw: Buffer.from(JSON.stringify(message)), headers: { timestamp: String(timestamp), signature: 'f'.repeat(64) } };
+}
+"""
+
+
+def _data_module(source: str) -> str:
+    return "data:text/javascript;base64," + base64.b64encode(source.encode()).decode()
+
+
+class AssociationTests(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        node = shutil.which("node")
+        self.assertIsNotNone(node)
+        self.node = Path(node).resolve()
+        self.processes = []
+        self.original_popen = subprocess.Popen
+
+    async def asyncTearDown(self):
+        for process in self.processes:
+            self.assertIsNotNone(process.returncode)
+            with self.assertRaises(ProcessLookupError):
+                os.killpg(process.pid, 0)
+
+    def associate(self):
+        return m._run_association(
+            self.node,
+            ROOT / "services/channel-policy-gateway",
+            ASSOCIATION_REQUEST,
+            RUNTIME,
+            ACCOUNT_TOKEN,
+            threading.Event(),
+        )
+
+    def opened(self, extra):
+        def opened(arguments, **options):
+            options["env"] = {**options["env"], **extra}
+            process = self.original_popen(arguments, **options)
+            self.processes.append(process)
+            return process
+
+        return opened
+
+    def test_cli_accepts_only_absolute_associate_sms_options(self):
+        selected = m._arguments(["associate-sms", "--directory", "/tmp/a", "--node", "/tmp/n"])
+        self.assertEqual(selected, ("associate-sms", Path("/tmp/a"), Path("/tmp/n")))
+        for args in (
+            ["associate-sms", "--directory", "relative", "--node", "/tmp/n"],
+            ["associate-sms", "--directory", "/tmp/a", "--directory", "/tmp/b"],
+            ["associate", "--directory", "/tmp/a", "--node", "/tmp/n"],
+        ):
+            output = io.StringIO()
+            with redirect_stdout(output):
+                self.assertEqual(m.main(args), 2)
+            self.assertEqual(json.loads(output.getvalue())["code"], "invalid_arguments")
+
+    async def test_real_node_program_links_the_issued_challenge_through_public_ports(self):
+        program = m._ASSOCIATE_PROGRAM.replace(
+            "@livekit-ecosystem/channel-continuity/postgres", _data_module(_STUB_POSTGRES)
+        ).replace("@livekit-ecosystem/channel-continuity/security", _data_module(_STUB_SECURITY))
+        self.assertNotIn("@livekit-ecosystem", program)
+        with (
+            patch.object(m, "_ASSOCIATE_PROGRAM", program),
+            patch.object(m.subprocess, "Popen", side_effect=self.opened({})),
+        ):
+            self.assertEqual(await asyncio.to_thread(self.associate), "7")
+            for key in ("NODE_OPTIONS", "PGPORT", "OPENAI_API_KEY"):
+                with (
+                    self.subTest(key=key),
+                    patch.object(m.subprocess, "Popen", side_effect=self.opened({key: PRIVATE})),
+                    self.assertRaises(m.SetupError),
+                ):
+                    await asyncio.to_thread(self.associate)
+
+    async def test_observer_lines_or_extra_fields_on_stdout_are_rejected(self):
+        for output in (
+            '{"component":"channel_inbox"}\n{"schema_version":1,"association_version":"1"}\n',
+            '{"schema_version":1,"association_version":"1","token":"x"}\n',
+            '{"schema_version":1,"association_version":"01"}\n',
+        ):
+            program = "process.stdout.write(" + json.dumps(output) + ")"
+            with (
+                self.subTest(output=output[:24]),
+                patch.object(m, "_ASSOCIATE_PROGRAM", program),
+                patch.object(m.subprocess, "Popen", side_effect=self.opened({})),
+                self.assertRaises((m.SetupError, ValueError)),
+            ):
+                await asyncio.to_thread(self.associate)
+
+
 if __name__ == "__main__":
     unittest.main()

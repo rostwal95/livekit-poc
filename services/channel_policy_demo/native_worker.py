@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeVar
 from .native_models import ScriptedModelBundle, load_scripted_models
 from .native_prepare_http import NativePrepareEndpoint, NativePrepareHttp
 from .native_worker_config import (
+    InferenceMode,
     NativeWorkerConfig,
     encode_native_worker_config,
     load_native_worker_config,
@@ -34,7 +35,9 @@ if TYPE_CHECKING:
     from livekit import rtc
     from livekit.agents.voice import CloseEvent
 
-    from channel_continuity.native import NativeRuntime
+    from channel_continuity.native import NativeRuntime, NativeTiming
+
+    from .native_provider_models import ProviderModelBundle
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
@@ -233,7 +236,10 @@ class NativeWorker:
 
     def _emit(self, stage: Stage) -> None:
         try:
-            LOGGER.info("channel_policy_native_worker", extra={"stage": stage, "mode": "scripted"})
+            LOGGER.info(
+                "channel_policy_native_worker",
+                extra={"stage": stage, "mode": self._config.inference_mode},
+            )
             if self._observer is not None:
                 self._observer(stage)
         except Exception:  # noqa: BLE001 - observations never grant or block startup
@@ -272,7 +278,20 @@ class NativeWorker:
 
         self._check_starting()
         c = self._config
-        models: ScriptedModelBundle = await load_scripted_models(c.model_profile)
+        models: ScriptedModelBundle | ProviderModelBundle
+        timing: NativeTiming | None = None
+        instructions: str | None = None
+        if c.inference_mode == "provider_real":
+            from .native_provider_models import (
+                PROVIDER_INSTRUCTIONS,
+                load_provider_models,
+                provider_timing,
+            )
+
+            models = await load_provider_models()
+            timing, instructions = provider_timing(), PROVIDER_INSTRUCTIONS
+        else:
+            models = await load_scripted_models(c.model_profile)
         self._own(models.aclose, "dependencies")
         self._check_starting()
         current = WorkerCurrentResultClient(
@@ -292,6 +311,9 @@ class NativeWorker:
             llm=model,
             tts=models.tts,
             rehydration=NativeRehydrationProfile(context),
+            timing=timing,
+            instructions=instructions,
+            inference_mode=c.inference_mode,
         )
         self._runtime = runtime
         self._own(runtime.aclose, "front")
@@ -435,13 +457,17 @@ class NativeWorker:
 
 
 def _write_state(
-    state: str, *, code: WorkerCode | None = None, reason: SdkCloseReason | None = None
+    state: str,
+    *,
+    code: WorkerCode | None = None,
+    reason: SdkCloseReason | None = None,
+    mode: InferenceMode = "scripted",
 ) -> None:
     """Finite process protocol; no tokens, paths, input or SDK exception text."""
     value: dict[str, object] = {
         "schemaVersion": 1,
         "component": "channel_policy_native_worker",
-        "mode": "scripted",
+        "mode": mode,
         "state": state,
     }
     if code is not None:
@@ -454,10 +480,13 @@ def _write_state(
 async def _serve(config: NativeWorkerConfig) -> int:
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
+    mode = config.inference_mode
 
     def observed(stage: Stage) -> None:
         _write_state(
-            stage, reason=worker.session_close_reason if stage == "session_closed" else None
+            stage,
+            reason=worker.session_close_reason if stage == "session_closed" else None,
+            mode=mode,
         )
 
     worker = NativeWorker(config, observer=observed)
@@ -487,14 +516,14 @@ async def _serve(config: NativeWorkerConfig) -> int:
         if worker.session_closed:
             if worker.session_close_reason in {None, "error"}:
                 failed = True
-                _write_state("failed", code="unavailable")
+                _write_state("failed", code="unavailable", mode=mode)
         elif running in done:
             await running
     except asyncio.CancelledError:
         raise
     except Exception:  # noqa: BLE001 - finite process outcome; cleanup still runs
         failed = True
-        _write_state("failed", code="unavailable")
+        _write_state("failed", code="unavailable", mode=mode)
     finally:
         if sdk_closed is not None:
             sdk_closed.cancel()
@@ -516,7 +545,7 @@ async def _serve(config: NativeWorkerConfig) -> int:
             raise
         except Exception:  # noqa: BLE001 - unresolved owners cannot report a clean stop
             failed = True
-            _write_state("failed", code="cleanup_incomplete")
+            _write_state("failed", code="cleanup_incomplete", mode=mode)
         if running is not None:
             if not running.done():
                 running.cancel()
@@ -556,13 +585,15 @@ def main(argv: list[str] | None = None) -> int:
     if len(values) != 2 or values[0] != "--config":
         _write_state("failed", code="invalid_configuration")
         return 2
+    mode: InferenceMode = "scripted"
     try:
         config = load_native_worker_config(Path(values[1]))
+        mode = config.inference_mode
         return asyncio.run(_serve(config))
     except KeyboardInterrupt:
         return 130
     except Exception:  # noqa: BLE001 - no config/path/SDK diagnostic is printed
-        _write_state("failed", code="unavailable")
+        _write_state("failed", code="unavailable", mode=mode)
         return 2
 
 

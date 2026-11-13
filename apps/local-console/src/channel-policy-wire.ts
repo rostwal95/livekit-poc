@@ -58,7 +58,7 @@ export interface RoomStatus {
 }
 export interface RoomGrant extends Omit<EndCommand, 'schemaVersion'> {
   readonly schemaVersion: 1;
-  readonly mode: 'scripted';
+  readonly mode: 'scripted' | 'provider_real';
   readonly stage: 'waiting_browser';
   readonly rtc: Readonly<{
     url: string;
@@ -314,7 +314,7 @@ export function parseGrant(value: unknown, expected: StartCommand): RoomGrant {
     r.ownerEpoch !== expected.ownerEpoch ||
     r.originalStartCommandId !== expected.commandId ||
     BigInt(generation) !== BigInt(expected.expectedGeneration) + 1n ||
-    r.mode !== 'scripted' ||
+    (r.mode !== 'scripted' && r.mode !== 'provider_real') ||
     r.stage !== 'waiting_browser' ||
     typeof rtc.token !== 'string' ||
     rtc.token.length > 8192 ||
@@ -327,7 +327,7 @@ export function parseGrant(value: unknown, expected: StartCommand): RoomGrant {
     ownerEpoch: uuid(r.ownerEpoch),
     generation,
     originalStartCommandId: uuid(r.originalStartCommandId),
-    mode: 'scripted',
+    mode: r.mode,
     stage: 'waiting_browser',
     rtc: Object.freeze({
       url: rtcUrl(rtc.url),

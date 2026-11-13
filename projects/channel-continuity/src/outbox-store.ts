@@ -1,7 +1,7 @@
 /** Same-schema recipient permission and immutable outbox records; no provider I/O in transactions. */
 import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
-import { ChannelError, PgPool, config, settings, table, validate } from './database.js';
+import { ChannelError, PgPool, watchPool, config, settings, table, validate } from './database.js';
 import {
   DEFINITION_DIGEST,
   DISPATCH_DEFINITION_DIGEST,
@@ -189,7 +189,7 @@ export class OutboxStore {
       this.#controllers.set(key, ref);
     }
     this.#policy = new SendPolicyStore(this.#database.schema, this.#integration.providerScope);
-    this.#pool = new PgPool(config(this.#database));
+    this.#pool = watchPool(new PgPool(config(this.#database)));
     this.#pool.on('error', () => undefined);
   }
   #token(value: unknown): string {

@@ -1,6 +1,16 @@
 /** Explicit standalone-only case authority. Integrated mode uses P1 instead of this store. */
 import type { Pool, PoolClient } from 'pg';
-import { PgClient, PgPool, catalog, config, digest, settings, table } from './database.js';
+import {
+  PgClient,
+  watchClient,
+  PgPool,
+  watchPool,
+  catalog,
+  config,
+  digest,
+  settings,
+  table,
+} from './database.js';
 import type { DatabaseSettings } from './public-types.js';
 import {
   RoutingError,
@@ -140,7 +150,7 @@ export async function installReferenceCaseSchema(
   const refs = allowedReferences(
     checked.map((seed) => ({ scope: seed.scope, caseId: seed.caseId })),
   );
-  const client = new PgClient(config(database));
+  const client = watchClient(new PgClient(config(database)));
   try {
     await client.connect();
     await client.query('BEGIN');
@@ -236,7 +246,7 @@ export class ReferenceCaseAuthority implements CaseAuthorityPort {
   constructor(input: DatabaseSettings, allowedCases: readonly CaseReference[]) {
     this.#database = configuration(input, 'livekit_lab');
     this.#allowed = allowedReferences(allowedCases);
-    this.#pool = new PgPool(config(this.#database));
+    this.#pool = watchPool(new PgPool(config(this.#database)));
     this.#pool.on('error', () => {
       this.#counts.failed++;
     });

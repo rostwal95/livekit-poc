@@ -5,7 +5,10 @@ import type { RetirementPermit, RoomTicket, Ticket } from './channel-policy-poli
 import { JoinedClient } from './channel-policy-client';
 import type { RequestOwner } from './channel-policy-client';
 import { JoinedPanel } from './channel-policy-panel';
-import { JoinedRoom } from './channel-policy-room';
+import { JoinedRoom, createMicrophoneInput } from './channel-policy-room';
+import { createScriptedInput } from './scripted-input';
+import type { ScriptedInputOptions } from './scripted-input';
+import type { NativeMode } from './p2-native-policy';
 import {
   startCommand,
   endCommand,
@@ -210,6 +213,8 @@ export class JoinedApplication {
   #entryEpoch = 0;
   #voiceInputId: string | null = null;
   #ackTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  #mode: NativeMode | null = null;
+  #voiceSource: 'clip' | 'microphone' = 'clip';
   constructor(
     root: ParentNode = document,
     fetcher: typeof fetch = fetch,
@@ -267,6 +272,8 @@ export class JoinedApplication {
     on('commit-voice', 'click', () => this.voice('commit'));
     on('interrupt', 'click', () => this.voice('interrupt'));
     on('enable-audio', 'click', () => this.voice('audio'));
+    on('voice-clip', 'change', () => this.voiceSource('clip'));
+    on('voice-mic', 'change', () => this.voiceSource('microphone'));
     on('sms-form', 'submit', (e) => {
       e.preventDefault();
       this.sms();
@@ -282,6 +289,7 @@ export class JoinedApplication {
     );
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) this.stopPolling();
+      else this.#renewPolling();
     });
     this.render();
   }
@@ -295,6 +303,9 @@ export class JoinedApplication {
       playing: this.#playing,
       busy: this.#busy || (this.#media?.port.controlsPending ?? false),
       speech: this.#speech,
+      polling: this.#poll !== null || this.#readPass !== null,
+      mode: this.#mode,
+      voiceSource: this.#voiceSource,
     });
     const end = this.panel.element<HTMLButtonElement>('end');
     end.textContent = this.#retirement ? 'Retry End' : 'End';
@@ -313,6 +324,12 @@ export class JoinedApplication {
       ])
         this.panel.element<HTMLButtonElement>(name).disabled = true;
     }
+  }
+  /** The source is fixed once a voice input is prepared for this activation. */
+  voiceSource(source: 'clip' | 'microphone'): void {
+    if (this.#media?.port.voicePrepared) return;
+    this.#voiceSource = source;
+    this.render();
   }
   mode(voice: boolean): void {
     this.panel.element('voice').hidden = !voice;
@@ -421,7 +438,7 @@ export class JoinedApplication {
       originalStartCommandId: grant.originalStartCommandId,
       workerReady: false,
       grant: {
-        mode: 'scripted' as const,
+        mode: grant.mode,
         expiresAt: grant.rtc.expiresAt,
         session: {
           schemaVersion: 1 as const,
@@ -435,6 +452,7 @@ export class JoinedApplication {
       },
     };
     if (this.model.observeStart(ticket, value) !== 'adopt') return;
+    this.#mode = grant.mode;
     if (Date.parse(grant.rtc.expiresAt) <= Date.now()) {
       this.end();
       return;
@@ -493,9 +511,9 @@ export class JoinedApplication {
           }
           this.render();
         },
-        text: (text) => {
+        text: (text, stream, live) => {
           if (this.#media === owned && !owned.closing) {
-            this.model.agentText(owned.ticket, text);
+            this.model.agentText(owned.ticket, text, stream, live);
             this.render();
           }
         },
@@ -508,6 +526,12 @@ export class JoinedApplication {
         changed: () => this.render(),
       },
       this.panel.element('audio'),
+      undefined,
+      (options?: ScriptedInputOptions) =>
+        this.#voiceSource === 'microphone'
+          ? createMicrophoneInput(options)
+          : createScriptedInput(options),
+      { mode: grant.mode },
     );
     const expiry = setTimeout(
       () => {
@@ -643,6 +667,7 @@ export class JoinedApplication {
     this.#notice = null;
     this.#playing = false;
     this.#speech = null;
+    this.#mode = null;
     this.panel.element<HTMLInputElement>('access').value = '';
     this.panel.element<HTMLTextAreaElement>('message').value = '';
     this.panel.element<HTMLTextAreaElement>('sms-message').value = '';
@@ -735,7 +760,13 @@ export class JoinedApplication {
       this.render();
     }
   }
+  /** New input renews the bounded refresh budget so its background result can appear. */
+  #renewPolling(): void {
+    this.#pollTicks = 0;
+    if (this.#poll === null && this.#readPass === null) this.schedulePoll();
+  }
   #awaitAck(media: MediaOwner, inputId: string): void {
+    this.#renewPolling();
     const previous = this.#ackTimers.get(inputId);
     if (previous !== undefined) clearTimeout(previous);
     const timer = setTimeout(() => {
@@ -759,6 +790,7 @@ export class JoinedApplication {
             });
       const next = this.model.beginSms(command.commandId, command.body, command.occurredAt);
       this.#sms = command;
+      this.#renewPolling();
       this.#begin(
         next.ticket,
         'sms',
@@ -867,6 +899,7 @@ export class JoinedApplication {
       .finally(() => {
         if (this.#readPass === pass) this.#readPass = null;
         this.schedulePoll();
+        this.render();
       })
       .catch(() => undefined);
     return pass;

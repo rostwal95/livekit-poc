@@ -1,6 +1,17 @@
+import { EventEmitter } from 'node:events';
+import type { PoolClient } from 'pg';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { ChannelInbox, SeededAccounts, ChannelError } from '../src/postgres.js';
-import { DEFAULT_LIMITS, config, limits, settings, PgPool } from '../src/database.js';
+import {
+  DEFAULT_LIMITS,
+  config,
+  limits,
+  settings,
+  watchClient,
+  watchPool,
+  PgClient,
+  PgPool,
+} from '../src/database.js';
 import { closeMigrationClient } from '../src/migrations.js';
 import { createFakeSmsIntegration } from '../src/security.js';
 const db = {
@@ -40,6 +51,15 @@ describe('offline database configuration and lifecycle boundaries', () => {
       expect(() => settings({ ...db, ...changed } as typeof db, 'livekit_lab')).toThrow(
         ChannelError,
       );
+  });
+  test('an unexpected disconnect on a pooled or direct client never becomes an unhandled error', async () => {
+    const pool = watchPool(new PgPool(config(settings(db, 'livekit_lab'))));
+    const checkedOut = new EventEmitter() as unknown as PoolClient;
+    pool.emit('connect', checkedOut);
+    expect(() => checkedOut.emit('error', new Error('terminating connection'))).not.toThrow();
+    const direct = watchClient(new PgClient(config(settings(db, 'livekit_lab'))));
+    expect(() => direct.emit('error', new Error('terminating connection'))).not.toThrow();
+    await pool.end();
   });
   test('owner limits are bounded and equivalent independent of property insertion order', () => {
     expect(

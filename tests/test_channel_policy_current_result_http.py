@@ -91,7 +91,7 @@ class ConfigurationTests(unittest.TestCase):
             {"current_bearer": "x"},
             {"current_bearer": TOKEN + "\n"},
             {"timeout_s": 0},
-            {"timeout_s": 1.1},
+            {"timeout_s": 4.1},
             {"timeout_s": 10**1000},
             {"cleanup_timeout_s": -(10**1000)},
             {"cleanup_timeout_s": float("nan")},

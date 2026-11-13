@@ -83,6 +83,22 @@ export function digest(value: string): string {
 }
 export const PgClient = pg.Client;
 export const PgPool = pg.Pool;
+/**
+ * pg emits 'error' on a client whose connection drops, even mid-query, and
+ * pg-pool removes its idle listener while a client is checked out. Without a
+ * listener that event would crash the process; the failed query still rejects.
+ */
+function tolerateDisconnect(client: pg.ClientBase): void {
+  client.on('error', () => undefined);
+}
+export function watchPool(pool: pg.Pool): pg.Pool {
+  pool.on('connect', tolerateDisconnect);
+  return pool;
+}
+export function watchClient(client: pg.Client): pg.Client {
+  tolerateDisconnect(client);
+  return client;
+}
 
 /** One catalog read, including column-level grants and every relation/function. */
 export async function catalog(client: Connection, schema: string): Promise<unknown> {

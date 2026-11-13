@@ -436,9 +436,11 @@ def _identity(record: WorkRecord) -> tuple[object, ...]:
 class CurrentResultProducer:
     """One actual scan and at most one owned inspection, including failed close.
 
-    Waiter expiry/abort abandons observation only. Check it after every await;
-    admitted calls/factories/close remain retained, with no next business stage.
-    close drains this transport/service-call ownership, not global borrowed SQL.
+    Concurrent readers of a published, unabandoned scan share its observation;
+    only the last waiter's expiry/abort abandons it. Abandonment stops observation
+    only. Check it after every await; admitted calls/factories/close remain
+    retained, with no next business stage. close drains this transport/service-call
+    ownership, not global borrowed SQL.
     """
 
     def __init__(
@@ -491,9 +493,11 @@ class CurrentResultProducer:
         self._close_task: asyncio.Task[None] | None = None
         self._loop: asyncio.AbstractEventLoop | None = None
         self._closing = self._abandoned = False
+        self._waiters = 0
         self._selected_deadline: int | None = None
         self._counts = {
             "scans_started": 0,
+            "scans_joined": 0,
             "current": 0,
             "no_delivery": 0,
             "not_applicable": 0,
@@ -972,11 +976,51 @@ class CurrentResultProducer:
         self._log(result.state)
         return result
 
+    def _joinable(
+        self, current: asyncio.Task[object] | None
+    ) -> asyncio.Task[CurrentResultObservation] | None:
+        scan = self._scan
+        if (
+            scan is None
+            or scan.done()
+            or scan is current
+            or self._abandoned
+            or self._scan_publication is None
+            or not self._scan_publication.done()
+        ):
+            return None
+        return scan
+
+    async def _wait(
+        self, loop: asyncio.AbstractEventLoop, scan: asyncio.Task[CurrentResultObservation]
+    ) -> CurrentResultObservation:
+        self._waiters += 1
+        try:
+            async with asyncio.timeout_at(loop.time() + self._timeout):
+                return await asyncio.shield(scan)
+        except TimeoutError:
+            self._abandoned = self._abandoned or self._waiters == 1
+            raise CurrentResultProducerError("deadline_exceeded") from None
+        except asyncio.CancelledError:
+            self._abandoned = self._abandoned or self._waiters == 1
+            raise
+        finally:
+            self._waiters -= 1
+
     async def read(self) -> CurrentResultObservation:
         loop = self._bind()
         _need(not self._closing, "closed")
-        _need(not self._scan_active() and self._inspection is None, "capacity")
         current = asyncio.current_task()
+        shared = self._joinable(current)
+        if shared is not None:
+            if current is not None and current.cancelling():
+                raise asyncio.CancelledError
+            self._counts["scans_joined"] += 1
+            try:
+                return await self._wait(loop, shared)
+            except CurrentResultProducerError as error:
+                raise CurrentResultProducerError(error.code) from None
+        _need(not self._scan_active() and self._inspection is None, "capacity")
         if current is not None and current.cancelling():
             raise asyncio.CancelledError
         self._abandoned = False
@@ -990,7 +1034,7 @@ class CurrentResultProducer:
             raise CurrentResultProducerError() from None
         self._scan_publication = publication
         try:
-            self._scan = _spawn(self._run())
+            scan = self._scan = _spawn(self._run())
         except Exception:  # noqa: BLE001 - finite public boundary
             raise CurrentResultProducerError() from None
         finally:
@@ -998,15 +1042,7 @@ class CurrentResultProducer:
             # unscheduled coroutine was closed by _spawn; no actual owner hides.
             publication.set_result(None)
         self._counts["scans_started"] += 1
-        try:
-            async with asyncio.timeout_at(loop.time() + self._timeout):
-                return await asyncio.shield(self._scan)
-        except TimeoutError:
-            self._abandoned = True
-            raise CurrentResultProducerError("deadline_exceeded") from None
-        except asyncio.CancelledError:
-            self._abandoned = True
-            raise
+        return await self._wait(loop, scan)
 
     async def close(self) -> None:
         loop = self._bind()

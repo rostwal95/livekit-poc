@@ -246,6 +246,20 @@ separate. Application shutdown drains HTTP first, then its service/coordinator,
 then shared case readers; an HTTP-only drain does not prove underlying P1 I/O
 settled. Preserve the separately owned actual slot and retry incomplete close.
 
+### Joined showcase provider mode and pacing
+
+Read the [0046 work item](docs/work-items/0046-joined-showcase-providers-and-demo.md)
+before changing joined provider mode, current-result reads or executor pacing.
+Provider keys reach only each room's native worker; grant, worker frames and the
+`p2.inference_mode` attribute must agree or fail closed. The persisted dispatch
+decision stays the deterministic investigation rule in every mode. Keep
+`NativeTiming(reply="scheduled")` opt-in and incompatible with response capture.
+Concurrent current-result readers share only a published, unabandoned scan; the
+last waiter alone abandons it. Executor pacing delays reruns of the same work but
+never skips, acknowledges or persists work, and every scan still rereads the full
+page. Background readers keep one shared reader slot free for dispatch, and
+inspections keep their reserved job ticket. Only side-effect-free reads retry.
+
 ## Verification
 
 Bootstrap with make bootstrap and corepack pnpm install --frozen-lockfile as documented

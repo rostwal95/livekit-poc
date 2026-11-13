@@ -18,6 +18,7 @@ from services.channel_policy_demo import application as m
 from services.channel_policy_demo import owner_config as c
 from services.channel_policy_demo.current_result import CurrentResultObservation
 from services.channel_policy_demo.discovery import DiscoveryPage, DiscoveryScope
+from services.channel_policy_demo.executor import ScanObservation
 
 ROOT = Path(__file__).resolve().parents[1]
 PRIVATE = "PRIVATE_DEPENDENCY_TEXT_NEVER_DIAGNOSE"
@@ -168,6 +169,7 @@ class Composition(unittest.IsolatedAsyncioTestCase):
         class Executor(Owner):
             def __init__(self, **kwargs):
                 super().__init__("executor")
+                outer.executor_arguments = kwargs
 
             async def scan_once(self):
                 outer.trace.append("scan")
@@ -516,6 +518,61 @@ class Composition(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(app.metrics()["owned_resources"], 0)
         self.assertEqual(app.metrics()["closed"], 1)
 
+    async def test_background_readers_share_one_lane_and_progress_waits_for_it(self):
+        app = self.app()
+        await app.start_sources()
+        lane = self.executor_arguments["discovery"].lane
+        self.assertIsInstance(lane, asyncio.Semaphore)
+        self.assertIs(self.executor_arguments["prepared"].lane, lane)
+        with patch.object(m, "CurrentResultProducer", self.Producer):
+            app.attach_current_result(self.Native())
+        for port in ("discovery", "prepared"):
+            self.assertIs(self.producers[-1].arguments[port].lane, lane)
+        await lane.acquire()
+        progress = asyncio.create_task(app.observe_progress())
+        for _ in range(5):
+            await asyncio.sleep(0)
+        self.assertFalse(progress.done())
+        lane.release()
+        self.assertEqual((await progress).native, 0)
+        await app.close_current_result()
+
+    async def test_current_read_retries_only_transient_capacity_within_its_bound(self):
+        from services.channel_policy_demo.current_result_producer import (
+            CurrentResultProducerError,
+        )
+
+        outcomes = []
+
+        class Flaky(self.Producer):
+            async def read(inner):
+                code = outcomes.pop(0) if outcomes else None
+                if code is not None:
+                    raise CurrentResultProducerError(code)
+                return await super().read()
+
+        app = self.app()
+        await app.start_sources()
+        with (
+            patch.object(m, "CURRENT_READ_RETRY_DELAYS_S", (0, 0)),
+            patch.object(m, "CurrentResultProducer", Flaky),
+        ):
+            reader = app.attach_current_result(self.Native())
+            outcomes[:] = ["capacity", "capacity"]
+            self.assertEqual((await reader.read()).state, "no_delivery")
+            outcomes[:] = ["capacity", "capacity", "capacity"]
+            with self.assertRaisesRegex(CurrentResultProducerError, "^capacity$"):
+                await reader.read()
+            outcomes[:] = ["unavailable"]
+            with self.assertRaisesRegex(CurrentResultProducerError, "^unavailable$"):
+                await reader.read()
+            self.assertEqual(outcomes, [])
+            outcomes[:] = ["capacity"]
+            await app.close_current_result()
+            with self.assertRaisesRegex(m.ApplicationError, "^closed$"):
+                await reader.read()
+            self.assertEqual(outcomes, ["capacity"])
+
     async def test_actual_producer_uses_shared_public_ports_for_empty_history(self):
         app = self.app()
         await app.start_sources()
@@ -735,6 +792,25 @@ class Composition(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(m.ApplicationError, "^invalid_input$"):
             m.ChannelPolicyApplication(None)
         self.assertEqual(self.trace, [])
+
+
+class ScanCadenceTests(unittest.TestCase):
+    def test_idle_scans_back_off_to_one_second_and_any_work_restores_the_fast_rescan(self):
+        idle = ScanObservation(16, 0, 16, 0, 0)
+        interval = m.SCAN_INTERVAL_S
+        seen = []
+        for _ in range(4):
+            interval = m.next_scan_interval(interval, idle)
+            seen.append(interval)
+        self.assertEqual(seen, [0.5, 1.0, 1.0, 1.0])
+        for busy in (
+            ScanObservation(16, 1, 15, 0, 0),
+            ScanObservation(16, 0, 16, 1, 1),
+            ScanObservation(16, 0, 16, 0, 1),
+        ):
+            self.assertEqual(m.next_scan_interval(1.0, busy), m.SCAN_INTERVAL_S)
+        for unknown in (None, object(), "idle"):
+            self.assertEqual(m.next_scan_interval(1.0, unknown), m.SCAN_INTERVAL_S)
 
 
 if __name__ == "__main__":

@@ -37,6 +37,7 @@ STRICT_TYPE_PATHS := \
 	services/channel_policy_demo/native_room_admin.py \
 	services/channel_policy_demo/native_room_state.py \
 	services/channel_policy_demo/native_worker_process.py \
+	services/channel_policy_demo/native_provider_models.py \
 	services/channel_policy_demo/operator.py \
 	services/channel_policy_demo/operator_contract.py \
 	services/channel_policy_demo/operator_http.py \
@@ -210,6 +211,7 @@ browser-setup:
 	$(PNPM) --filter @livekit-ecosystem/local-console exec playwright install chromium
 
 frontend-check:
+	@command -v pnpm >/dev/null 2>&1 || { echo "frontend-check: root scripts call pnpm; run 'corepack enable' once (Node ships corepack)." >&2; exit 2; }
 	$(PNPM) format:check
 	$(PNPM) check
 	$(PNPM) test
@@ -472,3 +474,29 @@ channel-policy-ui-dev:
 .PHONY: channel-policy-launch-plan
 channel-policy-launch-plan:
 	$(VENV)/bin/python local-setup/scripts/channel_policy_launch.py --plan
+
+# Joined P1+P2+P3 showcase. The profile directory must not exist before setup;
+# choose a new CHANNEL_POLICY_PROFILE for each fresh demonstration (the showcase
+# window holds sixteen inputs per profile).
+CHANNEL_POLICY_PROFILE ?= $(CURDIR)/.local/channel-policy-showcase
+NODE_BIN ?= $(shell $(PYTHON) -c 'import os, shutil; print(os.path.realpath(shutil.which("node") or ""))')
+DEMO_RECORDING ?= $(CURDIR)/.local/demo-recording
+
+.PHONY: channel-policy-demo-build channel-policy-demo-setup channel-policy-demo-start channel-policy-demo-start-provider channel-policy-demo-record
+channel-policy-demo-build:
+	$(PNPM) --filter @livekit-ecosystem/channel-continuity build
+	$(PNPM) --filter @livekit-ecosystem/delegation-specialist build
+	$(PNPM) --filter @livekit-ecosystem/channel-policy-gateway build
+	$(PNPM) --filter @livekit-ecosystem/local-console run channel-policy:build
+channel-policy-demo-setup:
+	$(VENV)/bin/python local-setup/scripts/channel_policy_setup.py prepare --directory $(CHANNEL_POLICY_PROFILE) --node $(NODE_BIN)
+	$(VENV)/bin/python local-setup/scripts/channel_policy_setup.py associate-sms --directory $(CHANNEL_POLICY_PROFILE) --node $(NODE_BIN)
+channel-policy-demo-start:
+	$(VENV)/bin/python local-setup/scripts/channel_policy_launch.py serve --profile $(CHANNEL_POLICY_PROFILE)/owner-profile.json --node $(NODE_BIN)
+# Real Deepgram/OpenAI/ElevenLabs voice: makes paid provider calls with local-setup/.env.providers.
+channel-policy-demo-start-provider:
+	$(VENV)/bin/python local-setup/scripts/channel_policy_launch.py serve --profile $(CHANNEL_POLICY_PROFILE)/owner-profile.json --node $(NODE_BIN) --provider
+# Records the narrated demo against a running showcase on a fresh profile.
+# Set FFMPEG=/path/to/ffmpeg when ffmpeg is not on PATH; without it only WebM is kept.
+channel-policy-demo-record:
+	cd apps/local-console && node scripts/record-channel-policy-demo.mjs $(CHANNEL_POLICY_PROFILE)/.runtime/operator.json $(DEMO_RECORDING)

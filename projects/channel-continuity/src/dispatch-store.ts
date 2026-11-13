@@ -1,7 +1,7 @@
 /** Persisted P2 message-dispatch observations; external business work is owned by its port. */
 import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
-import { PgPool, config, settings, table, validate } from './database.js';
+import { PgPool, watchPool, config, settings, table, validate } from './database.js';
 import { ChannelError, type DatabaseSettings } from './public-types.js';
 import { SeededAccounts, type StoredMessage } from './postgres.js';
 import { decodeStoredMessage } from './postgres-records.js';
@@ -72,7 +72,7 @@ export class DispatchStore {
     this.#accounts = accounts;
     if (!(accounts instanceof SeededAccounts) || !integration?.providerScope)
       throw new ChannelError('AccessDenied');
-    this.#pool = new PgPool(config(this.#value));
+    this.#pool = watchPool(new PgPool(config(this.#value)));
     this.#pool.on('error', () => undefined);
   }
   #q(name: string): string {

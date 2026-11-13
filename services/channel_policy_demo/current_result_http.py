@@ -144,7 +144,7 @@ class RoomCurrentResultHttp(BoundedLoopbackHttp):
         *,
         is_current: Callable[[], bool],
         current_bearer: str,
-        timeout_s: float = 1,
+        timeout_s: float = 3.5,
         cleanup_timeout_s: float = 1,
     ) -> None:
         application = _CurrentExchange(reader, is_current, lambda: self._closing)

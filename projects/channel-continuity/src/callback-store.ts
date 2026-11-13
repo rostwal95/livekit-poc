@@ -1,7 +1,7 @@
 /** Durable callback evidence. Global admission is acquired before callback growth. */
 import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
-import { PgPool, config, settings, table, validate } from './database.js';
+import { PgPool, watchPool, config, settings, table, validate } from './database.js';
 import {
   DEFINITION_DIGEST,
   DISPATCH_DEFINITION_DIGEST,
@@ -65,7 +65,7 @@ export class CallbackStore {
     configuredCallbackScope(integration);
     this.#integration = integration;
     this.#accounts = accounts;
-    this.#pool = new PgPool(config(this.#database));
+    this.#pool = watchPool(new PgPool(config(this.#database)));
     this.#pool.on('error', () => undefined);
   }
   #q(name: string) {

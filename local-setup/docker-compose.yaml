@@ -17,7 +17,7 @@ x-runtime: &runtime
 
 x-python: &python
   <<: *runtime
-  image: livekit-agent-ecosystem-python:local
+  image: ${STACK_PROJECT:-livekit-agent-ecosystem}-python:local
   build:
     context: ..
     dockerfile: local-setup/docker/python.Dockerfile
@@ -265,7 +265,7 @@ services:
   p1-stt:
     <<: *runtime
     profiles: [p1-models]
-    image: livekit-agent-ecosystem-whisper:local
+    image: ${STACK_PROJECT:-livekit-agent-ecosystem}-whisper:local
     build:
       context: ..
       dockerfile: local-setup/docker/whisper.Dockerfile
@@ -297,7 +297,7 @@ services:
   p1-tts:
     <<: *runtime
     profiles: [p1-models]
-    image: livekit-agent-ecosystem-piper:local
+    image: ${STACK_PROJECT:-livekit-agent-ecosystem}-piper:local
     build:
       context: ..
       dockerfile: local-setup/docker/piper.Dockerfile
@@ -349,7 +349,7 @@ services:
 
   console:
     <<: *runtime
-    image: livekit-agent-ecosystem-console:local
+    image: ${STACK_PROJECT:-livekit-agent-ecosystem}-console:local
     build:
       context: ..
       dockerfile: local-setup/docker/console.Dockerfile

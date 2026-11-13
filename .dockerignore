@@ -15,3 +15,5 @@ local-setup/.local
 **/.env.*
 **/dist-operations
 **/dist-p3-background
+**/dist-native
+**/dist-channel-policy

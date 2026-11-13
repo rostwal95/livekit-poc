@@ -1,14 +1,14 @@
 /** One genuine P2 v1 SDK activation. No optional response/publication authority. */
 import type { Room, RemoteParticipant, RemoteTrack } from 'livekit-client';
 import { createScriptedInput } from './scripted-input';
-import type { ScriptedInputSource } from './scripted-input';
+import type { ScriptedInputOptions, ScriptedInputSource } from './scripted-input';
 import {
   nativeReady,
   NATIVE_INPUT_ATTRIBUTE,
   parseNativeTurnReply,
   turnPayload,
 } from './p2-native-policy';
-import type { NativeSession, FrozenNativeInput, TurnMethod } from './p2-native-policy';
+import type { NativeMode, NativeSession, FrozenNativeInput, TurnMethod } from './p2-native-policy';
 import { JoinedUiError } from './channel-policy-contract';
 import { observed } from './channel-policy-client';
 import { safeCode } from './channel-policy-wire';
@@ -24,12 +24,37 @@ export interface RoomCallbacks {
     attributes: Readonly<Record<string, string>>,
   ): void;
   data(topic: 'p2.acceptance' | 'p2.generation', raw: Uint8Array): void;
-  text(value: string): void;
+  /** Accumulated agent transcript for one stream; live while the stream stays open. */
+  text(value: string, stream: number, live: boolean): void;
   playback(playing: boolean): void;
   changed(): void;
 }
+/** Live browser capture with the scripted source's shape; replay is a no-op. */
+export async function createMicrophoneInput(
+  options: ScriptedInputOptions = {},
+): Promise<ScriptedInputSource> {
+  if (options.signal?.aborted) throw new JoinedUiError('unavailable');
+  const stream = await navigator.mediaDevices.getUserMedia({
+    audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
+  });
+  const [track] = stream.getAudioTracks();
+  for (const extra of stream.getTracks()) if (extra !== track) extra.stop();
+  if (!track || options.signal?.aborted) {
+    track?.stop();
+    throw new JoinedUiError('unavailable');
+  }
+  return Object.freeze({
+    track,
+    replay: () => undefined,
+    close: async () => track.stop(),
+  });
+}
+export interface JoinedRoomOptions {
+  readonly mode?: NativeMode;
+}
 export class JoinedRoom {
   #session: NativeSession;
+  #mode: NativeMode;
   #room: Room | null = null;
   #sdk: Sdk | null = null;
   #closing = false;
@@ -43,7 +68,9 @@ export class JoinedRoom {
   #turnBusy = false;
   #interruptBusy = false;
   #sendBusy = false;
+  #audioBusy = false;
   #readers = 0;
+  #streams = 0;
   #turn: string | null = null;
   #outputs = new Map<RemoteTrack, HTMLMediaElement>();
   #playing = new Set<HTMLMediaElement>();
@@ -57,8 +84,13 @@ export class JoinedRoom {
       return { Room, RoomEvent, ParticipantKind, DataPacket_Kind, Track };
     },
     readonly sourceFactory: typeof createScriptedInput = createScriptedInput,
+    options: JoinedRoomOptions = {},
   ) {
     this.#session = Object.freeze({ ...session });
+    this.#mode = options.mode === 'provider_real' ? 'provider_real' : 'scripted';
+  }
+  get mode(): NativeMode {
+    return this.#mode;
   }
   whenClosed(): Promise<void> {
     return this.#closeActual ?? Promise.reject(new JoinedUiError('cleanup_incomplete'));
@@ -75,8 +107,11 @@ export class JoinedRoom {
   get turnInput(): string | null {
     return this.#turn;
   }
+  #full(): boolean {
+    return this.#actual.size >= 8;
+  }
   #track<T>(operation: () => Promise<T>): Promise<T> {
-    if (this.#actual.size >= 8) throw new JoinedUiError('capacity');
+    if (this.#full()) return Promise.reject(new JoinedUiError('capacity'));
     let actual: Promise<T>;
     try {
       actual = Promise.resolve(operation());
@@ -105,7 +140,14 @@ export class JoinedRoom {
     return (
       !this.#closing &&
       this.#selected(p) &&
-      nativeReady(this.#joined, this.#session, p?.identity ?? null, 'agent', p?.attributes ?? {})
+      nativeReady(
+        this.#joined,
+        this.#session,
+        p?.identity ?? null,
+        'agent',
+        p?.attributes ?? {},
+        this.#mode,
+      )
     );
   }
   #subscribe(participant: RemoteParticipant | undefined): void {
@@ -185,31 +227,62 @@ export class JoinedRoom {
           }
         });
         room.registerTextStreamHandler('lk.transcription', (reader, source) => {
-          if (this.#closing) return;
+          // Foreign senders, including the SDK's user transcript sent on this
+          // browser's behalf, unready agents and excess streams are released
+          // without changing state.
           if (
+            this.#closing ||
             !this.#ready() ||
             !this.#selected(room.remoteParticipants.get(source.identity)) ||
             this.#readers >= 2 ||
             this.#actual.size >= 8
           ) {
-            this.callbacks.connection('disconnected');
-            void this.close().catch(() => undefined);
+            void reader[Symbol.asyncIterator]()
+              .return()
+              .catch(() => undefined);
             return;
           }
           ++this.#readers;
           const epoch = this.#agentEpoch;
+          const stream = ++this.#streams;
+          const current = (): boolean => this.#ready() && epoch === this.#agentEpoch;
+          let shown = '';
+          const report = (text: string, live: boolean): void => {
+            if (!current() || !text.trim() || new TextEncoder().encode(text).length > 16384) return;
+            shown = live ? text : '';
+            try {
+              this.callbacks.text(text, stream, live);
+            } catch {
+              // A rejected display update must not leak this reader's slot.
+            }
+          };
+          // The bounded reader still owns limits and deadlines; this only tees chunks.
+          const live = {
+            withAbortSignal: (signal: AbortSignal): AsyncIterable<string> => {
+              const source = reader.withAbortSignal(signal);
+              return (async function* () {
+                let partial = '';
+                for await (const chunk of source) {
+                  partial += chunk;
+                  report(partial, true);
+                  yield chunk;
+                }
+              })();
+            },
+          };
           void this.#track(async () => {
             try {
               const { readNativeVoiceText } = await import('./voice');
               if (this.#closing) throw new JoinedUiError('unavailable');
               const text = await readNativeVoiceText(
-                reader,
+                live,
                 this.#lifetime.signal,
                 () => undefined,
-                'scripted',
+                this.#mode,
               );
-              if (this.#ready() && epoch === this.#agentEpoch && text) this.callbacks.text(text);
+              report(text, false);
             } finally {
+              if (shown) report(shown, false);
               --this.#readers;
               this.callbacks.changed();
             }
@@ -280,6 +353,8 @@ export class JoinedRoom {
   sendText(input: FrozenNativeInput): Promise<void> {
     if (!this.#ready() || this.#sendBusy || input.channel !== 'web_chat' || input.body === null)
       return Promise.reject(new JoinedUiError('unavailable'));
+    // Admit before setting the busy flag; only an admitted operation resets it.
+    if (this.#full()) return Promise.reject(new JoinedUiError('capacity'));
     this.#sendBusy = true;
     return observed(
       this.#track(async () => {
@@ -300,7 +375,7 @@ export class JoinedRoom {
   prepareVoice(): Promise<void> {
     if (!this.#ready() || this.#sourceBusy || this.#fixture)
       return Promise.reject(new JoinedUiError('unavailable'));
-    if (this.#actual.size >= 8) return Promise.reject(new JoinedUiError('capacity'));
+    if (this.#full()) return Promise.reject(new JoinedUiError('capacity'));
     this.#sourceBusy = true;
     let admitted = true;
     // Starts synchronously in this explicit user gesture, before any unrelated await.
@@ -345,11 +420,14 @@ export class JoinedRoom {
       (!interrupt && (!this.#fixture || this.#fixture.track.readyState !== 'live'))
     )
       return Promise.reject(new JoinedUiError('unavailable'));
+    if (this.#full()) return Promise.reject(new JoinedUiError('capacity'));
     const payload = turnPayload(method, inputId);
     if (interrupt) this.#interruptBusy = true;
     else this.#turnBusy = true;
     const source = this.#fixture;
     let admitted = true;
+    // Real recognition commits wait for provider transcription (agent budget 11 s).
+    const timeoutMs = method === 'p2.commit_turn' && this.#mode === 'provider_real' ? 12000 : 8000;
     return observed(
       this.#track(async () => {
         try {
@@ -357,7 +435,7 @@ export class JoinedRoom {
             destinationIdentity: this.#session.agentId,
             method,
             payload,
-            responseTimeout: 8000,
+            responseTimeout: timeoutMs,
           });
           const status = parseNativeTurnReply(raw, method, inputId);
           if (!admitted || !this.#ready()) throw new JoinedUiError('unknown');
@@ -373,7 +451,7 @@ export class JoinedRoom {
           this.callbacks.changed();
         }
       }),
-      8000,
+      timeoutMs,
       () => {
         admitted = false;
         return new JoinedUiError('unknown');
@@ -381,9 +459,18 @@ export class JoinedRoom {
     );
   }
   enableAudio(): Promise<void> {
-    if (this.#closing || !this.#room) return Promise.reject(new JoinedUiError('unavailable'));
+    if (this.#closing || !this.#room || this.#audioBusy)
+      return Promise.reject(new JoinedUiError('unavailable'));
+    if (this.#full()) return Promise.reject(new JoinedUiError('capacity'));
+    this.#audioBusy = true;
     return observed(
-      this.#track(() => this.#room!.startAudio()),
+      this.#track(async () => {
+        try {
+          await this.#room!.startAudio();
+        } finally {
+          this.#audioBusy = false;
+        }
+      }),
       5000,
       () => new JoinedUiError('unknown'),
     );

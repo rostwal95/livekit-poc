@@ -559,13 +559,21 @@ _COORDINATOR_CODES: dict[ReadCode, CoordinatorCode] = {
 
 @dataclass(frozen=True, slots=True)
 class CoordinatorWorkerDiscoveryReader:
-    """Borrow a client and translate its closed errors for the origin publisher port."""
+    """Borrow a client and translate its closed errors for the origin publisher port.
+
+    Readers sharing a lane wait for each other, so background scans hold at most
+    one of the client's two slots and origin dispatch keeps the other.
+    """
 
     client: ChannelPolicyWorkerClient = field(repr=False)
+    lane: asyncio.Semaphore | None = field(default=None, repr=False)
 
     async def read(self) -> DiscoveryPage:
         try:
-            return await self.client.discovery()
+            if self.lane is None:
+                return await self.client.discovery()
+            async with self.lane:
+                return await self.client.discovery()
         except WorkerReadError as error:
             raise CoordinatorError(_COORDINATOR_CODES[_failure(error).code]) from None
 
@@ -573,11 +581,17 @@ class CoordinatorWorkerDiscoveryReader:
 @dataclass(frozen=True, slots=True)
 class CoordinatorWorkerPreparedReader:
     client: ChannelPolicyWorkerClient = field(repr=False)
+    lane: asyncio.Semaphore | None = field(default=None, repr=False)
 
     async def read(self, *, source_binding_id: SourceBindingId, receipt_id: str) -> bytes | None:
         try:
-            return await self.client.prepared(
-                source_binding_id=source_binding_id, receipt_id=receipt_id
-            )
+            if self.lane is None:
+                return await self.client.prepared(
+                    source_binding_id=source_binding_id, receipt_id=receipt_id
+                )
+            async with self.lane:
+                return await self.client.prepared(
+                    source_binding_id=source_binding_id, receipt_id=receipt_id
+                )
         except WorkerReadError as error:
             raise CoordinatorError(_COORDINATOR_CODES[_failure(error).code]) from None

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ParticipantKind, RoomEvent, DataPacket_Kind, Track } from 'livekit-client';
 import { JoinedRoom } from './channel-policy-room';
-import type { RoomCallbacks } from './channel-policy-room';
+import type { JoinedRoomOptions, RoomCallbacks } from './channel-policy-room';
 import type { NativeSession } from './p2-native-policy';
 import type { ScriptedInputSource } from './scripted-input';
 const ID = '11111111-1111-4111-8111-111111111111';
@@ -24,10 +24,12 @@ function held<T>() {
 const tick = async () => {
   for (let i = 0; i < 12; i++) await Promise.resolve();
 };
-function setup() {
+function setup(options: JoinedRoomOptions = {}) {
   const events = new Map<string, (...args: unknown[]) => void>(),
     connect = vi.fn<() => Promise<void>>(async () => undefined),
     disconnect = vi.fn<() => Promise<void>>(async () => undefined),
+    startAudio = vi.fn<() => Promise<void>>(async () => undefined),
+    register = vi.fn(),
     rpc = vi.fn(async () => '{"schemaVersion":1,"status":"speech_interrupted","inputId":null}');
   const participant = {
     identity: 'agent-a',
@@ -59,10 +61,10 @@ function setup() {
       events.set(event, callback);
       return this;
     }
-    registerTextStreamHandler = vi.fn();
+    registerTextStreamHandler = register;
     unregisterTextStreamHandler = vi.fn();
     removeAllListeners = vi.fn();
-    startAudio = vi.fn(async () => undefined);
+    startAudio = startAudio;
   }
   const sdk = {
     Room: FakeRoom,
@@ -100,6 +102,7 @@ function setup() {
     { append: vi.fn() } as unknown as HTMLElement,
     load,
     sourceFactory,
+    options,
   );
   return {
     port,
@@ -107,6 +110,7 @@ function setup() {
     events,
     connect,
     disconnect,
+    startAudio,
     rpc,
     participant,
     local,
@@ -114,6 +118,23 @@ function setup() {
     sourceFactory,
     load,
     rooms: () => rooms,
+    transcription: (reader: ReturnType<typeof stream>, identity: string) => {
+      const handler = register.mock.calls.find(([topic]) => topic === 'lk.transcription')?.[1];
+      (handler as (reader: unknown, source: { identity: string }) => void)(reader, { identity });
+    },
+  };
+}
+function stream(chunks: readonly string[], gate?: Promise<void>) {
+  const release = vi.fn(async () => ({ done: true as const, value: undefined }));
+  return {
+    release,
+    withAbortSignal: () => ({
+      async *[Symbol.asyncIterator]() {
+        if (gate) await gate;
+        yield* chunks;
+      },
+    }),
+    [Symbol.asyncIterator]: () => ({ next: release, return: release }),
   };
 }
 afterEach(() => vi.useRealTimers());
@@ -178,6 +199,54 @@ describe('joined actual SDK boundary adapter with controlled SDK peers', () => {
     });
     expect(s.rpc).not.toHaveBeenCalled();
     await s.port.close();
+  });
+  it('provider mode requires the provider attribute and gives commits real ASR time', async () => {
+    const s = setup({ mode: 'provider_real' });
+    expect(s.port.mode).toBe('provider_real');
+    await s.port.connect(new AbortController().signal);
+    const input = { inputId: ID, channel: 'web_chat' as const, body: 'hello' };
+    await expect(s.port.sendText(input)).rejects.toMatchObject({ code: 'unavailable' });
+    s.participant.attributes['p2.inference_mode'] = 'provider_real';
+    await s.port.sendText(input);
+    expect(s.local.sendText).toHaveBeenCalledTimes(1);
+    await s.port.prepareVoice();
+    s.rpc.mockResolvedValueOnce(
+      JSON.stringify({ schemaVersion: 1, status: 'turn_started', inputId: ID }),
+    );
+    await s.port.turn('p2.start_turn', ID);
+    s.rpc.mockResolvedValueOnce(
+      JSON.stringify({ schemaVersion: 1, status: 'turn_committed', inputId: ID }),
+    );
+    await s.port.turn('p2.commit_turn', ID);
+    const timeouts = s.rpc.mock.calls.map(
+      (call) => (call as unknown as [{ method: string; responseTimeout: number }])[0],
+    );
+    expect(timeouts.map((c) => [c.method, c.responseTimeout])).toEqual([
+      ['p2.start_turn', 8000],
+      ['p2.commit_turn', 12000],
+    ]);
+    await s.port.close();
+  });
+  it('keeps text usable and strands no busy flag while repeated audio unlocks are refused', async () => {
+    const s = setup();
+    await s.port.connect(new AbortController().signal);
+    await s.port.prepareVoice();
+    const gate = held<void>();
+    s.startAudio.mockImplementation(() => gate.promise.then(() => undefined));
+    const audio = s.port.enableAudio();
+    const refused = Array.from({ length: 8 }, () => s.port.enableAudio());
+    expect((await Promise.allSettled(refused)).every((r) => r.status === 'rejected')).toBe(true);
+    expect(s.port.pendingCount).toBe(1);
+    const input = { inputId: ID, channel: 'web_chat' as const, body: 'hello' };
+    await s.port.sendText(input);
+    expect(s.local.sendText).toHaveBeenCalledTimes(1);
+    expect(s.port.controlsPending).toBe(false);
+    gate.resolve();
+    await audio;
+    await tick();
+    expect(s.port.pendingCount).toBe(0);
+    await s.port.sendText(input);
+    expect(s.local.sendText).toHaveBeenCalledTimes(2);
   });
   it('admits only selected reliable bounded acceptance/generation packets, never optional response IDs', async () => {
     const s = setup();
@@ -277,6 +346,92 @@ describe('joined actual SDK boundary adapter with controlled SDK peers', () => {
       }),
     );
     await commit;
+    await s.port.close();
+  });
+  it('reads selected-agent transcripts and releases forwarded user or foreign streams without ending the session', async () => {
+    const s = setup();
+    await s.port.connect(new AbortController().signal);
+    for (const identity of ['browser-a', 'foreign']) {
+      const rejected = stream(['not displayed']);
+      s.transcription(rejected, identity);
+      expect(rejected.release).toHaveBeenCalledTimes(1);
+    }
+    const agent = stream(['Checking ', 'the policy.']);
+    s.transcription(agent, 'agent-a');
+    await vi.waitFor(() =>
+      expect(s.callbacks.text).toHaveBeenLastCalledWith('Checking the policy.', 1, false),
+    );
+    expect(vi.mocked(s.callbacks.text).mock.calls).toEqual([
+      ['Checking ', 1, true],
+      ['Checking the policy.', 1, true],
+      ['Checking the policy.', 1, false],
+    ]);
+    expect(agent.release).not.toHaveBeenCalled();
+    expect(s.callbacks.connection).not.toHaveBeenCalledWith('disconnected');
+    expect(s.disconnect).not.toHaveBeenCalled();
+    await s.port.close();
+  });
+  it('releases a third concurrent transcript while two readers are held, then admits again', async () => {
+    const s = setup(),
+      gate = held<void>();
+    await s.port.connect(new AbortController().signal);
+    const first = stream(['one'], gate.promise),
+      second = stream(['two'], gate.promise),
+      third = stream(['three']);
+    s.transcription(first, 'agent-a');
+    s.transcription(second, 'agent-a');
+    await vi.waitFor(() => expect(s.port.pendingCount).toBe(2));
+    s.transcription(third, 'agent-a');
+    expect(third.release).toHaveBeenCalledTimes(1);
+    expect(s.disconnect).not.toHaveBeenCalled();
+    gate.resolve();
+    await vi.waitFor(() => expect(s.port.pendingCount).toBe(0));
+    expect(s.callbacks.text).toHaveBeenCalledWith('one', 1, false);
+    expect(s.callbacks.text).toHaveBeenCalledWith('two', 2, false);
+    const fourth = stream(['four']);
+    s.transcription(fourth, 'agent-a');
+    await vi.waitFor(() => expect(s.callbacks.text).toHaveBeenCalledWith('four', 3, false));
+    expect(fourth.release).not.toHaveBeenCalled();
+    await s.port.close();
+  });
+  it('clears the live marker when a stream fails after partial text and keeps reader accounting', async () => {
+    const s = setup();
+    await s.port.connect(new AbortController().signal);
+    vi.mocked(s.callbacks.text).mockImplementationOnce(() => {
+      throw new Error('display rejected');
+    });
+    const failing = {
+      ...stream([]),
+      withAbortSignal: () => ({
+        async *[Symbol.asyncIterator]() {
+          yield 'Partial ';
+          yield 'answer';
+          throw new Error('stream reset');
+        },
+      }),
+    };
+    s.transcription(failing, 'agent-a');
+    await vi.waitFor(() => expect(s.port.pendingCount).toBe(0));
+    expect(vi.mocked(s.callbacks.text).mock.calls.at(-1)).toEqual(['Partial answer', 1, false]);
+    const next = stream(['Next.']);
+    s.transcription(next, 'agent-a');
+    await vi.waitFor(() => expect(s.callbacks.text).toHaveBeenCalledWith('Next.', 2, false));
+    await s.port.close();
+  });
+  it('admits one audio unlock at a time so repeated clicks cannot fill the operation cap', async () => {
+    const s = setup(),
+      gate = held<void>();
+    await s.port.connect(new AbortController().signal);
+    s.startAudio.mockReturnValueOnce(gate.promise);
+    const first = s.port.enableAudio();
+    for (let i = 0; i < 5; i++)
+      await expect(s.port.enableAudio()).rejects.toMatchObject({ code: 'unavailable' });
+    expect(s.startAudio).toHaveBeenCalledTimes(1);
+    expect(s.port.pendingCount).toBe(1);
+    gate.resolve();
+    await first;
+    await s.port.enableAudio();
+    expect(s.startAudio).toHaveBeenCalledTimes(2);
     await s.port.close();
   });
   it('retains a failed source cleanup owner and never claims whenClosed success', async () => {

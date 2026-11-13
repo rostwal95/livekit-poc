@@ -1,5 +1,5 @@
 /** Normalized application observations, NOT the unfrozen Parent HTTP wire. */
-import type { NativeSession, FrozenNativeInput, TurnMethod } from './p2-native-policy';
+import type { NativeMode, NativeSession, FrozenNativeInput, TurnMethod } from './p2-native-policy';
 export type UiCode =
   'invalid' | 'denied' | 'conflict' | 'capacity' | 'unavailable' | 'unknown' | 'cleanup_incomplete';
 export class JoinedUiError extends Error {
@@ -25,7 +25,7 @@ export interface ParentObservation {
 export interface BrowserGrant {
   readonly session: NativeSession;
   readonly expiresAt: string;
-  readonly mode: 'scripted';
+  readonly mode: NativeMode;
 }
 export interface StartObservation {
   readonly cursor: ParentCursor;

@@ -215,8 +215,13 @@ class LaunchRequest:
     node: Path
     base_environment: Mapping[str, str] = field(repr=False)
     no_ui: bool = False
+    inference_mode: Literal["scripted", "provider_real"] = "scripted"
 
     def __post_init__(self) -> None:
+        need(
+            type(self.inference_mode) is str
+            and self.inference_mode in ("scripted", "provider_real")
+        )
         for path in (self.repository, self.profile_path, self.node):
             need(type(path) is PosixPath and path.is_absolute())
         need(type(self.no_ui) is bool and isinstance(self.base_environment, Mapping))
@@ -245,6 +250,7 @@ class PreparedLaunch:
     sources: Mapping[str, str]
     active_bytes: bytes = field(repr=False)
     active_signature: tuple[int, ...] = field(repr=False)
+    provider_environment: Mapping[str, str] | None = field(default=None, repr=False)
 
     @property
     def operator_file(self) -> Path:
@@ -313,6 +319,25 @@ def stack_settings(repository: Path) -> dict[str, str]:
         spec.loader.exec_module(module)
         result = module.load_settings(repository / "local-setup")
         need(type(result) is dict)
+        return cast(dict[str, str], result)
+    finally:
+        if sys.modules.get(spec.name) is module:
+            del sys.modules[spec.name]
+
+
+def provider_credentials(repository: Path) -> dict[str, str]:
+    """Explicit provider_real only: the strict owner-only loader, values never echoed."""
+    path = repository / "local-setup/provider_config.py"
+    spec = importlib.util.spec_from_file_location("_channel_policy_launch_provider", path)
+    need(spec is not None and spec.loader is not None)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    try:
+        spec.loader.exec_module(module)
+        loaded = module.read_credentials(repository / "local-setup/.env.providers")
+        result = loaded.environment()
+        need(type(result) is dict and len(result) == 3)
         return cast(dict[str, str], result)
     finally:
         if sys.modules.get(spec.name) is module:
@@ -441,6 +466,11 @@ def prepare(request: LaunchRequest) -> PreparedLaunch:
                 "rehydrationPort": 11032,
             },
         )
+        keys = (
+            provider_credentials(request.repository)
+            if request.inference_mode == "provider_real"
+            else None
+        )
         launch_id = str(uuid4())
         active = encode(
             {
@@ -461,6 +491,7 @@ def prepare(request: LaunchRequest) -> PreparedLaunch:
             MappingProxyType(bindings),
             active,
             signature,
+            None if keys is None else MappingProxyType(keys),
         )
     except LaunchError:
         raise
@@ -583,6 +614,8 @@ class JoinedLauncher:
             prepared.runtime / "rooms",
             self.request.repository / ".venv/bin/python",
             self.request.base_environment,
+            self.request.inference_mode,
+            prepared.provider_environment,
         )
         self._parent = self._factories.parent(settings)
         self._check(deadline)
@@ -635,7 +668,7 @@ class JoinedLauncher:
             else "ready"
             if self._ready
             else "starting",
-            "mode": "scripted",
+            "mode": self.request.inference_mode,
             "uiUrl": None if self.request.no_ui else "http://127.0.0.1:5179/channel-policy.html",
             "operatorKeyFile": str(self._prepared.operator_file)
             if self._prepared is not None
@@ -726,10 +759,13 @@ def plan() -> dict[str, object]:
         "schemaVersion": 1,
         "status": "planned",
         "mode": "scripted",
+        "optionalModes": ["provider_real"],
         "preparedProfileRequired": True,
         "servingDDL": False,
         "providerFiles": False,
         "providerCalls": False,
+        "providerReal": "explicit --provider; keys from local-setup/.env.providers reach only "
+        "the native worker",
         "childrenMaximum": 3,
         "startupSeconds": 60,
         "roleReadySeconds": 15,
@@ -815,18 +851,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         emit(plan())
         return 0
     try:
+        flags = args[5:]
         need(
-            len(args) in (5, 6)
+            len(args) >= 5
             and args[0] == "serve"
             and args[1] == "--profile"
             and args[3] == "--node"
-            and (len(args) == 5 or args[5] == "--no-ui"),
+            and len(set(flags)) == len(flags)
+            and set(flags) <= {"--no-ui", "--provider"},
             "invalid_arguments",
         )
         repository = Path(__file__).resolve(strict=True).parents[2]
         environment = {key: value for key, value in os.environ.items() if key in BASE}
         request = LaunchRequest(
-            repository, Path(args[2]), Path(args[4]), environment, len(args) == 6
+            repository,
+            Path(args[2]),
+            Path(args[4]),
+            environment,
+            "--no-ui" in flags,
+            "provider_real" if "--provider" in flags else "scripted",
         )
         return asyncio.run(serve(request))
     except KeyboardInterrupt:

@@ -1748,7 +1748,7 @@ def main(argv: list[str] | None = None) -> int:
             "inspect",
             "--format",
             "{{.Id}}",
-            "livekit-agent-ecosystem-python:local",
+            stack.image_name("python"),
         ]
     )
     console_image = control(
@@ -1758,7 +1758,7 @@ def main(argv: list[str] | None = None) -> int:
             "inspect",
             "--format",
             "{{.Id}}",
-            "livekit-agent-ecosystem-console:local",
+            stack.image_name("console"),
         ]
     )
     if not all(value.startswith("sha256:") for value in (image, console_image)):

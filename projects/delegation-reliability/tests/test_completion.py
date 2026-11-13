@@ -61,6 +61,7 @@ class DeliveryStore:
         self.lookup_after_ack = False
         self.prepare_release = None
         self.prepare_entered = asyncio.Event()
+        self.begin_release = None
 
     async def prepare(self, *, work_id, attempt_id, result_sha256, receiver_id, recipient_id):
         self.prepared += 1
@@ -99,6 +100,8 @@ class DeliveryStore:
         assert self.snapshot.intent == intent
         created = not self.snapshot.possible
         self.snapshot = DeliverySnapshot(intent, True, self.snapshot.receipt)
+        if self.begin_release is not None:
+            await self.begin_release.wait()
         if self.ack_begin:
             raise WorkError("acknowledgement_unknown")
         return DeliveryStart(intent, created)
@@ -460,6 +463,36 @@ class CompletionTests(unittest.IsolatedAsyncioTestCase):
         self.store.prepare_release.set()
         await client.close()
         self.assertEqual((self.store.begun, self.receiver.accepted), (0, 0))
+
+    async def test_created_begin_still_reaches_the_receiver_after_waiter_timeout(self):
+        self.store.begin_release = asyncio.Event()
+        client = self.delivery(timeout_ms=20, cleanup_ms=20)
+        with self.assertRaises(CompletionError) as caught:
+            await client.deliver_once(self.work_id)
+        self.assertEqual(caught.exception.code, "acknowledgement_unknown")
+        self.assertEqual((self.store.begun, self.receiver.accepted), (1, 0))
+        self.store.begin_release.set()
+        while client.pending_count:
+            await asyncio.sleep(0)
+        self.assertEqual((self.receiver.accepted, self.store.recorded), (1, 1))
+        replay = await client.deliver_once(self.work_id)
+        self.assertEqual((replay.state, replay.receiver_invoked), ("accepted", False))
+        self.assertEqual(self.receiver.accepted, 1)
+        await client.close()
+
+    async def test_close_during_a_created_begin_retains_the_call_through_receiver_accept(self):
+        self.store.begin_release = asyncio.Event()
+        client = self.delivery(timeout_ms=1000, cleanup_ms=20)
+        delivering = asyncio.create_task(client.deliver_once(self.work_id))
+        while self.store.begun == 0:
+            await asyncio.sleep(0)
+        with self.assertRaises(CompletionError) as caught:
+            await client.close()
+        self.assertEqual(caught.exception.code, "cleanup_incomplete")
+        self.store.begin_release.set()
+        self.assertEqual((await delivering).state, "accepted")
+        await client.close()
+        self.assertEqual((self.receiver.accepted, self.store.recorded), (1, 1))
 
     async def test_explicit_exact_confirmation_commits_then_replays_fact(self):
         client = self.authorizer()

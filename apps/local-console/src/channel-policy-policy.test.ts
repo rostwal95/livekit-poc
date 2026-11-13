@@ -295,6 +295,21 @@ describe('joined browser activation decisions', () => {
     expect(s.c.snapshot().messages).toHaveLength(32);
     expect(s.c.snapshot().messages.at(-1)?.text).toBe('<script>39</script>');
   });
+  it('grows one live agent message per stream in place and finalizes it', () => {
+    const s = active();
+    s.c.agentText(s.room, 'Checking', 1, true);
+    const [first] = s.c.snapshot().messages;
+    s.c.agentText(s.room, 'Checking the policy', 1, true);
+    s.c.agentText(s.room, 'Another reply', 2, true);
+    s.c.agentText(s.room, 'Checking the policy.', 1, false);
+    const messages = s.c.snapshot().messages;
+    expect(messages.map((row) => [row.id, row.text, row.live])).toEqual([
+      [first!.id, 'Checking the policy.', false],
+      [first!.id + 1, 'Another reply', true],
+    ]);
+    expect(() => s.c.agentText(s.room, '   ', 1, true)).toThrow();
+    expect(s.c.snapshot().messages[0]!.text).toBe('Checking the policy.');
+  });
   it('never exposes either operator key or RTC token through view JSON', () => {
     const s = active();
     const text = JSON.stringify(s.c.snapshot());

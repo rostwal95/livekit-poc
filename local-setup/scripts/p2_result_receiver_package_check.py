@@ -92,15 +92,15 @@ ROOT_APPLICATION_TEST_COUNTS = {
     "test_p3_channel_origin_composition.py": 2,
     "test_channel_policy_discovery.py": 22,
     "test_channel_policy_current_result.py": 24,
-    "test_channel_policy_current_result_producer.py": 39,
-    "test_channel_policy_executor.py": 32,
-    "test_channel_policy_worker_client.py": 19,
+    "test_channel_policy_current_result_producer.py": 43,
+    "test_channel_policy_executor.py": 34,
+    "test_channel_policy_worker_client.py": 20,
     "test_channel_policy_origin_router.py": 34,
-    "test_channel_policy_jobs.py": 60,
+    "test_channel_policy_jobs.py": 61,
     "test_channel_policy_public_clients.py": 21,
     "test_channel_policy_transport_canonical.py": 5,
     "test_channel_policy_owner_config.py": 22,
-    "test_channel_policy_application.py": 30,
+    "test_channel_policy_application.py": 33,
     "test_p2_current_case_bridge.py": 17,
     "test_p3_channel_receiver.py": 15,
     "test_channel_policy_cli.py": 22,
@@ -109,7 +109,7 @@ ROOT_APPLICATION_TEST_COUNTS = {
     "test_channel_policy_room_control_client.py": 14,
     "test_channel_policy_worker_current_result.py": 15,
     "test_channel_policy_current_result_context.py": 20,
-    "test_channel_policy_native_models.py": 33,
+    "test_channel_policy_native_models.py": 34,
     "test_channel_policy_native_prepare_http.py": 26,
     "test_channel_policy_current_result_http.py": 20,
     "test_channel_policy_native_worker_config.py": 26,
@@ -134,7 +134,7 @@ ROOT_APPLICATION_HELPERS = (
 ROOT_APPLICATION_INPUTS = (
     tuple("tests/" + n for n in ROOT_APPLICATION_TEST_COUNTS) + ROOT_APPLICATION_HELPERS
 )
-ROOT_APPLICATION_PAYLOADS, P2_PYTHON_PAYLOADS = 84, 9
+ROOT_APPLICATION_PAYLOADS, P2_PYTHON_PAYLOADS = 86, 9
 NATIVE_SDK_PAYLOADS, NATIVE_CLIENT_DESCENDANTS = 124, 2
 APPLICATION_CHILD_RETURNS = {
     "test_original_venv_path_fixed_role_environment_and_real_reap": (0,),

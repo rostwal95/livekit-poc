@@ -782,6 +782,81 @@ class ProducerTests(unittest.IsolatedAsyncioTestCase):
         value = await task
         self.assertEqual((value.state, value.result), ("not_applicable", None))
 
+    async def test_concurrent_reader_shares_one_published_scan(self):
+        release = asyncio.Event()
+        self.s.holds["discovery"] = release
+        first = asyncio.create_task(self.p.read())
+        while "discovery" not in self.s.entered:
+            await asyncio.sleep(0)
+        second = asyncio.create_task(self.p.read())
+        await asyncio.sleep(0)
+        release.set()
+        a, b = await asyncio.gather(first, second)
+        self.assertEqual((a.state, b.state), ("current", "current"))
+        self.assertEqual(encode_current_result_observation(a), encode_current_result_observation(b))
+        metrics = self.p.metrics()
+        self.assertEqual((metrics["scans_started"], metrics["scans_joined"]), (1, 1))
+        self.assertEqual((self.s.events.count("native"), len(self.s.owners)), (1, 1))
+        self.assertEqual((await self.p.read()).state, "current")
+        self.assertEqual(self.p.metrics()["scans_started"], 2)
+
+    async def test_joined_waiter_keeps_the_scan_after_the_first_waiter_cancels(self):
+        release = asyncio.Event()
+        self.s.holds["discovery"] = release
+        first = asyncio.create_task(self.p.read())
+        while "discovery" not in self.s.entered:
+            await asyncio.sleep(0)
+        second = asyncio.create_task(self.p.read())
+        await asyncio.sleep(0)
+        first.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await first
+        release.set()
+        self.assertEqual((await second).state, "current")
+        self.assertEqual(len(self.s.owners), 1)
+
+    async def test_last_waiter_abandonment_still_refuses_new_reads(self):
+        release = asyncio.Event()
+        self.s.holds["discovery"] = release
+        first = asyncio.create_task(self.p.read())
+        while "discovery" not in self.s.entered:
+            await asyncio.sleep(0)
+        second = asyncio.create_task(self.p.read())
+        await asyncio.sleep(0)
+        for task in (first, second):
+            task.cancel()
+            with self.assertRaises(asyncio.CancelledError):
+                await task
+        await self.assert_code("capacity")
+        release.set()
+        while self.p.metrics()["scan_active"]:
+            await asyncio.sleep(0)
+        self.assertEqual(self.s.owners, [])
+        self.assertEqual((await self.p.read()).state, "current")
+
+    async def test_joined_waiter_times_out_on_its_own_budget_with_a_fresh_error(self):
+        self.p = self.s.producer(timeout_s=0.05, cleanup_timeout_s=0.05)
+        self.addAsyncCleanup(self.p.close)
+        release = asyncio.Event()
+        self.s.holds["native"] = release
+        first = asyncio.create_task(self.p.read())
+        while "native" not in self.s.entered:
+            await asyncio.sleep(0)
+        await asyncio.sleep(0.03)
+        second = asyncio.create_task(self.p.read())
+        with self.assertRaises(m.CurrentResultProducerError) as caught:
+            await first
+        self.assertEqual(caught.exception.code, "deadline_exceeded")
+        self.assertFalse(second.done())
+        with self.assertRaises(m.CurrentResultProducerError) as joined:
+            await second
+        self.assertEqual(joined.exception.code, "deadline_exceeded")
+        self.assertIsNot(joined.exception, caught.exception)
+        await self.assert_code("capacity")
+        release.set()
+        while self.p.metrics()["scan_active"]:
+            await asyncio.sleep(0)
+
     async def test_eager_reentrant_read_observes_one_reserved_actual_scan(self):
         scenario = self.s
         seen = []

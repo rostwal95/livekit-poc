@@ -87,8 +87,10 @@ describe('joined Parent browser v1 boundary', () => {
     expect(got.nodeCursor.generation).toBe('9');
     expect(Object.isFrozen(got.nodeCursor.endpoint)).toBe(true);
   });
-  it('accepts only joined scripted grant bound to exact original Start and next generation', () => {
+  it('accepts only a trusted-mode grant bound to exact original Start and next generation', () => {
     expect(parseGrant(grant(), start).rtc.bindingId).toBe(B);
+    expect(parseGrant(grant(), start).mode).toBe('scripted');
+    expect(parseGrant({ ...grant(), mode: 'provider_real' }, start).mode).toBe('provider_real');
     expect(
       parseGrant({ ...grant(), rtc: { ...grant().rtc, url: 'ws://127.0.0.1:17880' } }, start).rtc
         .url,
@@ -96,7 +98,8 @@ describe('joined Parent browser v1 boundary', () => {
     for (const value of [
       { ...grant(), generation: '2' },
       { ...grant(), originalStartCommandId: B },
-      { ...grant(), mode: 'provider_real' },
+      { ...grant(), mode: 'local_real' },
+      { ...grant(), mode: 'cloud' },
       { ...grant(), stage: 'ready' },
     ])
       expect(() => parseGrant(value, start)).toThrow();

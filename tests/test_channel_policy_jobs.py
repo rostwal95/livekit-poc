@@ -1215,6 +1215,21 @@ class JobTests(unittest.IsolatedAsyncioTestCase):
         await job.close()
         self.assertEqual((factory.active_count, sum(r.calls for r in self.runners)), (0, 0))
 
+    async def test_execution_jobs_never_take_the_reserved_inspection_ticket(self):
+        factory, first = await self.opened()
+        _, second = await self.opened(factory, str(uuid4()))
+        with self.assertRaisesRegex(m.JobError, "^capacity$"):
+            await factory.open(work_id=str(uuid4()), owner_id=self.owner, request=self.request)
+        _, owner = await self.inspection_opened(factory, work=str(uuid4()))
+        self.assertEqual(factory.active_count, 3)
+        with self.assertRaisesRegex(m.JobError, "^capacity$"):
+            await factory.open_inspection(
+                work_id=str(uuid4()), owner_id=self.owner, request=self.request
+            )
+        for job in (owner, first, second):
+            await job.close()
+        self.assertEqual(factory.active_count, 0)
+
     async def test_read_only_full_winning_request_checked_before_result_or_delivery(self):
         _, owner = await self.inspection_opened()
         runner, delivery = self.runners[0], self.deliveries[0]

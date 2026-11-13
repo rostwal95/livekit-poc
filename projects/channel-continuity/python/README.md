@@ -57,6 +57,16 @@ credential; no environment/provider keys are loaded. Caller/source identity and
 genuine final transcript snapshots are explicit typed values. SDK automatic text
 and completed-turn replies are disabled.
 
+`NativeRuntime(timing=NativeTiming(...))` optionally widens the model, commit and
+transcript budgets for real providers. With `reply="scheduled"` a dispatch
+prepare returns once its reply is scheduled; an owned observer (at most four,
+each bounded by `reply_seconds`) then publishes the completed, interrupted or
+unknown generation status, and close cancels pending observers. The default
+`reply="playout"` keeps the original wait-for-playout contract, and scheduled
+timing is refused together with response capture. `inference_mode` labels the
+session (`p2.inference_mode`) for the browser's readiness check, and bounded
+`instructions` replace the scripted default.
+
 Applications separately close runtime, intake, RTC room, injected providers and
 HTTP listeners. Timeout retains actual work and incomplete cleanup fails. SDK
 completion never proves physical browser playback, user consent or supplier effects.

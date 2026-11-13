@@ -386,24 +386,25 @@ def _reap(process: subprocess.Popen[bytes]) -> None:
         time.sleep(0.02)
 
 
-def _run_node(
+def _node_child(
     node: Path,
     cwd: Path,
-    port: int,
-    schema: str,
-    password: str,
+    program: str,
+    private_environment: Mapping[str, str],
+    request: Mapping[str, object],
     abort: threading.Event,
     started: Callable[[int], None] | None = None,
-) -> str:
+) -> bytes:
+    """Run one closed-environment Node program; return stdout only after a clean reap."""
     process = subprocess.Popen(
-        [str(node), "--input-type=module", "--eval", _NODE_PROGRAM],
+        [str(node), "--input-type=module", "--eval", program],
         cwd=cwd,
         env={
             "PATH": "/usr/bin:/bin",
             "LANG": "C",
             "CI": "1",
             "NO_COLOR": "1",
-            "CHANNEL_POLICY_SETUP_OWNER_PASSWORD": password,
+            **private_environment,
         },
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -416,7 +417,7 @@ def _run_node(
         assert (
             process.stdin is not None and process.stdout is not None and process.stderr is not None
         )
-        process.stdin.write(_json({"schema_version": 1, "port": port, "schema": schema}))
+        process.stdin.write(_json(dict(request)))
         process.stdin.close()
         captured = {"stdout": bytearray(), "stderr": bytearray()}
         deadline = time.monotonic() + _NODE_SECONDS
@@ -436,21 +437,42 @@ def _run_node(
                         _need(len(output) + len(raw) <= _STREAM_BYTES)
                         output.extend(raw)
         _need(process.wait(timeout=1) == 0 and not _group_alive(process) and not captured["stderr"])
-        raw = bytes(captured["stdout"])
-        value: object = json.loads(raw)
-        _need(type(value) is dict and set(value) == {"schema_version", "receiver_id"})
-        data = cast(dict[str, object], value)
-        _need(
-            type(data["schema_version"]) is int
-            and data["schema_version"] == 1
-            and _json(data) == raw
-        )
-        return _uuid(data["receiver_id"])
+        return bytes(captured["stdout"])
     finally:
         _reap(process)
         for owned_stream in (process.stdin, process.stdout, process.stderr):
             if owned_stream is not None:
                 owned_stream.close()
+
+
+def _single_line_result(raw: bytes, field: str) -> object:
+    value: object = json.loads(raw)
+    _need(type(value) is dict and set(value) == {"schema_version", field})
+    data = cast(dict[str, object], value)
+    _need(type(data["schema_version"]) is int and data["schema_version"] == 1)
+    _need(_json(data) == raw)
+    return data[field]
+
+
+def _run_node(
+    node: Path,
+    cwd: Path,
+    port: int,
+    schema: str,
+    password: str,
+    abort: threading.Event,
+    started: Callable[[int], None] | None = None,
+) -> str:
+    raw = _node_child(
+        node,
+        cwd,
+        _NODE_PROGRAM,
+        {"CHANNEL_POLICY_SETUP_OWNER_PASSWORD": password},
+        {"schema_version": 1, "port": port, "schema": schema},
+        abort,
+        started,
+    )
+    return _uuid(_single_line_result(raw, "receiver_id"))
 
 
 class NodeMigrations:
@@ -488,6 +510,126 @@ class NodeMigrations:
             return task.result()
         except Exception:  # noqa: BLE001 - finite child boundary never reflects diagnostics
             raise SetupError() from None
+
+
+# Owner-only LINK association for the configured synthetic SMS sender. It uses
+# the public P2 challenge API and the joined gateway's declared public
+# synthetic_v1 signing material; no carrier key or provider credential exists.
+_ASSOCIATE_PROGRAM = r"""
+import { ChannelInbox, SeededAccounts } from '@livekit-ecosystem/channel-continuity/postgres';
+import { createFakeSmsIntegration, signFakeSms } from '@livekit-ecosystem/channel-continuity/security';
+let inbox;
+try {
+ const chunks=[];let size=0;for await(const chunk of process.stdin){size+=chunk.length;if(size>2048)throw Error();chunks.push(chunk);}
+ const p=JSON.parse(Buffer.concat(chunks).toString('utf8'));
+ const keys='accountId,caseId,conversationId,port,providerAccountId,schema,schema_version,senderId,tenantId';
+ if(Object.keys(p).sort().join(',')!==keys||p.schema_version!==1||!Number.isSafeInteger(p.port)||p.port<1||p.port>65535||typeof p.schema!=='string'||!/^cp45_channel_[0-9a-f]{32}$/.test(p.schema))throw Error();
+ for(const k of ['tenantId','accountId','caseId','conversationId','providerAccountId','senderId'])if(typeof p[k]!=='string'||!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(p[k]))throw Error();
+ const allowed=['PATH','LANG','CI','NO_COLOR','__CF_USER_TEXT_ENCODING','CHANNEL_POLICY_SETUP_RUNTIME_PASSWORD','CHANNEL_POLICY_SETUP_ACCOUNT_TOKEN'];
+ if(Object.keys(process.env).some(k=>!allowed.includes(k)))throw Error();
+ const password=process.env.CHANNEL_POLICY_SETUP_RUNTIME_PASSWORD,token=process.env.CHANNEL_POLICY_SETUP_ACCOUNT_TOKEN;
+ if(typeof password!=='string'||password.length<32||password.length>128||typeof token!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(token))throw Error();
+ const key=Buffer.alloc(32,0x4f);
+ const scope={tenantId:p.tenantId,provider:'fake_sms',providerAccountId:p.providerAccountId};
+ inbox=new ChannelInbox({host:'127.0.0.1',port:p.port,database:'livekit_lab',user:'livekit_lab',password,schema:p.schema},createFakeSmsIntegration(scope,key),new SeededAccounts([{token,tenantId:p.tenantId,accountId:p.accountId,caseId:p.caseId,conversationId:p.conversationId}]),{},()=>{});
+ const challenge=await inbox.createChallenge(token,p.senderId);
+ const eventId='cp_link_'+challenge.challengeId.replaceAll('-','');
+ const signed=signFakeSms({schemaVersion:1,eventId,messageId:eventId,senderId:p.senderId,body:'LINK '+challenge.challengeId+' '+challenge.secret,occurredAt:new Date().toISOString()},key,Math.floor(Date.now()/1000),scope);
+ const linked=await inbox.completeAssociation(signed.raw,signed.headers);
+ if(typeof linked.associationVersion!=='string'||!/^[1-9][0-9]{0,18}$/.test(linked.associationVersion))throw Error();
+ process.stdout.write(JSON.stringify({schema_version:1,association_version:linked.associationVersion})+'\n');
+} catch { process.stderr.write('{"schema_version":1,"code":"unavailable"}\n');process.exitCode=1; }
+finally { if(inbox)await inbox.close().catch(()=>{process.exitCode=1;}); }
+"""
+
+
+def _run_association(
+    node: Path,
+    cwd: Path,
+    request: Mapping[str, object],
+    password: str,
+    token: str,
+    abort: threading.Event,
+) -> str:
+    raw = _node_child(
+        node,
+        cwd,
+        _ASSOCIATE_PROGRAM,
+        {
+            "CHANNEL_POLICY_SETUP_RUNTIME_PASSWORD": password,
+            "CHANNEL_POLICY_SETUP_ACCOUNT_TOKEN": token,
+        },
+        request,
+        abort,
+    )
+    version = _single_line_result(raw, "association_version")
+    _need(type(version) is str and re.fullmatch(r"[1-9][0-9]{0,18}", version) is not None)
+    return cast(str, version)
+
+
+async def associate_sms(directory: Path, node: Path, *, repository: Path | None = None) -> str:
+    """Associate the profile's fixed synthetic SMS sender with its case account.
+
+    Each call issues a fresh LINK challenge and activates the next association
+    epoch. Earlier accepted messages keep their original epoch as history.
+    """
+    from services.channel_policy_demo.operator_sms import SmsRoute
+    from services.channel_policy_demo.owner_config import read_owner_profile
+
+    repository = (_repository() if repository is None else repository).resolve(strict=True)
+    _need(directory.is_absolute() and node.is_absolute())
+    _need(directory.resolve(strict=True) == directory)
+    _need(directory.is_relative_to(repository / ".local"))
+    executable = node.resolve(strict=True)
+    _need(executable.is_file() and os.access(executable, os.X_OK))
+    cwd = repository / "services/channel-policy-gateway"
+    _need(cwd.is_dir())
+    profile = await _retained(
+        asyncio.to_thread(read_owner_profile, directory / "owner-profile.json")
+    )
+    route = profile.route
+    sender = SmsRoute(route.scope.tenant_id, profile.sms_provider_account_id).sender_id
+    request = {
+        "schema_version": 1,
+        "port": profile.database.port,
+        "schema": profile.database.channel_schema,
+        "tenantId": route.scope.tenant_id,
+        "accountId": route.scope.account_id,
+        "caseId": route.case_id,
+        "conversationId": route.conversation_id,
+        "providerAccountId": profile.sms_provider_account_id,
+        "senderId": sender,
+    }
+    _admit_business()
+    abort = threading.Event()
+    task = _task(
+        asyncio.to_thread(
+            _run_association,
+            executable,
+            cwd,
+            request,
+            profile.credentials.postgres_password,
+            profile.credentials.account_token,
+            abort,
+        )
+    )
+    cancelled = False
+    while not task.done():
+        try:
+            await asyncio.shield(task)
+        except asyncio.CancelledError:
+            cancelled = True
+            abort.set()
+        except Exception:  # noqa: BLE001 - retained result is normalized below
+            break
+    if cancelled:
+        if not task.cancelled():
+            task.exception()
+        raise asyncio.CancelledError
+    try:
+        return task.result()
+    except Exception:  # noqa: BLE001 - finite child boundary never reflects diagnostics
+        raise SetupError() from None
 
 
 def _leaf(directory: Path, repository: Path) -> None:
@@ -784,10 +926,13 @@ def _case_check(
     )
 
 
-def _arguments(argv: Sequence[str]) -> tuple[Path, Path] | None:
+Command = Literal["prepare", "associate-sms"]
+
+
+def _arguments(argv: Sequence[str]) -> tuple[Command, Path, Path] | None:
     if list(argv) == ["--plan"]:
         return None
-    if len(argv) != 5 or argv[0] != "prepare":
+    if len(argv) != 5 or argv[0] not in {"prepare", "associate-sms"}:
         raise SetupError("invalid_arguments")
     options = {}
     for n in (1, 3):
@@ -799,12 +944,12 @@ def _arguments(argv: Sequence[str]) -> tuple[Path, Path] | None:
         p.is_absolute() for p in options.values()
     ):
         raise SetupError("invalid_arguments")
-    return options["--directory"], options["--node"]
+    return cast(Command, argv[0]), options["--directory"], options["--node"]
 
 
-async def _command(directory: Path, node: Path) -> None:
+async def _command(action: Coroutine[object, object, T]) -> T:
     loop = asyncio.get_running_loop()
-    task = _task(prepare(directory, node))
+    task = _task(action)
     installed = []
     cancelled = False
     try:
@@ -824,7 +969,7 @@ async def _command(directory: Path, node: Path) -> None:
             if not task.cancelled():
                 task.exception()
             raise asyncio.CancelledError
-        task.result()
+        return task.result()
     finally:
         for selected in installed:
             loop.remove_signal_handler(selected)
@@ -864,7 +1009,22 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             )
             return 0
-        asyncio.run(_command(*selected))
+        command, directory, node = selected
+        if command == "associate-sms":
+            version = asyncio.run(_command(associate_sms(directory, node)))
+            print(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "event": "associated",
+                        "code": "ok",
+                        "association_version": version,
+                    },
+                    separators=(",", ":"),
+                )
+            )
+            return 0
+        asyncio.run(_command(prepare(directory, node)))
         print('{"schema_version":1,"event":"prepared","code":"ok"}')
         return 0
     except (KeyboardInterrupt, asyncio.CancelledError):

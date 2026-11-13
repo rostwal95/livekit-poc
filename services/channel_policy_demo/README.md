@@ -24,24 +24,26 @@ after Node readiness. Accepted inputs and work remain in the existing P2/P1
 stores; the private profile preserves configuration and stable owner identities.
 Normal stop does not reset either store.
 
-Explicit bootstrap now succeeds against fresh P1/P2 schemas. Preliminary actual
-signed-SMS, issued execution, result and receiver joins passed their scoped checks.
-The application now owns one captured current-result reader using its existing
-job budget. Native room control/attachment, narrow current-result serving and a
-single-session scripted worker have component tests and independent reviews.
-Actual Python-to-Node-to-Python prepare interoperability passes with explicit
-synthetic grant/prepare ports. Complete joined database/native/provider/UI
-qualification and the recorded demo remain pending. The completed
+Explicit bootstrap succeeds against fresh P1/P2 schemas, and the launcher runs
+the complete joined journey locally: native text and recorded voice, durable
+dispatch, background policy results, End, signed simulated SMS and rejoin. The
+explicit provider_real mode runs the same journey with Deepgram, OpenAI and
+ElevenLabs; three consecutive actual journeys dispatched every input on the first
+attempt, and the narrated demo video was recorded from it
+([0046](../../docs/work-items/0046-joined-showcase-providers-and-demo.md)).
+Concurrent current-result readers share one scan; the executor paces idempotent
+reruns; background readers keep one of the two shared reader slots free for
+dispatch; inspections keep a reserved job ticket. The completed
 [0044 checkpoint](../../docs/work-items/0044-origin-bound-channel-policy.md)
-retains its separate source and installed evidence. Component tests do not establish
-joined media or provider inference.
+retains its separate source and installed evidence. Selected actual journeys do
+not complete joined installed/container qualification or charter release.
 
 ## Parent and operator components
 
-The Parent room owner and separate operator HTTP boundary are implemented and
-under integration. The explicit scripted launcher composes these components
-from an existing prepared profile; actual joined room/media qualification and
-demo recording remain pending.
+The Parent room owner and separate operator HTTP boundary are implemented. The
+launcher composes them from an existing prepared profile in scripted mode or,
+with `--provider`, in provider_real mode; only each room's native worker receives
+the provider keys.
 
 One physical activation retains its original Start command and 180-second expiry.
 SDK disconnect fences readiness immediately; final resource drain and actual
@@ -71,7 +73,8 @@ The native prepare and worker callback profiles retain their original contracts.
 ## Documentation
 
 - [Design](Design.md) and [coding instructions](AGENTS.md).
-- [Implementation work item](../../docs/work-items/0045-joined-native-channel-policy.md).
+- [Implementation work item](../../docs/work-items/0045-joined-native-channel-policy.md)
+  and the [provider, hardening and demo follow-up](../../docs/work-items/0046-joined-showcase-providers-and-demo.md).
 - [Local setup](../../local-setup/README.md), [validation](../../docs/validation-plan.md)
   and [provider operations](../../docs/provider-demo.md).
 
@@ -116,12 +119,22 @@ disposable schemas. make p2-prepared-read-check creates one owned disposable P2
 schema and verifies eight actual assertions. These commands perform no provider,
 RTC or supplier call. The package check builds and consumes isolated artifacts;
 its fake-port assertions are separate from actual database/media qualification.
-The plan commands are inert. The native worker plan reports the implemented
-scripted-only component; it creates no session, listener or configuration. Its
-internal --config entrypoint requires a trusted private per-room JSON file and
-live parent/Node endpoints, so it is not yet a complete application launch command. Owner setup and Python serving entrypoints
-are implemented, with actual isolated provisioning and preliminary service startup
-observed. The complete joined start/stop/media procedure remains pending.
+The plan commands are inert. The native worker's internal --config entrypoint
+requires a trusted private per-room JSON file and live parent/Node endpoints; the
+launcher creates both. Run the complete application with the joined showcase
+targets:
+
+```sh
+make channel-policy-demo-build
+make channel-policy-demo-setup CHANNEL_POLICY_PROFILE=$PWD/.local/showcase-1
+make channel-policy-demo-start CHANNEL_POLICY_PROFILE=$PWD/.local/showcase-1
+make channel-policy-demo-start-provider CHANNEL_POLICY_PROFILE=$PWD/.local/showcase-1
+make channel-policy-demo-record CHANNEL_POLICY_PROFILE=$PWD/.local/showcase-1
+```
+
+Setup prepares schemas, private configuration and the synthetic SMS sender
+association. Each profile holds sixteen inputs, so prepare a new profile for each
+fresh demonstration. The root README describes the browser steps and provider keys.
 
 ## Validation
 
@@ -133,8 +146,8 @@ reproducible installed/container and final handoff checks. Keep each scope separ
 
 ## Next milestone
 
-Connect the guarded current-result producer to one actual native room and finish
-the frozen persisted discovery/execution gate, then the compact browser flow. Repeat installed/shared qualification
-after the current composition freezes. The
-overall goal additionally requires applicable provider runs, broader release
-evidence, independent final review and a credential-free recorded demo.
+Freeze the persisted discovery/execution gate and repeat installed/shared
+qualification for the current composition. Then reduce per-scan cost (pooled
+per-job clients, cheaper current-result reads) so larger history windows keep
+interactive latency, and broaden provider-mode evidence beyond the selected
+journeys in 0046.

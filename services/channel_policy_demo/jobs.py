@@ -52,6 +52,8 @@ from delegation_reliability.security import EvidenceRecord
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
 MAX_JOB_TICKETS = 2
+# Interactive result reads keep a ticket that background execution cannot take.
+MAX_INSPECTION_TICKETS = 1
 JobCode = Literal[
     "invalid_input",
     "identity_conflict",
@@ -342,6 +344,7 @@ class _Ticket:
     cleanup_observer: asyncio.Task[None] | None = field(default=None, repr=False)
     abandoned: bool = False
     released: bool = False
+    inspection: bool = False
 
 
 async def _drain(ticket: _Ticket) -> None:
@@ -801,7 +804,10 @@ class ReadOnlyInspection:
 
 
 class ChannelPolicyJobFactory:
-    """Factory-global two-ticket bound spans partial setup, jobs and close.
+    """Factory-global ticket bounds span partial setup, jobs and close.
+
+    Execution jobs hold at most two tickets; read-only inspections hold one more
+    that execution can never take, so interactive result reads are not starved.
 
     This factory owns returned client ports and facades. Shared case authority and
     the injected client-construction facade are borrowed and never closed here.
@@ -1057,9 +1063,10 @@ class ChannelPolicyJobFactory:
         evidence = self._catalogue.select(request)
         if self._closing:
             raise JobError("closed")
-        if self.active_count >= MAX_JOB_TICKETS:
+        held = sum(ticket.inspection is inspection for ticket in self._tickets)
+        if held >= (MAX_INSPECTION_TICKETS if inspection else MAX_JOB_TICKETS):
             raise JobError("capacity")
-        ticket = _Ticket()
+        ticket = _Ticket(inspection=inspection)
         self._tickets.add(ticket)
         try:
             ticket.construction = _spawn(

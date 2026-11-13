@@ -70,7 +70,7 @@ _PROFILES = MappingProxyType(
     {
         "native_prepare": _Profile(b"/v1/native/prepare", 32768, 2048, "prepared", 4),
         "worker_current_result": _Profile(
-            b"/v1/channel-policy/current-result", 1024, 32768, "read", 1
+            b"/v1/channel-policy/current-result", 1024, 32768, "read", 4
         ),
         "operator": _Profile(b"/v1/channel-policy-demo/", 32768, 16384, "read", 15),
     }

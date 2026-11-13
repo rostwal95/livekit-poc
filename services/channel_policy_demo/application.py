@@ -38,6 +38,7 @@ from .executor import (
     DiscoveryPort,
     ExecutorBinding,
     PreparedReadPort,
+    ScanObservation,
     StoredWorkPort,
 )
 from .jobs import ChannelPolicyJobFactory, EvidenceCatalogue
@@ -71,6 +72,21 @@ LOGGER.addHandler(logging.NullHandler())
 T = TypeVar("T")
 AppCode = Literal["invalid_input", "unavailable", "capacity", "closed", "cleanup_incomplete"]
 Tier = Literal["http", "current", "active", "jobs", "readers", "case"]
+SCAN_INTERVAL_S = 0.25
+IDLE_SCAN_INTERVAL_S = 1.0
+CURRENT_READ_RETRY_DELAYS_S = (0.25, 0.5)
+
+
+def next_scan_interval(previous: float, observed: object) -> float:
+    """Rescan quickly while input is unprepared or jobs start/run; back off when idle."""
+    if (
+        type(observed) is not ScanObservation
+        or observed.unprepared
+        or observed.started
+        or observed.active
+    ):
+        return SCAN_INTERVAL_S
+    return min(IDLE_SCAN_INTERVAL_S, previous * 2)
 
 
 class ApplicationError(RuntimeError):
@@ -135,12 +151,23 @@ class _CurrentResultReader:
             raise ApplicationError("closed")
 
     async def read(self) -> CurrentResultObservation:
-        self._check()
-        result = await self._attachment.producer.read()
-        # End and failed cleanup fence late A observations before another room
-        # can attach. A retained old facade never selects the current B owner.
-        self._check()
-        return result
+        delays = iter(CURRENT_READ_RETRY_DELAYS_S)
+        while True:
+            self._check()
+            try:
+                result = await self._attachment.producer.read()
+            except CurrentResultProducerError as error:
+                # Bounded side-effect-free retry: shared one/two-slot source
+                # bounds collide briefly while dispatch and scans overlap.
+                delay = next(delays, None)
+                if error.code != "capacity" or delay is None:
+                    raise
+                await asyncio.sleep(delay)
+                continue
+            # End and failed cleanup fence late A observations before another room
+            # can attach. A retained old facade never selects the current B owner.
+            self._check()
+            return result
 
 
 class _CaseReader:
@@ -213,6 +240,7 @@ class ChannelPolicyApplication:
         self._source_deadline: float | None = None
         self._executor: ChannelPolicyExecutor | None = None
         self._worker: ChannelPolicyWorkerClient | None = None
+        self._background = asyncio.Semaphore(1)
         self._case_authority: CaseAuthorityPort | None = None
         self._result_dependencies: _ResultDependencies | None = None
         self._current: _Attachment | None = None
@@ -278,7 +306,8 @@ class ChannelPolicyApplication:
         if not self._sources_ready or self._worker is None:
             raise ApplicationError()
         try:
-            page = await self._worker.discovery()
+            async with self._background:
+                page = await self._worker.discovery()
             route = self._profile.route
             if (page.profile_id, page.scope, page.case_id, page.conversation_id) != (
                 route.profile_id,
@@ -439,14 +468,15 @@ class ChannelPolicyApplication:
         )
         self._worker = worker
         self._own(worker, "readers")
+        lane = self._background
         discovery, prepared = (
-            CoordinatorWorkerDiscoveryReader(worker),
-            CoordinatorWorkerPreparedReader(worker),
+            CoordinatorWorkerDiscoveryReader(worker, lane),
+            CoordinatorWorkerPreparedReader(worker, lane),
         )
         router = ChannelOriginRouter(
             binding=OriginRouterBinding(r.profile_id, r.scope, r.case_id, r.conversation_id),
-            discovery=discovery,
-            prepared=prepared,
+            discovery=CoordinatorWorkerDiscoveryReader(worker),
+            prepared=CoordinatorWorkerPreparedReader(worker),
             templates=p.templates(),
             coordinators=clients,
             deadline_window_ms=p.deadline_window_ms,
@@ -541,18 +571,21 @@ class ChannelPolicyApplication:
 
     async def _scan_loop(self) -> None:
         assert self._executor is not None
+        interval = SCAN_INTERVAL_S
         while not self._stop.is_set():
+            observed: object = None
             try:
-                await self._executor.scan_once()
+                observed = await self._executor.scan_once()
                 self._scans_ok = min(9_007_199_254_740_991, self._scans_ok + 1)
             except asyncio.CancelledError:
                 raise
             except Exception:  # noqa: BLE001 - independent scans preserve durable work on failures
                 self._scans_failed = min(9_007_199_254_740_991, self._scans_failed + 1)
                 self._emit("scan", "unavailable")
+            interval = next_scan_interval(interval, observed)
             if not self._stop.is_set():
                 try:
-                    async with asyncio.timeout(0.25):
+                    async with asyncio.timeout(interval):
                         await self._stop.wait()
                 except TimeoutError:
                     pass
@@ -569,7 +602,8 @@ class ChannelPolicyApplication:
         # Node read/result hosts must be up first. This explicit readiness read
         # creates no plan/claim/work; a failed read cannot start a scan loop.
         try:
-            await self._worker.discovery()
+            async with self._background:
+                await self._worker.discovery()
         except asyncio.CancelledError:
             raise
         except Exception:  # noqa: BLE001 - readiness boundary hides transport dependency text

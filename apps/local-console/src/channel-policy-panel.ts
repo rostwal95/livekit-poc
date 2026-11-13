@@ -1,6 +1,7 @@
 /** DOM projection of validated source observations; dynamic content always textContent. */
 import type { View } from './channel-policy-policy';
 import type { ProgressView } from './channel-policy-wire';
+import type { NativeMode } from './p2-native-policy';
 export interface PanelFacts {
   readonly notice: string | null;
   readonly progress: ProgressView | null;
@@ -9,6 +10,19 @@ export interface PanelFacts {
   readonly playing: boolean;
   readonly busy: boolean;
   readonly speech: string | null;
+  /** False when the bounded automatic refresh is idle (budget used or tab hidden). */
+  readonly polling?: boolean;
+  /** Server-selected profile from the latest grant; null before any Join. */
+  readonly mode?: NativeMode | null;
+  readonly voiceSource?: 'clip' | 'microphone';
+}
+/** Configured profile labels; a label is not proof of model quality. */
+export function modeLabel(mode: NativeMode | null | undefined): string {
+  return mode === 'provider_real'
+    ? 'Deepgram · OpenAI · ElevenLabs'
+    : mode === 'scripted'
+      ? 'scripted'
+      : 'profile shown after Join';
 }
 const phases: Record<View['phase'], string> = {
   locked: 'Not connected',
@@ -73,6 +87,45 @@ export function policyCopy(
     time: fact.asOf,
   };
 }
+export type PolicyTone =
+  'none' | 'eligible' | 'ineligible' | 'needs_information' | 'historical' | 'unavailable';
+/** Visual tone mirrors policyCopy exactly; text remains the primary label. */
+export function policyTone(view: Pick<View, 'policy' | 'policyHistorical'>): PolicyTone {
+  const fact = view.policy;
+  if (!fact) return 'none';
+  if (view.policyHistorical) return 'historical';
+  if (fact.state === 'unavailable') return 'unavailable';
+  if (fact.state !== 'current') return 'none';
+  if (fact.uncertainty !== 'none') return 'needs_information';
+  return fact.eligible ? 'eligible' : 'ineligible';
+}
+const plural = (count: number, one: string, many: string): string =>
+  `${count} ${count === 1 ? one : many}`;
+/** Dispatch counts are as-of P2 observations; work linkage is not execution completion. */
+export function progressCopy(progress: ProgressView | null): string {
+  if (!progress) return 'No input or work counts read yet.';
+  const c = progress.counts;
+  const parts = [
+    plural(c.native + c.sms, 'input observed', 'inputs observed'),
+    `${c.workKnown} linked to durable work`,
+  ];
+  if (c.pending + c.running) parts.push(`${c.pending + c.running} awaiting dispatch`);
+  if (c.blocked + c.exhausted) parts.push(`${c.blocked + c.exhausted} not dispatched`);
+  if (c.uncertain) parts.push(`${c.uncertain} dispatch outcome unknown`);
+  return parts.join(' · ');
+}
+/** Another activation holds the single room; only its original Join can End it. */
+export function roomInUse(view: Pick<View, 'phase' | 'parent' | 'start' | 'roomOwned'>): boolean {
+  return (
+    view.phase === 'idle' &&
+    view.start === null &&
+    !view.roomOwned &&
+    view.parent !== null &&
+    view.parent.stage !== 'dormant'
+  );
+}
+/** Briefly marked when a new observation replaces the prior text; never on a timer. */
+const OBSERVED = new Set(['state', 'revision', 'policy-title', 'progress', 'sms-state']);
 /** Availability describes the latest current-result read, independently of other commands. */
 export function policyReadCaption(view: Pick<View, 'policy' | 'policyRead'>): string | null {
   const prior = view.policy !== null;
@@ -104,14 +157,19 @@ export class JoinedPanel {
   }
   text(name: string, value: string): void {
     const node = this.element(name);
-    if (node.textContent !== value) node.textContent = value;
+    if (node.textContent === value) return;
+    node.textContent = value;
+    // Alternating names restart the CSS highlight without forcing a layout.
+    if (OBSERVED.has(name) && value)
+      node.dataset.observed = node.dataset.observed === 'a' ? 'b' : 'a';
   }
   render(view: View, facts: PanelFacts): void {
     const text = (name: string, value: string): void => this.text(name, value),
       button = (name: string, disabled: boolean): void => {
         this.element<HTMLButtonElement>(name).disabled = disabled;
       };
-    text('state', phases[view.phase]);
+    const inUse = roomInUse(view);
+    text('state', inUse ? 'Session in use' : phases[view.phase]);
     this.element('case').dataset.hasObservations = String(
       view.case !== null || view.policy !== null || facts.progress !== null,
     );
@@ -120,6 +178,7 @@ export class JoinedPanel {
       this.element(!this.element('voice').hidden ? 'prepare-voice' : 'message').focus();
     }
     this.element('state').dataset.ready = String(view.ready);
+    this.element('state').dataset.phase = view.phase;
     const join = this.element<HTMLButtonElement>('join');
     join.textContent =
       view.phase === 'start_unknown'
@@ -158,13 +217,43 @@ export class JoinedPanel {
               ? 'Browser access was denied. Forget before entering another key.'
               : view.code === 'unavailable'
                 ? 'The latest observation is unavailable. Existing work remains independent.'
-                : view.ready
-                  ? 'Ready for text or a declared recorded voice turn.'
-                  : view.phase === 'dormant'
-                    ? 'This media session ended. Background work and browser access remain available.'
-                    : 'Readiness and results appear only after their source is observed.'),
+                : inUse
+                  ? 'Another session still holds the room. Join becomes available after it ends.'
+                  : view.ready
+                    ? 'Ready for text or a declared recorded voice turn.'
+                    : view.phase === 'dormant'
+                      ? 'This media session ended. Background work and browser access remain available.'
+                      : 'Readiness and results appear only after their source is observed.'),
     );
-    text('native', view.ready ? 'Native agent ready · scripted' : 'Recorded input · scripted');
+    const mode = modeLabel(facts.mode);
+    const microphone = facts.voiceSource === 'microphone';
+    text(
+      'mode-label',
+      facts.mode === 'provider_real'
+        ? 'LOCAL / REAL PROVIDERS'
+        : facts.mode === 'scripted'
+          ? 'LOCAL / SCRIPTED'
+          : 'LOCAL',
+    );
+    text(
+      'native',
+      view.ready
+        ? 'Native agent ready · ' + mode
+        : (microphone ? 'Microphone input · ' : 'Recorded input · ') + mode,
+    );
+    text(
+      'voice-note',
+      microphone
+        ? 'Captures your microphone after browser permission and sends it over the real RTC track. Start the turn, speak, then commit it.'
+        : 'Plays a declared local recording into the real RTC track. No microphone access.' +
+            (facts.mode === 'provider_real'
+              ? ' Deepgram transcribes it for real.'
+              : ' Scripted recognition assigns its transcript.'),
+    );
+    for (const name of ['voice-clip', 'voice-mic'])
+      this.element<HTMLInputElement>(name).disabled = facts.voicePrepared;
+    this.element<HTMLInputElement>('voice-clip').checked = !microphone;
+    this.element<HTMLInputElement>('voice-mic').checked = microphone;
     text(
       'playback',
       facts.playing ? 'Selected-track audio is playing' : 'No audio playback observed',
@@ -184,14 +273,17 @@ export class JoinedPanel {
     text('policy-title', copy.heading);
     text('policy-detail', caption ? copy.detail + ' ' + caption : copy.detail);
     text('result-time', copy.time ?? '—');
+    this.element('policy').dataset.tone = policyTone(view);
     const p = facts.progress;
+    text('progress', progressCopy(p));
     text(
-      'progress',
+      'progress-time',
       p
-        ? `${p.counts.native + p.counts.sms} inputs observed · ${p.counts.workKnown} original work references · ${p.counts.pending + p.counts.running} awaiting dispatch`
-        : 'No input or work counts read yet.',
+        ? 'Counts read ' +
+            p.asOf +
+            (facts.polling === false ? ' · automatic refresh paused, use Refresh' : '')
+        : '',
     );
-    text('progress-time', p ? 'Counts read ' + p.asOf : '');
     this.element('dormant').hidden = !(
       view.authorized &&
       view.phase === 'dormant' &&
@@ -212,6 +304,8 @@ export class JoinedPanel {
             : '',
     );
     const host = this.element('transcript');
+    // Keep showing the newest text only while the reader is already at the end.
+    const following = host.scrollHeight - host.scrollTop - host.clientHeight < 48;
     const ids = new Set(view.messages.map((row) => String(row.id)));
     for (const node of [...host.querySelectorAll<HTMLElement>('[data-message-id]')])
       if (!ids.has(node.dataset.messageId!)) node.remove();
@@ -226,20 +320,23 @@ export class JoinedPanel {
         meta.className = 'cp-message-meta';
         const body = document.createElement('p');
         body.className = 'cp-message-text';
-        body.textContent = message.text;
         item.append(meta, body);
         host.append(item);
       }
+      const body = item.lastElementChild!;
+      if (body.textContent !== message.text) body.textContent = message.text;
+      const previous = view.phase === 'dormant' || message.activation !== current;
       item.className =
         'cp-message cp-message-' +
         message.role +
-        (view.phase === 'dormant' || message.activation !== current ? ' cp-previous' : '');
+        (previous ? ' cp-previous' : message.live ? ' cp-live' : '');
       const label =
         (message.role === 'user' ? 'You' : 'Agent') +
         (view.phase === 'dormant' || message.activation !== current ? ' · previous session' : '');
       if (item.firstElementChild!.textContent !== label)
         item.firstElementChild!.textContent = label;
     }
+    if (following && host.scrollHeight > host.clientHeight) host.scrollTop = host.scrollHeight;
     text(
       'evidence',
       JSON.stringify(

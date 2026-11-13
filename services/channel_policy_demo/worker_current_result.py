@@ -269,7 +269,7 @@ class WorkerCurrentResultClient:
         binding: WorkerBinding,
         credential: CurrentResultCredential,
         *,
-        timeout_s: float = 1,
+        timeout_s: float = 4,
         cleanup_timeout_s: float = 1,
     ) -> None:
         try:

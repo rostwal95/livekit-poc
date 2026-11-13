@@ -54,6 +54,10 @@ export interface Message {
   readonly activation: number;
   readonly role: 'user' | 'agent';
   readonly text: string;
+  /** Agent transcript stream within this activation; its text grows in place. */
+  readonly stream?: number;
+  /** The synchronized stream is still open, so this text may still grow. */
+  readonly live?: boolean;
 }
 export interface View {
   readonly activation: number;
@@ -263,12 +267,16 @@ export class JoinedController {
       return 'discard';
     }
     const session = parseNativeSession(value.grant.session);
-    if (value.grant.mode !== 'scripted' || !Number.isFinite(Date.parse(value.grant.expiresAt)))
+    const mode = value.grant.mode;
+    if (
+      (mode !== 'scripted' && mode !== 'provider_real') ||
+      !Number.isFinite(Date.parse(value.grant.expiresAt))
+    )
       return invalid();
     this.#grant = Object.freeze({
       session,
       expiresAt: value.grant.expiresAt,
-      mode: 'scripted',
+      mode,
     });
     this.#parent = Object.freeze({
       cursor: observed,
@@ -311,6 +319,7 @@ export class JoinedController {
       identity,
       kind,
       attributes,
+      this.#grant?.mode ?? 'scripted',
     );
     this.#readyPhase();
     return this.#nativeReady;
@@ -390,20 +399,35 @@ export class JoinedController {
       this.#inputs,
     );
   }
-  agentText(room: RoomTicket, text: string): boolean {
+  agentText(room: RoomTicket, text: string, stream?: number, live = false): boolean {
     if (!this.#matchesRoom(room)) return false;
-    this.#message('agent', boundedText(text, 16384));
+    const bounded = boundedText(text, 16384);
+    const index =
+      stream === undefined
+        ? -1
+        : this.#messages.findIndex(
+            (row) => row.stream === stream && row.activation === this.#activation,
+          );
+    if (index < 0) this.#message('agent', bounded, stream, live);
+    else {
+      this.#messages[index] = Object.freeze({ ...this.#messages[index]!, text: bounded, live });
+      this.#trim();
+    }
     return true;
   }
-  #message(role: Message['role'], text: string): void {
+  #message(role: Message['role'], text: string, stream?: number, live = false): void {
     this.#messages.push(
       Object.freeze({
         id: ++this.#messageSequence,
         activation: this.#activation,
         role,
         text,
+        ...(stream === undefined ? {} : { stream, live }),
       }),
     );
+    this.#trim();
+  }
+  #trim(): void {
     while (
       this.#messages.length > 32 ||
       this.#messages.reduce((sum, row) => sum + encoder.encode(row.text).length, 0) > 65536

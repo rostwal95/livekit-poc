@@ -604,11 +604,9 @@ class PostgresConversationCases(unittest.TestCase):
 
     def test_fixture_matches_actual_projection_keys_and_exact_quote_serializer(self):
         accepted, receipt = self.prepare()
-        fixture_path = Path(
-            "/Users/rostwal/Downloads/repositories/livekit-agent-ecosystem/contracts/business/case-projection.json"
+        fixture_path = (
+            Path(__file__).resolve().parents[2] / "contracts/business/case-projection.json"
         )
-        if not fixture_path.exists():
-            fixture_path = Path("/private/tmp/livekit-p1-phase-g/projection-fixture.json")
         fixture = json.loads(fixture_path.read_text())
         body = self.projection.get(actor=ACTOR, task_id=accepted.case.task_id).payload()
         self.assertEqual(set(body), set(fixture))

@@ -9,6 +9,7 @@ __pycache__/
 .env
 .env.*
 !.env.example
+!.env.providers.example
 .local/
 *.sqlite3
 *.sqlite3-shm
@@ -25,3 +26,4 @@ local-setup/.state/
 apps/local-console/dist-native/
 apps/local-console/dist-operations/
 apps/local-console/dist-p3-background/
+apps/local-console/dist-channel-policy/

@@ -7,10 +7,13 @@ COPY pyproject.toml uv.lock ./
 COPY projects/agent-continuity/python/pyproject.toml projects/agent-continuity/python/README.md projects/agent-continuity/python/MANIFEST.in ./projects/agent-continuity/python/
 COPY projects/channel-continuity/python/pyproject.toml projects/channel-continuity/python/README.md ./projects/channel-continuity/python/
 COPY projects/delegation-reliability/python/pyproject.toml projects/delegation-reliability/python/README.md ./projects/delegation-reliability/python/
-RUN uv sync --frozen --all-extras --no-dev --no-install-workspace
+# Serving extras only: the joined channel-demo extra runs on the host and needs
+# P2/P3 sources that this P1/application runtime image does not contain.
+ARG SERVING_EXTRAS="--extra local --extra agent --extra inference --extra provider"
+RUN uv sync --frozen ${SERVING_EXTRAS} --no-dev --no-install-workspace
 COPY projects/agent-continuity/python/src ./projects/agent-continuity/python/src
 COPY services ./services
-RUN uv sync --frozen --all-extras --no-dev --no-editable --compile-bytecode
+RUN uv sync --frozen ${SERVING_EXTRAS} --no-dev --no-editable --compile-bytecode
 
 FROM ${PYTHON_IMAGE} AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PATH="/app/.venv/bin:$PATH" XDG_CACHE_HOME=/tmp/cache

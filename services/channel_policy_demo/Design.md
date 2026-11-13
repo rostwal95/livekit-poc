@@ -227,19 +227,22 @@ their own actual work; a stopped coroutine is insufficient evidence of closure.
 | Node source owners | Separate native/SMS integration-scoped dispatchers; readPrepared never creates a plan or reassociates source |
 | Discovery reader | Closed scoped list/prepared-frame reads; incomplete/overflow state is explicit; no terminal ACK cursor |
 | Job owner | Stable configured app-owner UUID and command per work, original allowlisted evidence, separate owned execution/specialist ports |
-| Read-only inspection | Same two global job tickets and public runner/delivery clients; no run or delivery method exposed; one actual read per owner |
+| Read-only inspection | One factory ticket reserved beside the two execution tickets, public runner/delivery clients; no run or delivery method exposed; one actual read per owner |
 | Public client factories | Two retained startup owners, offloaded public P1 preflights, fresh per-job clients and explicit highest-owner transfer |
-| Python application owner | Retained source startup, explicit Node readiness, one rescan loop and ordered dependent drain |
+| Python application owner | Retained source startup, explicit Node readiness, one rescan loop (0.25 s while busy, backing off to 1 s idle), a one-slot background reader lane and ordered dependent drain |
 | Private owner profile | Versioned immutable route, case/work mapping, fixed distinct ports, stable app owner and supported evidence; credentials excluded from Node configuration |
 | Native room owner | Planned parent ownership of one worker child, current grant, callback/view readers and exact SFU room; unresolved close blocks the next room |
-| Native worker | Implemented single genuine P2 Runtime/AgentSession, narrow intake/context/current-result clients and scripted models; prepare listener starts before browser/SDK waiting |
+| Native worker | Implemented single genuine P2 Runtime/AgentSession, narrow intake/context/current-result clients and scripted or explicit provider_real models; prepare listener starts before browser/SDK waiting |
 | Room control and attachment | Closed epoch/generation/open/binding commands; one native agent client per current Node room; exact replay cannot renew credentials |
 | Parent current callback | Captured read facade and room predicate, checked before/after reading and immediately before successful socket write; native worker receives only its fresh callback capability |
-| Current result producer | Original-source/evidence/execution/delivery/current-case joins and fresh applicability; application owns one captured attachment using existing global job tickets; actual joined database/media qualification remains pending |
+| Current result producer | Original-source/evidence/execution/delivery/current-case joins and fresh applicability; concurrent readers share one published scan; application owns one captured attachment using the reserved inspection ticket and retries transient capacity twice |
 | Owner bootstrap | Explicit schema/private configuration setup before serving; no DDL during runtime and normal stop preserves data |
 
 The result producer reserves one scan before task creation, including eager task
-execution, and close observes the same publication barrier. One inspection owner
+execution, and close observes the same publication barrier. A concurrent read of
+a published, unabandoned scan waits for that scan instead of failing; only the
+last waiter's expiry or cancellation abandons it, and an abandoned scan still
+refuses new readers until it settles. One inspection owner
 remains retained until dependent reads and close settle. Newer pending work may
 leave an older accepted current result visible. The newest recorded result is a
 selection barrier: expired, stale or undelivered results cannot fall back to an
@@ -247,10 +250,14 @@ older card. Failed reads remain finite operational errors; empty states carry no
 result bytes. The producer rechecks public P3/P1 observations after the native
 read and checks the unchanged original deadline after cleanup before disclosure.
 
-The native worker configuration is a closed scripted-only schema. Pure import,
-parse and encode load no SDK, assets, environment or provider values. Explicit
-startup loads models and constructs one public NativeRuntime. Only the worker's
-RTC token and native/prepare/current-result capabilities cross that boundary.
+The native worker configuration is a closed schema: version 1 is scripted and
+version 2 adds the explicit `provider_real` mode. Pure import, parse and encode
+load no SDK, assets, environment or provider values. Explicit startup loads
+models and constructs one public NativeRuntime; provider mode uses
+`NativeTiming(reply="scheduled")` so durable dispatch never waits for long real
+speech, plus fixed instructions that map result states to plain wording. Only
+the worker's RTC token, native/prepare/current-result capabilities and, in
+provider mode, the three provider keys cross that boundary.
 Case, database, publisher, discovery and room-view credentials stay in the parent.
 The context model adapter snapshots mutable public SDK records before awaiting a
 read; RTC frames and opaque provider objects remain deliberately borrowed.
@@ -262,7 +269,10 @@ invalid returned runner is quarantined until successful close and exact zero
 pending work; borrowed/shared objects are never closed as that job. A bounded
 process-local round-robin priority lets later entries progress when earlier work
 already has results. It is advisory only: every scan rereads the complete bounded
-P2 page from zero, and restart resets priority without acknowledging a gap.
+P2 page from zero, and restart resets priority without acknowledging a gap. Work
+this process has not started runs at once; reruns of the same work wait 1 s,
+doubling to 30 s. Pacing delays idempotent replays but never skips,
+acknowledges or persists any work.
 
 Bound actual jobs/readers/sockets before awaiting. Retain factories and close
 observers through timeout. HTTP admission stops first, dependent owners drain,
@@ -343,8 +353,10 @@ ledger. The finite rescan costs reads but cannot skip an unresolved gap as an AC
 Larger windows, fairness and arbitrary mid-issued crash recovery keep separate
 gates. Native SDK session ownership is reused instead of combining competing
 adapters. A separate optional app/page preserves the independently usable kits.
-Structured factual policy remains distinct from provider model judgment; the
-later real-provider profile needs its own readiness, outcome and cost evidence.
+Structured factual policy remains distinct from provider model judgment. The
+explicit provider_real profile has selected actual journey evidence in
+[0046](../../docs/work-items/0046-joined-showcase-providers-and-demo.md); model
+accuracy, latency distributions and provider cost remain unmeasured.
 
 ## Validation and acceptance gates
 
@@ -353,5 +365,6 @@ root-app regression after promotion. 45B requires independent real PG/process
 joins and useful progress. 45C requires actual SDK/browser voice/interruption/
 return-route evidence and screenshot-based desktop/mobile review. 45D requires
 installed/container reproduction, normal restart and full fast/docs handoff.
-Missing, skipped and timed-out requirements do not pass. The final provider demo,
-broader P2/P3 release requirements and recorded video remain separate obligations.
+Missing, skipped and timed-out requirements do not pass. Provider-mode journeys
+and the recorded demo video are recorded in 0046 as selected evidence; broader
+P2/P3 release requirements remain separate obligations.

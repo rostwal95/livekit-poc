@@ -129,12 +129,15 @@ export function parseNativeSession(value: unknown): NativeSession {
     return invalid();
   return Object.freeze(row) as unknown as NativeSession;
 }
+/** Trusted server-selected profile; a native attribute must match it exactly. */
+export type NativeMode = 'scripted' | 'provider_real';
 export function nativeReady(
   connected: boolean,
   expected: NativeSession | null,
   identity: string | null,
   kind: 'agent' | 'other',
   attributes: Readonly<Record<string, string>>,
+  mode: NativeMode = 'scripted',
 ): boolean {
   return (
     connected &&
@@ -142,7 +145,7 @@ export function nativeReady(
     identity === expected.agentId &&
     kind === 'agent' &&
     attributes['p2.session_ready'] === 'true' &&
-    attributes['p2.inference_mode'] === 'scripted' &&
+    attributes['p2.inference_mode'] === mode &&
     ['idle', 'listening', 'thinking', 'speaking'].includes(attributes['lk.agent.state'] ?? '')
   );
 }

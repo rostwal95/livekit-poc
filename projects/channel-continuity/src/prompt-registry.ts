@@ -1,7 +1,17 @@
 /** Immutable response/quote associations only. This store is not a case or execution authority. */
 import { createHash } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
-import { PgClient, PgPool, catalog, config, digest, settings, table } from './database.js';
+import {
+  PgClient,
+  watchClient,
+  PgPool,
+  watchPool,
+  catalog,
+  config,
+  digest,
+  settings,
+  table,
+} from './database.js';
 import type { DatabaseSettings } from './public-types.js';
 import { checkedSignal, isAborted, fields, id, reference, sameReference } from './routing-types.js';
 import {
@@ -149,7 +159,7 @@ export async function installPromptRegistry(
   const database = configuration(input, 'continuity_migrator');
   if (!Number.isInteger(maximumPrompts) || maximumPrompts < 1 || maximumPrompts > 10000)
     throw new ConfirmationError('InvalidCommand');
-  const client = new PgClient(config(database));
+  const client = watchClient(new PgClient(config(database)));
   try {
     await client.connect();
     await client.query('BEGIN');
@@ -253,7 +263,7 @@ export class PromptRegistry implements ConfirmationPromptPort {
       if (this.#publishers.has(key)) throw new ConfirmationError('InvalidCommand');
       this.#publishers.set(key, Object.freeze({ ...ref, conversationId: id(p.conversationId) }));
     }
-    this.#pool = new PgPool(config(this.#database));
+    this.#pool = watchPool(new PgPool(config(this.#database)));
     this.#pool.on('error', () => {
       this.#counts.rejected++;
     });

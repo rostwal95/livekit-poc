@@ -732,7 +732,12 @@ class _DeliveryCore(_CompletionOwner):
         else:
             created = False
         assert intent is not None
-        self._check(call)
+        if created:
+            # The created begin persisted a possible-send marker that later calls
+            # only look up, so this call must reach the receiver despite waiter loss.
+            call.external = True
+        else:
+            self._check(call)
         self._require_receiver()
         # Find before accept also reconciles an already committed cooperating receiver.
         try:
@@ -745,8 +750,6 @@ class _DeliveryCore(_CompletionOwner):
         if receipt is None:
             if not created:
                 return self._view(DeliverySnapshot(intent, True, None))
-            self._check(call)
-            call.external = True
             self._counts["receiver_invoked"] += 1
             invoked = True
             self._require_receiver()

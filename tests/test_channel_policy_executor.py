@@ -326,6 +326,7 @@ class ExecutorTests(unittest.IsolatedAsyncioTestCase):
         prepared: m.PreparedReadPort = self.prepared
         stored: m.StoredWorkPort = self.stored
         factory: m.RunnerFactory = self.factory
+        options.setdefault("rerun_delay_s", 0)
         core = m.ChannelPolicyExecutor(
             binding=self.binding,
             discovery=discovery,
@@ -508,6 +509,46 @@ class ExecutorTests(unittest.IsolatedAsyncioTestCase):
             [(work, "cp45_" + work.replace("-", ""))] * 2,
         )
         self.assertEqual({call[1] for call in self.factory.calls}, {self.binding.owner_id})
+
+    async def test_rerun_of_the_same_work_is_paced_while_every_scan_still_rereads(self) -> None:
+        core = self.configure(1, rerun_delay_s=0.2, rerun_cap_s=0.4)
+        work = next(iter(self.records))
+        self.assertEqual((await core.scan_once()).started, 1)
+        await until(lambda: self.factory.runners[work].closed == 1)
+        reads = len(self.stored.calls)
+        paced = await core.scan_once()
+        self.assertEqual((paced.eligible, paced.started, paced.active), (1, 0, 0))
+        self.assertEqual(len(self.stored.calls), reads + 1)
+        self.assertEqual(core.metrics()["jobs_paced"], 1)
+        await asyncio.sleep(0.35)
+        self.assertEqual((await core.scan_once()).started, 1)
+        await until(lambda: self.factory.runners[work].closed == 1)
+        self.assertEqual((await core.scan_once()).started, 0)
+        await asyncio.sleep(0.2)
+        self.assertEqual((await core.scan_once()).started, 0)
+        await asyncio.sleep(0.35)
+        self.assertEqual((await core.scan_once()).started, 1)
+        command = "cp45_" + work.replace("-", "")
+        self.assertEqual({call[0] for call in self.factory.calls}, {work})
+        self.assertEqual(len(self.factory.calls), 3)
+        await until(lambda: self.factory.runners[work].closed == 1)
+        self.assertEqual(self.factory.runners[work].calls, [(work, command)])
+
+    async def test_pacing_never_delays_work_this_process_has_not_started(self) -> None:
+        core = self.configure(3, rerun_delay_s=30)
+
+        def settled() -> bool:
+            return all(self.factory.runners[work].closed for work, *_ in self.factory.calls)
+
+        first = await core.scan_once()
+        self.assertEqual((first.eligible, first.started), (3, 2))
+        await until(settled)
+        second = await core.scan_once()
+        self.assertEqual((second.eligible, second.started), (3, 1))
+        self.assertEqual(len({call[0] for call in self.factory.calls}), 3)
+        await until(settled)
+        self.assertEqual((await core.scan_once()).started, 0)
+        self.assertEqual(core.metrics()["jobs_paced"], 2 + 3)
 
     async def test_aborted_scan_retains_two_late_factories_and_does_not_admit_later_item(
         self,
@@ -1123,6 +1164,25 @@ class ExecutorTests(unittest.IsolatedAsyncioTestCase):
                 runners=self.factory,
                 cleanup_timeout_s=10**1000,
             )
+        for pacing in (
+            {"rerun_delay_s": -1},
+            {"rerun_delay_s": float("nan")},
+            {"rerun_delay_s": True},
+            {"rerun_cap_s": 61},
+            {"rerun_delay_s": 2, "rerun_cap_s": 1},
+        ):
+            with (
+                self.subTest(pacing=pacing),
+                self.assertRaisesRegex(m.ExecutorError, "^invalid_input$"),
+            ):
+                m.ChannelPolicyExecutor(
+                    binding=self.binding,
+                    discovery=self.discovery,
+                    prepared=self.prepared,
+                    stored=self.stored,
+                    runners=self.factory,
+                    **pacing,
+                )
         with self.assertRaisesRegex(m.ExecutorError, "^invalid_input$"):
             m.ChannelPolicyExecutor(
                 binding=replace(self.binding, owner_id="bad"),

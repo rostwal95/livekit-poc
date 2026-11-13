@@ -251,7 +251,7 @@ class BrowserRoomGrant:
     binding_id: str
     expires_at: str
     url: str = LIVEKIT_URL
-    mode: Literal["scripted"] = "scripted"
+    mode: Literal["scripted", "provider_real"] = "scripted"
 
     def __post_init__(self) -> None:
         EndCommand(self.owner_epoch, self.generation, self.original_start_command_id)
@@ -265,7 +265,7 @@ class BrowserRoomGrant:
             validate_livekit_url(self.url)
         except NativeWorkerConfigError:
             raise NativeRoomError("invalid_input") from None
-        _need(type(self.mode) is str and self.mode == "scripted")
+        _need(type(self.mode) is str and self.mode in ("scripted", "provider_real"))
 
     def payload(self) -> dict[str, object]:
         return {
@@ -343,9 +343,11 @@ class RoomDescriptor:
     browser_token: str = field(repr=False)
     worker_config_sha256: str
     metadata: str
+    mode: Literal["scripted", "provider_real"] = "scripted"
 
     def __post_init__(self) -> None:
         _need(type(self.start) is StartCommand and type(self.node_open) is RoomOpen)
+        _need(type(self.mode) is str and self.mode in ("scripted", "provider_real"))
         StartCommand(self.start.owner_epoch, self.start.expected_generation, self.start.command_id)
         generation(self.generation, zero=False)
         _need(int(self.generation) == int(self.start.expected_generation) + 1)
@@ -481,9 +483,11 @@ def encode_descriptor(value: RoomDescriptor, config: NativeWorkerConfig) -> byte
             value.browser_token,
             value.worker_config_sha256,
             value.metadata,
+            value.mode,
         )
         config_raw = encode_native_worker_config(config)
         _need(hashlib.sha256(config_raw).hexdigest() == copied.worker_config_sha256)
+        _need(copied.mode == config.inference_mode)
         b = copied.node_open.binding
         c = config.binding
         _need(
@@ -505,7 +509,7 @@ def encode_descriptor(value: RoomDescriptor, config: NativeWorkerConfig) -> byte
         raw = _encode(
             {
                 "schemaVersion": 1,
-                "mode": "scripted",
+                "mode": copied.mode,
                 "ownerEpoch": copied.start.owner_epoch,
                 "expectedGeneration": copied.start.expected_generation,
                 "generation": copied.generation,

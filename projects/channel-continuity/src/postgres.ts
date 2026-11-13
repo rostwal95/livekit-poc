@@ -1,7 +1,16 @@
 /** Verified, bounded local inbox. No agent, provider send, or business action runs here. */
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
-import { ChannelError, PgPool, config, identifier, settings, table, validate } from './database.js';
+import {
+  ChannelError,
+  PgPool,
+  watchPool,
+  config,
+  identifier,
+  settings,
+  table,
+  validate,
+} from './database.js';
 import type { ChannelLimits, DatabaseSettings, ProcessingState } from './public-types.js';
 import {
   DEFINITION_DIGEST,
@@ -227,7 +236,7 @@ export class ChannelInbox {
       typeof observer !== 'function'
     )
       throw new ChannelError('AccessDenied');
-    this.#pool = new PgPool(config(this.#value));
+    this.#pool = watchPool(new PgPool(config(this.#value)));
     this.#pool.on('error', () => {
       this.#counts.dependencyErrors++;
       this.#emit({ event: 'dependency_failure', operation: 'pool', code: 'StorageUnavailable' });

@@ -3,6 +3,7 @@ import {
   DEFAULT_LIMITS,
   MARKER,
   PgClient,
+  watchClient,
   catalog,
   config,
   digest,
@@ -32,7 +33,7 @@ export async function installChannelSchema(
 ): Promise<void> {
   const value = settings(input, 'continuity_migrator');
   const bound = checkLimits(proposed);
-  const client = new PgClient(config(value));
+  const client = watchClient(new PgClient(config(value)));
   let primary: ChannelError | undefined;
   try {
     await client.connect();
@@ -220,7 +221,7 @@ export async function upgradeChannelSchemaV2(
 ): Promise<void> {
   const value = settings(input, 'continuity_migrator');
   const bound = dispatchLimits(proposed);
-  const client = new PgClient(config(value));
+  const client = watchClient(new PgClient(config(value)));
   let primary: ChannelError | undefined;
   try {
     await client.connect();
@@ -369,7 +370,7 @@ export async function upgradeChannelSchemaV3(
 ): Promise<void> {
   const value = settings(input, 'continuity_migrator'),
     bound = outboxLimits(proposed),
-    client = new PgClient(config(value));
+    client = watchClient(new PgClient(config(value)));
   let primary: ChannelError | undefined;
   try {
     await client.connect();
@@ -524,7 +525,7 @@ export async function upgradeChannelSchemaV4(
 ): Promise<void> {
   const value = settings(input, 'continuity_migrator'),
     bound = callbackLimits(proposed),
-    client = new PgClient(config(value));
+    client = watchClient(new PgClient(config(value)));
   let primary: ChannelError | undefined;
   try {
     await client.connect();
@@ -680,7 +681,7 @@ export async function upgradeChannelSchemaV5(
 ): Promise<void> {
   const value = settings(input, 'continuity_migrator'),
     bound = sendPolicyLimits(proposed),
-    client = new PgClient(config(value));
+    client = watchClient(new PgClient(config(value)));
   let primary: ChannelError | undefined;
   try {
     await client.connect();
@@ -1031,7 +1032,7 @@ export async function upgradeChannelSchemaV6(
   const afterTables = hook?.value as (() => void | Promise<void>) | undefined;
   const value = settings(input, 'continuity_migrator'),
     bound = nativeLimits(proposed),
-    client = new PgClient(config(value));
+    client = watchClient(new PgClient(config(value)));
   let primary: ChannelError | undefined;
   try {
     await client.connect();
@@ -1185,7 +1186,7 @@ export async function upgradeChannelSchemaV7(
 ): Promise<void> {
   const value = settings(input, 'continuity_migrator'),
     bound = communicationLimits(proposed),
-    client = new PgClient(config(value));
+    client = watchClient(new PgClient(config(value)));
   if (
     !hooks ||
     Object.getPrototypeOf(hooks) !== Object.prototype ||
@@ -1334,7 +1335,7 @@ export async function upgradeChannelSchemaV8(
   hooks: Readonly<{ harnessAfterTables?: () => void | Promise<void> }> = {},
 ): Promise<string> {
   const value = settings(input, 'continuity_migrator'),
-    client = new PgClient(config(value));
+    client = watchClient(new PgClient(config(value)));
   if (
     !hooks ||
     Object.getPrototypeOf(hooks) !== Object.prototype ||

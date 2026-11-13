@@ -93,7 +93,7 @@ asyncio.create_task=denied
 threading.Thread.start=denied
 socket.socket=denied
 from services.channel_policy_demo import native_models
-assert native_models.ScriptedModelProfile().reply_fixture=='demo.wav'
+assert native_models.ScriptedModelProfile().reply_fixture=='checking.wav'
 assert not any(x.startswith(('livekit','channel_continuity','services.conversation_agent')) for x in sys.modules)
 print(json.dumps({'cold':True}))
 """
@@ -110,8 +110,8 @@ print(json.dumps({'cold':True}))
 
     def test_pinned_asset_loader_and_provenance(self):
         assets = m._load_assets()
-        self.assertEqual(len(assets), 9)
-        self.assertEqual(len({item.fixture for item in assets}), 9)
+        self.assertEqual(len(assets), 10)
+        self.assertEqual(len({item.fixture for item in assets}), 10)
         original = ROOT / "services/conversation_agent/assets/manifest.json"
         self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(), m.MANIFEST_SHA256)
         provenance = json.loads(original.read_bytes())
@@ -136,7 +136,16 @@ print(json.dumps({'cold':True}))
         ):
             m._load_assets()
         self.assertNotIn(PRIVATE, str(error.exception))
-        self.assertEqual(len(m._load_assets()), 9)
+        self.assertEqual(len(m._load_assets()), 10)
+
+    def test_default_reply_fits_the_native_prepare_budget_with_headroom(self):
+        # P2 prepare generates and plays the dispatched reply within 4 seconds;
+        # a reply near that length made durable dispatch nondeterministic.
+        default = m.ScriptedModelProfile().reply_fixture
+        self.assertEqual(default, m.DEFAULT_REPLY_FIXTURE)
+        audio = next(item for item in m._load_assets() if item.fixture == default)
+        self.assertLessEqual(len(audio.pcm) // 2, m.MAX_DEFAULT_REPLY_SAMPLES)
+        self.assertLessEqual(m.MAX_DEFAULT_REPLY_SAMPLES / m.SAMPLE_RATE, 4 / 2)
 
     def test_audio_values_reject_mutable_and_forged_metadata(self):
         audio = m._load_assets()[0]
@@ -356,7 +365,7 @@ class NativeModelsTests(unittest.IsolatedAsyncioTestCase):
         chunks = [chunk async for chunk in stream]
         self.assertEqual(
             "".join(chunk.delta.content or "" for chunk in chunks if chunk.delta),
-            "This is a scripted local voice demonstration.",
+            "Checking the policy.",
         )
         self.assertTrue(
             all(

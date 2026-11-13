@@ -17,7 +17,7 @@ import wave
 from collections.abc import Coroutine
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeVar
+from typing import TYPE_CHECKING, Any, Final, Literal, Protocol, TypeVar
 
 if TYPE_CHECKING:
     from livekit.agents import llm as sdk_llm
@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
 InputFixture = Literal["input-investigate.wav", "input-status.wav"]
 ReplyFixture = Literal[
+    "checking.wav",
     "demo.wav",
     "accepted.wav",
     "status.wav",
@@ -48,7 +49,11 @@ ModelCode = Literal[
 SAMPLE_RATE = 16000
 MAX_TURN_SAMPLES = 12 * SAMPLE_RATE
 MAX_SESSION_SAMPLES = 190 * SAMPLE_RATE
-MANIFEST_SHA256 = "43366be51366074006ba1e9fd3d7f310d531e1db07a6b9453119bcbe4bd76c04"
+MANIFEST_SHA256 = "4c22b4947095a247f266ab917f5016934b11b7f4a71a35dce3bdb43c5fd49efc"
+# P2's native prepare plays the whole dispatched reply inside a fixed 4-second
+# budget, so the default reply must leave ample headroom for generation and RTC.
+DEFAULT_REPLY_FIXTURE: Final = "checking.wav"
+MAX_DEFAULT_REPLY_SAMPLES: Final = 2 * SAMPLE_RATE
 
 
 class NativeModelError(Exception):
@@ -90,6 +95,12 @@ _ASSETS = (
         "fb9b5ed6b7824f05fce6fa6c5d3fd061eab3d7bc539f1e223fa5ff6e2cd2b78e",
         39345,
         "status",
+    ),
+    _Asset(
+        "checking.wav",
+        "653ca9a56c40152bad79c0bc4817452e48f7808f0fdb55766cbc99967c90c85c",
+        27246,
+        "Checking the policy.",
     ),
     _Asset(
         "demo.wav",
@@ -148,7 +159,7 @@ class ScriptedModelProfile:
     """Finite manual-turn script; fixture order is selected before room startup."""
 
     input_fixtures: tuple[InputFixture, ...] = ("input-investigate.wav", "input-status.wav")
-    reply_fixture: ReplyFixture = "demo.wav"
+    reply_fixture: ReplyFixture = DEFAULT_REPLY_FIXTURE
     cleanup_timeout_s: float = 1.0
 
     def __post_init__(self) -> None:

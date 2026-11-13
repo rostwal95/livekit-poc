@@ -126,6 +126,32 @@ class LocalSetupTests(unittest.TestCase):
             with self.subTest(values=values), self.assertRaises(stack.SetupError):
                 stack.validate_config(values)
 
+    def test_optional_stack_project_scopes_compose_volumes_and_images(self):
+        self.assertEqual(stack.configured_project(self.setup), stack.DEFAULT_PROJECT)
+        env = self.setup / ".env"
+        env.write_text(env.read_text() + "STACK_PROJECT=livekit-poc\n")
+        values = stack.load_settings(self.setup)
+        self.assertEqual(stack.configured_project(self.setup), "livekit-poc")
+        self.assertEqual(stack.compose_arguments(self.setup)[3], "livekit-poc")
+        self.assertEqual(stack.image_name("python", self.setup), "livekit-poc-python:local")
+        with patch.object(stack, "run", return_value="") as run:
+            stack.assert_owned_containers(self.setup, values)
+        calls = [call.args[0] for call in run.call_args_list]
+        self.assertEqual(calls[0][-1], "label=com.docker.compose.project=livekit-poc")
+        self.assertEqual(
+            [call[-1] for call in calls[1:]],
+            [f"name=^livekit-poc_{name}$" for name in stack.VOLUMES],
+        )
+
+    def test_invalid_stack_project_fails_closed(self):
+        for value in ("Livekit", "-poc", "ab", "a" * 42, "live_kit", "poc$(id)"):
+            with (
+                self.subTest(value=value),
+                self.assertRaisesRegex(stack.SetupError, "STACK_PROJECT"),
+            ):
+                stack.validate_config({**DEFAULTS, "STACK_PROJECT": value})
+        stack.validate_config({**DEFAULTS, "STACK_PROJECT": "livekit-poc"})
+
     def test_images_must_be_named_and_pinned(self):
         values = stack.parse_env(self.setup / "images.env")
         for replacement in (
@@ -166,7 +192,7 @@ class LocalSetupTests(unittest.TestCase):
     def test_compose_argv_env_precedence_and_profile_are_explicit(self):
         values = stack.load_settings(self.setup)
         argv = stack.compose_arguments(self.setup, True)
-        self.assertEqual(argv[:4], ["docker", "compose", "--project-name", stack.PROJECT])
+        self.assertEqual(argv[:4], ["docker", "compose", "--project-name", stack.DEFAULT_PROJECT])
         indices = [index for index, value in enumerate(argv) if value == "--env-file"]
         self.assertEqual(
             [Path(argv[index + 1]).name for index in indices],
@@ -232,7 +258,7 @@ class LocalSetupTests(unittest.TestCase):
         queried = [call.args[0][-1] for call in run.call_args_list[1:]]
         self.assertEqual(
             queried,
-            [f"name=^{stack.PROJECT}_{name}$" for name in stack.VOLUMES],
+            [f"name=^{stack.DEFAULT_PROJECT}_{name}$" for name in stack.VOLUMES],
         )
 
     def test_matching_volume_credentials_allow_stopped_state_relocation(self):
@@ -240,7 +266,7 @@ class LocalSetupTests(unittest.TestCase):
         owner = hashlib.sha256(values["LOCAL_ACCESS_TOKEN"].encode()).hexdigest()
         answers = [""]
         for name in stack.VOLUMES:
-            answers.extend((f"{stack.PROJECT}_{name}\n", owner + "\n"))
+            answers.extend((f"{stack.DEFAULT_PROJECT}_{name}\n", owner + "\n"))
         with patch.object(stack, "run", side_effect=answers):
             stack.assert_owned_containers(Path("/relocated/local-setup"), values)
 
@@ -250,7 +276,7 @@ class LocalSetupTests(unittest.TestCase):
             for owner in ("", "<no value>", "f" * 64):
                 with self.subTest(volume=name, owner=owner):
                     answers = [""] + [""] * index
-                    answers.extend((f"{stack.PROJECT}_{name}\n", owner))
+                    answers.extend((f"{stack.DEFAULT_PROJECT}_{name}\n", owner))
                     with (
                         patch.object(stack, "run", side_effect=answers),
                         self.assertRaises(stack.SetupError) as caught,
@@ -260,7 +286,7 @@ class LocalSetupTests(unittest.TestCase):
                     self.assertNotIn(values["LOCAL_ACCESS_TOKEN"], str(caught.exception))
 
     def test_unowned_stopped_volumes_block_stop_and_reset(self):
-        name = f"{stack.PROJECT}_{stack.VOLUMES[0]}"
+        name = f"{stack.DEFAULT_PROJECT}_{stack.VOLUMES[0]}"
         for arguments in (("stop",), ("reset", "--confirm", "RESET_LOCAL_STACK")):
             with self.subTest(arguments=arguments):
                 with patch.object(stack, "run", side_effect=["", name + "\n", ""]) as run:

@@ -84,7 +84,7 @@ def main() -> int:
             "inspect",
             "--format",
             "{{.Id}}",
-            "livekit-agent-ecosystem-python:local",
+            stack.image_name("python"),
         ]
     )
     network = stack.PROJECT + "_lab"

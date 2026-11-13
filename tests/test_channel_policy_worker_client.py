@@ -565,6 +565,47 @@ class WorkerHttp(unittest.IsolatedAsyncioTestCase):
         self.reply = response(200, self.page_raw)
         self.assertEqual(await m.CoordinatorWorkerDiscoveryReader(client).read(), self.page)
 
+    async def test_background_lane_serializes_readers_but_never_delays_dispatch_reads(self):
+        class Held:
+            def __init__(self):
+                self.active = self.peak = 0
+                self.release = asyncio.Event()
+
+            async def discovery(self):
+                self.active += 1
+                self.peak = max(self.peak, self.active)
+                try:
+                    await self.release.wait()
+                    return "page"
+                finally:
+                    self.active -= 1
+
+            async def prepared(self, **kwargs):
+                return await self.discovery()
+
+        held = Held()
+        lane = asyncio.Semaphore(1)
+        scan = asyncio.create_task(m.CoordinatorWorkerDiscoveryReader(held, lane).read())
+        result = asyncio.create_task(
+            m.CoordinatorWorkerPreparedReader(held, lane).read(
+                source_binding_id="native", receipt_id=self.receipt
+            )
+        )
+        for _ in range(5):
+            await asyncio.sleep(0)
+        self.assertEqual(held.active, 1)
+        dispatch = asyncio.create_task(
+            m.CoordinatorWorkerPreparedReader(held).read(
+                source_binding_id="native", receipt_id=self.receipt
+            )
+        )
+        for _ in range(5):
+            await asyncio.sleep(0)
+        self.assertEqual(held.active, 2)
+        held.release.set()
+        self.assertEqual(await asyncio.gather(scan, result, dispatch), ["page"] * 3)
+        self.assertEqual((held.peak, held.active, lane.locked()), (2, 0, False))
+
     async def test_telemetry_failure_does_not_block_real_read_or_safe_counters(self):
         client = self.client()
 

@@ -10,9 +10,10 @@
   <body>
     <a class="skip-link" href="#cp-conversation">Skip to conversation</a>
     <header class="cp-topbar">
-      <a href="/" aria-label="LiveKit continuity lab home"
-        ><img src="/vendor/livekit/lk-logo-dark.svg" alt="LiveKit" width="112" height="28" /></a
-      ><span>LOCAL / SCRIPTED</span>
+      <img src="/vendor/livekit/lk-logo-dark.svg" alt="LiveKit" width="112" height="28" /><span
+        data-cp-mode-label
+        >LOCAL</span
+      >
     </header>
     <main class="cp-shell">
       <div class="cp-intro">
@@ -23,7 +24,7 @@
       <section class="cp-session" aria-label="Session">
         <div>
           <strong data-cp-state role="status" aria-live="polite">Not connected</strong
-          ><span data-cp-native>Recorded input · scripted</span>
+          ><span data-cp-native>Recorded input · profile shown after Join</span>
         </div>
         <div class="cp-actions">
           <button class="primary" data-cp-join type="button">Join session</button
@@ -110,13 +111,33 @@
               </div>
             </form>
             <div class="cp-voice" data-cp-voice hidden>
-              <p>
-                Plays a declared local recording into the real RTC track. No microphone access or
-                general speech recognition.
+              <fieldset class="cp-voice-source">
+                <legend>Voice input</legend>
+                <label
+                  ><input
+                    type="radio"
+                    name="cp-voice-source"
+                    value="clip"
+                    data-cp-voice-clip
+                    checked
+                  />
+                  Recorded clip</label
+                ><label
+                  ><input
+                    type="radio"
+                    name="cp-voice-source"
+                    value="microphone"
+                    data-cp-voice-mic
+                  />
+                  Microphone</label
+                >
+              </fieldset>
+              <p data-cp-voice-note>
+                Plays a declared local recording into the real RTC track. No microphone access.
               </p>
               <div class="cp-actions">
                 <button class="primary" data-cp-prepare-voice type="button" disabled>
-                  Enable recorded voice</button
+                  Enable voice input</button
                 ><button class="secondary" data-cp-start-voice type="button" disabled>
                   Start turn</button
                 ><button class="secondary" data-cp-commit-voice type="button" disabled>

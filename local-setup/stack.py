@@ -25,7 +25,9 @@ from pathlib import Path
 from types import ModuleType
 
 SETUP = Path(__file__).resolve().parent
-PROJECT = "livekit-agent-ecosystem"
+DEFAULT_PROJECT = "livekit-agent-ecosystem"
+# Compose project names scope containers, networks, volumes and built image tags.
+PROJECT_PATTERN = re.compile(r"[a-z][a-z0-9-]{2,40}")
 OWNER_LABEL = "io.livekit-ecosystem.owner"
 VOLUMES = ("postgres_data", "application_data", "worker_data")
 LOG_SERVICES = (
@@ -52,7 +54,13 @@ PORTS = {
     "POSTGRES_PORT",
     "JAEGER_UI_PORT",
 }
-CONFIG_KEYS = PORTS | {"BIND_ADDRESS", "LIVEKIT_NODE_IP", "P1_WORKER_SCOPE", "P1_WORKER_SCHEMA"}
+CONFIG_KEYS = PORTS | {
+    "BIND_ADDRESS",
+    "LIVEKIT_NODE_IP",
+    "P1_WORKER_SCOPE",
+    "P1_WORKER_SCHEMA",
+    "STACK_PROJECT",
+}
 SECRET_KEYS = {
     "LIVEKIT_API_KEY",
     "LIVEKIT_API_SECRET",
@@ -118,10 +126,36 @@ def parse_env(path: Path) -> dict[str, str]:
     return result
 
 
+def configured_project(setup: Path = SETUP) -> str:
+    """Return the optional per-checkout STACK_PROJECT, else the shared default.
+
+    A distinct name gives a checkout its own containers, volumes and images, so
+    two checkouts can run side by side on distinct configured ports.
+    """
+    path = setup / ".env"
+    if path.is_symlink() or not path.is_file():
+        return DEFAULT_PROJECT
+    try:
+        value = parse_env(path).get("STACK_PROJECT", DEFAULT_PROJECT)
+    except (SetupError, OSError, UnicodeError):
+        return DEFAULT_PROJECT
+    return value if PROJECT_PATTERN.fullmatch(value) else DEFAULT_PROJECT
+
+
+PROJECT = configured_project()
+
+
+def image_name(service: str, setup: Path = SETUP) -> str:
+    """Locally built image tag owned by the configured compose project."""
+    return f"{configured_project(setup)}-{service}:local"
+
+
 def validate_config(values: dict[str, str]) -> None:
     unknown = set(values) - CONFIG_KEYS
     if unknown:
         raise SetupError("Unknown local setting names: " + ", ".join(sorted(unknown)))
+    if "STACK_PROJECT" in values and not PROJECT_PATTERN.fullmatch(values["STACK_PROJECT"]):
+        raise SetupError("STACK_PROJECT must be 3-41 lowercase letters, digits or hyphens")
     for name, pattern in (
         ("P1_WORKER_SCOPE", r"[A-Za-z0-9_-]{1,64}"),
         ("P1_WORKER_SCHEMA", r"[a-z][a-z0-9_]{0,62}"),
@@ -359,7 +393,14 @@ def stack_owner(values: dict[str, str]) -> str:
 
 
 def compose_arguments(setup: Path, observability: bool = False) -> list[str]:
-    argv = ["docker", "compose", "--project-name", PROJECT, "--project-directory", str(setup)]
+    argv = [
+        "docker",
+        "compose",
+        "--project-name",
+        configured_project(setup),
+        "--project-directory",
+        str(setup),
+    ]
     for name in ("images.env", ".env", ".secrets.env"):
         argv.extend(["--env-file", str(setup / name)])
     argv.extend(["-f", str(setup / "docker-compose.yaml")])
@@ -441,6 +482,7 @@ def run(
 
 def assert_owned_containers(setup: Path, values: dict[str, str]) -> None:
     """Guard both live containers and persistent volumes before mutation."""
+    project = configured_project(setup)
     identifiers = run(
         [
             "docker",
@@ -448,7 +490,7 @@ def assert_owned_containers(setup: Path, values: dict[str, str]) -> None:
             "--all",
             "--quiet",
             "--filter",
-            f"label=com.docker.compose.project={PROJECT}",
+            f"label=com.docker.compose.project={project}",
         ],
         values,
         setup,
@@ -471,7 +513,7 @@ def assert_owned_containers(setup: Path, values: dict[str, str]) -> None:
             )
     expected_owner = stack_owner(values)
     for logical_name in VOLUMES:
-        name = f"{PROJECT}_{logical_name}"
+        name = f"{project}_{logical_name}"
         existing = run(
             ["docker", "volume", "ls", "--quiet", "--filter", f"name=^{name}$"],
             values,
@@ -558,7 +600,7 @@ def doctor(setup: Path = SETUP, observability: bool = False) -> dict:
         check_ports(values, observability)
     return {
         "status": "ready",
-        "project": PROJECT,
+        "project": configured_project(setup),
         "runningProjectDetected": own_running,
         "composeVersion": version.strip(),
         "productAcceptance": "not_certified",
@@ -807,7 +849,7 @@ def main(argv=None, setup: Path = SETUP) -> int:
             elif args.action == "config":
                 render_config(setup)
                 run(base + ["config", "--quiet"], values, setup)
-                report = {"status": "configuration_valid", "project": PROJECT}
+                report = {"status": "configuration_valid", "project": configured_project(setup)}
             elif args.action == "start":
                 doctor(setup, args.observability)
                 run(base + ["up", "--build", "--wait", "--wait-timeout", "120"], values, setup, 600)
@@ -815,7 +857,7 @@ def main(argv=None, setup: Path = SETUP) -> int:
                     wait_for_http(f"http://{values['BIND_ADDRESS']}:{values['JAEGER_UI_PORT']}/")
                 report = {
                     "status": "started",
-                    "project": PROJECT,
+                    "project": configured_project(setup),
                     "observabilityReady": args.observability,
                     "productAcceptance": "not_certified",
                 }
@@ -1151,7 +1193,7 @@ def main(argv=None, setup: Path = SETUP) -> int:
                 )
                 report = {
                     "status": args.action + "_completed",
-                    "project": PROJECT,
+                    "project": configured_project(setup),
                     "productAcceptance": "not_certified",
                 }
                 if args.action == "status":

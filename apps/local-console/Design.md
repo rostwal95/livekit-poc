@@ -628,7 +628,7 @@ The optional channel-policy.html implementation composes a strict Parent wire,
 retained HTTP client, pure activation controller, one lazy SDK room adapter and
 compact panel. Its isolated source/build/responsive checks do not establish a
 joined database, media or real-provider journey. The active 0045 work item owns
-that qualification and the final recording.
+that qualification; 0046 records the selected provider journeys and the demo.
 
 | Component | Responsibility | Authority |
 | --- | --- | --- |
@@ -659,5 +659,21 @@ The default first mode is explicitly scripted with a recorded WAV source. The
 trusted authenticated grant selects a canonical loopback SFU endpoint, normally
 host port 17880. The fixed local proxy exposes no credential and forwards only to
 the Parent operator boundary. SDK loading occurs on Join, keeping the idle page
-small. Connected keyboard/mobile/reduced-motion and actual PCM/media qualification
-remain required before the final demo can be called complete.
+small.
+
+The grant also names the inference mode (scripted or provider_real); readiness
+requires the agent's `p2.inference_mode` attribute to match it, and the header
+labels the configured profile without implying model quality. Provider commits
+allow 12 s. The voice source is the declared recording or, after browser
+permission, the live microphone; it is fixed once prepared.
+
+JoinedRoom reads at most two selected-agent transcription streams. Streams from
+any other sender, including the user transcript that the agents SDK publishes
+on the browser's behalf, and streams beyond the reader cap are released without
+changing state, as for the business console. Each admitted stream becomes one
+message that grows in place while it stays open (a live caption) and is
+finalized when it closes or fails; a rejected display update cannot leak a
+reader slot. The transcript follows new text only while the reader is already at
+its end. When another activation still holds the single room, the state reads
+"Session in use" rather than offering a disabled Join. Recorded browser evidence
+for these behaviors is in the [0046 work item](../../docs/work-items/0046-joined-showcase-providers-and-demo.md).

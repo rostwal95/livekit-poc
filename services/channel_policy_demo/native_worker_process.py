@@ -1,8 +1,9 @@
 """Owned real NativeWorker process and its bounded finite stdout observations.
 
 The actual command is fixed and keeps the original virtualenv interpreter path.
-Only a private config path and role BASE environment reach the child. No shell,
-provider/PG/admin/publisher/view environment or cwd/PYTHONPATH fallback is used.
+Only a private config path and role BASE environment reach the child, plus the
+three provider keys when the explicit provider_real profile supplies them. No
+shell, PG/admin/publisher/view environment or cwd/PYTHONPATH fallback is used.
 """
 
 from __future__ import annotations
@@ -17,6 +18,8 @@ from dataclasses import dataclass
 from pathlib import Path, PosixPath
 from typing import Any, Literal, TypeVar, cast
 
+from .native_models import NativeModelError
+from .native_provider_models import provider_environment as provider_keys
 from .native_room_state import NativeRoomError
 
 STDOUT_BYTES = 65536
@@ -112,6 +115,7 @@ class NativeWorkerProcess:
         *,
         prepare_timeout_s: float = 10,
         cleanup_timeout_s: float = 15,
+        provider_environment: Mapping[str, str] | None = None,
     ) -> None:
         if (
             type(python_executable) is not PosixPath
@@ -124,6 +128,13 @@ class NativeWorkerProcess:
         # its symlink for execution would lose pyvenv.cfg and installed packages.
         self._python, self._config = python_executable, config_path
         self._environment = _base(base_environment)
+        self._provider: dict[str, str] = {}
+        if provider_environment is not None:
+            try:
+                self._provider = provider_keys(provider_environment)
+            except NativeModelError:
+                raise NativeRoomError("invalid_input") from None
+        self._mode = "provider_real" if self._provider else "scripted"
         for value, maximum in ((prepare_timeout_s, 15), (cleanup_timeout_s, 15)):
             if type(value) not in (int, float) or not 0.02 <= value <= maximum:
                 raise NativeRoomError("invalid_input")
@@ -207,7 +218,7 @@ class NativeWorkerProcess:
             stdin=asyncio.subprocess.DEVNULL,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            env=dict(self._environment),
+            env={**self._environment, **self._provider},
             cwd=str(self._config.parent),
             start_new_session=True,
             limit=FRAME_BYTES + 1,
@@ -343,7 +354,7 @@ class NativeWorkerProcess:
                     or type(value["schemaVersion"]) is not int
                     or value["schemaVersion"] != 1
                     or value["component"] != "channel_policy_native_worker"
-                    or value["mode"] != "scripted"
+                    or value["mode"] != self._mode
                     or type(value["state"]) is not str
                     or value["state"] not in _ALLOWED
                 ):

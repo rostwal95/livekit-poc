@@ -148,6 +148,25 @@ even if another shutdown step fails; incomplete cleanup remains a failure. Named
 volumes, accepted work and the private credential file remain. Stop does not need
 to read provider keys. A destructive reset is not a normal stop or recovery step.
 
+### Joined three-project showcase
+
+The joined P1/P2/P3 showcase has its own explicit provider mode on the host:
+
+```sh
+make channel-policy-demo-start-provider CHANNEL_POLICY_PROFILE=$PWD/.local/showcase-2
+```
+
+It reads the same private credential file with the strict loader and passes the
+three keys only to each room's native worker process. The worker reuses the
+fixed Deepgram nova-3, OpenAI gpt-5.4-mini and ElevenLabs eleven_v4_turbo
+adapters above, with a toolless OpenAI plugin because that runtime offers the
+model no tools, and the P2 runtime's scheduled-reply timing so durable dispatch
+never waits for speech playout. The persisted dispatch decision stays the
+deterministic investigation rule; models produce transcripts and replies only.
+The browser header shows `LOCAL / REAL PROVIDERS` once the native agent reports
+the matching mode. The [0046 work item](work-items/0046-joined-showcase-providers-and-demo.md)
+records the selected actual journeys; they are separate from the P1-20 gate.
+
 ## Explicit local certificate trust
 
 The default runtime uses the pinned image's OS trust store. A local network may

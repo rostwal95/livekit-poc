@@ -244,6 +244,27 @@ ownership before mutating existing same-name containers, and credential-derived
 owner labels before reusing or deleting persistent volumes. Retain private local
 credentials with their volumes; regenerating them does not adopt existing data.
 
+### Isolated stack per checkout
+
+Set STACK_PROJECT in local-setup/.env to give a checkout its own Compose project,
+container, volume and image names (default livekit-agent-ecosystem; lowercase
+letters, digits and hyphens, 3–41 characters). Change UI_PORT, API_PORT,
+LIVEKIT_HTTP_PORT, LIVEKIT_TCP_PORT, LIVEKIT_UDP_PORT, POSTGRES_PORT and
+JAEGER_UI_PORT as well when another stack already uses the defaults. The
+lifecycle manager only mutates containers labelled for the current checkout and
+project, so a second stack never touches the first. Run init before start in the
+new checkout; it generates separate credentials.
+
+### Joined showcase profiles
+
+`make channel-policy-demo-setup CHANNEL_POLICY_PROFILE=<new directory>` runs two
+owner steps: `channel_policy_setup.py prepare` creates the profile's disposable
+schemas and private configuration, and `associate-sms` links the fixed synthetic
+SMS sender with a signed LINK challenge so simulated SMS is accepted. Both need
+the stack started and `prepare-postgres` done. A profile holds sixteen inputs;
+prepare a new directory for each fresh demonstration. The root README covers
+start, provider mode and recording.
+
 ### PostgreSQL role and schema preparation
 
 After init and start, run the same commands for a fresh or retained database:
@@ -447,6 +468,9 @@ P1_ACCEPTANCE_REAL_PROFILE=provider_real acceptance selector. All three keys are
 validated privately and forwarded only to the native service. The persistent
 ACTIVE v4 workspace and fixtures remain separate explicit prerequisites.
 The selected provider_real v2 gate passed both actual browser cases with cleanup. P1 V1 is qualified for the local POC using provider_real v2.
+The joined showcase reuses the same private file: `make channel-policy-demo-start-provider`
+reads it with the strict loader and passes the keys only to each room's native
+worker. local-setup/.env.providers.example lists the three key names.
 
 ### P2 verified PostgreSQL intake check
 

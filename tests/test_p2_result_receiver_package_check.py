@@ -562,15 +562,15 @@ class RootApplicationMode(unittest.TestCase):
                 "test_p3_channel_origin_composition.py": 2,
                 "test_channel_policy_discovery.py": 22,
                 "test_channel_policy_current_result.py": 24,
-                "test_channel_policy_current_result_producer.py": 39,
-                "test_channel_policy_executor.py": 32,
-                "test_channel_policy_worker_client.py": 19,
+                "test_channel_policy_current_result_producer.py": 43,
+                "test_channel_policy_executor.py": 34,
+                "test_channel_policy_worker_client.py": 20,
                 "test_channel_policy_origin_router.py": 34,
-                "test_channel_policy_jobs.py": 60,
+                "test_channel_policy_jobs.py": 61,
                 "test_channel_policy_public_clients.py": 21,
                 "test_channel_policy_transport_canonical.py": 5,
                 "test_channel_policy_owner_config.py": 22,
-                "test_channel_policy_application.py": 30,
+                "test_channel_policy_application.py": 33,
                 "test_p2_current_case_bridge.py": 17,
                 "test_p3_channel_receiver.py": 15,
                 "test_channel_policy_cli.py": 22,
@@ -579,7 +579,7 @@ class RootApplicationMode(unittest.TestCase):
                 "test_channel_policy_room_control_client.py": 14,
                 "test_channel_policy_worker_current_result.py": 15,
                 "test_channel_policy_current_result_context.py": 20,
-                "test_channel_policy_native_models.py": 33,
+                "test_channel_policy_native_models.py": 34,
                 "test_channel_policy_native_prepare_http.py": 26,
                 "test_channel_policy_current_result_http.py": 20,
                 "test_channel_policy_native_worker_config.py": 26,
@@ -594,8 +594,8 @@ class RootApplicationMode(unittest.TestCase):
                 "test_channel_policy_parent.py": 19,
             },
         )
-        self.assertEqual(app["root_application_installed_fake_port_tests"], 752)
-        self.assertEqual((app["root_application_payloads"], app["p2_python_payloads"]), (84, 9))
+        self.assertEqual(app["root_application_installed_fake_port_tests"], 764)
+        self.assertEqual((app["root_application_payloads"], app["p2_python_payloads"]), (86, 9))
         self.assertEqual(len(package.input_names(root_application=True)), 54)
         for key in (
             "total_seconds",
@@ -636,9 +636,9 @@ class RootApplicationMode(unittest.TestCase):
             )
             self.assertEqual(count, expected, name)
             observed[name] = count
-        self.assertEqual((len(observed), sum(observed.values())), (36, 752))
+        self.assertEqual((len(observed), sum(observed.values())), (36, 764))
         payloads = package.application_payload(root)
-        self.assertEqual(len(payloads), 84)
+        self.assertEqual(len(payloads), 86)
         for name in (
             "current_result_producer",
             "worker_client",
@@ -675,7 +675,7 @@ class RootApplicationMode(unittest.TestCase):
         ):
             self.assertIn("services/channel_policy_demo/" + name + ".py", payloads)
         self.assertIn("tests/test_channel_policy_parent.py", package.application_source_tests(root))
-        self.assertEqual(len(package.application_source_tests(root)), 160)
+        self.assertEqual(len(package.application_source_tests(root)), 161)
         self.assertTrue(
             {
                 "local-setup/scripts/p2_current_case_bridge.py",
@@ -834,7 +834,7 @@ class RootApplicationMode(unittest.TestCase):
         }
         required |= {str(p.relative_to(root)) for p in (root / "services").rglob("*.md")}
         self.assertTrue(required <= set(selected))
-        self.assertEqual(len(package.application_payload(root)), 84)
+        self.assertEqual(len(package.application_payload(root)), 86)
         for name in required:
             self.assertEqual(selected[name], package.digest((root / name).read_bytes()))
         self.assertFalse(
@@ -1029,7 +1029,7 @@ class RootApplicationMode(unittest.TestCase):
                 report["source_actual_assertions"],
                 report["installed_actual_assertions"],
             ),
-            (752, 0, 0),
+            (764, 0, 0),
         )
         with self.assertRaises(package.PackageError):
             package.selected_report(
@@ -1692,7 +1692,7 @@ class NativeApplicationFixtures(unittest.TestCase):
         execution = package.application_execution()
         self.assertGreater(
             execution.index('native_fixture["node_client_exit_and_reap_assertions_passed"]=True'),
-            execution.index("assert sum(counts.values())==752"),
+            execution.index("assert sum(counts.values())==764"),
         )
 
 

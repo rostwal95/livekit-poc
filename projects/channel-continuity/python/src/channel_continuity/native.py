@@ -6,6 +6,7 @@ import asyncio
 import inspect
 import json
 import logging
+import math
 from collections.abc import AsyncIterable, Callable
 from dataclasses import dataclass, field
 from typing import Any, Literal, cast
@@ -60,6 +61,7 @@ __all__ = [
     "NativeIntakePort",
     "NativeRecognizer",
     "NativeRuntime",
+    "NativeTiming",
 ]
 
 
@@ -77,11 +79,51 @@ class _Turn:
     watchdog: asyncio.Task[None] | None = None
 
 
+SCRIPTED_INSTRUCTIONS = "You are a local scripted continuity demonstration. The input has already been retained. Describe investigation processing without claiming a supplier effect, user consent or physical playback. No business tools are offered."
+
+
+def _bounded_seconds(value: object, low: float, high: float) -> None:
+    if (
+        type(value) not in (int, float)
+        or not math.isfinite(cast(float, value))
+        or not low <= cast(float, value) <= high
+    ):
+        raise NativeError()
+
+
+@dataclass(frozen=True, slots=True)
+class NativeTiming:
+    """Explicit model, voice-turn and reply budgets; defaults match the scripted profile.
+
+    reply="playout" keeps dispatch waiting until the reply has played. "scheduled"
+    returns once the reply is scheduled; a bounded owned observer then reports its
+    completed/interrupted/unknown outcome, so durable dispatch never depends on
+    how long a real model reply takes to speak.
+    """
+
+    model_seconds: float = 2.0
+    commit_seconds: float = 4.0
+    transcript_seconds: float = 2.0
+    reply: Literal["playout", "scheduled"] = "playout"
+    reply_seconds: float = 60.0
+    replies: int = 4
+
+    def __post_init__(self) -> None:
+        _bounded_seconds(self.model_seconds, 1, 30)
+        _bounded_seconds(self.commit_seconds, 2, 12)
+        _bounded_seconds(self.transcript_seconds, 1, 10)
+        if self.transcript_seconds >= self.commit_seconds:
+            raise NativeError()
+        if type(self.reply) is not str or self.reply not in ("playout", "scheduled"):
+            raise NativeError()
+        _bounded_seconds(self.reply_seconds, 5, 120)
+        if type(self.replies) is not int or not 1 <= self.replies <= 8:
+            raise NativeError()
+
+
 class _NativeAgent(Agent):
-    def __init__(self, owner: NativeRuntime) -> None:
-        super().__init__(
-            instructions="You are a local scripted continuity demonstration. The input has already been retained. Describe investigation processing without claiming a supplier effect, user consent or physical playback. No business tools are offered."
-        )
+    def __init__(self, owner: NativeRuntime, instructions: str) -> None:
+        super().__init__(instructions=instructions)
         self.owner = owner
 
     def llm_node(
@@ -141,11 +183,27 @@ class NativeRuntime:
         observer: Callable[[dict[str, str]], object] | None = None,
         communication: NativeCommunicationPort | None = None,
         rehydration: NativeRehydrationProfile | None = None,
+        timing: NativeTiming | None = None,
+        instructions: str | None = None,
+        inference_mode: Literal["scripted", "provider_real"] = "scripted",
     ) -> None:
         if type(binding) is not NativeBinding or not isinstance(stt, sdk_stt.STT):
             raise NativeError()
         if rehydration is not None and type(rehydration) is not NativeRehydrationProfile:
             raise NativeError()
+        if timing is not None and type(timing) is not NativeTiming:
+            raise NativeError()
+        # Published as p2.inference_mode; browsers require it to match the grant.
+        if inference_mode not in ("scripted", "provider_real"):
+            raise NativeError()
+        self._inference_mode = inference_mode
+        self._timing = timing if timing is not None else NativeTiming()
+        # Response capture records settled generation facts before dispatch.
+        if self._timing.reply == "scheduled" and communication is not None:
+            raise NativeError()
+        selected_instructions = SCRIPTED_INSTRUCTIONS if instructions is None else instructions
+        text(selected_instructions, 4096)
+        self._replies: set[asyncio.Task[None]] = set()
         self._rehydration_load = None
         if rehydration is not None:
             try:
@@ -225,12 +283,12 @@ class NativeRuntime:
             max_tool_steps=1,
             user_away_timeout=None,
             conn_options=SessionConnectOptions(
-                stt_conn_options=APIConnectOptions(max_retry=0, timeout=2),
-                llm_conn_options=APIConnectOptions(max_retry=0, timeout=2),
-                tts_conn_options=APIConnectOptions(max_retry=0, timeout=2),
+                stt_conn_options=APIConnectOptions(max_retry=0, timeout=self._timing.model_seconds),
+                llm_conn_options=APIConnectOptions(max_retry=0, timeout=self._timing.model_seconds),
+                tts_conn_options=APIConnectOptions(max_retry=0, timeout=self._timing.model_seconds),
             ),
         )
-        self.agent = _NativeAgent(self)
+        self.agent = _NativeAgent(self, selected_instructions)
         self.session.on("speech_created", self._speech_created)
         self.session.on("close", self._session_closed)
 
@@ -287,6 +345,7 @@ class NativeRuntime:
             "observerPending": len(self._notices),
             "activeReaders": len(self._readers),
             "activePrepare": len(self._prepares),
+            "activeReplyObservers": len(self._replies),
             "activeIntakes": len(self._intakes),
             "activeVoiceWork": max(
                 self._pending_voice(), int(self._turn is not None and self._turn.state != "settled")
@@ -314,6 +373,7 @@ class NativeRuntime:
             raise NativeError("forbidden")
         if (
             self._prepares
+            or self._replies
             or self._intakes
             or self._readers
             or self._context_tasks
@@ -534,7 +594,7 @@ class NativeRuntime:
             raise NativeError("closed")
         self.session.input.set_audio_enabled(False)
         self._ready = True
-        attributes = {"p2.session_ready": "true", "p2.inference_mode": "scripted"}
+        attributes = {"p2.session_ready": "true", "p2.inference_mode": self._inference_mode}
         if self._rehydration_load is not None:
             if self._loaded_context is None:
                 raise NativeError("dependency_unavailable")
@@ -680,8 +740,10 @@ class NativeRuntime:
         self._stop_watchdog(turn)
         self.session.input.set_audio_enabled(False)
         try:
-            async with asyncio.timeout(4):
-                await self.session.commit_user_turn(transcript_timeout=2, stt_flush_duration=0.1)
+            async with asyncio.timeout(self._timing.commit_seconds):
+                await self.session.commit_user_turn(
+                    transcript_timeout=self._timing.transcript_seconds, stt_flush_duration=0.1
+                )
                 genuine = await asyncio.shield(turn.final)
                 await turn.handoff.wait()
             status = "turn_committed" if genuine else "no_audio"
@@ -978,6 +1040,8 @@ class NativeRuntime:
             raise NativeError("closed")
         if self._prepares or self._context_tasks or self._generation_count >= 64:
             raise NativeError("capacity_exhausted")
+        if len(self._replies) >= self._timing.replies:
+            raise NativeError("capacity_exhausted")
         if self._rehydration_load is not None and (
             self._loaded_context is None
             or self._loaded_context.case_revision != copied["caseRevision"]
@@ -1026,6 +1090,14 @@ class NativeRuntime:
                 )
                 if communication is not None and ticket is not None:
                     await communication.publish_anchor(ticket)
+                if self._timing.reply == "scheduled":
+                    # Construction rejects scheduled replies with response capture.
+                    self._observe_reply(handle, copied, generation_id)
+                    return {
+                        "kind": "investigation",
+                        "source": "scripted",
+                        "caseRevision": copied["caseRevision"],
+                    }
                 await asyncio.shield(asyncio.ensure_future(handle.wait_for_playout()))
                 known = (
                     await communication.settled(ticket)
@@ -1076,6 +1148,35 @@ class NativeRuntime:
                 return await asyncio.shield(task)
         except TimeoutError:
             raise NativeError("dependency_unavailable") from None
+
+    def _observe_reply(
+        self, handle: SpeechHandle, context: dict[str, object], generation_id: str
+    ) -> None:
+        task = asyncio.create_task(
+            self._reply_outcome(handle, context, generation_id), name="native-reply-observation"
+        )
+        self._replies.add(task)
+        task.add_done_callback(self._replies.discard)
+        task.add_done_callback(lambda done: None if done.cancelled() else done.exception())
+
+    async def _reply_outcome(
+        self, handle: SpeechHandle, context: dict[str, object], generation_id: str
+    ) -> None:
+        status = "unknown"
+        try:
+            # The shield keeps the SDK's own playout waiter intact when this
+            # observer is cancelled; the observation, not the speech, is owned here.
+            async with asyncio.timeout(self._timing.reply_seconds):
+                await asyncio.shield(asyncio.ensure_future(handle.wait_for_playout()))
+            if handle.exception() is None:
+                status = "interrupted" if handle.interrupted else "completed"
+        except TimeoutError:
+            status = "unknown"
+        except Exception:  # noqa: BLE001 - SDK failures translate once without exception text.
+            status = "unknown"
+        if status == "completed":
+            self._counts["nativeGeneratedReplies"] += 1
+        await self._generation(context, generation_id, status)
 
     async def _generation(
         self, context: dict[str, object], generation_id: str, status: str
@@ -1164,7 +1265,15 @@ class NativeRuntime:
             except BaseException as error:  # noqa: BLE001 - Drain independent ownership after SDK failure.
                 if primary is None:
                     primary = error
-        pending = (*tuple(self._intakes), *tuple(self._prepares), *tuple(self._context_tasks))
+        replies = tuple(self._replies)
+        for reply in replies:
+            reply.cancel()
+        pending = (
+            *tuple(self._intakes),
+            *tuple(self._prepares),
+            *tuple(self._context_tasks),
+            *replies,
+        )
         if pending:
             await asyncio.gather(*pending, return_exceptions=True)
         if self._notices:

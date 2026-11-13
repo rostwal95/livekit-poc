@@ -34,6 +34,8 @@ from .current_result import (
 from .current_result_http import CurrentResultEndpoint, RoomCurrentResultHttp
 from .current_result_producer import NativeResultReadPort
 from .native_models import ScriptedModelProfile
+from .native_provider_models import PROVIDER_ENVIRONMENT_KEYS
+from .native_provider_models import provider_environment as provider_keys
 from .native_room_admin import LiveKitAdminSettings, LiveKitRoomAdmin, RoomPresence
 from .native_room_state import (
     MAX_GENERATION,
@@ -55,7 +57,11 @@ from .native_room_state import (
     now_utc,
     room_metadata,
 )
-from .native_worker_config import NativeWorkerConfig, encode_native_worker_config
+from .native_worker_config import (
+    InferenceMode,
+    NativeWorkerConfig,
+    encode_native_worker_config,
+)
 from .native_worker_process import NativeWorkerProcess, WorkerProcessStatus, _base
 from .room_control import (
     RoomAttach,
@@ -149,6 +155,7 @@ class NativeRoomRoute:
     )
     current_port: int = 11031
     model_profile: ScriptedModelProfile = field(default_factory=ScriptedModelProfile)
+    inference_mode: InferenceMode = "scripted"
 
     def __post_init__(self) -> None:
         try:
@@ -193,6 +200,7 @@ class NativeRoomRoute:
                 self.prepare_port,
                 self.rehydration_endpoint,
                 self.current_port,
+                inference_mode=self.inference_mode,
             )
             object.__setattr__(self, "provider_scope", copied.binding.provider_scope)
             object.__setattr__(self, "account_scope", copied.binding.account_scope)
@@ -280,7 +288,9 @@ def _host(
 
 
 def _worker(python: Path, config: Path, environment: Mapping[str, str]) -> WorkerPort:
-    return NativeWorkerProcess(python, config, environment)
+    base = {k: v for k, v in environment.items() if k not in PROVIDER_ENVIRONMENT_KEYS}
+    provider = {k: v for k, v in environment.items() if k in PROVIDER_ENVIRONMENT_KEYS}
+    return NativeWorkerProcess(python, config, base, provider_environment=provider or None)
 
 
 @dataclass(frozen=True, slots=True)
@@ -375,6 +385,7 @@ class NativeRoomOwner:
         startup_timeout_s: float = 15,
         cleanup_timeout_s: float = 2,
         ports: NativeRoomPorts | None = None,
+        provider_environment: Mapping[str, str] | None = None,
     ) -> None:
         try:
             _need(
@@ -394,6 +405,7 @@ class NativeRoomOwner:
                 route.rehydration_endpoint,
                 route.current_port,
                 route.model_profile,
+                route.inference_mode,
             )
             self._epoch = _uuid(owner_epoch)
             self._admin = LiveKitAdminSettings(admin.api_key, admin.api_secret, admin.url)
@@ -418,6 +430,12 @@ class NativeRoomOwner:
             )
             self._directory, self._python = directory, python_executable
             self._environment = _base(base_environment)
+            # Keys exist only for the explicit provider_real route, and only the
+            # native worker child receives them.
+            _need((route.inference_mode == "provider_real") == (provider_environment is not None))
+            self._provider: dict[str, str] = (
+                {} if provider_environment is None else provider_keys(provider_environment)
+            )
             for value, maximum in ((startup_timeout_s, 15), (cleanup_timeout_s, 15)):
                 _need(
                     type(value) in (int, float)
@@ -689,6 +707,7 @@ class NativeRoomOwner:
                 route.rehydration_endpoint,
                 route.current_port,
                 self._admin.rtc_url,
+                route.inference_mode,
             )
             record.descriptor = RoomDescriptor(
                 record.start,
@@ -697,6 +716,7 @@ class NativeRoomOwner:
                 browser,
                 hashlib.sha256(encode_native_worker_config(config)).hexdigest(),
                 record.identity.metadata,
+                route.inference_mode,
             )
             record.files = await asyncio.to_thread(record.state.prepare, record.descriptor, config)
             self._admit(record)
@@ -734,7 +754,9 @@ class NativeRoomOwner:
             )
             self._admit(record)
             record.worker = self._ports.worker(
-                self._python, record.files.worker_config_path, self._environment
+                self._python,
+                record.files.worker_config_path,
+                {**self._environment, **self._provider},
             )
             await record.worker.start()
             self._admit(record)
@@ -781,6 +803,7 @@ class NativeRoomOwner:
                 b.binding_id,
                 b.expires_at,
                 url=self._admin.rtc_url,
+                mode=self._route.inference_mode,
             )
             record.grant = grant
             return grant

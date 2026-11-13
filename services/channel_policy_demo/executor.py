@@ -154,6 +154,12 @@ class _Owner:
     settled: bool = False
 
 
+@dataclass(frozen=True, slots=True)
+class _Pace:
+    runs: int
+    due: float
+
+
 def _callable(value: object, name: str) -> None:
     try:
         valid = callable(getattr(value, name, None))
@@ -165,6 +171,12 @@ def _callable(value: object, name: str) -> None:
 
 def _budget(value: float) -> float:
     if type(value) not in (int, float) or not 0.001 <= value <= 5 or not math.isfinite(value):
+        raise ExecutorError("invalid_input")
+    return float(value)
+
+
+def _pacing(value: float) -> float:
+    if type(value) not in (int, float) or not 0 <= value <= 60 or not math.isfinite(value):
         raise ExecutorError("invalid_input")
     return float(value)
 
@@ -226,6 +238,9 @@ class ChannelPolicyExecutor:
     from starving later work; it resets on restart, skips no source observation,
     and acknowledges or persists no cursor. Fresh malformed runner returns are
     quarantined until public close and an exact zero-pending observation succeed.
+    A work first seen by this process starts at once; each later rerun of the same
+    work waits rerun_delay_s doubled per rerun up to rerun_cap_s. Pacing delays
+    but never skips, acknowledges or persists any work.
     """
 
     def __init__(
@@ -238,6 +253,8 @@ class ChannelPolicyExecutor:
         runners: RunnerFactory,
         timeout_s: float = 5,
         cleanup_timeout_s: float = 1,
+        rerun_delay_s: float = 1,
+        rerun_cap_s: float = 30,
     ) -> None:
         copied = _binding(binding)
         for port, method in (
@@ -248,6 +265,10 @@ class ChannelPolicyExecutor:
         ):
             _callable(port, method)
         self._timeout, self._cleanup = _budget(timeout_s), _budget(cleanup_timeout_s)
+        self._rerun_delay, self._rerun_cap = _pacing(rerun_delay_s), _pacing(rerun_cap_s)
+        if self._rerun_cap < self._rerun_delay:
+            raise ExecutorError("invalid_input")
+        self._reruns: dict[str, _Pace] = {}
         self._binding = copied
         self._discovery, self._prepared, self._stored, self._runners = (
             discovery,
@@ -268,6 +289,7 @@ class ChannelPolicyExecutor:
             "timed_out_waiters": 0,
             "cancelled_waiters": 0,
             "jobs_started": 0,
+            "jobs_paced": 0,
             "jobs_succeeded": 0,
             "jobs_failed": 0,
             "owners_settled": 0,
@@ -512,6 +534,8 @@ class ChannelPolicyExecutor:
             if page.overflow or page.next_cursor is not None:
                 raise ExecutorError("overflow")
             unprepared = eligible = started = 0
+            now = asyncio.get_running_loop().time()
+            dispatched: set[str] = set()
             # Advisory admission priority only: every fresh page remains complete
             # and every entry is reread. This is neither an ACK nor a cursor.
             count = len(page.items)
@@ -557,8 +581,13 @@ class ChannelPolicyExecutor:
                 self._check_scan(scan)
                 request = self._validate(item, raw, value)
                 eligible += 1
+                dispatched.add(work_id)
                 self._prune()
                 if work_id in self._owners or len(self._owners) >= MAX_JOBS:
+                    continue
+                pace = self._reruns.get(work_id)
+                if pace is not None and now < pace.due:
+                    self._counts["jobs_paced"] += 1
                     continue
                 owner = _Owner(work_id, request)
                 self._owners[work_id] = owner
@@ -568,9 +597,14 @@ class ChannelPolicyExecutor:
                     # Roll back only the unstarted reservation, including control flow.
                     del self._owners[work_id]
                     raise
+                runs = 0 if pace is None else pace.runs
+                delay = min(self._rerun_cap, self._rerun_delay * 2 ** min(runs, 16))
+                self._reruns[work_id] = _Pace(runs + 1, now + delay)
                 self._counts["jobs_started"] += 1
                 self._priority = (index + 1) % count
                 started += 1
+            for work_id in self._reruns.keys() - dispatched:
+                del self._reruns[work_id]
             self._counts["scans_succeeded"] += 1
             self._log("scan", "ok")
             return ScanObservation(
