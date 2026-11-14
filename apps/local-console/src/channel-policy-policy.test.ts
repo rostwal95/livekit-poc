@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { JoinedController } from './channel-policy-policy';
 import { policyReadCaption } from './channel-policy-panel';
+import { JoinedUiError } from './channel-policy-contract';
 import type { ParentObservation, StartObservation } from './channel-policy-contract';
 const OWNER = '11111111-1111-4111-8111-111111111111',
   COMMAND = '22222222-2222-4222-8222-222222222222',
@@ -79,6 +80,18 @@ describe('joined browser activation decisions', () => {
     c.setAuthorization(KEY);
     expect(() => c.beginStart(COMMAND)).toThrow();
     expect(c.snapshot().start).toBeNull();
+  });
+  it('reports when only side-effect-free reads block a Start', () => {
+    const c = setup();
+    expect(c.readsOnlyInFlight()).toBe(false);
+    const status = c.beginStatus();
+    expect(c.readsOnlyInFlight()).toBe(true);
+    expect(() => c.beginStart(COMMAND)).toThrow(JoinedUiError);
+    c.settled(status);
+    expect(c.readsOnlyInFlight()).toBe(false);
+    const start = c.beginStart(COMMAND);
+    expect(c.readsOnlyInFlight()).toBe(false);
+    c.settled(start.ticket);
   });
   it('freezes original Parent Start separately from Node diagnostics', () => {
     const c = setup(),

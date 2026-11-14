@@ -458,10 +458,13 @@ export class ChannelPolicyGatewayApplication {
         { observer: () => {}, cleanupMs: this.#cleanupMs },
       ),
     );
+    // SMS and native input reach P1 through the same loopback bridges, so both
+    // gateways get the native step deadline rather than the standalone default.
     const options = {
       observer: () => {},
       batchSize: 16,
       idlePollMs: 500,
+      dispatchTimeoutMs: 5000,
       cleanupMs: this.#cleanupMs,
       startupMs: this.#startupMs,
     };

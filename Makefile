@@ -484,7 +484,7 @@ CHANNEL_POLICY_PROFILE ?= $(CURDIR)/.local/channel-policy-showcase
 NODE_BIN ?= $(shell $(PYTHON) -c 'import os, shutil; print(os.path.realpath(shutil.which("node") or ""))')
 DEMO_RECORDING ?= $(CURDIR)/.local/demo-recording
 
-.PHONY: channel-policy-demo-build channel-policy-demo-setup channel-policy-demo-start channel-policy-demo-start-provider channel-policy-demo-record
+.PHONY: channel-policy-demo-build channel-policy-demo-setup channel-policy-demo-start channel-policy-demo-start-provider channel-policy-demo-record ecosystem-demo-record
 channel-policy-demo-build:
 	$(PNPM) --filter @livekit-ecosystem/channel-continuity build
 	$(PNPM) --filter @livekit-ecosystem/delegation-specialist build
@@ -502,3 +502,6 @@ channel-policy-demo-start-provider:
 # Set FFMPEG=/path/to/ffmpeg when ffmpeg is not on PATH; without it only WebM is kept.
 channel-policy-demo-record:
 	cd apps/local-console && node scripts/record-channel-policy-demo.mjs $(CHANNEL_POLICY_PROFILE)/.runtime/operator.json $(DEMO_RECORDING)
+# Landing page, the showcase and one P1 business case; needs stack.py start-business.
+ecosystem-demo-record:
+	cd apps/local-console && node scripts/record-channel-policy-demo.mjs $(CHANNEL_POLICY_PROFILE)/.runtime/operator.json $(DEMO_RECORDING) --complete

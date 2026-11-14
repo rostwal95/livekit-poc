@@ -52,6 +52,8 @@ export type GatewayOptions = Readonly<{
   pollMs?: number;
   /** Longest pause an idle dispatch loop backs off to; defaults to pollMs (no backoff). */
   idlePollMs?: number;
+  /** Deadline for one dispatcher step; defaults to 5,000ms for native input and 2,000ms otherwise. */
+  dispatchTimeoutMs?: number;
   batchSize?: number;
   cleanupMs?: number;
   startupMs?: number;
@@ -254,6 +256,7 @@ export class ChannelGateway {
           ![
             'pollMs',
             'idlePollMs',
+            'dispatchTimeoutMs',
             'batchSize',
             'cleanupMs',
             'startupMs',
@@ -265,6 +268,12 @@ export class ChannelGateway {
       throw new GatewayError('invalid_http');
     this.#pollMs = positive(fields.pollMs, 100, 1000, 20);
     this.#idlePollMs = positive(fields.idlePollMs, this.#pollMs, 5000, this.#pollMs);
+    const dispatchTimeoutMs = positive(
+      fields.dispatchTimeoutMs,
+      this.#native ? 5000 : 2000,
+      5000,
+      20,
+    );
     this.#batchSize = positive(fields.batchSize, 4, 16);
     this.#cleanupMs = positive(fields.cleanupMs, 2000, 5000, 20);
     this.#startupMs = positive(fields.startupMs, 5000, 10000, 20);
@@ -301,7 +310,7 @@ export class ChannelGateway {
       configuration.integration,
       accounts,
       configuration.ports,
-      this.#native ? { timeoutMs: 5000, cleanupTimeoutMs: 2000 } : undefined,
+      { timeoutMs: dispatchTimeoutMs, cleanupTimeoutMs: this.#native ? 2000 : 1000 },
     );
     this.#server = createServer(
       { maxHeaderSize: this.#native ? 4096 : LIMITS.headerBytes, joinDuplicateHeaders: false },

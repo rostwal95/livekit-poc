@@ -10,6 +10,7 @@ const calls = vi.hoisted(() => ({
   inspect: vi.fn(),
   inboxClose: vi.fn(),
   dispatcherClose: vi.fn(),
+  dispatcherOptions: vi.fn(),
 }));
 const native = vi.hoisted(() => ({ servers: [] as import('node:http').Server[] }));
 vi.mock('node:http', async (importOriginal) => {
@@ -39,6 +40,9 @@ vi.mock('../src/dispatch.js', () => ({
     step = calls.step;
     inspect = calls.inspect;
     close = calls.dispatcherClose;
+    constructor(...args: unknown[]) {
+      calls.dispatcherOptions(args[4]);
+    }
   },
 }));
 import { ChannelGateway, type GatewayEndpoint } from '../src/gateway.js';
@@ -507,6 +511,17 @@ describe('bounded loopback gateway', () => {
       interval: 5,
     });
     expect(performance.now() - started).toBeLessThan(150);
+  });
+  it('bounds an explicit dispatch step deadline and keeps the default when it is omitted', () => {
+    for (const dispatchTimeoutMs of [19, 5001, 2500.5, '5000'])
+      expect(() => gateway({ dispatchTimeoutMs })).toThrow();
+    calls.dispatcherOptions.mockClear();
+    gateway();
+    gateway({ dispatchTimeoutMs: 5000 });
+    expect(calls.dispatcherOptions.mock.calls).toEqual([
+      [{ timeoutMs: 2000, cleanupTimeoutMs: 1000 }],
+      [{ timeoutMs: 5000, cleanupTimeoutMs: 1000 }],
+    ]);
   });
   it('bounds configuration and uses only persisted eligible IDs, never accepted-response memory as a queue', async () => {
     expect(() => gateway({ pollMs: 0 })).toThrow();

@@ -37,9 +37,13 @@ optimizations work around it.
 | `PostgresEffects` / `PostgresWorkQueue` | v5-only persisted due time and due-aware mutation selection |
 | `postgres_cli` / `stack.py` | `upgrade-retry-pacing` owner command; `prepare-business` takes the additive v5 step; Phase F/G runners use v5 |
 | P2 `migrations.ts` / `database.ts` | `upgradeChannelSchemaV9` and `INDEX_DEFINITION_DIGEST`; every store accepts v9 |
-| P2 `ChannelGateway` | Opt-in `idlePollMs`; intake nudges the dispatch loop |
+| P2 `ChannelGateway` | Opt-in `idlePollMs`; intake nudges the dispatch loop; optional `dispatchTimeoutMs` (defaults unchanged) |
 | Joined setup | New showcase profiles are created at P2 v9 |
 | Showcase build | Multi-page build: `landing.html` served at `/`; console URL injected from the configured UI port |
+| Joined gateway composition | Native and SMS gateways both use the 5,000 ms dispatch step deadline |
+| Console nginx | `/api/` resolves `control-api` per request through Docker's embedded DNS |
+| Showcase Join | A Join blocked only by in-flight status/result reads is deferred until they settle |
+| Demo recorder | `--complete` and `make ecosystem-demo-record`: landing page, showcase, one P1 business case |
 
 ## Decisions
 
@@ -86,13 +90,67 @@ optimizations work around it.
 | P1 deep gate (`provider_real`) | Full requalification | 20 of 21 rows passed (BASE-01, P1-01 to P1-19; 104 tests, zero skips). P1-20 is blocked on this network: the passing reference run mounted an approved CA bundle into the native container; every run here used the image trust store and recorded zero STT/LLM/TTS usage before the agent's reply timed out |
 | Joined showcase on v9 | P2 v9 setup, gateway, P3 processing, UI | A fresh profile was created at P2 v9 (three indexes present) and the full scripted journey passed: text result, End, durable SMS, rejoin with three linked inputs; landing page served at `/` |
 
+## Complete demo recording
+
+On 14 November 2026 the owner asked for one complete video. The recorder gained
+`--complete`. Rehearsals and takes exposed three defects, which are fixed below.
+Three further findings remain open.
+
+| Criterion | Given | When | Then: safety | Then: useful progress | Test/mode and evidence |
+| --- | --- | --- | --- | --- | --- |
+| Join during routine reads | Status/progress polls hold both ordinary tickets | The operator presses Join | Start is still refused while any command other than a read is in flight; End/Forget clear a deferred Join | Start runs once the reads settle instead of showing "must be reconciled first" | `channel-policy-policy.test.ts` (new case) and the recorded takes |
+| Console after an API recreate | `start-business` recreated `control-api` after the console started | The console submits an investigation | Unresolvable upstreams fail per request (502/504) instead of preventing nginx startup | The request reaches the current container | Isolated network test below; `nginx -t` passes without a network |
+| SMS dispatch budget | A loaded joined showcase | A simulated SMS dispatches through the P1 bridges | Defaults are unchanged for other consumers; a late possible accept still records uncertainty | The step has the same 5,000 ms as native input, so a slow committed accept is observed | `gateway.test.ts` (new case) and the final take |
+| Complete recording | A provider showcase on a fresh profile and the P1 business profile | `make ecosystem-demo-record` runs | The console token comes from `stack.py token` into memory, is entered under a title card and is never logged | One take covers the landing page, showcase steps 1–6 and one P1 case | `docs/media/ecosystem-demo.mp4` |
+
+| Symptom | Root cause | Fix and regression |
+| --- | --- | --- |
+| Join on a fresh profile failed with "The original activation or command must be reconciled first" | `beginStart` refuses with `conflict` while any ticket is held, and routine status/progress polls held both ordinary tickets | The application defers Join while only side-effect-free reads are in flight |
+| Console business submit showed "Acknowledgement unknown" | nginx resolved `control-api` once at startup (21:33:40Z); `start-business` recreated the API at 22:12:34Z with a new address, so every call hit "upstream timed out while connecting" | Per-request resolution through `127.0.0.11` (valid 10 s). After recreating a stub upstream at a new address the new config still reached it (404 from the stub) and the old config returned 504 |
+| SMS stayed at "1 dispatch outcome unknown" | The SMS gateway used P2's 2,000 ms standalone step deadline. Attempt 1 timed out after 2.08 s; attempt 2 timed out after 2.22 s, while its P1 accept committed 0.18 s later. With `maxAttempts` 2, no lookup could reconcile it | Optional `dispatchTimeoutMs`; the joined composition passes 5,000 ms to both gateways. The final take linked the SMS within a second |
+
+| Gate | Applicable and why | Status |
+| --- | --- | --- |
+| G-FAST | Shared docs and configuration | `make check` passed: 3,770 Python tests, zero skips; Ruff; mypy 194 broad / 221 strict files; `harness validate` valid (24 registered) |
+| Frontend | Console, P2, gateway | `make frontend-check` passed: 2,033 TypeScript tests (console 722, P2 892, specialist 187, gateway 232), types, formatting, builds |
+| P2 real lanes | Gateway option and dispatcher construction | `p2-gateway-check` (3), `p2-dispatch-check` (5), `p2-native-check` (6) passed |
+| Console proxy | nginx configuration | `nginx -t` in the pinned console image; isolated recreate test as above; rebuilt console reached the recreated API |
+| Recording | Owner request | Final take in `provider_real` on a fresh P2 v9 profile: 2:08, 1440×960 H.264 with AAC audio, 3.06 MB (SHA-256 prefix `cf33b178a92081e0`). Video times: Ready 16.7 s, first reply 24.0 s, voice reply 44.1 s, SMS linked 59.4 s, rejoin 73.1 s, P1 case accepted 103.8 s, exact confirmation 115.8 s, delivery 118.9 s. Audible speech intervals match each reply |
+
+Open findings from the recording:
+
+* **First Join can exceed the worker startup budget on a loaded host.** In 2 of
+  10 recorder-driven Joins, both the first after a launcher start, the Parent
+  rejected Start exactly 10 s after room control, while the native worker had not
+  reached `prepare_ready`.
+  Instrumented successful Joins took 5.1–6.6 s, with spawn to `prepare_ready` in
+  2.2–2.65 s. The host showed load averages of 5–7, the Docker VM near 85% CPU,
+  endpoint antivirus scanning and Chromium video encoding. Candidates are a
+  provider-mode budget aligned across the worker, room, Parent and operator
+  layers, or a prewarmed worker. The README advises one Join and End before
+  recording.
+* **One Ctrl-C does not stop a launcher with a live voice turn.** The scripted
+  room cleanup budget is 2 s, but the worker needed 3.9 s to close (session
+  closed after 2.5 s), so the Parent reported `cleanup_incomplete`. The launcher
+  then waits for another signal, although the retained close finished about
+  1.9 s later. A second interrupt completes cleanly with every child graceful.
+  Candidates are a budget that matches the measured close, or letting the
+  launcher re-observe retained front-tier cleanup inside its 60 s shutdown
+  window.
+* **The scripted recorded-voice turn did not link once.** In one scripted
+  rehearsal the text turn linked but the recorded voice turn did not within
+  45 s. This is not root-caused. Provider-mode voice turns linked in all four
+  recorded takes. Separately, the showcase exposes no control for P2's explicit
+  lookup-only reconciliation of an uncertain, exhausted dispatch.
+
 ## Results and handoff
 
 Open after this item: P1-20 with `P1_PROVIDER_CA_BUNDLE` pointing at the owner's
 approved bundle; P1/P3 pooling (design above); batched gateway polling; P2
 lifetime capacity tombstones; P1 lock-free reads and incremental validation
-(owner kept per-transaction validation). `git rm -r --cached
-apps/local-console/dist-channel-policy` and committing remain with the owner.
+(owner kept per-transaction validation); the three recording findings above.
+`git rm -r --cached apps/local-console/dist-channel-policy` and committing remain
+with the owner.
 
 This work was implemented with AI assistance in Cursor under the repository
 owner's direction.

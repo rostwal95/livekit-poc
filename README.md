@@ -1,9 +1,9 @@
 # LiveKit Agents ecosystem
 
 Status: Active
-Last reviewed: 13 November 2026
+Last reviewed: 14 November 2026
 
-[![One case across voice, chat and SMS: demo video poster](docs/media/channel-policy-demo.png)](docs/media/channel-policy-demo.mp4)
+[![One case across voice, chat and SMS, then one P1 business case: demo video poster](docs/media/ecosystem-demo.png)](docs/media/ecosystem-demo.mp4)
 
 Three reusable, local-first projects for building reliable LiveKit voice agents,
 composed into one synthetic travel-support application. A caller asks by text
@@ -15,8 +15,10 @@ Everything runs on your machine; real speech and language providers are opt-in.
 
 ### What the demo shows
 
-The [80-second demo video](docs/media/channel-policy-demo.mp4) was recorded from
-the running application with real Deepgram, OpenAI and ElevenLabs calls:
+The [two-minute demo video](docs/media/ecosystem-demo.mp4) was recorded in one
+take from the running application with real Deepgram, OpenAI and ElevenLabs
+calls. It opens on the local landing page, runs the joined showcase and then one
+P1 business case in the operator console:
 
 1. **Join** a LiveKit room. The P2 native agent reports readiness and the
    provider profile (`LOCAL / REAL PROVIDERS`).
@@ -31,9 +33,16 @@ the running application with real Deepgram, OpenAI and ElevenLabs calls:
    the linked sender becomes new durable work on the same case with no room open.
 6. **Rejoin.** A fresh session rehydrates the case; earlier messages remain as the
    previous session and the agent reports the latest policy result.
+7. **Run one P1 business case.** In the operator console a confirmed
+   investigation becomes a durable case on a leased worker. A trusted quote
+   (USD 25.00, bound to its revision) waits for explicit approval of that exact
+   quote; the worker then records the supplier outcome and the receiver delivery.
+   Every state shown is read back from PostgreSQL.
 
 Model replies never authorize business changes: exact quote confirmation stays in
-an authenticated controller outside the conversation.
+an authenticated controller outside the conversation, as step 7 shows. The
+earlier [80-second showcase-only clip](docs/media/channel-policy-demo.mp4)
+covers steps 1–6.
 
 ### The three projects
 
@@ -213,12 +222,18 @@ calls. The [provider guide](docs/provider-demo.md) covers certificate trust.
 ```sh
 corepack pnpm --filter @livekit-ecosystem/local-console exec playwright install chromium
 make channel-policy-demo-record CHANNEL_POLICY_PROFILE=$PWD/.local/showcase-2 FFMPEG=/path/to/ffmpeg
+# The complete video: landing page, showcase, then one P1 business case.
+make ecosystem-demo-record CHANNEL_POLICY_PROFILE=$PWD/.local/showcase-2 FFMPEG=/path/to/ffmpeg
 ```
 
 Run it against a running showcase on a fresh profile. The recorder drives the
 real UI, captures the agent and user audio in the page and writes a narrated MP4,
 a poster PNG and step timings to `.local/demo-recording`. Without ffmpeg it keeps
-the raw WebM video and audio.
+the raw WebM video and audio. The complete recording also needs the P1 business
+profile (`stack.py prepare-business`, `init-worker-fixtures`, `start-business`).
+It reads the console token from `stack.py token` into memory only and enters it
+off screen. On a busy host, the first Join after the launcher starts can exceed
+the worker's 10-second startup budget. Join and End once before recording.
 
 ### Other profiles and gates
 

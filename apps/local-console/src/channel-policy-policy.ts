@@ -193,6 +193,13 @@ export class JoinedController {
       !!this.#authorization
     );
   }
+  /** True when every in-flight operation is a side-effect-free read that settles on its own. */
+  readsOnlyInFlight(): boolean {
+    return (
+      this.#tickets.size > 0 &&
+      [...this.#tickets].every((ticket) => ticket.kind === 'status' || ticket.kind === 'read')
+    );
+  }
   beginStatus(): Ticket {
     return this.#admit('status');
   }

@@ -1,7 +1,7 @@
 # Channel Continuity Kit
 
 Status: Active
-Last reviewed: 13 November 2026
+Last reviewed: 14 November 2026
 
 The opt-in `./communication` and Python native communication profile preserve
 source-qualified response anchors, actual generated text, SDK speech settlement
@@ -281,7 +281,11 @@ the loop at once. Webhook bytes are HMAC-verified before a pooled connection or
 the admission lock is taken; freshness is still checked with database time inside
 the transaction. A pooled connection is reused after a clean rollback and
 discarded only when the rollback fails or a commit outcome is uncertain. Each
-existing dispatcher step has its own finite deadline. Uncertain exhausted work requires explicit SDK lookup-only
+existing dispatcher step has its own finite deadline: 5,000ms for native input
+and 2,000ms otherwise, or the optional `dispatchTimeoutMs` (20–5,000ms). A
+composition whose case and operation ports cross process bridges should set the
+same budget for every gateway, because a step that expires after a possible
+accept leaves that input uncertain. Uncertain exhausted work requires explicit SDK lookup-only
 reconciliation; the gateway cannot invent another acceptance.
 
 The listener bounds sockets to 16, active requests to four, raw headers to 16/8KiB,

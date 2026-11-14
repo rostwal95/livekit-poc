@@ -1,7 +1,7 @@
 # Channel policy gateway design
 
 Status: Active
-Last reviewed: 13 November 2026
+Last reviewed: 14 November 2026
 
 ## Overview
 
@@ -160,6 +160,10 @@ owner, totaling twelve with the same six existing PostgreSQL pools.
 It binds worker-read and result HTTP before native/SMS gateways can drive retained
 inputs. Transport drains before readers, which drain before storage. Case, agent,
 operation and carrier ports are borrowed and close outside the application.
+Both gateways reach P1 through the same loopback case and origin bridges, so both
+use the native 5,000 ms dispatch step deadline (`dispatchTimeoutMs`). With P2's
+2,000 ms standalone default, a slow but committed SMS accept could otherwise
+finish after the step deadline and leave the input uncertain.
 Its nativeResult method is internal to a trusted room owner; there is no browser
 route accepting a caller-selected native bearer.
 

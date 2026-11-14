@@ -1,7 +1,7 @@
 # Ecosystem coding agent instructions
 
 Status: Active
-Last reviewed: 13 November 2026
+Last reviewed: 14 November 2026
 
 ## Read first
 
@@ -275,7 +275,10 @@ opt-in and local intake wakes the loop. Verify webhook HMAC before admission;
 reuse a pooled connection only after a clean rollback. P3 processing leaves an
 unroutable result unACKed and keeps scanning; close abandons calls that have
 not reached their write boundary. Keep P1/P3 stores connection-per-operation
-until a composition-owned provider exists.
+until a composition-owned provider exists. In the joined composition, keep one
+dispatch step deadline for both gateways (`dispatchTimeoutMs` 5,000 ms); defaults
+stay unchanged elsewhere. The console proxy resolves `control-api` per request.
+Showcase Join defers only behind side-effect-free reads.
 
 ## Verification
 

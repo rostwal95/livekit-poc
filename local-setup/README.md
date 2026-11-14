@@ -1,7 +1,7 @@
 # Local ecosystem setup
 
 Status: Active
-Last reviewed: 13 November 2026
+Last reviewed: 14 November 2026
 
 ## Overview
 
@@ -825,6 +825,12 @@ remaining the separate explicit destructive operation. The configured core aggre
 is 1,792 MiB; business mode adds 256 MiB durable worker, 512 MiB native conversation
 and 256 MiB Jaeger, for 2,816 MiB configured limits before Docker/build/browser
 resources. Actual usage and production sizing need measurement.
+
+Both commands recreate the API container, which may get a new network address
+while the console keeps running. The console's nginx proxy therefore resolves
+`control-api` per request through Docker's embedded DNS (re-resolved at most every
+10 seconds). A static upstream would keep the address resolved at console startup
+and time out every business call after such a recreate.
 
 Use the [conversation guide](../docs/conversation-and-showcase.md) for the demo and
 make phase-g-demo for isolated actual browser/container/trace qualification. The

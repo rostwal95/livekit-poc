@@ -1,7 +1,7 @@
 # Local continuity console design
 
 Status: Active
-Last reviewed: 13 November 2026
+Last reviewed: 14 November 2026
 
 ## Overview
 
@@ -687,3 +687,12 @@ time from the configured UI port and validated before use. The P1 business panel
 stops polling once delivery is delivered or exhausted, or once a failed lifecycle
 has no outcome, because no further server-side progress can appear without a new
 command ([0047](../../docs/work-items/0047-open-findings-schema-upgrades-and-landing.md)).
+
+The two ordinary tickets are often held by routine status and result polls. A
+Join pressed while only those side-effect-free reads are in flight is deferred
+and starts once they settle. Any other in-flight command still reports the
+conflict, and End or Forget clears the deferred Join. The demo recorder
+(`scripts/record-channel-policy-demo.mjs`) drives this same UI. With `--complete`
+it opens the landing page first and finishes with one P1 business case in the
+console. Its captions and title cards exist only in the recording, and the
+console token is entered while a title card covers the page.

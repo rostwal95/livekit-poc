@@ -202,6 +202,7 @@ export class JoinedApplication {
   #media: MediaOwner | null = null;
   #retirement: OriginalRetirement | null = null;
   #notice: string | null = null;
+  #joinAfterReads = false;
   #progress: ProgressView | null = null;
   #busy = false;
   #playing = false;
@@ -294,6 +295,11 @@ export class JoinedApplication {
     this.render();
   }
   render(): void {
+    if (this.#joinAfterReads && !this.model.readsOnlyInFlight()) {
+      this.#joinAfterReads = false;
+      this.join();
+      return;
+    }
     this.#retirement?.check();
     this.panel.render(this.model.snapshot(), {
       notice: this.#notice,
@@ -428,6 +434,15 @@ export class JoinedApplication {
       this.schedulePoll();
       this.render();
     } catch (error) {
+      if (
+        error instanceof JoinedUiError &&
+        error.code === 'conflict' &&
+        this.model.readsOnlyInFlight()
+      ) {
+        // A routine status or result read is in flight; start once it settles.
+        this.#joinAfterReads = true;
+        return;
+      }
       this.#notice = this.#message(error);
       this.render();
     }
@@ -601,6 +616,7 @@ export class JoinedApplication {
     for (const owner of this.#readHandles) owner.abort();
   }
   end(): void {
+    this.#joinAfterReads = false;
     this.panel.cancelFocus();
     this.stopPolling();
     for (const timer of this.#ackTimers.values()) clearTimeout(timer);
@@ -656,6 +672,7 @@ export class JoinedApplication {
     this.render();
   }
   forget(): void {
+    this.#joinAfterReads = false;
     if (!this.#retirement && this.model.snapshot().start) this.end();
     else if (this.#retirement) this.#closeMedia();
     this.stopPolling();
