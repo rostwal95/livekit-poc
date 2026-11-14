@@ -49,6 +49,7 @@ CASES = (
     "expiry_after_observed_protected_lock_wait_denied",
     "held_read_retains_actual_capacity_without_sql_transaction",
     "incomplete_close_retry_and_useful_current_progress",
+    "populated_v8_index_upgrade_rolls_back_then_preserves_history",
 )
 JOIN_CASES = (
     "v2_actual_p1_possible_delivery_lookup_only_reconciliation",
@@ -71,6 +72,7 @@ COMMANDS = (
     "backup-copy",
     "backup-restore",
     "restore-check",
+    "index-upgrade",
     "cleanup",
     "backup-remove",
 )
@@ -82,6 +84,7 @@ ROLES = {
     "recover",
     "serve",
     "restore-check",
+    "index-upgrade",
     "cleanup",
 }
 CAPABILITIES = {
@@ -199,7 +202,7 @@ def child_environment(
     if set(common) != required or set(tokens) != {"P2_RESULT_" + k for k in CAPABILITIES}:
         raise GateError("invalid_environment")
     result = {**core.base_environment(), **common, **tokens}
-    if mode in {"setup", "upgrade", "cleanup"}:
+    if mode in {"setup", "upgrade", "index-upgrade", "cleanup"}:
         result["P2_RESULT_OWNER_PASSWORD"] = values["POSTGRES_MIGRATION_PASSWORD"]
     if mode not in {"upgrade", "cleanup"}:
         # Setup also seeds an old reply through the restricted public runtime.
@@ -221,7 +224,7 @@ def validate_child_environment(environment: dict[str, str], mode: str) -> None:
         *("P2_RESULT_" + name for name in CAPABILITIES),
     }
     credentials = set()
-    if mode in {"setup", "upgrade", "cleanup"}:
+    if mode in {"setup", "upgrade", "index-upgrade", "cleanup"}:
         credentials.add("P2_RESULT_OWNER_PASSWORD")
     if mode not in {"upgrade", "cleanup"}:
         credentials.add("P2_RESULT_RUNTIME_PASSWORD")
@@ -624,7 +627,7 @@ async def run(root: Path, artifacts: Path, state: dict[str, Any]) -> dict[str, A
                 return None
             if (
                 found[0] != "continuity_migrator"
-                or re.fullmatch(r"p2-channel-schema-v[1-8]", found[1] or "") is None
+                or re.fullmatch(r"p2-channel-schema-v[1-9]", found[1] or "") is None
             ):
                 raise GateError("invalid_proof")
             version = int(found[1][-1])
@@ -1000,6 +1003,16 @@ async def run(root: Path, artifacts: Path, state: dict[str, Any]) -> dict[str, A
         save(artifacts / "after-restore.json", restored)
         await asyncio.to_thread(stage, "restore-check")
         validate_restore(load(work / "result-restore-check.json"), before[schema])
+        await asyncio.to_thread(stage, "index-upgrade")
+        upgraded = load(work / "result-index-upgrade.json")
+        if (
+            upgraded.get("indexes") != ["attempts_operation", "dispatch_due", "recovery_outbound"]
+            or upgraded.get("before", {}).get("meta", {}).get("version") != 8
+            or upgraded.get("after", {}).get("meta", {}).get("version") != 9
+            or not evidence.exact(upgraded.get("rolled_back"), upgraded.get("before"))
+            or p2_guard(expected_version=9) != 9
+        ):
+            raise GateError("invalid_proof")
         state["validated"] = True
     finally:
         primary = sys.exception()
@@ -1028,7 +1041,7 @@ async def run(root: Path, artifacts: Path, state: dict[str, Any]) -> dict[str, A
                     try:
                         version = await asyncio.to_thread(p2_guard)
                         if version is not None:
-                            if version == 8 and (work / "result-setup.json").exists():
+                            if version in (8, 9) and (work / "result-setup.json").exists():
                                 await asyncio.to_thread(stage, "cleanup")
                             else:
                                 await asyncio.to_thread(partial_p2_cleanup)
@@ -1166,8 +1179,8 @@ async def run(root: Path, artifacts: Path, state: dict[str, Any]) -> dict[str, A
     return {
         "schema_version": 1,
         "status": "passed",
-        "storage_assertions": 16,
-        "return_assertions": 4,
+        "storage_assertions": len(CASES),
+        "return_assertions": len(JOIN_CASES),
         "case_results": case_results,
         "skipped": 0,
         "cleanup_complete": True,

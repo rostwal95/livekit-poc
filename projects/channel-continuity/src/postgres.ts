@@ -21,6 +21,7 @@ import {
   NATIVE_DEFINITION_DIGEST,
   COMMUNICATION_DEFINITION_DIGEST,
   RESULT_RECEIVER_DEFINITION_DIGEST,
+  INDEX_DEFINITION_DIGEST,
 } from './migrations.js';
 import { authenticateFakeSms, WebhookError } from './security.js';
 import type { FakeSmsIntegration, WebhookHeaders } from './security.js';
@@ -160,6 +161,28 @@ function cursor(value: unknown): string {
   )
     throw new ChannelError('AccessDenied');
   return value;
+}
+/** Rejects forged webhook bytes before a connection or the admission lock is taken. The
+ * signed timestamp stands in for the clock, so only the MAC and payload are checked; the
+ * transaction still enforces freshness with database time. A descriptor read never runs
+ * caller getters. */
+function rejectForged(
+  raw: Uint8Array,
+  headers: WebhookHeaders,
+  integration: FakeSmsIntegration,
+): void {
+  let signed: unknown;
+  try {
+    signed = Object.getOwnPropertyDescriptor(headers, 'timestamp')?.value;
+  } catch {
+    signed = undefined;
+  }
+  authenticateFakeSms(
+    raw,
+    headers,
+    integration,
+    typeof signed === 'string' ? Number(signed) : Number.NaN,
+  );
 }
 
 export class ChannelInbox {
@@ -330,6 +353,7 @@ export class ChannelInbox {
     write: boolean,
     action: (tx: Tx) => Promise<T>,
     reportCompleted = true,
+    precheck?: () => void,
   ): Promise<T> {
     if (this.#closing) throw new ChannelError('StorageUnavailable');
     if (this.#active >= 4) {
@@ -342,6 +366,7 @@ export class ChannelInbox {
     let commitStarted = false;
     let broken = false;
     try {
+      precheck?.();
       client = await this.#pool.connect();
       await client.query(
         ['communication', 'rehydration'].includes(operation) && !write
@@ -361,6 +386,7 @@ export class ChannelInbox {
         NATIVE_DEFINITION_DIGEST,
         COMMUNICATION_DEFINITION_DIGEST,
         RESULT_RECEIVER_DEFINITION_DIGEST,
+        INDEX_DEFINITION_DIGEST,
       );
       const guarded = write
         ? await client.query(`SELECT * FROM ${this.#q('admission')} WHERE singleton FOR UPDATE`)
@@ -395,12 +421,13 @@ export class ChannelInbox {
       if (reportCompleted) this.#emit({ event: 'completed', operation, code: 'ok' });
       return result;
     } catch (error) {
-      broken = true;
+      // Reuse a connection only after a clean rollback; an uncertain commit discards it.
+      broken = commitStarted && !committed;
       if (client && !committed)
         try {
           await client.query('ROLLBACK');
         } catch {
-          /* Discard this connection. */
+          broken = true;
         }
       this.#counts.rejected++;
       const safe =
@@ -634,6 +661,7 @@ export class ChannelInbox {
         return Object.freeze({ associationVersion: next });
       },
       false,
+      () => rejectForged(raw, headers, this.#integration),
     );
     if (!result) {
       this.#counts.rejected++;
@@ -813,6 +841,8 @@ export class ChannelInbox {
         );
         return Object.freeze({ receipt: decodeReceipt(inserted.rows[0]!), replayed: false });
       },
+      true,
+      () => rejectForged(raw, headers, this.#integration),
     );
     this.#counts[result.replayed ? 'replayed' : 'accepted']++;
     return result;

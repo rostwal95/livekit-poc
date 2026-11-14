@@ -143,7 +143,13 @@ bounded and logs carry fixed codes. Findings fixed after the reviews:
 | Console | The dev server bound every interface; the P2/P3 cards still said "PLANNED" | Loopback dev server; cards describe the joined showcase |
 | Tests | A PostgreSQL-lane test read its fixture from an absolute path outside the repository | Repository-relative fixture path |
 
-Open findings, in priority order. Each needs its own versioned change and gates:
+Findings open at the end of this item, in priority order.
+[0047](0047-open-findings-schema-upgrades-and-landing.md) closed the P1 retry
+pacing (v5), the `claim_next` predicate, the P2 v9 indexes and idle-poll backoff,
+the P3 processing stall and close boundary, HMAC-before-lock, connection
+discard, the landing page and the UI status items. It records why native-policy
+resume was declined and why P1/P3 pooling was deferred; the remaining rows stay
+open:
 
 | Severity | Area | Finding | Direction |
 | --- | --- | --- | --- |

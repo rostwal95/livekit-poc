@@ -26,16 +26,6 @@
       "phrase": "Your cancellation request was recorded for the current investigation."
     },
     {
-      "file": "checking.wav",
-      "sha256": "653ca9a56c40152bad79c0bc4817452e48f7808f0fdb55766cbc99967c90c85c",
-      "sample_rate_hz": 16000,
-      "channels": 1,
-      "sample_width_bytes": 2,
-      "frames": 27246,
-      "duration_seconds": 1.702875,
-      "phrase": "Checking the policy."
-    },
-    {
       "file": "demo.wav",
       "sha256": "16823db29ea200ea34d02aae250e1ffee8fc7b5f267bb208a480da8c4eb8ca98",
       "sample_rate_hz": 16000,

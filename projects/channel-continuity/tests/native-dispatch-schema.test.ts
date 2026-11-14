@@ -423,7 +423,7 @@ for (const change of [
       await assert.rejects(() => f.dispatcher.eligible(token, 1), { code: 'SchemaMismatch' });
       assert.deepEqual(f.observed, { agent: 0, accept: 0, lookup: 0 });
       assert.ok(f.calls.includes('ROLLBACK'));
-      assert.ok(pgBoundary.release.mock.calls.some(([broken]) => broken === true));
+      assert.deepEqual(pgBoundary.release.mock.calls.at(-1), [false]);
       if (change === 'unsafe_metadata_acl')
         assert.equal(
           f.calls.some((q) => q.includes('SELECT m.singleton,m.version')),

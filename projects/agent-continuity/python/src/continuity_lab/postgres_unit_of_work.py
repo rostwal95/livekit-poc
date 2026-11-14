@@ -33,6 +33,6 @@ def protected_transaction(
                 sql.Identifier(executions.settings.schema, "schema_metadata")
             )
         ).fetchone()
-        if row is None or row["version"] not in {2, 3, 4}:
+        if row is None or row["version"] not in {2, 3, 4, 5}:
             raise UnsupportedOperation("Case and lifecycle operations require schema v2 or later")
         yield connection

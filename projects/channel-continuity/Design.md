@@ -853,6 +853,12 @@ UUID and accepted time. Exact replay precedes capacity checks. Changed original
 intent bytes and collisions with unrelated ordinary reply UUIDs conflict. The
 metadata adds no accepted-work queue, case authority, retry policy or scheduler.
 
+The explicit owner `upgradeChannelSchemaV9` adds only operating indexes after v8:
+`dispatch_due` (partial, pending/running/uncertain intents), `attempts_operation`
+and `recovery_outbound`. Its digest and `p2-channel-schema-v9` marker are checked
+like every earlier version, and the catalog snapshot is retaken in the same
+transaction.
+
 | Boundary | Implemented bound or rule | Qualification |
 | --- | --- | --- |
 | P1 intent | Exact sorted ASCII JSON at most 16,384 bytes; canonical base64 decodes to 1–8,192 bytes with the original result SHA | Shared codec and actual bounded opaque storage checks passed |

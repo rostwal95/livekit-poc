@@ -81,9 +81,12 @@ PYTHON_METRICS = frozenset(
         "activePrepare",
         "activeIntakes",
         "activeVoiceWork",
+        "activeReplyObservers",
         "observerPending",
         "observerFailures",
         "observerDropped",
+        "sdkSessionClosed",
+        "sdkCloseAllocationFailed",
     }
 )
 BROWSER_FLAGS = frozenset(
@@ -311,9 +314,12 @@ def validated_python(raw: bytes) -> dict[str, Any]:
         "activePrepare": 0,
         "activeIntakes": 0,
         "activeVoiceWork": 0,
+        "activeReplyObservers": 0,
         "observerPending": 0,
         "observerFailures": 0,
         "observerDropped": 0,
+        "sdkSessionClosed": 1,
+        "sdkCloseAllocationFailed": 0,
     }
     if any(metrics[key] != wanted for key, wanted in fixed.items()):
         raise GateError("invalid_stage_report")

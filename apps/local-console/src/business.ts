@@ -366,6 +366,13 @@ export class BusinessController {
   dispose(): void { this.disposed = true; this.generation += 1; this.pending?.abort(); this.pending = null; }
 }
 
+/** True when no further server-side progress can appear without a new command. */
+export function businessSettled(projection: BusinessProjection | null): boolean {
+  if (!projection) return false;
+  if (projection.delivery) return projection.delivery.state === 'delivered' || projection.delivery.state === 'exhausted';
+  // Only a failed lifecycle with no outcome ends without a completion event.
+  return projection.lifecycle?.state === 'failed' && projection.outcome === null;
+}
 export function formatMoney(amountMinor: number, currency: string): string { const amount = BigInt(amountMinor); return `${currency} ${(amount / 100n).toString()}.${(amount % 100n).toString().padStart(2, '0')}`; }
 export function businessStage(projection: BusinessProjection | null): { title: string; description: string; tone: 'neutral' | 'active' | 'success' | 'attention' } {
   if (!projection) return { title: 'No case observed', description: 'Start an investigation or load an original task identity.', tone: 'neutral' };

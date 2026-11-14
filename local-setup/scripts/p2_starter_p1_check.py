@@ -598,6 +598,14 @@ class ContractRun:
             raw = (self.root / "local-setup/scripts" / name).read_bytes()
             shared.write_private(self.work / name, raw)
             shared.write_private(self.artifacts / name, raw)
+        # The current-case bridge re-exports the canonical serving module.
+        package = self.work / "services"
+        package.mkdir(mode=0o700)
+        (package / "channel_policy_demo").mkdir(mode=0o700)
+        shared.write_private(
+            package / "channel_policy_demo/case_bridge.py",
+            (self.root / "services/channel_policy_demo/case_bridge.py").read_bytes(),
+        )
         uv = str(self.root / ".venv/bin/uv")
         wheels = self.work / "p1-wheel"
         wheels.mkdir(mode=0o700)
@@ -630,7 +638,7 @@ class ContractRun:
             for p in (member / "src/continuity_lab").rglob("*")
             if p.is_file() and p.suffix in {".py", ".typed"}
         }
-        require(len(expected) == 77)
+        require(len(expected) == 78)
         # Retain the bounded candidate before validation so a rejected wheel survives cleanup.
         shared.write_private(self.artifacts / wheel.name, wheel.read_bytes(), 8388608)
         package_tools._wheel(wheel, member, "agent_continuity", expected)
@@ -638,7 +646,7 @@ class ContractRun:
             "p1-wheel-parity.json",
             {
                 "schema_version": 1,
-                "runtime_payloads": 77,
+                "runtime_payloads": 78,
                 "sha256": digest(wheel.read_bytes()),
                 "source": {k: digest(v) for k, v in expected.items()},
             },

@@ -325,6 +325,21 @@ class ProcessingTests(unittest.IsolatedAsyncioTestCase):
             await self.processor().process_once(limit=1)
         self.assertEqual(self.metadata.acks, {})
 
+    async def test_unroutable_results_stay_unacked_without_stalling_the_scan(self):
+        unbound = DeliveryBinding("unbound_case", "unbound_conversation", "unbound_recipient")
+        policy = replace(self.policy, bindings=(unbound,))
+        self.metadata.policy = policy
+        self.metadata.point = replace(self.metadata.point, policy_sha256=policy.sha256)
+        self.delivery.bindings = policy.bindings
+        p = self.processor()
+        step = await p.process_once()
+        self.assertEqual([x.state for x in step.outcomes], ["unavailable", "unavailable"])
+        self.assertEqual((step.after.terminal_watermark, step.after.scan_after), (0, 2))
+        again = await p.process_once()
+        self.assertEqual([x.state for x in again.outcomes], ["unavailable", "unavailable"])
+        self.assertEqual((self.metadata.acks, self.delivery.delivers), ({}, 0))
+        self.assertEqual(p.metrics()["unroutable"], 4)
+
     async def test_public_models_reject_duplicate_outcomes_and_inconsistent_reason(self):
         from delegation_reliability.processing_models import ProcessingOutcome, ProcessingStep
 

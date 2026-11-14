@@ -76,6 +76,21 @@ class PostgresCliTests(unittest.TestCase):
         upgrade.assert_called_once_with(settings.return_value)
         self.assertEqual(json.loads(output.getvalue())["current_version"], 4)
 
+    def test_retry_pacing_upgrade_uses_migration_settings_and_reports_observed_version(self):
+        from continuity_lab.postgres_migrations import UpgradeReport
+
+        with (
+            patch.object(postgres_cli.PostgresSettings, "from_env") as settings,
+            patch.object(
+                postgres_cli, "upgrade_v5", return_value=UpgradeReport(4, 5, True)
+            ) as upgrade,
+            redirect_stdout(io.StringIO()) as output,
+        ):
+            self.assertEqual(postgres_cli.main(["upgrade-retry-pacing"]), 0)
+        settings.assert_called_once_with("P1_MIGRATION_")
+        upgrade.assert_called_once_with(settings.return_value)
+        self.assertEqual(json.loads(output.getvalue())["current_version"], 5)
+
     def test_runtime_status_does_not_request_owner_settings(self):
         with (
             patch.object(postgres_cli.PostgresSettings, "from_env") as settings,

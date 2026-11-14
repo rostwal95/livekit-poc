@@ -461,6 +461,7 @@ export class ChannelPolicyGatewayApplication {
     const options = {
       observer: () => {},
       batchSize: 16,
+      idlePollMs: 500,
       cleanupMs: this.#cleanupMs,
       startupMs: this.#startupMs,
     };

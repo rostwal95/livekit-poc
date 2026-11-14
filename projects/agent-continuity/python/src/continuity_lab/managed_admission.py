@@ -75,7 +75,7 @@ class PostgresManagedAdmission:
             metadata = connection.execute(
                 sql.SQL("SELECT version FROM {} WHERE singleton").format(table("schema_metadata"))
             ).fetchone()
-            if metadata is None or metadata["version"] != 4:
+            if metadata is None or metadata["version"] not in (4, 5):
                 raise UnsupportedOperation("Managed conversational acceptance requires schema v4")
             prior = connection.execute(
                 sql.SQL(

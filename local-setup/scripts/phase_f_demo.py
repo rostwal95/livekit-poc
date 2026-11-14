@@ -56,6 +56,7 @@ def main() -> int:
         upgrade_v2,
         upgrade_v3,
         upgrade_v4,
+        upgrade_v5,
     )
     from continuity_lab.postgres_settings import PostgresSettings
     from continuity_lab.postgres_store import PostgresExecutionStore
@@ -214,6 +215,7 @@ def main() -> int:
                 upgrade_v2(owner)
                 upgrade_v3(owner)
                 upgrade_v4(owner, policy=CoordinationPolicy(2, 1, 10, 30))
+                upgrade_v5(owner)
                 executions = PostgresExecutionStore(runtime)
                 cases = PostgresCaseAuthority(executions)
                 lifecycle = PostgresLifecycle(executions, cases=cases)
@@ -858,7 +860,7 @@ def main() -> int:
                 receipt = cutover(source_db, folder / "before-cutover.sqlite3", owner)
                 check(
                     receipt.state == "active"
-                    and read_import_state(runtime).version == 4
+                    and read_import_state(runtime).version == 5
                     and inquiry.get(token=token, task_id=third.task_id).task_id == third.task_id,
                     "completed_cutover_receipt_retains_v4_progress",
                 )

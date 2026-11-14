@@ -527,7 +527,7 @@ def validate_evidence_index(directory: Path, expected_sha256: str) -> dict[str, 
 
 
 def public_source_bytes(path: Path) -> bytes:
-    # P1's legitimate empty typed-package marker is part of its77 payloads.
+    # P1's legitimate empty typed-package marker is part of its 78 payloads.
     if path.name != "py.typed":
         return storage.source_bytes(path)
     before = path.lstat()
@@ -3111,14 +3111,30 @@ def verify_runtime_build(project: Path, compiled: Path) -> dict[str, Any]:
         for p in source.rglob("*.ts")
         if not p.name.endswith(".d.ts")
     }
-    ancillary = {Path("examples/fake-carrier.js"), Path("examples/operations-lab.js")}
+    ancillary = {
+        Path("examples/" + name)
+        for name in (
+            "fake-carrier.js",
+            "operations-lab.js",
+            "standalone-channel.js",
+            "standalone/application.js",
+            "standalone/config.js",
+            "standalone/external-http.js",
+            "standalone/receipt-store.js",
+        )
+    }
     actual = {p.relative_to(project / "dist") for p in (project / "dist").rglob("*.js")}
     declarations = {p.relative_to(project / "dist") for p in (project / "dist").rglob("*.d.ts")}
     if (
         not expected
         or len(expected) > 128
         or actual != expected | ancillary
-        or declarations != {p.with_suffix(".d.ts") for p in expected}
+        or declarations
+        != {p.with_suffix(".d.ts") for p in expected}
+        | {
+            Path("examples/standalone/" + name + ".d.ts")
+            for name in ("application", "config", "external-http", "receipt-store")
+        }
         or {p.relative_to(compiled / "src") for p in (compiled / "src").rglob("*.js")} != expected
     ):
         raise GateError("runtime_build_mismatch")

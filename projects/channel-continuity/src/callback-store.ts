@@ -11,6 +11,7 @@ import {
   NATIVE_DEFINITION_DIGEST,
   COMMUNICATION_DEFINITION_DIGEST,
   RESULT_RECEIVER_DEFINITION_DIGEST,
+  INDEX_DEFINITION_DIGEST,
 } from './migrations.js';
 import type { DatabaseSettings } from './public-types.js';
 import { SeededAccounts } from './postgres.js';
@@ -101,11 +102,19 @@ export class CallbackStore {
           NATIVE_DEFINITION_DIGEST,
           COMMUNICATION_DEFINITION_DIGEST,
           RESULT_RECEIVER_DEFINITION_DIGEST,
+          INDEX_DEFINITION_DIGEST,
         );
         const version = (
           await client.query(`SELECT version FROM ${this.#q('schema_metadata')} WHERE singleton`)
         ).rows[0]?.version;
-        if (version !== 4 && version !== 5 && version !== 6 && version !== 7 && version !== 8)
+        if (
+          version !== 4 &&
+          version !== 5 &&
+          version !== 6 &&
+          version !== 7 &&
+          version !== 8 &&
+          version !== 9
+        )
           throw new CallbackError('UpgradeRequired');
         if (write) {
           const lock = await client.query(

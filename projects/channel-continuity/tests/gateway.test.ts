@@ -491,6 +491,23 @@ describe('bounded loopback gateway', () => {
     await expect(bad.listen()).rejects.toMatchObject({ code: 'UpgradeRequired' });
     await bad.close();
   });
+  it('backs idle polling off to idlePollMs and polls at once after local intake', async () => {
+    expect(() => gateway({ pollMs: 50, idlePollMs: 40 })).toThrow();
+    expect(() => gateway({ idlePollMs: 5001 })).toThrow();
+    const g = gateway({ idlePollMs: 1000 }),
+      endpoint = await g.listen();
+    await new Promise<void>((resolve) => setTimeout(resolve, 400));
+    // A constant 20 ms interval would scan about twenty times in this window.
+    expect(calls.eligible.mock.calls.length).toBeLessThan(8);
+    calls.eligible.mockResolvedValue([ID]);
+    const started = performance.now();
+    expect((await post(endpoint)).status).toBe(200);
+    await vi.waitFor(() => expect(calls.step).toHaveBeenCalledWith(TOKEN, ID), {
+      timeout: 150,
+      interval: 5,
+    });
+    expect(performance.now() - started).toBeLessThan(150);
+  });
   it('bounds configuration and uses only persisted eligible IDs, never accepted-response memory as a queue', async () => {
     expect(() => gateway({ pollMs: 0 })).toThrow();
     const g = gateway({ batchSize: 1 }),

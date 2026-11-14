@@ -28,6 +28,7 @@ import {
   upgradeChannelSchemaV6,
   upgradeChannelSchemaV7,
   upgradeChannelSchemaV8,
+  upgradeChannelSchemaV9,
 } from '@livekit-ecosystem/channel-continuity/migrations';
 import {
   ChannelResultReceiver,
@@ -168,6 +169,7 @@ const FAILURE_STAGES = [
   'recover',
   'serve',
   'restore_check',
+  'index_upgrade',
   'cleanup_guard',
 ] as const;
 type FailureStage = (typeof FAILURE_STAGES)[number];
@@ -291,7 +293,7 @@ async function snapshot(owner = false) {
     const replyRows = (await c.query(`SELECT * FROM ${q('reply_intents')} ORDER BY outbound_id`))
       .rows;
     const resultRows =
-      meta.version === 8
+      meta.version >= 8
         ? (await c.query(`SELECT * FROM ${q('result_receipts')} ORDER BY delivery_id`)).rows
         : [];
     const counts = (
@@ -941,6 +943,73 @@ async function serve() {
     await x.close();
   }
 }
+async function indexUpgrade() {
+  failureStage = 'index_upgrade';
+  // The restricted runtime revalidates the catalog on every transaction across the upgrade.
+  const box = new ChannelOutbox(
+    db(),
+    createFakeSmsIntegration(provider(), Buffer.alloc(32, 0x53)),
+    accounts(),
+    [publisher()],
+    {
+      capabilities: 'ordinary_fake_sms_v1',
+      async send() {
+        throw Error('unused');
+      },
+    },
+    { observer: () => {} },
+  );
+  try {
+    const legacy = await box.inspect(env('ACCOUNT_TOKEN'), fixture.legacy_outbound_id);
+    const before = await snapshot(true);
+    assert.equal(before.meta.version, 8);
+    let caught = false;
+    try {
+      await upgradeChannelSchemaV9(db(true), {
+        harnessAfterIndexes() {
+          throw Error('synthetic_upgrade_interruption');
+        },
+      });
+    } catch {
+      caught = true;
+    }
+    assert.equal(caught, true);
+    const rolledBack = await snapshot(true);
+    assert.deepEqual(rolledBack, before);
+    await upgradeChannelSchemaV9(db(true));
+    await upgradeChannelSchemaV9(db(true));
+    // Older explicit upgrades replay against a complete v9 without changing it.
+    await upgradeChannelSchemaV2(db(true));
+    await upgradeChannelSchemaV3(db(true), { maxReplies: 8, maxRoutes: 8, maxAttempts: 3 });
+    await upgradeChannelSchemaV4(db(true));
+    await upgradeChannelSchemaV5(db(true));
+    await upgradeChannelSchemaV6(db(true));
+    await upgradeChannelSchemaV7(db(true));
+    assert.equal(await upgradeChannelSchemaV8(db(true)), before.settings.receiver_id);
+    const after = await snapshot(true);
+    assert.equal(after.meta.version, 9);
+    assert.deepEqual({ ...after, meta: null }, { ...before, meta: null });
+    const indexes = await sql(true, async (c) =>
+      (
+        await c.query(
+          'SELECT indexname FROM pg_indexes WHERE schemaname=$1 AND indexname=ANY($2) ORDER BY indexname',
+          [schema, ['attempts_operation', 'dispatch_due', 'recovery_outbound']],
+        )
+      ).rows.map((row) => row.indexname as string),
+    );
+    assert.deepEqual(indexes, ['attempts_operation', 'dispatch_due', 'recovery_outbound']);
+    assert.deepEqual(await box.inspect(env('ACCOUNT_TOKEN'), fixture.legacy_outbound_id), legacy);
+    save('result-index-upgrade.json', {
+      schema_version: 1,
+      before,
+      rolled_back: rolledBack,
+      after,
+      indexes,
+    });
+  } finally {
+    await box.close();
+  }
+}
 async function cleanup() {
   failureStage = 'cleanup_guard';
   const original = setupRecord();
@@ -953,11 +1022,12 @@ async function cleanup() {
     ).rows[0];
     assert.ok(row);
     assert.equal(row.owner, 'continuity_migrator');
-    assert.equal(row.marker, 'p2-channel-schema-v8');
+    assert.equal(row.marker, 'p2-channel-schema-v9');
     return row;
   });
-  // Validation-only repeated upgrade proves the whole v8 catalog before its protected test teardown.
+  // Validation-only repeated upgrades prove the whole v9 catalog before its protected test teardown.
   assert.equal(await upgradeChannelSchemaV8(db(true)), original.receiver_id);
+  await upgradeChannelSchemaV9(db(true));
   const before = await snapshot(true);
   assert.equal(before.settings.receiver_id, original.receiver_id);
   await sql(true, async (c) => {
@@ -983,6 +1053,7 @@ const safeMode = [
   'commit-before-ack',
   'recover',
   'restore-check',
+  'index-upgrade',
   'serve',
   'cleanup',
 ].includes(mode ?? '')
@@ -995,6 +1066,7 @@ try {
   else if (mode === 'commit-before-ack') await commitBeforeAck();
   else if (mode === 'recover') await recover();
   else if (mode === 'restore-check') await restoreCheck();
+  else if (mode === 'index-upgrade') await indexUpgrade();
   else if (mode === 'serve') await serve();
   else if (mode === 'cleanup') await cleanup();
   else throw new Error('invalid_fixture_mode');

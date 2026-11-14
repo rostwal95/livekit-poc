@@ -78,6 +78,16 @@ CHECK_DEFINITIONS: dict[str, str] = {
     "leases_clocks_finite": "CHECK ((isfinite(claimed_at) AND isfinite(renewed_at) AND ((expires_at IS NULL) OR isfinite(expires_at))))",
     "metadata_version": "CHECK ((version = 4))",
 }
+# pg_dump deparses BETWEEN as a flat AND chain, so a psql restore stores this exact
+# equivalent predicate. Only these enumerated forms are accepted.
+CHECK_EQUIVALENTS: dict[str, tuple[str, ...]] = {
+    "limits_active": (
+        (
+            "CHECK (((maximum_active >= 1) AND (maximum_active <= 64) AND "
+            "(maximum_active <= maximum_pending)))"
+        ),
+    ),
+}
 CHECK_TABLES: dict[str, str] = {
     **dict.fromkeys(
         (

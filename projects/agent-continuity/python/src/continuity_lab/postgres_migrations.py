@@ -21,6 +21,7 @@ from psycopg import sql
 from . import postgres_schema_v2 as v2
 from . import postgres_schema_v3 as v3
 from . import postgres_schema_v4 as v4
+from . import postgres_schema_v5 as v5
 from .execution_codec import decode_attempt, decode_execution
 from .execution_models import (
     AttemptStatus,
@@ -41,7 +42,8 @@ LOGGER.addHandler(logging.NullHandler())
 SCHEMA_VERSION = 1
 MIGRATOR_ROLE = "continuity_migrator"
 RUNTIME_ROLE = "livekit_lab"
-LATEST_SCHEMA_VERSION = 4
+LATEST_SCHEMA_VERSION = 5
+SUPPORTED_SCHEMA_VERSIONS = frozenset({1, 2, 3, 4, 5})
 
 _COLUMNS = {
     "tasks": (
@@ -212,10 +214,11 @@ class _Catalog:
     foreign_keys: dict[str, tuple[str, tuple[str, ...], str, tuple[str, ...]]]
     grants: dict[str, tuple[str, ...]]
     operating_indexes: dict[str, tuple[str, tuple[str, ...]]]
+    check_equivalents: dict[str, tuple[str, ...]]
 
 
 def _catalog(version: int) -> _Catalog:
-    if type(version) is not int or version not in {1, 2, 3, 4}:
+    if type(version) is not int or version not in SUPPORTED_SCHEMA_VERSIONS:
         raise SchemaVersionError("PostgreSQL schema version is unsupported")
     columns: dict[str, tuple[str, ...]] = dict(_COLUMNS)
     specs: dict[str, dict[str, tuple[str, bool]]] = {}
@@ -284,6 +287,12 @@ def _catalog(version: int) -> _Catalog:
         keys.update(v4.KEYS)
         foreign_keys.update(v4.FOREIGN_KEYS)
         grants.update(v4.GRANTS)
+    if version >= 5:
+        operating_indexes.update(v5.OPERATING_INDEXES)
+        columns.update(v5.COLUMNS)
+        specs.update(v5.COLUMN_SPECS)
+        checks.update(v5.CHECK_DEFINITIONS)
+        check_tables.update(v5.CHECK_TABLES)
     return _Catalog(
         columns,
         specs,
@@ -293,6 +302,7 @@ def _catalog(version: int) -> _Catalog:
         foreign_keys,
         grants,
         operating_indexes,
+        dict(v4.CHECK_EQUIVALENTS) if version >= 4 else {},
     )
 
 
@@ -324,7 +334,7 @@ def _declared_version(connection: psycopg.Connection[dict[str, Any]], schema: st
     if (
         len(rows) != 1
         or type(rows[0]["version"]) is not int
-        or rows[0]["version"] not in {1, 2, 3, 4}
+        or rows[0]["version"] not in SUPPORTED_SCHEMA_VERSIONS
     ):
         raise SchemaVersionError("PostgreSQL schema metadata is unsupported")
     return rows[0]["version"]
@@ -498,7 +508,7 @@ def validate_schema(
         catalog = _catalog(version)
         if (
             type(minimum_version) is not int
-            or minimum_version not in {1, 2, 3, 4}
+            or minimum_version not in SUPPORTED_SCHEMA_VERSIONS
             or version < minimum_version
         ):
             raise SchemaVersionError("PostgreSQL schema upgrade is required")
@@ -601,10 +611,14 @@ def validate_schema(
                 continue
             if name in catalog.checks:
                 check_table = catalog.check_tables[name]
+                accepted = {
+                    _normalize_sql(value)
+                    for value in (catalog.checks[name], *catalog.check_equivalents.get(name, ()))
+                }
                 if (
                     row["table_name"] != check_table
                     or row["contype"] != "c"
-                    or _normalize_sql(row["definition"]) != _normalize_sql(catalog.checks[name])
+                    or _normalize_sql(row["definition"]) not in accepted
                 ):
                     raise SchemaVersionError("PostgreSQL CHECK constraints are unsupported")
             elif name in catalog.keys:
@@ -1333,7 +1347,7 @@ def upgrade_v4(
             _admission_lock(connection, schema)
             validate_schema(connection, schema, require_active=True)
             previous = _declared_version(connection, schema)
-            if previous == 4:
+            if previous >= 4:
                 if policy is not None:
                     row = connection.execute(
                         sql.SQL("SELECT * FROM {}.execution_limits WHERE singleton").format(
@@ -1345,7 +1359,7 @@ def upgrade_v4(
                         raise IdempotencyConflict(
                             "Coordination policy already has different values"
                         )
-                return UpgradeReport(4, 4, False)
+                return UpgradeReport(previous, previous, False)
             if previous != 3:
                 raise SchemaVersionError(
                     "Coordination schema upgrade requires ACTIVE PostgreSQL v3"
@@ -1438,4 +1452,72 @@ def upgrade_v4(
     except psycopg.Error as error:
         raise MigrationError(
             "PostgreSQL coordination schema upgrade failed; retain original state"
+        ) from error
+
+
+def upgrade_v5(
+    settings: PostgresSettings,
+    *,
+    failpoint: Callable[[str], None] | None = None,
+) -> UpgradeReport:
+    """Add the persisted mutation retry due time to an ACTIVE v4 atomically.
+
+    Existing effects keep a NULL due time, so pending work stays due at once and
+    no original payload, attempt, lease epoch or receipt is rewritten. Replaying
+    a complete v5 is a validated no-op; serving code never runs this DDL.
+    """
+    schema = _identifier(settings.schema)
+    try:
+        with (
+            settings.connect(application_name="continuity-migrate") as connection,
+            connection.transaction(),
+        ):
+            _owner(connection)
+            _admission_lock(connection, schema)
+            validate_schema(connection, schema, require_active=True)
+            previous = _declared_version(connection, schema)
+            if previous >= 5:
+                return UpgradeReport(previous, previous, False)
+            if previous != 4:
+                raise SchemaVersionError("Retry pacing upgrade requires ACTIVE PostgreSQL v4")
+            for statement in v5.DDL:
+                connection.execute(sql.SQL(statement).format(schema=sql.Identifier(schema)))
+            for name, (table, columns) in v5.OPERATING_INDEXES.items():
+                connection.execute(
+                    sql.SQL("CREATE INDEX {} ON {}.{} ({})").format(
+                        sql.Identifier(name),
+                        sql.Identifier(schema),
+                        sql.Identifier(table),
+                        sql.SQL(",").join(map(sql.Identifier, columns)),
+                    )
+                )
+            connection.execute(
+                sql.SQL("ALTER TABLE {}.schema_metadata DROP CONSTRAINT metadata_version").format(
+                    sql.Identifier(schema)
+                )
+            )
+            connection.execute(
+                sql.SQL("UPDATE {}.schema_metadata SET version=5 WHERE singleton").format(
+                    sql.Identifier(schema)
+                )
+            )
+            connection.execute(
+                sql.SQL(
+                    "ALTER TABLE {}.schema_metadata ADD CONSTRAINT metadata_version CHECK(version=5)"
+                ).format(sql.Identifier(schema))
+            )
+            if failpoint:
+                failpoint("postgres.upgrade_v5.after_ddl")
+            validate_schema(connection, schema, require_active=True, minimum_version=5)
+            if failpoint:
+                failpoint("postgres.upgrade_v5.before_commit")
+        if failpoint:
+            failpoint("postgres.upgrade_v5.after_commit")
+        _event("postgres_schema_upgraded")
+        return UpgradeReport(4, 5, True)
+    except (MigrationError, SchemaVersionError):
+        raise
+    except psycopg.Error as error:
+        raise MigrationError(
+            "PostgreSQL retry pacing schema upgrade failed; retain original state"
         ) from error

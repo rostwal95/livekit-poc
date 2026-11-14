@@ -105,7 +105,7 @@ describe('rehydration semantics through actual legacy normalization', () => {
       });
       expect(x.cases.inspect).not.toHaveBeenCalled();
       expect(driver.query.mock.calls.some(([sql]) => sql === 'ROLLBACK')).toBe(true);
-      expect(driver.release).toHaveBeenCalledWith(true);
+      expect(driver.release).toHaveBeenCalledWith(false);
       expect(x.events.at(-1)).toEqual({
         event: 'rejected',
         operation: 'rehydration',
@@ -206,7 +206,7 @@ describe('rehydration semantics through actual legacy normalization', () => {
       await x.r.close();
       expect(x.r.metrics().active).toBe(0);
       expect(x.i.metrics().active).toBe(0);
-      expect(driver.release).toHaveBeenCalledWith(true);
+      expect(driver.release).toHaveBeenCalledWith(false);
     } finally {
       release();
       await x.r.close();

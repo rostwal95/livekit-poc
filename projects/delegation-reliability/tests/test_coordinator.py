@@ -343,6 +343,19 @@ class CoordinatorTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(await coordinator.find(self.value.delegation_id))
         self.assertEqual(self.port.calls, 1)
 
+    async def test_close_during_case_read_never_starts_acceptance(self):
+        coordinator = self.coordinator()
+        self.cases.release = asyncio.Event()
+        pending = asyncio.create_task(coordinator.submit(self.value))
+        await self.cases.entered.wait()
+        closing = asyncio.create_task(coordinator.close())
+        await asyncio.sleep(0)
+        self.cases.release.set()
+        await closing
+        with self.assertRaisesRegex(CoordinatorError, "^request_aborted$"):
+            await pending
+        self.assertEqual((self.port.calls, coordinator.pending_count), (0, 0))
+
     async def test_bounded_close_does_not_cancel_live_write_and_is_idempotent(self):
         coordinator = self.coordinator(cleanup_ms=20)
         self.port.release = asyncio.Event()

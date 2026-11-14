@@ -1702,6 +1702,7 @@ def main(argv: list[str] | None = None) -> int:
         upgrade_v2,
         upgrade_v3,
         upgrade_v4,
+        upgrade_v5,
     )
     from continuity_lab.postgres_settings import PostgresSettings
     from harness.process_control import OwnedProcess
@@ -2037,6 +2038,7 @@ def main(argv: list[str] | None = None) -> int:
             upgrade_v2(owner)
             upgrade_v3(owner)
             upgrade_v4(owner, policy=CoordinationPolicy(20, 2, 100, 30))
+            upgrade_v5(owner)
             for volume in volumes:
                 volume_prepare(
                     volume,
@@ -2650,11 +2652,7 @@ except (OSError,ValueError):
                             "exact_pinned_ollama_image",
                         )
                     else:
-                        tag = (
-                            "livekit-agent-ecosystem-"
-                            + ("whisper" if engine == "stt" else "piper")
-                            + ":local"
-                        )
+                        tag = stack.image_name("whisper" if engine == "stt" else "piper")
                         running_manifest = json.loads(
                             control(
                                 [

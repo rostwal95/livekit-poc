@@ -147,9 +147,12 @@ def python_report():
             "activePrepare": 0,
             "activeIntakes": 0,
             "activeVoiceWork": 0,
+            "activeReplyObservers": 0,
             "observerPending": 0,
             "observerFailures": 0,
             "observerDropped": 0,
+            "sdkSessionClosed": 1,
+            "sdkCloseAllocationFailed": 0,
         },
     }
 

@@ -267,7 +267,7 @@ class PostgresExecutionStore:
                     self._table("schema_metadata")
                 )
             ).fetchone()
-            if metadata is not None and metadata["version"] == 4:
+            if metadata is not None and metadata["version"] in (4, 5):
                 from .postgres_leases import PostgresLeases
 
                 limits = PostgresLeases(self).limits_in_transaction(connection)
@@ -297,7 +297,7 @@ class PostgresExecutionStore:
                 raise InvalidStoredState("Execution count is unavailable")
             if count["pending"] >= pending_limit or (
                 count["records"] >= record_limit
-                and (metadata is None or metadata["version"] != 4 or prior is None)
+                and (metadata is None or metadata["version"] not in (4, 5) or prior is None)
             ):
                 raise IntakeCapacityExceeded("Execution admission capacity exhausted")
             if prior is None:
@@ -331,7 +331,7 @@ class PostgresExecutionStore:
         metadata = connection.execute(
             sql.SQL("SELECT version FROM {} WHERE singleton").format(self._table("schema_metadata"))
         ).fetchone()
-        if metadata is None or metadata["version"] != 4:
+        if metadata is None or metadata["version"] not in (4, 5):
             return
         from .postgres_leases import PostgresLeases
 
@@ -392,7 +392,7 @@ class PostgresExecutionStore:
         metadata = connection.execute(
             sql.SQL("SELECT version FROM {} WHERE singleton").format(self._table("schema_metadata"))
         ).fetchone()
-        if metadata is not None and metadata["version"] == 4:
+        if metadata is not None and metadata["version"] in (4, 5):
             raise UnsupportedOperation(
                 "Schema v4 inquiry writes require an explicit execution lease"
             )

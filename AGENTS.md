@@ -78,10 +78,12 @@ require full fast validation.
   cancellation and result applicability explicit.
 - Introduce versioned storage changes before expanding persisted state. Preserve
   M1 data and test the actual migration/backup recovery procedure. PostgreSQL v3
-  is an owner-only ACTIVE v2 upgrade and v4 is an owner-only ACTIVE v3 upgrade;
-  serving code performs no DDL. Finish unmanaged RUNNING v3 inquiries before v4
-  upgrade; recover managed work through explicit v4 leases. Preserve old payloads,
-  identities, receipts and original tables. Older upgrades never downgrade v4.
+  is an owner-only ACTIVE v2 upgrade, v4 is an owner-only ACTIVE v3 upgrade and
+  v5 (persisted mutation retry due time) is an owner-only ACTIVE v4 upgrade;
+  serving code performs no DDL and keeps v4 behavior unchanged. Finish unmanaged
+  RUNNING v3 inquiries before v4 upgrade; recover managed work through explicit
+  v4 leases. Preserve old payloads, identities, receipts and original tables.
+  Older upgrades never downgrade v4 or v5.
 - On v4, bind each inquiry/effect/outbox worker to an explicit task/scope/owner/
   epoch grant and validate it inside the same protected write transaction. Use
   database time after locks for lease expiry. Renew/release require current owner
@@ -259,6 +261,21 @@ last waiter alone abandons it. Executor pacing delays reruns of the same work bu
 never skips, acknowledges or persists work, and every scan still rereads the full
 page. Background readers keep one shared reader slot free for dispatch, and
 inspections keep their reserved job ticket. Only side-effect-free reads retry.
+
+### Schema upgrades and review fixes
+
+Read the [0047 work item](docs/work-items/0047-open-findings-schema-upgrades-and-landing.md)
+before changing P1 v5 pacing, P2 v9, gateway polling or connection handling.
+P1 v5 holds a dependency-unavailable pending effect until its persisted due time
+(1 s doubling to 30 s, never past the deadline); cancellation is never held and
+v4 keeps immediate retry. Validator round-trip equivalents are enumerated per
+constraint, never a looser normalizer. P1 has 78 runtime payloads. P2 v9 is an
+owner-only v8 upgrade that adds operating indexes only; `idlePollMs` stays
+opt-in and local intake wakes the loop. Verify webhook HMAC before admission;
+reuse a pooled connection only after a clean rollback. P3 processing leaves an
+unroutable result unACKed and keeps scanning; close abandons calls that have
+not reached their write boundary. Keep P1/P3 stores connection-per-operation
+until a composition-owned provider exists.
 
 ## Verification
 

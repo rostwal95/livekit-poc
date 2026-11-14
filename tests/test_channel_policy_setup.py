@@ -736,7 +736,7 @@ class OwnedNodeTests(unittest.IsolatedAsyncioTestCase):
         node = shutil.which("node")
         self.assertIsNotNone(node)
         self.node = Path(node).resolve()
-        names = ["installChannelSchema", *[f"upgradeChannelSchemaV{i}" for i in range(2, 9)]]
+        names = ["installChannelSchema", *[f"upgradeChannelSchemaV{i}" for i in range(2, 10)]]
         module = "\n".join(
             "export async function "
             + name

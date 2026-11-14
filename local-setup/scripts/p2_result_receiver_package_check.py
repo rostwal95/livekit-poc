@@ -231,7 +231,7 @@ def plan(*, channel_origin: bool = False, root_application: bool = False) -> dic
         else 0,
         "p3_origin_test_counts": dict(ORIGIN_TEST_COUNTS) if channel_origin else {},
         "p2_codec_negative_cases": 9,
-        "payloads": {"p2": 124, "p3_python": 39, "p1_python": 77, "specialist_npm": 32},
+        "payloads": {"p2": 124, "p3_python": 39, "p1_python": 78, "specialist_npm": 32},
         "package_manifests_separate": True,
         "manifest_parity": "semantic_source_archive; raw_archive_install",
         "source_actual_assertions": 0,
@@ -786,7 +786,7 @@ def application_payload(root: Path) -> dict[str, bytes]:
     require(
         setuptools["package-data"]
         == {
-            "services.channel_policy_demo": ["*.md", "py.typed"],
+            "services.channel_policy_demo": ["*.md", "py.typed", "assets/*.wav"],
             "services.conversation_agent": ["assets/*.wav", "assets/*.json"],
         }
     )
@@ -2275,7 +2275,7 @@ def run(
             (nested.retained / packages.ARTIFACT_PATHS["p1-wheel"]).read_bytes(),
             p1_expected,
             "continuity_lab",
-            77,
+            78,
         )
         proof["p3_payloads"] = wheel_parity(
             (nested.retained / packages.ARTIFACT_PATHS["p3-wheel"]).read_bytes(),

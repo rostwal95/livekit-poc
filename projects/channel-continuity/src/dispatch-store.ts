@@ -17,6 +17,7 @@ import {
   NATIVE_DEFINITION_DIGEST,
   COMMUNICATION_DEFINITION_DIGEST,
   RESULT_RECEIVER_DEFINITION_DIGEST,
+  INDEX_DEFINITION_DIGEST,
   dispatchLimits,
   type DispatchLimits,
 } from './migrations.js';
@@ -107,11 +108,12 @@ export class DispatchStore {
         NATIVE_DEFINITION_DIGEST,
         COMMUNICATION_DEFINITION_DIGEST,
         RESULT_RECEIVER_DEFINITION_DIGEST,
+        INDEX_DEFINITION_DIGEST,
       );
       const metadata = await client.query(
         `SELECT version FROM ${this.#q('schema_metadata')} WHERE singleton`,
       );
-      if (![2, 3, 4, 5, 6, 7, 8].includes(metadata.rows[0]?.version))
+      if (![2, 3, 4, 5, 6, 7, 8, 9].includes(metadata.rows[0]?.version))
         throw new ChannelError('UpgradeRequired');
       if (write) {
         const lock = await client.query(
@@ -136,12 +138,13 @@ export class DispatchStore {
       committed = true;
       return result;
     } catch (error) {
-      broken = true;
+      // Reuse a connection only after a clean rollback; an uncertain commit discards it.
+      broken = commitStarted && !committed;
       if (client && !committed)
         try {
           await client.query('ROLLBACK');
         } catch {
-          /* Discard owned connection. */
+          broken = true;
         }
       if (committed || (commitStarted && write)) throw new ChannelError('AcknowledgementUnknown');
       if (error instanceof ChannelError) throw error;

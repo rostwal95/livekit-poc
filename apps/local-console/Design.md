@@ -677,3 +677,13 @@ reader slot. The transcript follows new text only while the reader is already at
 its end. When another activation still holds the single room, the state reads
 "Session in use" rather than offering a disabled Join. Recorded browser evidence
 for these behaviors is in the [0046 work item](../../docs/work-items/0046-joined-showcase-providers-and-demo.md).
+
+Each sent transcript entry shows its native input status (Sending, Accepted,
+Outcome unknown or Rejected) from the same acknowledgement model as the evidence
+panel, and a browser-local display time that is not a durable timestamp. The
+showcase build is multi-page: `landing.html` is served at the origin root and
+links the showcase and the P1 console, whose loopback URL is injected at build
+time from the configured UI port and validated before use. The P1 business panel
+stops polling once delivery is delivered or exhausted, or once a failed lifecycle
+has no outcome, because no further server-side progress can appear without a new
+command ([0047](../../docs/work-items/0047-open-findings-schema-upgrades-and-landing.md)).

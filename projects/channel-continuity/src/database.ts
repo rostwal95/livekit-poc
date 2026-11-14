@@ -130,6 +130,7 @@ export async function validate(
   nativeDefinition?: string,
   communicationDefinition?: string,
   resultReceiverDefinition?: string,
+  indexDefinition?: string,
 ): Promise<ChannelLimits> {
   const role =
     await client.query(`SELECT current_user AS name,rolsuper,rolcreatedb,rolcreaterole,rolreplication,rolbypassrls,
@@ -201,40 +202,21 @@ export async function validate(
   const row = meta.rows[0];
   if (
     meta.rows.length !== 1 ||
-    ![1, 2, 3, 4, 5, 6, 7, 8].includes(row.version) ||
+    ![1, 2, 3, 4, 5, 6, 7, 8, 9].includes(row.version) ||
     row.runtime_role !== 'livekit_lab' ||
     row.definition_digest !==
-      (row.version === 1
-        ? definition
-        : row.version === 2
-          ? dispatchDefinition
-          : row.version === 3
-            ? outboxDefinition
-            : row.version === 4
-              ? callbackDefinition
-              : row.version === 5
-                ? sendPolicyDefinition
-                : row.version === 6
-                  ? nativeDefinition
-                  : row.version === 7
-                    ? communicationDefinition
-                    : resultReceiverDefinition) ||
-    row.marker !==
-      (row.version === 1
-        ? MARKER
-        : row.version === 2
-          ? 'p2-channel-schema-v2'
-          : row.version === 3
-            ? 'p2-channel-schema-v3'
-            : row.version === 4
-              ? 'p2-channel-schema-v4'
-              : row.version === 5
-                ? 'p2-channel-schema-v5'
-                : row.version === 6
-                  ? 'p2-channel-schema-v6'
-                  : row.version === 7
-                    ? 'p2-channel-schema-v7'
-                    : 'p2-channel-schema-v8')
+      [
+        definition,
+        dispatchDefinition,
+        outboxDefinition,
+        callbackDefinition,
+        sendPolicyDefinition,
+        nativeDefinition,
+        communicationDefinition,
+        resultReceiverDefinition,
+        indexDefinition,
+      ][row.version - 1] ||
+    row.marker !== (row.version === 1 ? MARKER : 'p2-channel-schema-v' + row.version)
   )
     throw new ChannelError('SchemaMismatch');
   if (JSON.stringify(current) !== JSON.stringify(row.catalog_snapshot))

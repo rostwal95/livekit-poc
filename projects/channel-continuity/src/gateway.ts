@@ -50,6 +50,8 @@ export class GatewayError extends Error {
 }
 export type GatewayOptions = Readonly<{
   pollMs?: number;
+  /** Longest pause an idle dispatch loop backs off to; defaults to pollMs (no backoff). */
+  idlePollMs?: number;
   batchSize?: number;
   cleanupMs?: number;
   startupMs?: number;
@@ -196,6 +198,7 @@ export class ChannelGateway {
   readonly #dispatcher: ChannelDispatcher;
   readonly #tokens: readonly string[];
   readonly #pollMs: number;
+  readonly #idlePollMs: number;
   readonly #batchSize: number;
   readonly #cleanupMs: number;
   readonly #startupMs: number;
@@ -211,6 +214,7 @@ export class ChannelGateway {
   #notifications = 0;
   #active = 0;
   #intakes = 0;
+  #nudged = false;
   #cursor = 0;
   #closing = false;
   #binding: Promise<GatewayEndpoint> | undefined;
@@ -249,6 +253,7 @@ export class ChannelGateway {
         (k) =>
           ![
             'pollMs',
+            'idlePollMs',
             'batchSize',
             'cleanupMs',
             'startupMs',
@@ -259,6 +264,7 @@ export class ChannelGateway {
     )
       throw new GatewayError('invalid_http');
     this.#pollMs = positive(fields.pollMs, 100, 1000, 20);
+    this.#idlePollMs = positive(fields.idlePollMs, this.#pollMs, 5000, this.#pollMs);
     this.#batchSize = positive(fields.batchSize, 4, 16);
     this.#cleanupMs = positive(fields.cleanupMs, 2000, 5000, 20);
     this.#startupMs = positive(fields.startupMs, 5000, 10000, 20);
@@ -655,6 +661,7 @@ export class ChannelGateway {
           nativeInput(value),
         );
         this.#increment(accepted.status === 'replayed' ? 'replayed' : 'accepted');
+        if (accepted.status !== 'replayed') this.#nudge();
         const flushed = await this.#reply(response, 200, accepted);
         this.#emit('http', accepted.status);
         if (flushed) await this.#hook?.();
@@ -681,6 +688,7 @@ export class ChannelGateway {
         signature: fields['x-p2-signature'],
       });
       this.#increment(result.replayed ? 'replayed' : 'accepted');
+      if (!result.replayed) this.#nudge();
       const flushed = await this.#reply(response, 200, {
         schemaVersion: 1,
         kind: 'channel.receipt',
@@ -748,12 +756,17 @@ export class ChannelGateway {
       if (intake) this.#intakes--;
     }
   }
-  async #pause(): Promise<void> {
+  /** New local intake resets idle backoff and ends a pause early. */
+  #nudge(): void {
+    this.#nudged = true;
+    this.#wake?.();
+  }
+  async #pause(delayMs: number): Promise<void> {
     await new Promise<void>((resolve) => {
       const timer = setTimeout(() => {
         this.#wake = undefined;
         resolve();
-      }, this.#pollMs);
+      }, delayMs);
       this.#wake = () => {
         clearTimeout(timer);
         this.#wake = undefined;
@@ -762,11 +775,13 @@ export class ChannelGateway {
     });
   }
   async #drive(): Promise<void> {
+    let delayMs = this.#pollMs;
     while (!this.#closing) {
       const start = this.#cursor,
         deadline = performance.now() + 2000;
       this.#cursor = (this.#cursor + 1) % this.#tokens.length;
       let remaining = this.#batchSize;
+      let found = false;
       for (
         let offset = 0;
         offset < this.#tokens.length &&
@@ -779,6 +794,7 @@ export class ChannelGateway {
         const token = this.#tokens[(start + offset) % this.#tokens.length]!;
         try {
           const eligible = await this.#dispatcher.eligible(token, remaining);
+          if (eligible.length > 0) found = true;
           for (const id of eligible) {
             if (
               this.#closing ||
@@ -796,7 +812,10 @@ export class ChannelGateway {
           this.#emit('poll', failure(error).code);
         }
       }
-      if (!this.#closing) await this.#pause();
+      // Work that appears without local intake waits at most idlePollMs.
+      delayMs = found || this.#nudged ? this.#pollMs : Math.min(delayMs * 2, this.#idlePollMs);
+      this.#nudged = false;
+      if (!this.#closing) await this.#pause(delayMs);
     }
   }
   async close(): Promise<void> {

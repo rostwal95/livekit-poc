@@ -333,7 +333,7 @@ async def _close_clients(clients: list[_CaseOwner], journal: Callable[[str], Non
 _NODE_PROGRAM = r"""
 import { installChannelSchema, upgradeChannelSchemaV2, upgradeChannelSchemaV3,
  upgradeChannelSchemaV4, upgradeChannelSchemaV5, upgradeChannelSchemaV6,
- upgradeChannelSchemaV7, upgradeChannelSchemaV8 } from '@livekit-ecosystem/channel-continuity/migrations';
+ upgradeChannelSchemaV7, upgradeChannelSchemaV8, upgradeChannelSchemaV9 } from '@livekit-ecosystem/channel-continuity/migrations';
 let stopped=false;process.on('SIGTERM',()=>{stopped=true;});process.on('SIGINT',()=>{stopped=true;});
 try {
  const chunks=[];let size=0;for await(const chunk of process.stdin){size+=chunk.length;if(size>2048)throw Error();chunks.push(chunk);}
@@ -351,8 +351,9 @@ try {
  ()=>upgradeChannelSchemaV5(settings,{maxRecoveryCommands:16,maxPerOperation:2}),
  ()=>upgradeChannelSchemaV6(settings,{maxBindings:16}),
  ()=>upgradeChannelSchemaV7(settings,{maxResponses:16,maxObservations:64,maxObservationsPerResponse:8}),
- ()=>upgradeChannelSchemaV8(settings)];
- let receiver;for(const step of steps){if(stopped)throw Error();receiver=await step();}
+ ()=>upgradeChannelSchemaV8(settings),
+ ()=>upgradeChannelSchemaV9(settings)];
+ let receiver;for(const [index,step] of steps.entries()){if(stopped)throw Error();const value=await step();if(index===7)receiver=value;}
  if(stopped||typeof receiver!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(receiver))throw Error();
  process.stdout.write(JSON.stringify({schema_version:1,receiver_id:receiver})+'\n');
 } catch { process.stderr.write('{"schema_version":1,"code":"unavailable"}\n');process.exitCode=1; }

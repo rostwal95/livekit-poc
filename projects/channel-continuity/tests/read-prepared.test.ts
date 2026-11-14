@@ -376,7 +376,7 @@ describe('read-only retained prepared dispatch', () => {
           code: 'StorageUnavailable',
           message: 'StorageUnavailable',
         });
-        expect(driver.release).toHaveBeenCalledWith(true);
+        expect(driver.release).toHaveBeenCalledWith(stage === 'commit');
         expect(sqls()).toContain('ROLLBACK');
       } finally {
         await store.close();

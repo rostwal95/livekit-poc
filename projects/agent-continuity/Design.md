@@ -550,7 +550,12 @@ explicit live lease. Runtime does no DDL.
 Owner-only upgrade-effects adds six tables, operational indexes and completed/
 cancelled control states after v2. Owner-only upgrade-coordination adds the two
 v4 coordination tables and task/scope key after ACTIVE v3. It refuses unmanaged
-RUNNING inquiries before DDL so v3 reconciliation can finish them first. All
+RUNNING inquiries before DDL so v3 reconciliation can finish them first.
+Owner-only upgrade-retry-pacing adds v5 after ACTIVE v4: a typed
+`mutation_effects.next_attempt_at` and two operating indexes. On v5 a
+pre-dispatch dependency_unavailable holds the pending effect until that due time
+(1 s doubling to 30 s, never past the deadline); cancellation is not held and v4
+keeps immediate retry. Existing effects keep a NULL due time. All
 prior rows, payloads and import receipts survive. Existing v1 mutation consent is
 history/replay only and is excluded from automatic mutation selection.
 

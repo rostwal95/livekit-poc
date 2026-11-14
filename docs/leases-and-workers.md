@@ -66,6 +66,7 @@ trusted local setup configuration; selection alone does not activate it:
 .venv/bin/python local-setup/stack.py upgrade-postgres
 .venv/bin/python local-setup/stack.py upgrade-effects
 .venv/bin/python local-setup/stack.py upgrade-coordination
+.venv/bin/python local-setup/stack.py upgrade-retry-pacing
 .venv/bin/python local-setup/stack.py init-worker-fixtures
 .venv/bin/python local-setup/stack.py start-workers
 .venv/bin/python local-setup/stack.py worker-status
@@ -99,6 +100,12 @@ Only ACTIVE v3 is eligible. Unmanaged RUNNING inquiries cause a pre-DDL refusal:
 reconcile/finish them with the still-supported v3 inquiry worker, then upgrade.
 Managed running attempts retain their original effect/attempt evidence for leased
 recovery. Old install/v2/v3 upgrade retries validate v4 without downgrading it.
+
+upgrade-retry-pacing invokes postgres_cli upgrade-retry-pacing and upgrade_v5 on
+ACTIVE v4. It only adds the persisted mutation due time and indexes, so leased
+work continues across it; older upgrades replay against v5 without changes. A
+`pg_dump`/`psql` backup taken before the upgrade restores a valid v4 that can be
+upgraded again.
 
 All original rows, IDs, versioned quote/confirmation/intent JSON and historical
 cutover receipts survive. V1 consent remains history/replay compatible and cannot

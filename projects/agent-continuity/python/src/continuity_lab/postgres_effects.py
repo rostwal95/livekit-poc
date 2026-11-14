@@ -67,6 +67,8 @@ from .postgres_unit_of_work import protected_transaction
 Connection = psycopg.Connection[dict[str, Any]]
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
+# Schema v5 paces known dependency outages: 1 s doubling to 30 s, never past the deadline.
+RETRY_INITIAL_SECONDS, RETRY_MAX_SECONDS = 1, 30
 _TERMINAL = frozenset(
     {
         EffectState.SUCCEEDED,
@@ -153,9 +155,16 @@ class PostgresEffects:
                     self._table("schema_metadata")
                 )
             ).fetchone()
-            if row is None or row["version"] not in {3, 4}:
+            if row is None or row["version"] not in {3, 4, 5}:
                 raise UnsupportedOperation("Mutation and completion require schema v3 or later")
             yield connection
+
+    def _paced(self, connection: Connection) -> bool:
+        """Schema v5 persists when a dependency-unavailable retry becomes due."""
+        row = connection.execute(
+            sql.SQL("SELECT version FROM {} WHERE singleton").format(self._table("schema_metadata"))
+        ).fetchone()
+        return row is not None and row["version"] >= 5
 
     def _worker_case(self, connection: Connection, scope_id: str, task_id: str) -> CaseSnapshot:
         self.executions._get(connection, identity(scope_id), identity(task_id))
@@ -508,6 +517,12 @@ class PostgresEffects:
                     stamp,
                 )
                 return None
+            if (
+                value.state == EffectState.PENDING
+                and row.get("next_attempt_at") is not None
+                and now < row["next_attempt_at"]
+            ):
+                return None
             recovered = value.state in {EffectState.CLAIMED, EffectState.DISPATCHED}
             if recovered:
                 if row["active_attempt_id"] is None:
@@ -761,14 +776,28 @@ class PostgresEffects:
                         (stamp, code.value, claim.attempt_id),
                     )
                 )
-                _one(
-                    connection.execute(
-                        sql.SQL(
-                            "UPDATE {} SET state='pending',generation=generation+1,error_code=%s,updated_at=%s WHERE intent_id=%s AND generation=%s"
-                        ).format(self._table("mutation_effects")),
-                        (code.value, stamp, claim.intent.intent_id, claim.generation),
+                if self._paced(connection):
+                    delay = min(
+                        RETRY_INITIAL_SECONDS * 2 ** (row["attempt_no"] - 1), RETRY_MAX_SECONDS
                     )
-                )
+                    due = min(now + timedelta(seconds=delay), self._deadline(connection, case))
+                    _one(
+                        connection.execute(
+                            sql.SQL(
+                                "UPDATE {} SET state='pending',generation=generation+1,error_code=%s,updated_at=%s,next_attempt_at=%s WHERE intent_id=%s AND generation=%s"
+                            ).format(self._table("mutation_effects")),
+                            (code.value, stamp, due, claim.intent.intent_id, claim.generation),
+                        )
+                    )
+                else:
+                    _one(
+                        connection.execute(
+                            sql.SQL(
+                                "UPDATE {} SET state='pending',generation=generation+1,error_code=%s,updated_at=%s WHERE intent_id=%s AND generation=%s"
+                            ).format(self._table("mutation_effects")),
+                            (code.value, stamp, claim.intent.intent_id, claim.generation),
+                        )
+                    )
                 fresh = self._effect_row(connection, case.task_id)
                 assert fresh is not None
                 value = self._snapshot(fresh, case)

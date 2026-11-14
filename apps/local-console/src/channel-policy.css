@@ -247,8 +247,34 @@
   font: 11px/1.6 var(--mono);
   color: var(--muted);
 }
+.cp-message-meta {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+.cp-message-meta time {
+  margin-left: auto;
+}
 .cp-message-agent .cp-message-meta {
   color: var(--cyan);
+}
+.cp-chip {
+  padding: 0 6px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.cp-chip-accepted,
+.cp-chip-replayed {
+  color: #5ad1a0;
+}
+.cp-chip-unknown {
+  color: #e8b45a;
+}
+.cp-chip-rejected {
+  color: #ef7f7f;
 }
 .cp-message-text {
   font-size: 16px;

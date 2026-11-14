@@ -11,6 +11,7 @@ import {
   NATIVE_DEFINITION_DIGEST,
   COMMUNICATION_DEFINITION_DIGEST,
   RESULT_RECEIVER_DEFINITION_DIGEST,
+  INDEX_DEFINITION_DIGEST,
 } from './migrations.js';
 import { SeededAccounts } from './postgres.js';
 import type { DatabaseSettings } from './public-types.js';
@@ -273,6 +274,7 @@ export class OutboxStore {
         NATIVE_DEFINITION_DIGEST,
         COMMUNICATION_DEFINITION_DIGEST,
         RESULT_RECEIVER_DEFINITION_DIGEST,
+        INDEX_DEFINITION_DIGEST,
       );
       const version = (
         await client.query(`SELECT version FROM ${this.#q('schema_metadata')} WHERE singleton`)
@@ -283,7 +285,8 @@ export class OutboxStore {
         version !== 5 &&
         version !== 6 &&
         version !== 7 &&
-        version !== 8
+        version !== 8 &&
+        version !== 9
       )
         throw new OutboxError('UpgradeRequired');
       if (write) {
@@ -491,7 +494,7 @@ export class OutboxStore {
     return ref;
   }
   #resultVersion(tx: Tx, receiverId: string): void {
-    if (tx.version !== 8) throw new OutboxError('UpgradeRequired');
+    if (tx.version < 8) throw new OutboxError('UpgradeRequired');
     if (tx.receiverId !== receiverId) throw new OutboxError('IdentityConflict');
   }
   async #resultWithin(

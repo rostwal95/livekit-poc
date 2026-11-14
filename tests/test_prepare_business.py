@@ -89,7 +89,7 @@ class BusinessPreparationTests(unittest.TestCase):
     ):
         port = FakePostgres()
         value = self.prepare(port)
-        self.assertEqual(["inspect", "activate", 2, 3, 4, "ready"], port.calls)
+        self.assertEqual(["inspect", "activate", 2, 3, 4, 5, "ready"], port.calls)
         self.assertTrue(value["changed"])
         self.assertFalse(value["fixture_initialization"])
         directory = self.base / value["bootstrap_run_id"]
@@ -122,14 +122,24 @@ class BusinessPreparationTests(unittest.TestCase):
         )
         self.assertEqual(first, json.loads(entry.read_text()))
 
-    def test_valid_active_v4_is_readonly_ready_and_never_creates_an_auxiliary_source(self):
+    def test_valid_active_v5_is_readonly_ready_and_never_creates_an_auxiliary_source(self):
         port = FakePostgres(
-            bootstrap.Target(4, "active", "11111111-1111-4111-8111-111111111111", "a" * 64)
+            bootstrap.Target(5, "active", "11111111-1111-4111-8111-111111111111", "a" * 64)
         )
         result = self.prepare(port)
         self.assertFalse(result["changed"])
         self.assertIsNone(result["bootstrap_run_id"])
         self.assertEqual(["inspect", "ready"], port.calls)
+        self.assertEqual([".prepare.lock"], [p.name for p in self.base.iterdir()])
+
+    def test_valid_active_v4_takes_only_the_additive_v5_upgrade_without_a_source(self):
+        port = FakePostgres(
+            bootstrap.Target(4, "active", "11111111-1111-4111-8111-111111111111", "a" * 64)
+        )
+        result = self.prepare(port)
+        self.assertEqual((result["changed"], result["schema_version"]), (True, 5))
+        self.assertIsNone(result["bootstrap_run_id"])
+        self.assertEqual(["inspect", 5, "ready"], port.calls)
         self.assertEqual([".prepare.lock"], [p.name for p in self.base.iterdir()])
 
     def test_unowned_imported_active_old_and_nonempty_targets_refuse_before_source_or_pg_mutation(

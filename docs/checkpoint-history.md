@@ -1,13 +1,20 @@
 # Checkpoint history
 
 Status: Active
-Last reviewed: 13 November 2026
+Last reviewed: 14 November 2026
 
 This guide keeps the per-slice qualification summaries that previously lived in
 the root README, newest first. Each linked work item owns the exact assertions,
 failures, artifacts and limits; the counts below are historical results at that
 checkpoint and must be rerun when behavior or inputs change. The
 [root README](../README.md) owns the current capability summary.
+
+## Review findings, schema upgrades and landing page (0047)
+
+The [0047 work item](work-items/0047-open-findings-schema-upgrades-and-landing.md)
+adds P1 v5 persisted retry pacing, P2 v9 operating indexes, the contained P2/P3/UI
+review fixes and the landing page, repairs gate drift found on the way and records
+the P1 requalification on v5.
 
 ## Joined showcase, providers and demo (0046)
 

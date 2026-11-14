@@ -102,7 +102,7 @@ class TrustedQuoteProducer:
                 self.cases._table("schema_metadata")
             )
         ).fetchone()
-        if metadata is None or metadata["version"] != 4:
+        if metadata is None or metadata["version"] not in (4, 5):
             raise UnsupportedOperation("Trusted conversational quotes require schema v4")
         row = connection.execute(
             sql.SQL("SELECT task_id FROM {} WHERE quote_id=%s").format(self.cases._table("quotes")),

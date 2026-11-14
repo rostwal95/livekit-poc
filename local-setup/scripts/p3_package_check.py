@@ -1438,7 +1438,7 @@ class PackageRun:
                 ).glob("*.mjs")
             },
         )
-        if len(p1_source) != 77:
+        if len(p1_source) != 78:
             raise GateError("invalid_artifact")
         p1_wheel = self.build(p1, "p1-wheel", "--wheel", stage="build_p1")
         _wheel(p1_wheel, p1, "agent_continuity", p1_source)

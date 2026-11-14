@@ -52,7 +52,7 @@ def _version(connection: Connection, executions: PostgresExecutionStore) -> int:
             _table(executions, "schema_metadata")
         )
     ).fetchone()
-    if row is None or type(row["version"]) is not int or row["version"] not in {1, 2, 3, 4}:
+    if row is None or type(row["version"]) is not int or row["version"] not in {1, 2, 3, 4, 5}:
         raise InvalidStoredState("Coordination schema version is unavailable")
     return row["version"]
 
@@ -164,7 +164,7 @@ class PostgresLeases:
             self.failpoint(name)
 
     def limits_in_transaction(self, connection: Connection) -> CoordinationPolicy:
-        if _version(connection, self.executions) != 4:
+        if _version(connection, self.executions) < 4:
             raise UnsupportedOperation("Execution leases require schema v4")
         row = connection.execute(
             sql.SQL("SELECT * FROM {} WHERE singleton").format(

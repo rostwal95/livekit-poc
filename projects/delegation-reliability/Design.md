@@ -699,7 +699,8 @@ this case client's lifecycle separately from the coordinator-owned work client.
 Cancelling a coordinator waiter prevents a subsequent write at a preflight boundary
 but cannot cancel an already-started authoritative write. Timeout during a write
 returns acknowledgement_unknown; inspection uses the original key. Coordinator
-close stops admission and observes actual pending work before closing its P1 client.
+close stops admission, abandons calls that have not reached their write boundary
+and observes actual pending work before closing its P1 client.
 The Python HTTP client requests socket cancellation while retaining its owned task
 through wait_closed. Repeated close cannot release a held permit. A finite close
 may report cleanup_incomplete; it never promises an uncooperative owner stopped.
@@ -928,6 +929,11 @@ only lookup is permitted. A later exact receipt can close a gap without another
 accept call. New delivery retains the existing facade's fresh result/case
 preflight and P1 begin eligibility check. Those reads do not atomically fence a
 cross-authority case or recipient revocation; no stronger claim is made.
+
+A result whose case and conversation have no route in the frozen v2 bindings is
+recorded as unACKed `unavailable` (counted as `unroutable`) so the scan cursor
+still advances and later results progress; it gets no terminal ACK and no send.
+Scope, identity and source conflicts still fail the whole step closed.
 
 Each event ACK and discovery/control revision share a repeatable-read CAS
 transaction. Receiver I/O stays outside that transaction. The coherent snapshot

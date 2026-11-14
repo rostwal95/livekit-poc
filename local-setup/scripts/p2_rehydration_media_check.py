@@ -526,6 +526,7 @@ def _validated_session(value: object, label: str, f: dict[str, Any]) -> dict[str
             "voiceCaptures": int(label == "A"),
             "voiceCommits": int(label == "A"),
             "genuineFinalSnapshots": int(label == "A"),
+            "sdkSessionClosed": 1,
         }
     )
     if not native.exact(value["metrics"], expected):

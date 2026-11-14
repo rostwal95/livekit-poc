@@ -110,7 +110,7 @@ export class CommunicationStore {
   }
   async #settings(tx: Tx) {
     if (
-      ![7, 8].includes(
+      ![7, 8, 9].includes(
         (await tx.client.query(`SELECT version FROM ${this.#q('schema_metadata')} WHERE singleton`))
           .rows[0]?.version as number,
       )

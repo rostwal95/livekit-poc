@@ -271,8 +271,13 @@ class BusinessPreflightTests(unittest.TestCase):
             'SELECT version FROM "continuity"."schema_metadata" WHERE singleton',
         )
 
+    def test_retry_pacing_v5_target_is_also_ready(self):
+        self.connection.execute.return_value.fetchone.return_value = {"version": 5}
+        code, result = self.exercise()
+        self.assertEqual((code, result["status"]), (0, "business_prerequisites_ready"))
+
     def test_missing_or_old_schema_does_not_initialize_fixtures(self):
-        for version in (None, {"version": 3}):
+        for version in (None, {"version": 3}, {"version": 6}):
             with self.subTest(version=version):
                 self.connection.execute.return_value.fetchone.return_value = version
                 code, result = self.exercise()

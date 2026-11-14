@@ -425,7 +425,8 @@ credentials with the documented isolated operator procedure.
 Normal start still starts M1 and transport diagnostics. The opt-in p1-workers
 profile adds the actual P1 worker with an independent worker_data fixture volume.
 For an intentionally activated v3 target, run upgrade-coordination to install
-v4. A fresh migrate-postgres target is STAGING and cannot start a worker. The
+v4, then upgrade-retry-pacing for v5 (persisted mutation retry due time).
+prepare-business takes the same additive v5 step. A fresh migrate-postgres target is STAGING and cannot start a worker. The
 migration refuses unmanaged running legacy inquiries: reconcile them on v3 first.
 
 Optional non-secret .env values P1_WORKER_SCHEMA and P1_WORKER_SCOPE select the

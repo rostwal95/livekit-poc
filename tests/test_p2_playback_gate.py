@@ -134,6 +134,7 @@ def python_report():
             "activeIntakes": 0,
             "activePrepare": 0,
             "activeReaders": 0,
+            "activeReplyObservers": 0,
             "activeVoiceWork": 0,
             "defaultReplyInvocations": 0,
             "durableAcceptCalls": 3,
@@ -146,6 +147,8 @@ def python_report():
             "observerDropped": 0,
             "observerFailures": 0,
             "observerPending": 0,
+            "sdkCloseAllocationFailed": 0,
+            "sdkSessionClosed": 1,
             "textStreamsSeen": 3,
             "voiceCaptures": 0,
             "voiceCommits": 0,
@@ -460,9 +463,9 @@ class PlaybackGateContractTests(unittest.TestCase):
             with self.subTest(replacement=replacement), self.assertRaises(GATE.GateError):
                 GATE.validated_report(encoded(value))
 
-    def test_exact_python_eighteen_plus_eleven_metrics(self):
+    def test_exact_python_twenty_one_plus_eleven_metrics(self):
         value = python_report()
-        self.assertEqual(len(value["metrics"]), 18)
+        self.assertEqual(len(value["metrics"]), 21)
         self.assertEqual(len(value["communicationMetrics"]), 11)
         self.assertEqual(GATE.validated_python(encoded(value)), value)
         for section, key, replacement in (

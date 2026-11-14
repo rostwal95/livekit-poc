@@ -57,6 +57,7 @@ export async function installChannelSchema(
         NATIVE_DEFINITION_DIGEST,
         COMMUNICATION_DEFINITION_DIGEST,
         RESULT_RECEIVER_DEFINITION_DIGEST,
+        INDEX_DEFINITION_DIGEST,
       );
       if (JSON.stringify(actual) !== JSON.stringify(bound))
         throw new ChannelError('SchemaMismatch');
@@ -134,6 +135,7 @@ export async function installChannelSchema(
         NATIVE_DEFINITION_DIGEST,
         COMMUNICATION_DEFINITION_DIGEST,
         RESULT_RECEIVER_DEFINITION_DIGEST,
+        INDEX_DEFINITION_DIGEST,
       );
     }
     await client.query('COMMIT');
@@ -241,6 +243,7 @@ export async function upgradeChannelSchemaV2(
       NATIVE_DEFINITION_DIGEST,
       COMMUNICATION_DEFINITION_DIGEST,
       RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
     );
     // Metadata-first lock order drains old runtime transactions before DDL without
     // holding admission while a metadata reader is waiting for it.
@@ -259,6 +262,7 @@ export async function upgradeChannelSchemaV2(
       NATIVE_DEFINITION_DIGEST,
       COMMUNICATION_DEFINITION_DIGEST,
       RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
     );
     const version = (
       await client.query(
@@ -333,6 +337,7 @@ export async function upgradeChannelSchemaV2(
         NATIVE_DEFINITION_DIGEST,
         COMMUNICATION_DEFINITION_DIGEST,
         RESULT_RECEIVER_DEFINITION_DIGEST,
+        INDEX_DEFINITION_DIGEST,
       );
     } else throw new ChannelError('SchemaMismatch');
     await client.query('COMMIT');
@@ -390,6 +395,7 @@ export async function upgradeChannelSchemaV3(
       NATIVE_DEFINITION_DIGEST,
       COMMUNICATION_DEFINITION_DIGEST,
       RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
     );
     if (
       (
@@ -414,6 +420,7 @@ export async function upgradeChannelSchemaV3(
       NATIVE_DEFINITION_DIGEST,
       COMMUNICATION_DEFINITION_DIGEST,
       RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
     );
     const version = (
       await client.query(
@@ -491,6 +498,7 @@ export async function upgradeChannelSchemaV3(
         NATIVE_DEFINITION_DIGEST,
         COMMUNICATION_DEFINITION_DIGEST,
         RESULT_RECEIVER_DEFINITION_DIGEST,
+        INDEX_DEFINITION_DIGEST,
       );
     } else throw new ChannelError('UpgradeRequired');
     await client.query('COMMIT');
@@ -545,6 +553,7 @@ export async function upgradeChannelSchemaV4(
       NATIVE_DEFINITION_DIGEST,
       COMMUNICATION_DEFINITION_DIGEST,
       RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
     );
     const version = (
       await client.query(
@@ -557,7 +566,8 @@ export async function upgradeChannelSchemaV4(
       version !== 5 &&
       version !== 6 &&
       version !== 7 &&
-      version !== 8
+      version !== 8 &&
+      version !== 9
     )
       throw new ChannelError('UpgradeRequired');
     // Metadata first, then all existing v3 relations. This owner operation requires quiescence.
@@ -576,6 +586,7 @@ export async function upgradeChannelSchemaV4(
       NATIVE_DEFINITION_DIGEST,
       COMMUNICATION_DEFINITION_DIGEST,
       RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
     );
     if (version === 4 || version >= 5) {
       const r = (
@@ -636,6 +647,7 @@ export async function upgradeChannelSchemaV4(
         NATIVE_DEFINITION_DIGEST,
         COMMUNICATION_DEFINITION_DIGEST,
         RESULT_RECEIVER_DEFINITION_DIGEST,
+        INDEX_DEFINITION_DIGEST,
       );
     }
     await client.query('COMMIT');
@@ -701,13 +713,21 @@ export async function upgradeChannelSchemaV5(
       NATIVE_DEFINITION_DIGEST,
       COMMUNICATION_DEFINITION_DIGEST,
       RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
     );
     const version = (
       await client.query(
         `SELECT version FROM ${table(value.schema, 'schema_metadata')} WHERE singleton`,
       )
     ).rows[0]?.version;
-    if (version !== 4 && version !== 5 && version !== 6 && version !== 7 && version !== 8)
+    if (
+      version !== 4 &&
+      version !== 5 &&
+      version !== 6 &&
+      version !== 7 &&
+      version !== 8 &&
+      version !== 9
+    )
       throw new ChannelError('UpgradeRequired');
     await client.query(
       `LOCK TABLE ${['schema_metadata', 'admission', 'sender_heads', 'associations', 'challenges', 'conversations', 'inbox', 'processing_intents', 'dispatch_settings', 'dispatch_plans', 'dispatch_attempts', 'outbox_settings', 'outbox_admission', 'reply_intents', 'outbound_routes', 'send_attempts', 'send_results', 'callback_settings', 'callback_admission', 'callback_observations'].map((n) => table(value.schema, n)).join(',')} IN ACCESS EXCLUSIVE MODE`,
@@ -724,6 +744,7 @@ export async function upgradeChannelSchemaV5(
       NATIVE_DEFINITION_DIGEST,
       COMMUNICATION_DEFINITION_DIGEST,
       RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
     );
     if (version >= 5) {
       const count = (
@@ -982,6 +1003,7 @@ export async function upgradeChannelSchemaV5(
         NATIVE_DEFINITION_DIGEST,
         COMMUNICATION_DEFINITION_DIGEST,
         RESULT_RECEIVER_DEFINITION_DIGEST,
+        INDEX_DEFINITION_DIGEST,
       );
     }
     await client.query('COMMIT');
@@ -1052,13 +1074,14 @@ export async function upgradeChannelSchemaV6(
       NATIVE_DEFINITION_DIGEST,
       COMMUNICATION_DEFINITION_DIGEST,
       RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
     );
     const version = (
       await client.query(
         `SELECT version FROM ${table(value.schema, 'schema_metadata')} WHERE singleton`,
       )
     ).rows[0]?.version;
-    if (version !== 5 && version !== 6 && version !== 7 && version !== 8)
+    if (version !== 5 && version !== 6 && version !== 7 && version !== 8 && version !== 9)
       throw new ChannelError('UpgradeRequired');
     await client.query(
       `LOCK TABLE ${['schema_metadata', 'admission', 'inbox', 'processing_intents', 'conversations'].map((n) => table(value.schema, n)).join(',')} IN ACCESS EXCLUSIVE MODE`,
@@ -1075,6 +1098,7 @@ export async function upgradeChannelSchemaV6(
       NATIVE_DEFINITION_DIGEST,
       COMMUNICATION_DEFINITION_DIGEST,
       RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
     );
     if (version >= 6) {
       const row = (
@@ -1134,6 +1158,7 @@ export async function upgradeChannelSchemaV6(
         NATIVE_DEFINITION_DIGEST,
         COMMUNICATION_DEFINITION_DIGEST,
         RESULT_RECEIVER_DEFINITION_DIGEST,
+        INDEX_DEFINITION_DIGEST,
       );
     }
     await client.query('COMMIT');
@@ -1210,6 +1235,7 @@ export async function upgradeChannelSchemaV7(
       NATIVE_DEFINITION_DIGEST,
       COMMUNICATION_DEFINITION_DIGEST,
       RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
     );
   try {
     await client.connect();
@@ -1223,7 +1249,8 @@ export async function upgradeChannelSchemaV7(
         `SELECT version FROM ${table(value.schema, 'schema_metadata')} WHERE singleton`,
       )
     ).rows[0]?.version;
-    if (version !== 6 && version !== 7 && version !== 8) throw new ChannelError('UpgradeRequired');
+    if (version !== 6 && version !== 7 && version !== 8 && version !== 9)
+      throw new ChannelError('UpgradeRequired');
     await client.query(
       `LOCK TABLE ${['schema_metadata', 'admission', 'inbox', 'processing_intents', 'conversations', 'native_settings', 'native_bindings'].map((n) => table(value.schema, n)).join(',')} IN ACCESS EXCLUSIVE MODE`,
     );
@@ -1359,6 +1386,7 @@ export async function upgradeChannelSchemaV8(
       NATIVE_DEFINITION_DIGEST,
       COMMUNICATION_DEFINITION_DIGEST,
       RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
     );
   try {
     await client.connect();
@@ -1372,7 +1400,7 @@ export async function upgradeChannelSchemaV8(
         `SELECT version FROM ${table(value.schema, 'schema_metadata')} WHERE singleton`,
       )
     ).rows[0]?.version;
-    if (version !== 7 && version !== 8) throw new ChannelError('UpgradeRequired');
+    if (version !== 7 && version !== 8 && version !== 9) throw new ChannelError('UpgradeRequired');
     await client.query(
       `LOCK TABLE ${['schema_metadata', 'admission', 'outbox_settings', 'outbox_admission', 'reply_intents', 'native_settings', 'native_bindings'].map((n) => table(value.schema, n)).join(',')} IN ACCESS EXCLUSIVE MODE`,
     );
@@ -1427,6 +1455,111 @@ export async function upgradeChannelSchemaV8(
     await check();
     await client.query('COMMIT');
     return receiverId;
+  } catch (error) {
+    primary = error instanceof ChannelError ? error : new ChannelError('SchemaMismatch');
+    try {
+      await client.query('ROLLBACK');
+    } catch {
+      /* Original failure retained. */
+    }
+    throw primary;
+  } finally {
+    try {
+      await client.end();
+    } catch {
+      if (!primary) throw new ChannelError('CleanupIncomplete');
+    }
+  }
+}
+
+/** Operating indexes for due dispatch selection and send-history lookups; no row changes. */
+const INDEX_SPEC = `
+CREATE INDEX dispatch_due ON processing_intents(receipt_id) WHERE state IN ('pending','running','uncertain');
+CREATE INDEX attempts_operation ON send_attempts(provider_operation_key,ordinal);
+CREATE INDEX recovery_outbound ON send_recovery_commands(tenant_id,account_id,outbound_id);
+`;
+export const INDEX_DEFINITION_DIGEST = digest(
+  SPEC +
+    DISPATCH_SPEC +
+    OUTBOX_SPEC +
+    CALLBACK_SPEC +
+    SEND_POLICY_SPEC +
+    SEND_POLICY_FK +
+    NATIVE_SPEC +
+    COMMUNICATION_SPEC +
+    RESULT_RECEIVER_SPEC +
+    INDEX_SPEC,
+);
+/** Explicit quiescent owner upgrade from v8; replaying a complete v9 only revalidates it. */
+export async function upgradeChannelSchemaV9(
+  input: DatabaseSettings,
+  hooks: Readonly<{ harnessAfterIndexes?: () => void | Promise<void> }> = {},
+): Promise<void> {
+  const value = settings(input, 'continuity_migrator'),
+    client = watchClient(new PgClient(config(value)));
+  if (
+    !hooks ||
+    Object.getPrototypeOf(hooks) !== Object.prototype ||
+    Reflect.ownKeys(hooks).some((k) => k !== 'harnessAfterIndexes')
+  )
+    throw new ChannelError('InvalidConfiguration');
+  const hook = Object.getOwnPropertyDescriptor(hooks, 'harnessAfterIndexes');
+  if (hook && (!('value' in hook) || !hook.enumerable || typeof hook.value !== 'function'))
+    throw new ChannelError('InvalidConfiguration');
+  let primary: ChannelError | undefined;
+  const check = () =>
+    validate(
+      client,
+      value,
+      DEFINITION_DIGEST,
+      true,
+      DISPATCH_DEFINITION_DIGEST,
+      OUTBOX_DEFINITION_DIGEST,
+      CALLBACK_DEFINITION_DIGEST,
+      SEND_POLICY_DEFINITION_DIGEST,
+      NATIVE_DEFINITION_DIGEST,
+      COMMUNICATION_DEFINITION_DIGEST,
+      RESULT_RECEIVER_DEFINITION_DIGEST,
+      INDEX_DEFINITION_DIGEST,
+    );
+  try {
+    await client.connect();
+    await client.query('BEGIN');
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', [
+      'channel-schema:' + value.schema,
+    ]);
+    await check();
+    const version = (
+      await client.query(
+        `SELECT version FROM ${table(value.schema, 'schema_metadata')} WHERE singleton`,
+      )
+    ).rows[0]?.version;
+    if (version !== 8 && version !== 9) throw new ChannelError('UpgradeRequired');
+    if (version === 8) {
+      await client.query(
+        INDEX_SPEC.replace(
+          / ON ([a-z_]+)/g,
+          (_all, name: string) => ' ON ' + table(value.schema, name),
+        ).replace(/CREATE INDEX ([a-z_]+)/g, (_all, name: string) => 'CREATE INDEX "' + name + '"'),
+      );
+      await (hook?.value as (() => void | Promise<void>) | undefined)?.();
+      await client.query(
+        `ALTER TABLE ${table(value.schema, 'schema_metadata')} DROP CONSTRAINT schema_metadata_version_check`,
+      );
+      await client.query(
+        `UPDATE ${table(value.schema, 'schema_metadata')} SET version=9,definition_digest=$1`,
+        [INDEX_DEFINITION_DIGEST],
+      );
+      await client.query(
+        `ALTER TABLE ${table(value.schema, 'schema_metadata')} ADD CONSTRAINT schema_metadata_version_check CHECK(version=9);COMMENT ON SCHEMA "${value.schema}" IS 'p2-channel-schema-v9'`,
+      );
+      await client.query(
+        `UPDATE ${table(value.schema, 'schema_metadata')} SET catalog_snapshot=$1::jsonb`,
+        [JSON.stringify(await catalog(client, value.schema))],
+      );
+    }
+    await check();
+    await client.query('COMMIT');
   } catch (error) {
     primary = error instanceof ChannelError ? error : new ChannelError('SchemaMismatch');
     try {

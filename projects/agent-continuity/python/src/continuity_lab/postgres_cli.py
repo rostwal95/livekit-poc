@@ -25,6 +25,7 @@ from .postgres_migrations import (
     upgrade_v2,
     upgrade_v3,
     upgrade_v4,
+    upgrade_v5,
 )
 from .postgres_settings import PostgresSettings
 from .postgres_store import PostgresExecutionStore
@@ -39,6 +40,7 @@ def main(argv: list[str] | None = None) -> int:
     commands.add_parser("upgrade", help="owner-only additive ACTIVE v1 to v2 upgrade")
     commands.add_parser("upgrade-effects", help="owner-only additive ACTIVE v2 to v3 upgrade")
     commands.add_parser("upgrade-coordination", help="owner-only additive ACTIVE v3 to v4 upgrade")
+    commands.add_parser("upgrade-retry-pacing", help="owner-only additive ACTIVE v4 to v5 upgrade")
     transfer = commands.add_parser(
         "cutover", help="quiesce, verify and activate an existing v1 source"
     )
@@ -70,9 +72,12 @@ def main(argv: list[str] | None = None) -> int:
             "upgrade",
             "upgrade-effects",
             "upgrade-coordination",
+            "upgrade-retry-pacing",
         }:
             settings = PostgresSettings.from_env("P1_MIGRATION_")
-            if args.command == "upgrade-coordination":
+            if args.command == "upgrade-retry-pacing":
+                value = asdict(upgrade_v5(settings))
+            elif args.command == "upgrade-coordination":
                 value = asdict(upgrade_v4(settings))
             elif args.command == "upgrade-effects":
                 value = asdict(upgrade_v3(settings))

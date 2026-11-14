@@ -371,7 +371,7 @@ class PostgresCaseProjection:
                     self._table("schema_metadata")
                 )
             ).fetchone()
-            if metadata is None or metadata["version"] != 4:
+            if metadata is None or metadata["version"] not in (4, 5):
                 raise UnsupportedOperation("Business projection requires schema v4")
             execution, control = self.lifecycle._current(connection, actor.scope_id, task_id)
             lease_row = connection.execute(

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
-import { BusinessClient, BusinessController, BusinessError, businessStage, formatMoney, MAX_BUSINESS_EVENTS, parseBusinessJson, parseBusinessProjection, parseManagedReceipt, readBusinessResponse, verifyQuotePayload } from './business';
+import { BusinessClient, BusinessController, BusinessError, businessSettled, businessStage, formatMoney, MAX_BUSINESS_EVENTS, parseBusinessJson, parseBusinessProjection, parseManagedReceipt, readBusinessResponse, verifyQuotePayload } from './business';
 import type { BusinessInput, BusinessProjection, PendingCommand } from './business';
 
 const source = readFileSync(new URL('../../../contracts/business/case-projection.json', import.meta.url), 'utf-8');
@@ -95,6 +95,18 @@ describe('shared P1 business projection boundary', () => {
     expect(businessStage(success).title).toBe('Booking change observed');
     expect(businessStage(success).description).toContain('own status');
     expect(businessStage({ ...success, outcome: { ...success.outcome!, state: 'uncertain', result: null } }).title).toBe('Outcome needs review');
+  });
+  it('settles polling only when no server-side progress can still appear', () => {
+    const success = parseBusinessProjection(completedData());
+    const delivery = success.delivery!;
+    expect(businessSettled(null)).toBe(false);
+    expect(businessSettled({ ...success, delivery: { ...delivery, state: 'delivered' } })).toBe(true);
+    expect(businessSettled({ ...success, delivery: { ...delivery, state: 'exhausted' } })).toBe(true);
+    expect(businessSettled({ ...success, delivery: { ...delivery, state: 'delivering' } })).toBe(false);
+    expect(businessSettled({ ...success, delivery: null })).toBe(false);
+    const failed = { ...success, delivery: null, effect: null, outcome: null, lifecycle: { ...success.lifecycle!, state: 'failed' as const } };
+    expect(businessSettled(failed)).toBe(true);
+    expect(businessSettled({ ...failed, lifecycle: { ...failed.lifecycle, state: 'retry_wait' as const } })).toBe(false);
   });
   it('verifies complete exact supplier evidence without losing its BIGINT revision', () => {
     const observed = parseBusinessProjection(completedData());

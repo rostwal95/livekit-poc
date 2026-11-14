@@ -1,5 +1,5 @@
 /** DOM adapter: every business state comes from a validated scoped projection. */
-import { BusinessController, BusinessError, businessStage, formatMoney, MAX_BUSINESS_EVENTS } from './business';
+import { BusinessController, BusinessError, businessSettled, businessStage, formatMoney, MAX_BUSINESS_EVENTS } from './business';
 import type { BusinessInput, BusinessProjection, BusinessState, CommandKind } from './business';
 import './business.css';
 
@@ -146,7 +146,7 @@ export function mountBusinessPanel(host: HTMLElement, options: BusinessPanelOpti
   button('#business-new').addEventListener('click', () => { if (controller.newInvestigation()) { formKey = `ui-${crypto.randomUUID()}`; investigation.checked = false; approval.checked = false; selectedTask = null; booking.focus(); } }, { signal: owned.signal });
   const pollMilliseconds = options.pollMilliseconds ?? 1500;
   if (!Number.isInteger(pollMilliseconds) || pollMilliseconds < 1000 || pollMilliseconds > 10000) throw new Error('Business polling must have a bounded interval.');
-  const schedule = (): void => { if (!disposed) timer = window.setTimeout(() => { const state = controller.state; if (!document.hidden && state.task_id && state.phase !== 'access_required' && state.phase !== 'busy' && state.projection?.delivery?.state !== 'delivered') void invoke(() => controller.refresh(token())); schedule(); }, pollMilliseconds); };
+  const schedule = (): void => { if (!disposed) timer = window.setTimeout(() => { const state = controller.state; if (!document.hidden && state.task_id && state.phase !== 'access_required' && state.phase !== 'busy' && !businessSettled(state.projection)) void invoke(() => controller.refresh(token())); schedule(); }, pollMilliseconds); };
   schedule(); render(controller.state);
   function dispose(): void { if (disposed) return; disposed = true; if (timer !== undefined) window.clearTimeout(timer); owned.abort(); controller.dispose(); }
   options.signal?.addEventListener('abort', dispose, { once: true });

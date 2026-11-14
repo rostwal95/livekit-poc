@@ -274,8 +274,14 @@ The host must explicitly install/upgrade v2 before startup; runtime receives no
 owner credential and executes no DDL. One owned driver polls due pending/expired
 claims with persisted attempt limits. It rotates configured accounts and bounds
 each candidate page to 1–16 (default four), with a two-second tick eligibility
-budget and 20–1,000ms cadence (default 100ms). Each existing dispatcher step has
-its own finite deadline. Uncertain exhausted work requires explicit SDK lookup-only
+budget and 20–1,000ms cadence (default 100ms). The optional `idlePollMs`
+(`pollMs`–5,000ms, default `pollMs`) doubles the pause after each idle cycle up to
+that ceiling; eligible work or a newly accepted local intake resets it and wakes
+the loop at once. Webhook bytes are HMAC-verified before a pooled connection or
+the admission lock is taken; freshness is still checked with database time inside
+the transaction. A pooled connection is reused after a clean rollback and
+discarded only when the rollback fails or a commit outcome is uncertain. Each
+existing dispatcher step has its own finite deadline. Uncertain exhausted work requires explicit SDK lookup-only
 reconciliation; the gateway cannot invent another acceptance.
 
 The listener bounds sockets to 16, active requests to four, raw headers to 16/8KiB,
@@ -863,6 +869,13 @@ same database/schema. During an explicit quiescent owner step, call
 `upgradeChannelSchemaV8(ownerDatabase)` from `./migrations` after v7. It returns
 the existing receiver UUID and never rotates it. Serving code performs no DDL;
 old APIs and owner upgrade entrypoints validate v8 without downgrading it.
+
+`upgradeChannelSchemaV9(ownerDatabase)` is a later quiescent owner step after v8.
+It adds three operating indexes (due processing intents, send attempts by
+provider operation and recovery commands by outbound reply) and changes no row.
+An interrupted v9 upgrade rolls back exactly, replaying v9 only revalidates it,
+older upgrade entrypoints replay against v9 and every runtime store accepts v8 or
+v9. New joined-showcase profiles are created at v9.
 
 A configured application supplies its existing owners and distinct capabilities:
 

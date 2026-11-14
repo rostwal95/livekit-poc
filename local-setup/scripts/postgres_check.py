@@ -75,6 +75,7 @@ def main() -> int:
         "pg_mutation_cases.py",
         "pg_effect_cases.py",
         "pg_upgrade_v4_cases.py",
+        "pg_upgrade_v5_cases.py",
         "pg_lease_cases.py",
         "pg_coordination_cases.py",
         "pg_conversation_cases.py",

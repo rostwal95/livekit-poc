@@ -563,6 +563,10 @@ class _CoordinatorCore(Generic[RequestT, ResultT]):
     async def close(self) -> None:
         loop = self._bind()
         self._closed = True
+        for call in self._calls:
+            # Calls past their write boundary are retained; others must not start one.
+            if not call.writing:
+                call.abandoned = True
         if (
             self._close_task is not None
             and self._close_task.done()

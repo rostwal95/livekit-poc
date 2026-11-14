@@ -140,7 +140,7 @@ class BudgetAndPlan(unittest.TestCase):
         self.assertEqual(value["source_actual_assertions"], 0)
         self.assertEqual(value["installed_actual_assertions"], 0)
         self.assertEqual(
-            value["payloads"], {"p2": 124, "p3_python": 39, "p1_python": 77, "specialist_npm": 32}
+            value["payloads"], {"p2": 124, "p3_python": 39, "p1_python": 78, "specialist_npm": 32}
         )
         self.assertFalse(value["provider_calls"])
 
@@ -522,8 +522,8 @@ class RootApplicationMode(unittest.TestCase):
         self.assertEqual(
             {key: package.digest(raw) for key, raw in values.items()},
             {
-                "legacy_plan": "643a3e1deefcedd8ea6f9bc9e2b287b3340d6cce375b8d29bae3a4bfb0e9c184",
-                "origin_plan": "24afcda48282e88623f09a1157dea01f3d990a504f422c7921d9139eb3f2617b",
+                "legacy_plan": "ff75a1655a080f9eb2481d826b9fc03ed604809996cb40dda6a16a5c8c03f3d7",
+                "origin_plan": "bcb64cfd7d2c24ce673f21f796f97a360e205e2aa06f116c7185033e74e33f9f",
                 "legacy_p2_probe": "034326a0e8de7c4cf569272a597ce6f86081af5f917941bbae5aaa78b5f689c5",
                 "origin_p2_probe": "9dbfbfe36ed2633bcf179688c6fc312c04cec41727761e886bccf4ad22b6b174",
                 "legacy_p3_types": "e05a1cfa58f3c0d2ce1c49d8dec6b7e7c65534dbf0826bfd5582620ef611891e",

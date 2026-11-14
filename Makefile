@@ -218,7 +218,7 @@ frontend-check:
 	$(PNPM) build
 	$(PNPM) --filter @livekit-ecosystem/local-console exec vite build --config vite.operations.config.ts
 	$(PNPM) --filter @livekit-ecosystem/local-console exec vite build --config vite.p3-background.config.ts
-	$(PNPM) --filter @livekit-ecosystem/local-console run channel-policy:build
+	VITE_P1_CONSOLE_URL=$(P1_CONSOLE_URL) $(PNPM) --filter @livekit-ecosystem/local-console run channel-policy:build
 start stop smoke doctor:
 	$(PYTHON) local-setup/stack.py $@
 
@@ -465,9 +465,11 @@ channel-policy-setup-plan:
 channel-policy-python-plan:
 	$(VENV)/bin/python -m services.channel_policy_demo --plan
 
+# The showcase landing page links the P1 console; only the configured UI port is read.
+P1_CONSOLE_URL ?= http://127.0.0.1:$(shell $(PYTHON) -c 'import sys; sys.path.insert(0, "local-setup"); import stack; print(stack.load_settings().get("UI_PORT", "13000"))' 2>/dev/null)/
 .PHONY: channel-policy-ui-build channel-policy-ui-dev
 channel-policy-ui-build:
-	$(PNPM) --filter @livekit-ecosystem/local-console run channel-policy:build
+	VITE_P1_CONSOLE_URL=$(P1_CONSOLE_URL) $(PNPM) --filter @livekit-ecosystem/local-console run channel-policy:build
 channel-policy-ui-dev:
 	$(PNPM) --filter @livekit-ecosystem/local-console run channel-policy:dev
 
@@ -487,7 +489,7 @@ channel-policy-demo-build:
 	$(PNPM) --filter @livekit-ecosystem/channel-continuity build
 	$(PNPM) --filter @livekit-ecosystem/delegation-specialist build
 	$(PNPM) --filter @livekit-ecosystem/channel-policy-gateway build
-	$(PNPM) --filter @livekit-ecosystem/local-console run channel-policy:build
+	VITE_P1_CONSOLE_URL=$(P1_CONSOLE_URL) $(PNPM) --filter @livekit-ecosystem/local-console run channel-policy:build
 channel-policy-demo-setup:
 	$(VENV)/bin/python local-setup/scripts/channel_policy_setup.py prepare --directory $(CHANNEL_POLICY_PROFILE) --node $(NODE_BIN)
 	$(VENV)/bin/python local-setup/scripts/channel_policy_setup.py associate-sms --directory $(CHANNEL_POLICY_PROFILE) --node $(NODE_BIN)

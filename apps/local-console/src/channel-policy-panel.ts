@@ -1,7 +1,15 @@
 /** DOM projection of validated source observations; dynamic content always textContent. */
 import type { View } from './channel-policy-policy';
 import type { ProgressView } from './channel-policy-wire';
-import type { NativeMode } from './p2-native-policy';
+import type { NativeInputStatus, NativeMode } from './p2-native-policy';
+
+const INPUT_STATUS: Readonly<Record<NativeInputStatus, string>> = {
+  pending: 'Sending',
+  accepted: 'Accepted',
+  replayed: 'Accepted',
+  unknown: 'Outcome unknown',
+  rejected: 'Rejected',
+};
 export interface PanelFacts {
   readonly notice: string | null;
   readonly progress: ProgressView | null;
@@ -311,6 +319,7 @@ export class JoinedPanel {
       if (!ids.has(node.dataset.messageId!)) node.remove();
     this.element('empty').hidden = view.messages.length > 0;
     const current = view.activation;
+    const inputs = new Map(view.inputs.map((row) => [row.inputId, row.status]));
     for (const message of view.messages) {
       let item = host.querySelector<HTMLElement>('[data-message-id="' + message.id + '"]');
       if (!item) {
@@ -318,10 +327,28 @@ export class JoinedPanel {
         item.dataset.messageId = String(message.id);
         const meta = document.createElement('div');
         meta.className = 'cp-message-meta';
+        const who = document.createElement('span');
+        const chip = document.createElement('span');
+        chip.hidden = true;
+        const shown = document.createElement('time');
+        shown.dateTime = message.shownAt;
+        shown.textContent = new Date(message.shownAt).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        });
+        meta.append(who, chip, shown);
         const body = document.createElement('p');
         body.className = 'cp-message-text';
         item.append(meta, body);
         host.append(item);
+      }
+      const [who, chip] = item.firstElementChild!.children as unknown as [HTMLElement, HTMLElement];
+      const status = message.inputId === undefined ? undefined : inputs.get(message.inputId);
+      chip.hidden = status === undefined;
+      if (status !== undefined) {
+        chip.className = 'cp-chip cp-chip-' + status;
+        chip.textContent = INPUT_STATUS[status];
       }
       const body = item.lastElementChild!;
       if (body.textContent !== message.text) body.textContent = message.text;
@@ -333,8 +360,7 @@ export class JoinedPanel {
       const label =
         (message.role === 'user' ? 'You' : 'Agent') +
         (view.phase === 'dormant' || message.activation !== current ? ' · previous session' : '');
-      if (item.firstElementChild!.textContent !== label)
-        item.firstElementChild!.textContent = label;
+      if (who.textContent !== label) who.textContent = label;
     }
     if (following && host.scrollHeight > host.clientHeight) host.scrollTop = host.scrollHeight;
     text(

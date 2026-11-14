@@ -83,6 +83,7 @@ class CompletionProcessor(_ProjectionOwner):
                     "acknowledged": 0,
                     "unknown": 0,
                     "unavailable": 0,
+                    "unroutable": 0,
                     "ack_reconciliations": 0,
                 }
             )
@@ -378,7 +379,10 @@ class CompletionProcessor(_ProjectionOwner):
                 None,
             )
             if route is None:
-                raise ProjectionError("unauthorized")
+                # Bindings are frozen at the policy upgrade, so an unroutable result
+                # stays unACKed forever; it must not block later results.
+                self._counts["unroutable"] += 1
+                return None, "unavailable"
             if (
                 snapshot.snapshot.intent is not None
                 and snapshot.snapshot.intent.recipient_id != route.recipient_id

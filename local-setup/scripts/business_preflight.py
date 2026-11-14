@@ -20,7 +20,7 @@ from continuity_lab.quote_reader import ReadOnlyQuoteSupplier
 
 
 def check() -> None:
-    """Require a retained ACTIVE v4 target and already initialized fixture files."""
+    """Require a retained ACTIVE v4 or v5 target and already initialized fixture files."""
     actor = AuthenticatedActor(
         "local-operator", os.environ.get("P1_WORKER_SCOPE", "demo-traveller")
     )
@@ -31,8 +31,8 @@ def check() -> None:
                 sql.Identifier(store.settings.schema, "schema_metadata")
             )
         ).fetchone()
-        if row is None or row["version"] != 4:
-            raise ValueError("Business operation requires an ACTIVE v4 schema")
+        if row is None or row["version"] not in (4, 5):
+            raise ValueError("Business operation requires an ACTIVE v4 or v5 schema")
     supplier_path = Path(os.environ.get("P1_BUSINESS_SUPPLIER_DB", "/business/supplier.sqlite3"))
     supplier = ReadOnlyQuoteSupplier(supplier_path)
     supplier.booking(scope_id=actor.scope_id, booking_reference="DEMO-BK-001")

@@ -182,6 +182,7 @@ For a deliberately selected ACTIVE application schema, apply v2, v3 and v4 in or
 .venv/bin/python local-setup/stack.py upgrade-postgres
 .venv/bin/python local-setup/stack.py upgrade-effects
 .venv/bin/python local-setup/stack.py upgrade-coordination
+.venv/bin/python local-setup/stack.py upgrade-retry-pacing
 ```
 
 The initial migrate-postgres/schema command leaves a new target STAGING; the
@@ -190,7 +191,7 @@ creates isolated synthetic schemas and tests the complete cutover protocol and
 worker recovery; it does not cut over the live M1 API database. Missing setup is
 a failure. Read the [cutover decision](../../docs/decisions/0003-postgres-cutover-and-scope.md)
 for checkpoint recovery, backup safety and credential ownership. Owner-only
-postgres_cli schema/cutover/upgrade/upgrade-effects/upgrade-coordination commands read P1_MIGRATION_*; runtime status/submit/
+postgres_cli schema/cutover/upgrade/upgrade-effects/upgrade-coordination/upgrade-retry-pacing commands read P1_MIGRATION_*; runtime status/submit/
 get/list/history/work commands read P1_POSTGRES_*. Configure these from the private
 local settings without printing/sourcing secrets. Never pass a password in argv.
 

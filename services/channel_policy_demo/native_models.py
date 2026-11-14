@@ -49,7 +49,9 @@ ModelCode = Literal[
 SAMPLE_RATE = 16000
 MAX_TURN_SAMPLES = 12 * SAMPLE_RATE
 MAX_SESSION_SAMPLES = 190 * SAMPLE_RATE
-MANIFEST_SHA256 = "4c22b4947095a247f266ab917f5016934b11b7f4a71a35dce3bdb43c5fd49efc"
+MANIFEST_SHA256 = "43366be51366074006ba1e9fd3d7f310d531e1db07a6b9453119bcbe4bd76c04"
+# The showcase owns this short reply; P1's pinned conversation assets stay unchanged.
+OWNED_FIXTURES: Final = frozenset({"checking.wav"})
 # P2's native prepare plays the whole dispatched reply inside a fixed 4-second
 # budget, so the default reply must leave ample headroom for generation and RTC.
 DEFAULT_REPLY_FIXTURE: Final = "checking.wav"
@@ -81,8 +83,8 @@ class _Asset:
     text: str
 
 
-# These are existing synthetic macOS Albert PCM assets. The pinned manifest owns
-# their generation/provenance; no recording, remote provider or new binary copy.
+# Synthetic macOS Albert PCM assets. P1's pinned manifest owns the conversation
+# agent's files; the showcase pins its own short reply by digest below.
 _ASSETS = (
     _Asset(
         "input-investigate.wav",
@@ -308,15 +310,17 @@ def _read(path: Path, maximum: int) -> bytes:
 
 
 def _load_assets() -> tuple[ScriptedAudio, ...]:
-    # Fixed installed-package-relative location, never cwd or a user supplied path.
+    # Fixed installed-package-relative locations, never cwd or a user supplied path.
     directory = Path(__file__).resolve().parents[1] / "conversation_agent" / "assets"
+    owned = Path(__file__).resolve().parent / "assets"
     try:
         manifest = _read(directory / "manifest.json", 16384)
         if hashlib.sha256(manifest).hexdigest() != MANIFEST_SHA256:
             raise NativeModelError("invalid_configuration")
         result = []
         for item in _ASSETS:
-            data = _read(directory / item.name, MAX_TURN_SAMPLES * 2 + 4096)
+            folder = owned if item.name in OWNED_FIXTURES else directory
+            data = _read(folder / item.name, MAX_TURN_SAMPLES * 2 + 4096)
             if hashlib.sha256(data).hexdigest() != item.sha256:
                 raise NativeModelError("invalid_configuration")
             with wave.open(io.BytesIO(data), "rb") as source:

@@ -28,6 +28,7 @@ try:
         upgrade_v2,
         upgrade_v3,
         upgrade_v4,
+        upgrade_v5,
         validate_schema,
     )
     from continuity_lab.postgres_settings import PostgresSettings
@@ -42,7 +43,16 @@ except Exception:
 
 ROOT = Path(__file__).resolve().parents[2]
 STAGES = frozenset(
-    {"preflight", "source", "cutover", "upgrade_v2", "upgrade_v3", "upgrade_v4", "verify"}
+    {
+        "preflight",
+        "source",
+        "cutover",
+        "upgrade_v2",
+        "upgrade_v3",
+        "upgrade_v4",
+        "upgrade_v5",
+        "verify",
+    }
 )
 
 
@@ -113,7 +123,7 @@ class Target:
     counts: tuple[int, int, int] | None = None
 
     def __post_init__(self) -> None:
-        require(type(self.version) is int and 0 <= self.version <= 4)
+        require(type(self.version) is int and 0 <= self.version <= 5)
         require(self.state in ({"absent"} if self.version == 0 else {"staging", "active"}))
         require((self.migration_id is None) == (self.source_digest is None))
         if self.migration_id is not None:
@@ -152,7 +162,7 @@ class PostgresBootstrap:
                 return Target(0, "absent")
             require(row["owner"] == "continuity_migrator", "target_refused")
         current = read_import_state(self.owner)
-        if current.version == 4 and current.state == "active":
+        if current.version in (4, 5) and current.state == "active":
             return Target(
                 current.version, current.state, current.migration_id, current.source_digest
             )
@@ -187,13 +197,15 @@ class PostgresBootstrap:
             upgrade_v3(self.owner)
         elif version == 4:
             upgrade_v4(self.owner)
+        elif version == 5:
+            upgrade_v5(self.owner)
         else:
             raise BootstrapError("bootstrap_state_invalid")
 
     def ready(self) -> None:
         with closing(self.runtime.connect()) as connection, connection.transaction():
             connection.execute("SET TRANSACTION READ ONLY")
-            validate_schema(connection, self.runtime.schema, minimum_version=4)
+            validate_schema(connection, self.runtime.schema, minimum_version=5)
 
 
 def private_directory(path: Path, *, create: bool = False) -> None:
@@ -331,12 +343,17 @@ def prepare(
     with owned_lock(base):
         progress("preflight")
         target = port.inspect()
-        if target.version == 4 and target.state == "active":
+        if target.version in {4, 5} and target.state == "active":
+            # Retry pacing is an additive owner upgrade; no auxiliary source is created.
+            changed = target.version == 4
+            if changed:
+                progress("upgrade_v5")
+                port.upgrade(5)
             port.ready()
             return {
                 "status": "business_ready",
-                "schema_version": 4,
-                "changed": False,
+                "schema_version": 5,
+                "changed": changed,
                 "bootstrap_run_id": None,
                 "fixture_initialization": False,
                 "serving_m1_unchanged": True,
@@ -418,7 +435,7 @@ def prepare(
             and (activated.tasks, activated.executions, activated.attempts) == (0, 0, 0)
             and activated.state == "active"
         )
-        for version in (2, 3, 4):
+        for version in (2, 3, 4, 5):
             stage("upgrade_v" + str(version))
             port.upgrade(version)
         stage("verify")
@@ -426,7 +443,7 @@ def prepare(
         save(directory / "stage.json", {"schema_version": 1, "stage": "verify", "status": "passed"})
         return {
             "status": "business_ready",
-            "schema_version": 4,
+            "schema_version": 5,
             "changed": True,
             "bootstrap_run_id": run_id,
             "fixture_initialization": False,

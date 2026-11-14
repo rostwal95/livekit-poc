@@ -41,6 +41,7 @@ COMMANDS = [
     "backup-copy",
     "backup-restore",
     "restore-check",
+    "index-upgrade",
     "cleanup",
     "backup-remove",
 ]
@@ -68,7 +69,7 @@ class ResultReceiverGateTests(unittest.TestCase):
         with patch.object(m.core, "base_environment", return_value={"PATH": "/usr/bin"}):
             return m.child_environment(self.values, self.common, self.tokens, mode)
 
-    def test_plan_has_exact_sixteen_groups_and_separate_bounds_without_resources(self):
+    def test_plan_has_exact_seventeen_groups_and_separate_bounds_without_resources(self):
         output = io.StringIO()
         with (
             patch.object(m.core, "load_setup", side_effect=AssertionError("setup forbidden")),
@@ -83,9 +84,9 @@ class ResultReceiverGateTests(unittest.TestCase):
         plan = json.loads(output.getvalue())
         self.assertEqual(plan["status"], "planned")
         self.assertEqual(plan["commands"], COMMANDS)
-        self.assertEqual(len(set(plan["commands"])), 16)
+        self.assertEqual(len(set(plan["commands"])), 17)
         self.assertEqual(plan["max_process_groups"], 16)
-        self.assertEqual((len(plan["storage_assertions"]), len(plan["return_assertions"])), (16, 4))
+        self.assertEqual((len(plan["storage_assertions"]), len(plan["return_assertions"])), (17, 4))
         self.assertEqual((plan["deadline_seconds"], plan["cleanup_seconds"]), (180, 20))
         self.assertEqual(plan["deadline_seconds"] - plan["cleanup_seconds"], 160)
         self.assertEqual((plan["stream_bytes"], plan["aggregate_capture_bytes"]), (65536, 2097152))
@@ -175,7 +176,7 @@ class ResultReceiverGateTests(unittest.TestCase):
                 env = self.environment(mode)
                 expected = (
                     role_keys
-                    if mode == "setup"
+                    if mode in {"setup", "index-upgrade"}
                     else {"P2_RESULT_OWNER_PASSWORD"}
                     if mode in {"upgrade", "cleanup"}
                     else {"P2_RESULT_RUNTIME_PASSWORD"}

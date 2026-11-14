@@ -1433,7 +1433,7 @@ async def run(
                             "--filter",
                             "label=com.docker.compose.service=postgres",
                             "--filter",
-                            "label=com.docker.compose.project=livekit-agent-ecosystem",
+                            "label=com.docker.compose.project=" + core.load_setup(ROOT).PROJECT,
                             "--format",
                             "{{.ID}}",
                         ],

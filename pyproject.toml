@@ -47,7 +47,7 @@ line-length = 100
 testpaths = ["tests"]
 
 [tool.setuptools.package-data]
-"services.channel_policy_demo" = ["*.md", "py.typed"]
+"services.channel_policy_demo" = ["*.md", "py.typed", "assets/*.wav"]
 "services.conversation_agent" = ["assets/*.wav", "assets/*.json"]
 
 [tool.uv.workspace]

@@ -907,6 +907,7 @@ class LocalSetupTests(unittest.TestCase):
             "init-worker-fixtures",
             "worker-status",
             "upgrade-coordination",
+            "upgrade-retry-pacing",
         ):
             with (
                 self.subTest(action=action),
@@ -955,6 +956,19 @@ class LocalSetupTests(unittest.TestCase):
         self.assertEqual(
             run.call_args.args[0][-5:],
             ["p1-migrate", "python", "-m", "continuity_lab.postgres_cli", "upgrade-coordination"],
+        )
+        self.assertFalse(json.loads(output)["sourceCutover"])
+
+    def test_retry_pacing_upgrade_runs_only_migration_profile(self):
+        with (
+            patch.object(stack, "assert_owned_containers"),
+            patch.object(stack, "run", return_value='{"current_version":5}') as run,
+        ):
+            code, output = self.cli("upgrade-retry-pacing")
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            run.call_args.args[0][-5:],
+            ["p1-migrate", "python", "-m", "continuity_lab.postgres_cli", "upgrade-retry-pacing"],
         )
         self.assertFalse(json.loads(output)["sourceCutover"])
 

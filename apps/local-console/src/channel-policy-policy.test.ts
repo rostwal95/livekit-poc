@@ -310,6 +310,18 @@ describe('joined browser activation decisions', () => {
     expect(() => s.c.agentText(s.room, '   ', 1, true)).toThrow();
     expect(s.c.snapshot().messages[0]!.text).toBe('Checking the policy.');
   });
+  it('links a submitted entry to its native input and stamps its local display time', () => {
+    const s = active();
+    const input = s.c.addInput(s.room, crypto.randomUUID(), 'web_chat', 'Is this eligible?');
+    s.c.agentText(s.room, 'Checking.');
+    const [user, agent] = s.c.snapshot().messages;
+    expect(user).toMatchObject({ role: 'user', inputId: input.inputId });
+    expect(Number.isNaN(Date.parse(user!.shownAt))).toBe(false);
+    expect(agent).not.toHaveProperty('inputId');
+    expect(s.c.snapshot().inputs.map((row) => [row.inputId, row.status])).toEqual([
+      [input.inputId, 'pending'],
+    ]);
+  });
   it('never exposes either operator key or RTC token through view JSON', () => {
     const s = active();
     const text = JSON.stringify(s.c.snapshot());

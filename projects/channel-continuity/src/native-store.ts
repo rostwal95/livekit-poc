@@ -41,7 +41,8 @@ export class NativeStore {
     const version = (
       await tx.client.query(`SELECT version FROM ${this.#q('schema_metadata')} WHERE singleton`)
     ).rows[0]?.version;
-    if (version !== 6 && version !== 7 && version !== 8) throw new ChannelError('UpgradeRequired');
+    if (version !== 6 && version !== 7 && version !== 8 && version !== 9)
+      throw new ChannelError('UpgradeRequired');
     const rows = (
       await tx.client.query(`SELECT * FROM ${this.#q('native_settings')} WHERE singleton`)
     ).rows;

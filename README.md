@@ -95,10 +95,10 @@ digests and upgrade policy.
 
 | Area | Current state |
 | --- | --- |
-| P1 Agent Continuity | Implemented through PostgreSQL v4; all twenty P1 acceptance rows have registered runners and P1 V1 is qualified for the local POC with provider_real v2 |
-| P2 Channel Continuity | Selected slices qualified locally: durable intake, dispatch, gateway recovery, revision routing, confirmation, outbound/callback evidence, native voice/text, rehydration and original-input binding; seventeen charter rows remain planned |
+| P1 Agent Continuity | Implemented through PostgreSQL v5 (persisted mutation retry pacing); all twenty P1 acceptance rows have registered runners and P1 V1 is qualified for the local POC with provider_real v2 |
+| P2 Channel Continuity | Selected slices qualified locally: durable intake, dispatch, gateway recovery, revision routing, confirmation, outbound/callback evidence, native voice/text, rehydration and original-input binding; schema v9 adds operating indexes; seventeen charter rows remain planned |
 | P3 Delegation Reliability | Contracts, P1-issued execution, receiver delivery, guarded action, applicability, deadlines, recovery and fixed-policy v2 qualified in selected slices; P3-01/P3-03/P3-11 registered, fourteen rows planned |
-| Joined showcase | Runs locally in scripted and provider_real modes with live captions, durable SMS follow-up, rejoin rehydration and the recorded demo ([0046](docs/work-items/0046-joined-showcase-providers-and-demo.md)) |
+| Joined showcase | Runs locally in scripted and provider_real modes with live captions, durable SMS follow-up, rejoin rehydration and the recorded demo ([0046](docs/work-items/0046-joined-showcase-providers-and-demo.md)); a landing page links it with the P1 console ([0047](docs/work-items/0047-open-findings-schema-upgrades-and-landing.md)) |
 | Local infrastructure | Isolated Docker Compose stack (LiveKit, PostgreSQL, control API, diagnostic worker, console, optional Jaeger) with a per-checkout project name |
 
 Complete P2/P3 charter rows and the integrated release keep their own gates, so
@@ -182,7 +182,9 @@ make channel-policy-demo-setup CHANNEL_POLICY_PROFILE=$PWD/.local/showcase-1
 make channel-policy-demo-start CHANNEL_POLICY_PROFILE=$PWD/.local/showcase-1
 ```
 
-Open http://127.0.0.1:5179/channel-policy.html, expand **Connection setup**,
+Open http://127.0.0.1:5179/ for the landing page that links the showcase and the
+P1 console, or go straight to http://127.0.0.1:5179/channel-policy.html. Expand
+**Connection setup**,
 paste the `bearer` value from `.local/showcase-1/.runtime/operator.json` and select
 **Use key**, then **Join session**. Stop with Ctrl+C; the launcher reaps every
 child. Each profile holds sixteen inputs, so prepare a new profile directory for

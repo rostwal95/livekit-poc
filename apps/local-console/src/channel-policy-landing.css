@@ -1,0 +1,103 @@
+:root {
+  --landing-bg: #0d0d0d;
+  --landing-panel: #161616;
+  --landing-border: #292929;
+  --landing-text: #f5f5f5;
+  --landing-muted: #a1a1a1;
+  --landing-accent: #1fd5f9;
+  --landing-mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--landing-bg);
+  color: var(--landing-text);
+  font:
+    16px/1.6 system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+}
+.landing-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--landing-border);
+  font: 10px/1.5 var(--landing-mono);
+  letter-spacing: 0.12em;
+  color: var(--landing-muted);
+}
+.landing {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 64px 32px 80px;
+}
+.landing-eyebrow,
+.landing-kicker {
+  margin: 0 0 12px;
+  font: 11px/1.5 var(--landing-mono);
+  letter-spacing: 0.14em;
+  color: var(--landing-accent);
+}
+.landing h1 {
+  margin: 0 0 16px;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.15;
+}
+.landing-lead {
+  max-width: 640px;
+  margin: 0 0 48px;
+  color: var(--landing-muted);
+}
+.landing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+.landing-card {
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+  border: 1px solid var(--landing-border);
+  border-radius: 8px;
+  background: var(--landing-panel);
+}
+.landing-card h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 500;
+}
+.landing-card p:not(.landing-kicker) {
+  flex: 1;
+  margin: 0 0 24px;
+  color: var(--landing-muted);
+}
+.landing-action {
+  align-self: flex-start;
+  padding: 10px 18px;
+  border-radius: 6px;
+  background: var(--landing-text);
+  color: var(--landing-bg);
+  font-weight: 600;
+  text-decoration: none;
+}
+.landing-action:focus-visible,
+.landing-action:hover {
+  background: var(--landing-accent);
+  outline: none;
+}
+.landing-note {
+  margin: 40px 0 0;
+  color: var(--landing-muted);
+  font-size: 14px;
+}
+.landing-note code {
+  font-family: var(--landing-mono);
+  font-size: 13px;
+  color: var(--landing-text);
+}

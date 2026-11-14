@@ -30,13 +30,14 @@ the separate P2 lane. Missing setup, skipped or timed-out assertions cannot pass
 ## P1 profiles and deep gates
 
 The optional p1-workers profile is separate from normal foundation startup. Start
-it only after preparing a deliberately selected ACTIVE v4 schema and its
+it only after preparing a deliberately selected ACTIVE v4 or v5 schema and its
 independent supplier/receiver fixtures; the setup guide owns start-workers,
 stop-workers and preserved-volume restart. Workers receive only restricted runtime
 credentials, and startup never initializes or upgrades a supplier or database.
 
 The separate start-business command enables the p1-business profile only after
-explicit ACTIVE v4 preparation and fixture initialization. The workspace always
+explicit ACTIVE v4 or v5 preparation (prepare-business takes the additive v5
+step) and fixture initialization. The workspace always
 authenticates current-case reads and keeps exact opaque quote approval in an
 explicit UI command. Model statements, playback and session End grant no
 mutation or cancellation authority. A later Join uses a fresh room, participant and

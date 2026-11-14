@@ -54,6 +54,10 @@ export interface Message {
   readonly activation: number;
   readonly role: 'user' | 'agent';
   readonly text: string;
+  /** Browser-local time this entry was first shown; not a durable timestamp. */
+  readonly shownAt: string;
+  /** The native input this user entry submitted; its status lives in View.inputs. */
+  readonly inputId?: string;
   /** Agent transcript stream within this activation; its text grows in place. */
   readonly stream?: number;
   /** The synchronized stream is still open, so this text may still grow. */
@@ -382,7 +386,7 @@ export class JoinedController {
     if (!this.#matchesRoom(room) || this.#phase !== 'ready') throw new JoinedUiError('unavailable');
     const input = freezeNativeInput(inputId, channel, body);
     this.#inputs.add(input);
-    if (body !== null) this.#message('user', body);
+    if (body !== null) this.#message('user', body, undefined, false, input.inputId);
     return input;
   }
   inputUnknown(room: RoomTicket, inputId: string): void {
@@ -415,13 +419,21 @@ export class JoinedController {
     }
     return true;
   }
-  #message(role: Message['role'], text: string, stream?: number, live = false): void {
+  #message(
+    role: Message['role'],
+    text: string,
+    stream?: number,
+    live = false,
+    inputId?: string,
+  ): void {
     this.#messages.push(
       Object.freeze({
         id: ++this.#messageSequence,
         activation: this.#activation,
         role,
         text,
+        shownAt: new Date().toISOString(),
+        ...(inputId === undefined ? {} : { inputId }),
         ...(stream === undefined ? {} : { stream, live }),
       }),
     );

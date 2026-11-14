@@ -792,6 +792,7 @@ def main(argv=None, setup: Path = SETUP) -> int:
             "upgrade-postgres",
             "upgrade-effects",
             "upgrade-coordination",
+            "upgrade-retry-pacing",
             "start-business",
             "stop-business",
             "models-fetch",
@@ -1124,6 +1125,7 @@ def main(argv=None, setup: Path = SETUP) -> int:
                 "upgrade-postgres",
                 "upgrade-effects",
                 "upgrade-coordination",
+                "upgrade-retry-pacing",
             }:
                 assert_owned_containers(setup, values)
                 command = base + [
@@ -1134,7 +1136,12 @@ def main(argv=None, setup: Path = SETUP) -> int:
                     "--no-deps",
                     "p1-migrate",
                 ]
-                if args.action in {"upgrade-postgres", "upgrade-effects", "upgrade-coordination"}:
+                if args.action in {
+                    "upgrade-postgres",
+                    "upgrade-effects",
+                    "upgrade-coordination",
+                    "upgrade-retry-pacing",
+                }:
                     operation = "upgrade" if args.action == "upgrade-postgres" else args.action
                     command += ["python", "-m", "continuity_lab.postgres_cli", operation]
                 output = run(
