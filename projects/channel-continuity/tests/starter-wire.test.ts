@@ -383,7 +383,12 @@ describe('operation-only configured public client', () => {
           bindings: [{ ...config.bindings[0], providerScope: { provider: 'fake_sms' } }],
         },
         { ...config, bindings: Array(1) },
+        { ...config, callTimeoutMs: 19 },
+        { ...config, callTimeoutMs: 5001 },
+        { ...config, callTimeoutMs: 2500.5 },
+        { ...config, callTimeoutMs: '2500' },
       ];
+      await new ExternalOperationClient({ ...config, callTimeoutMs: 5000 }).close();
       const getter = vi.fn(() => {
         throw Error('PRIVATE_SENTINEL');
       });
@@ -597,6 +602,41 @@ describe('operation-only configured public client', () => {
       expect(calls).toBe(3);
     } finally {
       await client?.close();
+      await new Promise<void>((resolve, reject) =>
+        peer.close((error) => (error ? reject(error) : resolve())),
+      );
+    }
+  });
+
+  it('bounds each external call by its configured deadline instead of the starter default', async () => {
+    const peer = createServer(() => {
+      // Never answer: only the client's own deadline can settle the call.
+    });
+    peer.setTimeout(5000, (socket) => socket.destroy());
+    let client: ExternalOperationClient | undefined;
+    try {
+      await new Promise<void>((resolve) => peer.listen(0, '127.0.0.1', resolve));
+      const endpoint = peer.address();
+      if (!endpoint || typeof endpoint === 'string') throw Error('missing listener');
+      client = new ExternalOperationClient({ ...narrowConfig(endpoint.port), callTimeoutMs: 150 });
+      const input = prepared('slow original'),
+        lookup = {
+          operationKey: input.submission.operationKey,
+          scope: input.submission.scope,
+          payloadDigest: input.payloadDigest,
+        };
+      const started = performance.now();
+      await expect(client.accept(input, new AbortController().signal)).rejects.toMatchObject({
+        code: 'OutcomeUnknown',
+      });
+      await expect(client.lookup(lookup, new AbortController().signal)).rejects.toMatchObject({
+        code: 'Unavailable',
+      });
+      // Two calls under the 2,000ms default would take at least four seconds.
+      expect(performance.now() - started).toBeLessThan(1500);
+    } finally {
+      await client?.close();
+      peer.closeAllConnections();
       await new Promise<void>((resolve, reject) =>
         peer.close((error) => (error ? reject(error) : resolve())),
       );

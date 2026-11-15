@@ -122,6 +122,7 @@ function takeToken(): string {
   tokenState.textContent = 'Operator token held in memory for this page.';
   return token;
 }
+function heldToken(): string { validateOperatorToken(operatorToken); return operatorToken; }
 function addEntry(kind: EntryKind, text: string): void {
   if (kind === 'error' && text.startsWith('Local access')) forgetToken();
   if (kind === 'diagnostic' && text === 'Diagnostic agent joined.') { element('#agent-state').textContent = 'Agent online'; transportAgentReady = true; syncMediaControls(); }
@@ -341,6 +342,6 @@ newIntake.addEventListener('click', () => {
   intakeMessage('Ready for a new investigation.', 'Previously accepted tasks remain stored. This only resets the form.', 'idle');
   updateIntakeControls();
 });
-businessHandle = mountBusinessPanel(element('#business-workspace'), { takeToken, forgetToken, signal: lifetime.signal, onTask: () => voiceHandle?.forget() });
+businessHandle = mountBusinessPanel(element('#business-workspace'), { takeToken, heldToken, forgetToken, signal: lifetime.signal, onTask: () => voiceHandle?.forget() });
 voiceHandle = mountVoicePanel(element('#voice-workspace'), { takeToken, forgetToken, getTaskId: () => businessHandle?.getCurrentTask() ?? null, observeTask: async (taskId) => { await businessHandle?.observeTask(taskId); }, signal: lifetime.signal });
 window.addEventListener('pagehide', () => { forgetToken(); lifetime.abort(); businessHandle?.dispose(); voiceHandle?.dispose(); void controller.disconnect().catch(() => undefined); }, { once: true });

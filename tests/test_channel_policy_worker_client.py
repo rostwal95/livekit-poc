@@ -7,6 +7,8 @@ import gc
 import hashlib
 import json
 import logging
+import socket
+import struct
 import unittest
 import warnings
 from dataclasses import FrozenInstanceError
@@ -143,6 +145,7 @@ class WorkerHttp(unittest.IsolatedAsyncioTestCase):
         self.reply = response(200, self.page_raw)
         self.release = asyncio.Event()
         self.release.set()
+        self.reset = False
         self.received = asyncio.Queue(maxsize=16)
         self.connections = 0
         self.handler_errors = []
@@ -184,6 +187,12 @@ class WorkerHttp(unittest.IsolatedAsyncioTestCase):
                 self.requests.append((head, body))
                 self.received.put_nowait((head, body))
                 await self.release.wait()
+                if self.reset:
+                    writer.get_extra_info("socket").setsockopt(
+                        socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0)
+                    )
+                    writer.transport.abort()
+                    return
                 writer.write(self.reply)
                 await writer.drain()
         except (asyncio.IncompleteReadError, ConnectionError, TimeoutError):
@@ -435,7 +444,7 @@ class WorkerHttp(unittest.IsolatedAsyncioTestCase):
                 release.set()
         self.assertEqual(client.pending_count, 0)
 
-    async def test_failed_close_observation_keeps_owner_until_explicit_repair(self):
+    async def test_failed_close_observation_keeps_owner_but_peer_reset_closure_releases_it(self):
         client = self.client()
         original = asyncio.StreamWriter.wait_closed
         failed = False
@@ -456,6 +465,16 @@ class WorkerHttp(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(client.pending_count, 1)
         await client.close()
         self.assertEqual(client.pending_count, 0)
+        self.reset = True
+        client = self.client()
+        for _ in range(2):
+            with self.assertRaisesRegex(m.WorkerReadError, "^unavailable$"):
+                await client.discovery()
+        self.assertEqual(client.pending_count, 0)
+        self.reset = False
+        self.assertEqual(await client.discovery(), self.page)
+        await client.close()
+        self.assertEqual((client.pending_count, len(self.requests)), (0, 4))
 
     async def test_late_connector_returns_after_deadline_without_sending_a_request(self):
         client = self.client(timeout=0.02, cleanup=0.02)

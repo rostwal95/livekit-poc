@@ -1,31 +1,63 @@
 # Explicit send uncertainty policy and protected action races
 
-Status: Completed
-Last reviewed: 11 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Completed |
+| Purpose | Record the plan, observed verification and handoff for P2-I14 send uncertainty policy and P3-I12 protected action races |
+| Audience | Engineers changing P2 send reconciliation and retry or P3 guarded-action schedules; coding agents |
+| Scope | Selected P2-I14 and P3-I12 local gates; excludes native composition, real carriers, automatic retry and full release |
+| Owns | Change plan, observed verification and handoff for P2-I14 and P3-I12 |
+| Related | [Work item 0034](0034-callback-evidence-and-applicability-refresh.md) · [Work item 0036](0036-native-input-and-deadline-cancellation.md) · [P2 task plan](../implementation/p2-channel-continuity.md) · [P3 task plan](../implementation/p3-delegation-reliability.md) · [Validation plan](../validation-plan.md) |
 
 ## Behavior and scope
 
-Implement P2-I14 and validate P3-I12 after the
-[completed callback/applicability phase](0034-callback-evidence-and-applicability-refresh.md).
+This work item implements P2-I14 and validates P3-I12 after the
+[completed callback/applicability phase](0034-callback-evidence-and-applicability-refresh.md):
+
+| Project | Task | Behavior |
+| --- | --- | --- |
+| P2 | P2-I14 | Adds an explicit trusted reconciliation/retry policy for immutable outbound operations |
+| P3 | P3-I12 | Exercises the existing public guarded-action and worker interfaces under real revision, cancellation and process-loss schedules |
+
 The [P2 task plan](../implementation/p2-channel-continuity.md),
 [P3 task plan](../implementation/p3-delegation-reliability.md) and their charters
-remain authoritative. This slice contributes to P2-11 and P3 protected-action
-requirements; task completion does not register an entire charter row.
+remain authoritative. This slice contributes to P2-11 and the P3 protected-action
+requirements. Task completion does not register an entire charter row.
 
-P2 adds an explicit trusted reconciliation/retry policy for immutable outbound
-operations, including a real local fake provider that observes a request and loses
-its response. Ordinary possible sends remain unknown and cannot be resent. A
-separate cooperating idempotent fake capability may safely reuse its original
-provider key through a new explicitly authorized local attempt. P3 exercises the
-existing public guarded-action and worker interfaces under real revision,
-cancellation and process-loss schedules. P1 remains the sole work/case/action
-and effect authority. Preserve its 77 runtime payloads, schema and public APIs;
-preserve P3's 30 runtime payloads unless an evidenced defect requires review.
+The P2 policy includes a real local fake provider that observes a request and
+loses its response.
+
+- Ordinary possible sends remain unknown and cannot be resent.
+- A separate cooperating idempotent fake capability may safely reuse its original
+  provider key through a new explicitly authorized local attempt.
+
+P1 remains the sole work/case/action and effect authority. Preserve its 77 runtime payloads, schema
+and public APIs. Preserve P3's 30 runtime payloads unless an evidenced defect
+requires review.
 
 Keep dependency locks, image pins, provider configuration and ordinary M1 state.
-Native voice/text/UI composition, real carriers, paid inference, automatic booking
-completion handoff, automatic retry, broader deadline/recovery schedules and full
-release remain separate phases. No remote CI or publication is required.
+These remain separate phases: native voice/text/UI composition, real carriers,
+paid inference, automatic booking completion handoff, automatic retry, broader
+deadline/recovery schedules and full release. No remote CI or publication is
+required.
+
+### Terms used in this record
+
+| Term | Meaning |
+| --- | --- |
+| Implementation task IDs | Such as P2-I14; identify tasks in the project task plans |
+| Acceptance IDs | Such as P2-11; identify rows in the project charters |
+| Selected gates | The gates chosen for this work item; passing them does not complete a full charter row |
+| Gate names | Such as G-READY and G-DURABLE; refer to the engineering gates in the [validation plan](../validation-plan.md) |
+| Acknowledgement (ACK) | A receiver's confirmation that it accepted a message or command; a lost ACK leaves the outcome unknown |
+| Data definition language (DDL) | Schema-changing SQL; explicit owner upgrades run it, serving code does not |
+| Foreign key (FK) | Has its usual database meaning |
+| Time to live (TTL) | Has its usual database meaning |
+| M1 | The original confirmed-investigation intake data, which every phase preserves |
+| Process ID (PID) | Identifies an operating-system process; an owned PID kill terminates a process that the gate itself started |
+| SQL waiter graph | An observed PostgreSQL lock-wait chain, read through pg_blocking_pids, showing which sessions wait on which holder |
+
+### Criteria
 
 | Criterion | Given | When | Then: safety | Then: useful progress | Test/mode and evidence |
 | --- | --- | --- | --- | --- | --- |
@@ -43,123 +75,192 @@ release remain separate phases. No remote CI or publication is required.
 
 ### P2 immutable operation and explicit policy
 
-Keep ChannelOutbox.send's ordinary contract and callback v1 unchanged. Add an
-explicit IdempotentFakeSmsClient with trusted idempotent_fake_sms_v1 capability,
-bounded fixed loopback send/lookup endpoints and stable immutable ProviderOperation.
-Canonical operation bytes bind trusted provider scope/key, original logical
-recipient/account/case/conversation/outbound/response and frozen sender/address/body.
-They exclude local attempt UUID and observational association/route epochs. Each
-new local invocation retains its own attempt UUID and existing attempt-sensitive
-request digest. A callback still requires exact attempt, operation key and request
-digest; the stable key alone grants no association or recipient access.
+#### Operation identity
 
-The send wire carries the frozen operation once plus attempt identity/digest and
+Keep ChannelOutbox.send's ordinary contract and callback v1 unchanged. Add an
+explicit IdempotentFakeSmsClient with:
+
+- the trusted idempotent_fake_sms_v1 capability;
+- bounded fixed loopback send/lookup endpoints;
+- a stable immutable ProviderOperation.
+
+Canonical operation bytes bind the trusted provider scope/key, the original
+logical recipient/account/case/conversation/outbound/response and the frozen
+sender/address/body. They exclude the local attempt UUID and observational
+association/route epochs. Each new local invocation retains its own attempt UUID
+and the existing attempt-sensitive request digest. A callback still requires the
+exact attempt, operation key and request digest. The stable key alone grants no
+association or recipient access.
+
+#### Wire format and bounds
+
+The send wire carries the frozen operation once, plus attempt identity/digest and
 route/association observations. Validate and reconstruct the full canonical
 SendRequest. Lookup carries only the configured provider scope, stable operation
-key and operation digest after local full-operation validation. Bound request
-bytes to 32768, command receipts to 4096 and lookup observations to 2048.
+key and operation digest, after local full-operation validation.
 
-Expose reconcile(controllerToken, command), retry(controllerToken, command),
-recoveryCommand(accountToken, commandId) and inspectRecovery(accountToken,
-outboundId) through the server-only outbox surface. Recovery-controller grants
-are separately trusted, scope-bound and distinct from account/publisher access.
-No caller body/model chooses credentials, provider capability, recipient or policy.
-Stable equal command replay returns its first semantic receipt/observation before
-new reads/caps and performs zero provider I/O. Changed target/expected attempt
-conflicts. A new observation or retry requires a new explicit command identity.
+| Limit | Value | Applies to |
+| --- | --- | --- |
+| Request bytes | 32768 | Send wire |
+| Command receipts | 4096 | Controller commands |
+| Lookup observations | 2048 | Lookup wire |
 
-Ordinary ambiguous sends remain held. Lookup known/absent/unavailable is separate
-as-of evidence and never overwrites send_results. Known acceptance holds any new
-retry. A provider-reported definitive nonacceptance must be durable terminal truth
-for that stable key: an original delayed call cannot later be accepted under the
-cooperating fake contract. A merely absent/not-yet-observed operation remains
-unknown and cannot authorize a new key. Absence or unavailability remains unknown; only a fresh trusted command,
-configured idempotent-and-lookup capability, current original-recipient permission
-and no callback veto may reserve a new attempt. Contradictory message identities
-remain conflicted, never erase facts or open sends. Historical lookup may record
-truth after revocation but cannot authorize retry. Current route observations may
-reauthorize the same original address; no new address retargets the frozen operation.
+#### Controller commands
 
-Upgrade inbox v4 to v5 explicitly under owner maintenance/quiescence. Add only
-send_policy_settings, send_operations, send_recovery_commands and
-send_recovery_observations. Put the bounded mutable recovery_count in the new
-settings row with runtime column-only UPDATE permission; preserve old admission
-row shapes. Relax the old send_attempts provider-key uniqueness and add its
-composite tenant/account/outbound/operation FK. Operation keys remain unique in
-send_operations, which fixes provider namespace/capability/canonical digest and
-first-attempt anchor. The first-attempt FK is deferred so both immutable records
-commit together before any call. Validate anchor, request/digest/provider namespace
-on reservation/read. An additional immutable admission proof and digest in the
-new operation row preserve the exact evidence used for a later new-key operation:
-first-operation identity, or its immediate predecessor attempt/key and one exact
-immutable definitive-nonacceptance send-result/lookup-observation digest. Cap this
-canonical proof at 4096 bytes. History validates this committed proof, independently
-of later aggregate evidence; late contradictions cannot erase an already admitted
-operation or authorize another call. A separate fresh admission check examines
-at most five retained operations for the logical outbound: known acceptance or
-conflict on an earlier operation vetoes any new key or retry call. Historical
-reads still return the originally admitted operation and its immutable proof.
-Runtime performs no DDL, deletion or immutable-row update.
+The server-only outbox surface exposes:
 
-Adopt old attempts as separate ordinary operations in validated pages of 64;
-never retrofit idempotency through changed constructor configuration. Preserve
-old request/result/callback/receipt bytes. Bound adoption by existing retained
-reply/attempt caps; malformed rows or drift roll back the entire owner upgrade.
+- reconcile(controllerToken, command);
+- retry(controllerToken, command);
+- recoveryCommand(accountToken, commandId);
+- inspectRecovery(accountToken, outboundId).
+
+Recovery-controller grants are separately trusted, scope-bound and distinct from
+account/publisher access. No caller body/model chooses credentials, provider
+capability, recipient or policy. Stable equal command replay returns its first
+semantic receipt/observation before new reads/caps and performs zero provider
+I/O. A changed target/expected attempt conflicts. A new observation or retry
+requires a new explicit command identity.
+
+#### Uncertainty and retry rules
+
+- Ordinary ambiguous sends remain held.
+- Lookup known/absent/unavailable is separate as-of evidence and never overwrites
+  send_results.
+- Known acceptance holds any new retry.
+- A provider-reported definitive nonacceptance must be durable terminal truth for
+  that stable key: an original delayed call cannot later be accepted under the
+  cooperating fake contract.
+- A merely absent/not-yet-observed operation remains unknown and cannot authorize
+  a new key. Absence or unavailability remains unknown.
+- Only these together may reserve a new attempt: a fresh trusted command, the
+  configured idempotent-and-lookup capability, current original-recipient
+  permission and no callback veto.
+- Contradictory message identities remain conflicted. They never erase facts or
+  open sends.
+- Historical lookup may record truth after revocation but cannot authorize retry.
+- Current route observations may reauthorize the same original address. No new
+  address retargets the frozen operation.
+
+#### Owner v5 storage upgrade
+
+Upgrade inbox v4 to v5 explicitly under owner maintenance/quiescence:
+
+- Add only send_policy_settings, send_operations, send_recovery_commands and
+  send_recovery_observations.
+- Put the bounded mutable recovery_count in the new settings row, with runtime
+  column-only UPDATE permission. Preserve old admission row shapes.
+- Relax the old send_attempts provider-key uniqueness and add its composite
+  tenant/account/outbound/operation FK.
+- Operation keys remain unique in send_operations. That table fixes the provider
+  namespace/capability/canonical digest and the first-attempt anchor.
+- The first-attempt FK is deferred so both immutable records commit together
+  before any call. Validate anchor, request/digest/provider namespace on
+  reservation/read.
+
+An additional immutable admission proof and digest in the new operation row
+preserve the exact evidence used for a later new-key operation. That evidence is
+either the first-operation identity, or its immediate predecessor attempt/key and
+one exact immutable definitive-nonacceptance send-result/lookup-observation
+digest. Cap this canonical proof at 4096 bytes.
+
+History validates this committed proof independently of later aggregate evidence.
+Late contradictions cannot erase an already admitted operation or authorize
+another call. A separate fresh admission check examines at most five retained
+operations for the logical outbound. Known acceptance or conflict on an earlier
+operation vetoes any new key or retry call. Historical reads still return the
+originally admitted operation and its immutable proof. Runtime performs no DDL,
+deletion or immutable-row update.
+
+#### Adopting old attempts
+
+Adopt old attempts as separate ordinary operations in validated pages of 64. Never
+retrofit idempotency through changed constructor configuration. Preserve old
+request/result/callback/receipt bytes. Bound adoption by the existing retained
+reply/attempt caps. Malformed rows or drift roll back the entire owner upgrade.
 Old upgrade functions validate the current version without downgrading it.
 
-Retain existing five attempts per reply, two network calls (maximum four), four
-SQL calls over two connections, waiter default two seconds/maximum five and close
-two seconds. Recovery commands default to 10000 total/eight per operation,
-maximum 100000/32; one immutable observation per command. Inspect returns at most
-five compact operations. Retention is the profile lifetime; no TTL or identity
-reuse/capacity reclamation. Actual I/O owns its slot after caller abandonment.
+#### Limits and retention
+
+Retain the existing attempt, network-call, SQL-call, waiter and close limits.
+Recovery commands and observations add their own bounds.
+
+| Bound | Value |
+| --- | --- |
+| Attempts per reply | existing five |
+| Network calls | two (maximum four) |
+| SQL calls | four over two connections |
+| Waiter | default two seconds/maximum five |
+| Close | two seconds |
+| Recovery commands | default 10000 total/eight per operation, maximum 100000/32 |
+| Observations | one immutable observation per command |
+| Inspect | at most five compact operations |
+
+Retention is the profile lifetime, with no TTL or identity reuse/capacity
+reclamation. Actual I/O owns its slot after caller abandonment.
+
+#### Ownership
 
 P2 owns its contracts/client/policy/store/migrations, public exports, project
 unit/actual tests, p2_send_policy_check.py, wrapper negatives and three project
-guides. Shared tooling owns Makefile and foundation/documentation discovery.
+guides. Shared tooling owns the Makefile and foundation/documentation discovery.
 
 ### P3 existing authority under explicit schedules
 
-Use unchanged public P1 ActionClient, case-control, worker and supplier ports and
-unchanged public P3 completion facades/example. Test wrappers only schedule their
-existing trusted test hooks; product code never imports private P1 stores. P3
-owns pg_action_race_cases.py, test_action_schedules.py, the explicit
-p3_action_case_fixture.py helper and five project guides. Shared tooling owns
-p3_action_races_check.py, root protocol negatives and integration guides.
+#### Ownership and test hooks
+
+Use the unchanged public P1 ActionClient, case-control, worker and supplier ports
+and the unchanged public P3 completion facades/example. Test wrappers only
+schedule their existing trusted test hooks. Product code never imports private P1
+stores.
+
+| Owner | Owns |
+| --- | --- |
+| P3 | `pg_action_race_cases.py`, `test_action_schedules.py`, the explicit `p3_action_case_fixture.py` helper and five project guides |
+| Shared tooling | `p3_action_races_check.py`, root protocol negatives and integration guides |
+
+#### Lock-order schedules
 
 A validates through facade preflight before the owner fixture holds the isolated
 case admission lock. Prewarm independent B and observer/locker children, queue
-B-then-A or A-then-B, and observe actual pg_blocking_pids two-waiter chains. Release
-promptly without changing P1's 1000 ms SQL lock timeout. Do not start interpreters
-while writers wait or substitute fortunate sleeps for an observed graph.
+B-then-A or A-then-B, and observe actual pg_blocking_pids two-waiter chains.
+Release promptly without changing P1's 1000 ms SQL lock timeout. Do not start
+interpreters while writers wait, and do not substitute fortunate sleeps for an
+observed graph.
 
-B-first commits revision two to three before A reaches its protected guard;
-A may reject at revision three before B's separate three-to-four edit commits.
-The later current B at revision four receives an independent exact confirmation
-and progresses. Do not claim that the complete two-edit revision sequence was
-committed before A's atomic check. Stale A commits zero intent/effect. A-first commits
-its intent and causes B's public revise to reject with intent_committed. Once
-A's intent commits, revision cannot succeed on that case. Cancellation before
-intent returns cancelled_before_commit; before dispatch returns
-cancelled_before_dispatch with a retained CANCELLED effect and zero supplier call.
-After-claim cancellation may make the resumed old worker raise TransitionConflict;
-record that safe existing conflict and inspect terminal facts rather than changing
-the worker. After dispatch reservation, requested_best_effort cannot fence an
-admitted held supplier call. Known supplier success/result/receipt survives later
-cancellation/deadline; terminal cancellation is already_terminal.
+- **B-first.** B commits revision two to three before A reaches its protected
+  guard. A may reject at revision three before B's separate three-to-four edit
+  commits. The later current B at revision four receives an independent exact
+  confirmation and progresses. Do not claim that the complete two-edit revision
+  sequence was committed before A's atomic check. Stale A commits zero
+  intent/effect.
+- **A-first.** A commits its intent and causes B's public revise to reject with
+  intent_committed. Once A's intent commits, revision cannot succeed on that case.
 
-Use a fresh independent supplier/case/inquiry/quote for each schedule: applying
-one quote advances supplier revision and cannot be hidden by reused stale setup.
+#### Cancellation outcomes
+
+| Cancellation point | Outcome |
+| --- | --- |
+| Before intent | Returns `cancelled_before_commit` |
+| Before dispatch | Returns `cancelled_before_dispatch`, with a retained CANCELLED effect and zero supplier call |
+| After claim | May make the resumed old worker raise TransitionConflict; record that safe existing conflict and inspect terminal facts rather than changing the worker |
+| After dispatch reservation | `requested_best_effort` cannot fence an admitted held supplier call |
+| After known supplier success | Known supplier success/result/receipt survives later cancellation/deadline; terminal cancellation is `already_terminal` |
+
+#### Fresh fixtures and identity joins
+
+Use a fresh independent supplier/case/inquiry/quote for each schedule. Applying
+one quote advances the supplier revision, which reused stale setup cannot hide.
 Each individual work schedule respects the unchanged maximum 60-second work
-horizon. Join exact source/work/attempt/result digest through confirmation,
+horizon. Join the exact source/work/attempt/result digest through confirmation,
 intent/effect, supplier receipt and applied_calls; counts alone cannot qualify it.
-Receiver acceptance remains separate from supplier/business completion and human ACK.
+Receiver acceptance remains separate from supplier/business completion and human
+ACK.
 
 ## Failure cases and validation
 
 | Gate | Applicable and why | Exact assertions | Prerequisite/resource/time bound | Expected evidence |
 | --- | --- | --- | --- | --- |
-| G-READY | New P2 durable policy and P3 schedules | Freeze four-table/operation/controller/unknown contracts and closed actual child inventories before edits | Prior phase34 checkpoint and current source equality | This work item, machine contract and plan |
+| G-READY | New P2 durable policy and P3 schedules | Freeze four-table/operation/controller/unknown contracts and closed actual child inventories before edits | Prior phase34 (work item 0034) checkpoint and current source equality | This work item, machine contract and plan |
 | G-FAST/OBS | New public types, async policy and tooling | Strict primitive/canonical/scope/conflict/cap, snapshot mutation, cancellation, late cleanup, secret sentinels, telemetry outage and useful progress | Offline frozen dependencies, no providers/private CA | Full Python/frontend, lint/types/format and targeted negatives |
 | G-DURABLE P2 | New owner v5 and explicit uncertainty | Populated v4-to-v5, repeat/old upgrades, SQL-cancel rollback, populated pg_dump/restore, real lost responses, lookup/retry races, two owned PID kills and independent provider ledger | Role-separated actual PostgreSQL and owned loopback HTTP, fixed finite child budgets | Thirty frozen named assertions with complete cleanup |
 | G-DURABLE P3 | Existing atomic action/external effect boundary | Both revision lock orders, exact valid B, pre/post reservation cancellation, pre/post action commit and supplier-commit process loss, no reapply | 180 seconds total/15 cleanup; at most 32 child calls; 128 KiB aggregate/2 KiB per stream/32 KiB report | Sixteen assertions, two actual SQL graphs, three owned PID kills and exact joins |
@@ -168,59 +269,110 @@ Receiver acceptance remains separate from supplier/business completion and human
 | Runtime/docs | Reproducible local handoff | Full source/dependency preservation, Docker readiness/text/audio, original M1, standardized guides and all Mermaid syntax | No reset or providers | Measured logs, independent review and sealed checkpoint |
 | Full project release | Broader media/load/recovery still pending | Preserve catalog registrations and remaining normative rows | Separate future gates | No blanket P2/P3/ecosystem pass |
 
-P2 freezes 30 assertions: populated upgrade preservation; repeat/old upgrades and
-limits; interrupted DDL rollback; populated v5 dump/restore with original replay;
-runtime privilege/catalog/counter drift; controller/account/publisher scope;
-ordinary/idempotent normal success; definite failure plus separate useful new
-operation; ordinary provider-observed lost response; fresh-process original unknown
-after route change; ordinary explicit retry hold; idempotent lost response; exact
-known lookup without send; absent/unavailable lookup without automatic retry;
-explicit new same-operation retry with distinct attempt/two HTTP requests/one
-fake acceptance; equal command replay without I/O; changed command conflict;
-concurrent retry reservation; stale expected attempt/attempt cap; revoke/suppression/
-route no retarget; reservation-first frozen bytes after revoke; any-prior-callback
-veto first; retry-first late callback; callback exact old/new attempt with reused
-key; wrong operation/digest/key/message conflict and late evidence preserving
-already-admitted operation history; global/per-operation command cap
-and replay; owned post-provider-observation kill/fresh replay; owned post-reservation
-pre-wire kill/safe progress; actual ignored-timeout I/O lifetime/diagnostics; and
-independent SQL/provider reconciliation. SQL cancellation is not a process kill.
+### Frozen P2 assertions
 
-P3 freezes 16 assertions: B-first stale A reject; independently confirmed B effect;
-A-first B revise rejection; committed boundary/original receipt; pre-intent cancel;
-post-intent pre-dispatch cancel; after-claim cancel; post-reservation cancel and
-original apply; known supplier success after late cancel/deadline; precommit kill
-rollback/progress; postcommit kill original replay; supplier-commit kill lookup
-without reapply; changed confirmation/scope conflict; caller timeout/cancel actual
-I/O ownership and cleanup; receiver-versus-business/ACK distinction; and exact
-identity joins. The closed mode/env manifest is recorded before measurement.
+P2 freezes 30 assertions:
 
-Use existing fixed public error/outcome enums. Emit actual bounded controller,
-lookup, retry, hold/veto, unknown-ACK and retained-active counters with explicit
-units; no account/recipient/address/key/work/event/body metric labels. Log fixed
-safe operation/outcome/error fields; never raw headers, credentials, exception
-text or bodies. Contain observer failure. Translate boundary errors once, propagate
-cancellation, retain actual calls after waiter timeout, and require later progress.
+| # | Assertion |
+| --- | --- |
+| 1 | Populated upgrade preservation |
+| 2 | Repeat/old upgrades and limits |
+| 3 | Interrupted DDL rollback |
+| 4 | Populated v5 dump/restore with original replay |
+| 5 | Runtime privilege/catalog/counter drift |
+| 6 | Controller/account/publisher scope |
+| 7 | Ordinary/idempotent normal success |
+| 8 | Definite failure plus separate useful new operation |
+| 9 | Ordinary provider-observed lost response |
+| 10 | Fresh-process original unknown after route change |
+| 11 | Ordinary explicit retry hold |
+| 12 | Idempotent lost response |
+| 13 | Exact known lookup without send |
+| 14 | Absent/unavailable lookup without automatic retry |
+| 15 | Explicit new same-operation retry with distinct attempt/two HTTP requests/one fake acceptance |
+| 16 | Equal command replay without I/O |
+| 17 | Changed command conflict |
+| 18 | Concurrent retry reservation |
+| 19 | Stale expected attempt/attempt cap |
+| 20 | Revoke/suppression/route no retarget |
+| 21 | Reservation-first frozen bytes after revoke |
+| 22 | Any-prior-callback veto first |
+| 23 | Retry-first late callback |
+| 24 | Callback exact old/new attempt with reused key |
+| 25 | Wrong operation/digest/key/message conflict and late evidence preserving already-admitted operation history |
+| 26 | Global/per-operation command cap and replay |
+| 27 | Owned post-provider-observation kill/fresh replay |
+| 28 | Owned post-reservation pre-wire kill/safe progress |
+| 29 | Actual ignored-timeout I/O lifetime/diagnostics |
+| 30 | Independent SQL/provider reconciliation |
 
-New Python fixtures/wrappers/helpers enter lint/format/strict typing/test discovery
-with their source. Preserve first failures and exact finite owner/runtime child
-environments; no ambient provider/proxy/Python-path/database selectors. Create
-owned UUID schemas/files/barriers, terminate only owned children and fail incomplete
-cleanup. Freeze fixture/mode/protocol names before normal qualification.
+SQL cancellation is not a process kill.
 
-Commands from the maintained repository include make check, make frontend-check,
-make format-check, make p2-send-policy-check and make p3-action-races-check plus
-the explicit prior service lanes and harness run P3-01/P3-03/P3-11. New target
-commands become runnable only when their implementations are present. Required
-unavailable setup, missing assertions, skips, zero tests and timeouts cannot pass.
+### Frozen P3 assertions
+
+P3 freezes 16 assertions:
+
+| # | Assertion |
+| --- | --- |
+| 1 | B-first stale A reject |
+| 2 | Independently confirmed B effect |
+| 3 | A-first B revise rejection |
+| 4 | Committed boundary/original receipt |
+| 5 | Pre-intent cancel |
+| 6 | Post-intent pre-dispatch cancel |
+| 7 | After-claim cancel |
+| 8 | Post-reservation cancel and original apply |
+| 9 | Known supplier success after late cancel/deadline |
+| 10 | Precommit kill rollback/progress |
+| 11 | Postcommit kill original replay |
+| 12 | Supplier-commit kill lookup without reapply |
+| 13 | Changed confirmation/scope conflict |
+| 14 | Caller timeout/cancel actual I/O ownership and cleanup |
+| 15 | Receiver-versus-business/ACK distinction |
+| 16 | Exact identity joins |
+
+The closed mode/env manifest is recorded before measurement.
+
+### Diagnostics, tooling and commands
+
+- Use existing fixed public error/outcome enums.
+- Emit actual bounded controller, lookup, retry, hold/veto, unknown-ACK and
+  retained-active counters with explicit units. Use no
+  account/recipient/address/key/work/event/body metric labels.
+- Log fixed safe operation/outcome/error fields. Never log raw headers,
+  credentials, exception text or bodies.
+- Contain observer failure. Translate boundary errors once, propagate
+  cancellation, retain actual calls after waiter timeout, and require later
+  progress.
+- New Python fixtures/wrappers/helpers enter lint/format/strict typing/test
+  discovery with their source.
+- Preserve first failures and exact finite owner/runtime child environments, with
+  no ambient provider/proxy/Python-path/database selectors.
+- Create owned UUID schemas/files/barriers, terminate only owned children and fail
+  incomplete cleanup.
+- Freeze fixture/mode/protocol names before normal qualification.
+
+Commands from the maintained repository include:
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| Shared fast gates | `make check`, `make frontend-check` and `make format-check` | None |
+| New P2/P3 lanes | `make p2-send-policy-check` and `make p3-action-races-check` | New target commands become runnable only when their implementations are present |
+| Regression lanes | The explicit prior service lanes | None |
+| Registered lab rows | `harness run P3-01/P3-03/P3-11` | None |
+
+Required unavailable setup, missing assertions, skips, zero tests and timeouts
+cannot pass.
 
 ## Results and handoff
 
 P2-I14 and P3-I12 completed their selected local implementation/validation gates.
-No full P2/P3 charter row was registered. P1 retains case/work/action/effect
-ownership; its 77 runtime payloads, packaged README, schema and public API are
-unchanged. P3's 30 runtime payloads and schema are unchanged. Dependency locks and
-ordinary local state are preserved.
+No full P2/P3 charter row was registered.
+
+- P1 retains case/work/action/effect ownership. Its 77 runtime payloads, packaged
+  README, schema and public API are unchanged.
+- P3's 30 runtime payloads and schema are unchanged.
+- Dependency locks and ordinary local state are preserved.
 
 | Area | Implemented or verified behavior | Observed evidence |
 | --- | --- | --- |
@@ -237,52 +389,78 @@ ordinary local state are preserved.
 | Engineering gates | Full offline discovery, strict types, formatting and production builds | 1,660 Python tests: 49 P1, 14 P2, 238 P3, 1,359 root. TypeScript 861: 326 console, 457 P2, 78 specialist. Broad typing 138/strict 108; Ruff formatting 340 files; zero required skips or structural violations |
 | Runtime and documentation | Original local POC state preserved after isolated gates | Ordinary Docker start and final readiness/smoke passed with eight checks and ten actual diagnostic audio frames; original M1 identity remains. All 108 documents and 18 current Mermaid bodies pass their respective documentation/syntax checks |
 
+### How the results were measured
+
 The final global Python/type results come from one complete make-check rerun after
-the evidence-hash helper regression was added; its type excerpt is not another
+the evidence-hash helper regression was added. Its type excerpt is not another
 execution. The preceding 1,659-test run remains retained. Frontend and formatting
 checks are separate measured runs. Correctness-gate durations do not establish
 production latency, throughput, provider capacity or real-model/media quality.
-
-All failed/diagnostic/prepared-only observations remain distinct. P2 first failed
-because a counter-drift test probed an already accepted fact instead of a new
-reservation; the corrected source and strengthened proofs remain separately
-retained. Additional review required real global-capacity exhaustion, original
-ordinary fresh-process replay and revocation before retry. A later evidence-only
-fix separated directly reproducible SQL snapshot hashing from the unchanged
-JavaScript provider-wire digest. Earlier row-equality proof remains valid within
-its exact scope. Earlier installed npm consumers are retained separately from the
-final current-README/public-reconciliation consumer.
-
-P3's first fixture overwrote a required public work marker; the fix preserves the
-authority marker and keeps fixture ownership separate. Further fixture corrections
-refresh owner activity snapshots, preserve original cancellation receipts, catch
-invalid confirmation at its public constructor and separate the evidence-inventory
-digest from the bounded P3 wire codec. The observed digest failure did not preserve
-original byte/node totals, so it is not attributed to one specific wire limit.
-Normal run seven passed the preceding scope; normal eight/diagnostic nine exposed
-the strengthened owner-proof codec mismatch; selected final normal ten passed.
-Diagnostics always fail qualification. Initial normal failure captures were not
-available under their frozen policy; later bounded diagnostic reproductions are
-labelled separately. No P1/P3 production guard or timeout was weakened.
-
-The retained P3 inventory digest is produced after independent source assertions;
-the raw inventory is not retained for later independent digest recomputation.
-Its two SQL graphs and compact owner counts are retained and directly reviewed.
-The installed P3 gate exercises inspect_accepted; run_completion is strictly typed
-and imported, not claimed executed by this gate. Quiescent backup cuts and owner
-joins are not an atomic cross-service snapshot or production-capacity result.
 
 Commands include make check, make frontend-check, make format-check,
 make p2-send-policy-check, make p3-action-races-check, the selected old service
 lanes, registered lab P3-01/P3-03/P3-11 and ordinary stack start/doctor/smoke.
 The source-bound phase checkpoint is retained under
-.local/validation/p2-send-policy-p3-action-races; it preserves the closed prior
+.local/validation/p2-send-policy-p3-action-races. It preserves the closed prior
 checkpoint and exact source/archive/report identities. Independent product,
 tooling, installed-consumer and integration/evidence reviews bound the results.
 
-Next: P2-I15 native voice/text continuity and P3-I13 broader deadline/cancellation
-behavior. P2-I16–I22 and P3-I14–I24 retain their planned media, integration,
-load/UI, document capability, full packaging/release and model-comparison gates.
-P1's historical selected provider-real qualification is reused only for unchanged
-payloads; no paid inference, external provider/carrier, native P2/P3 media,
-publication or remote CI was executed here.
+### Failures and corrections
+
+All failed/diagnostic/prepared-only observations remain distinct.
+
+P2:
+
+- P2 first failed because a counter-drift test probed an already accepted fact
+  instead of a new reservation. The corrected source and strengthened proofs
+  remain separately retained.
+- Additional review required real global-capacity exhaustion, original ordinary
+  fresh-process replay and revocation before retry.
+- A later evidence-only fix separated directly reproducible SQL snapshot hashing
+  from the unchanged JavaScript provider-wire digest. Earlier row-equality proof
+  remains valid within its exact scope.
+- Earlier installed npm consumers are retained separately from the final
+  current-README/public-reconciliation consumer.
+
+P3:
+
+- P3's first fixture overwrote a required public work marker. The fix preserves
+  the authority marker and keeps fixture ownership separate.
+- Further fixture corrections refresh owner activity snapshots, preserve original
+  cancellation receipts, catch invalid confirmation at its public constructor and
+  separate the evidence-inventory digest from the bounded P3 wire codec.
+- The observed digest failure did not preserve original byte/node totals, so it is
+  not attributed to one specific wire limit.
+- Normal run seven passed the preceding scope. Normal eight/diagnostic nine exposed
+  the strengthened owner-proof codec mismatch. The selected final normal ten
+  passed.
+- Diagnostics always fail qualification. Initial normal failure captures were not
+  available under their frozen policy; later bounded diagnostic reproductions are
+  labelled separately.
+- No P1/P3 production guard or timeout was weakened.
+
+### Evidence limits
+
+- The retained P3 inventory digest is produced after independent source
+  assertions. The raw inventory is not retained for later independent digest
+  recomputation. Its two SQL graphs and compact owner counts are retained and
+  directly reviewed.
+- The installed P3 gate exercises inspect_accepted. run_completion is strictly
+  typed and imported, not claimed executed by this gate.
+- Quiescent backup cuts and owner joins are not an atomic cross-service snapshot
+  or production-capacity result.
+
+### Next work
+
+Next:
+
+| Task | Next behavior |
+| --- | --- |
+| P2-I15 | Native voice/text continuity |
+| P3-I13 | Broader deadline/cancellation behavior |
+
+P2-I16 to P2-I22 and P3-I14 to P3-I24 retain their planned media,
+integration, load/UI, document capability, full packaging/release and
+model-comparison gates. P1's historical selected provider-real qualification is
+reused only for unchanged payloads. No paid inference, external provider/carrier,
+native P2/P3 media, publication or remote CI was executed here.

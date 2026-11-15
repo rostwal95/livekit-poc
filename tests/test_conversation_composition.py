@@ -1,7 +1,9 @@
 """Session identity, bounded native I/O and numeric SDK report consumers."""
 
+import asyncio
 import json
 import tempfile
+import threading
 import unittest
 from datetime import date
 from pathlib import Path
@@ -93,6 +95,62 @@ class CompositionTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(RuntimeError):
             await port.submit_investigation()
         self.assertEqual(boundary.pending_count, 0)
+
+    async def test_lost_submit_acknowledgement_replays_frozen_request_before_get_or_cancel(self):
+        frozen = {"token": TOKEN, "idempotency_key": "original-key", "request": REQUEST}
+        for operation in ("get_case", "cancel_case"):
+            with self.subTest(operation=operation):
+                release = threading.Event()
+                service = Mock()
+
+                def held_submit(release=release, **_kwargs):
+                    release.wait(5)
+                    return SimpleNamespace(projection=SimpleNamespace(payload=projection))
+
+                service.submit.side_effect = held_submit
+                service.get.return_value = SimpleNamespace(payload=projection)
+                service.cancel.return_value = SimpleNamespace(
+                    disposition=SimpleNamespace(value="stopped")
+                )
+                boundary = AsyncConversationService(service)
+                _, binding = grant()
+                port = SessionBusinessPort(ManagedCaseClient(boundary, TOKEN), binding)
+                command = getattr(port, operation)
+                try:
+                    self.assertEqual(
+                        await command(), {"schema_version": 1, "status": "not_accepted"}
+                    )
+                    service.submit.assert_not_called()
+                    with patch(
+                        "services.conversation_agent.composition.OPERATION_TIMEOUT_SECONDS", 0.1
+                    ):
+                        with self.assertRaises(TimeoutError):
+                            await port.submit_investigation()
+                        # Still held: an unresolved submit is never reported as not accepted.
+                        with self.assertRaises(TimeoutError):
+                            await command()
+                    release.set()
+                    async with asyncio.timeout(5):
+                        while boundary.pending_count:
+                            await asyncio.sleep(0.01)
+                    result = await command()
+                    self.assertEqual(result["task_id"], TASK)
+                    if operation == "get_case":
+                        self.assertEqual(result["inquiry_state"], "SUCCEEDED")
+                        self.assertEqual(service.get.call_args.kwargs["task_id"], TASK)
+                        service.cancel.assert_not_called()
+                    else:
+                        self.assertEqual(result["disposition"], "stopped")
+                        service.cancel.assert_called_once()
+                        self.assertEqual(service.cancel.call_args.kwargs["task_id"], TASK)
+                    self.assertEqual((await port.get_case())["task_id"], TASK)
+                    self.assertEqual(
+                        [call.kwargs for call in service.submit.call_args_list], [frozen] * 3
+                    )
+                finally:
+                    release.set()
+                    await port.aclose()
+                self.assertEqual(boundary.pending_count, 0)
 
     async def test_invalid_signed_binding_never_constructs_a_business_service(self):
         with (

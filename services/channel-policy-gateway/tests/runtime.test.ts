@@ -20,6 +20,7 @@ const f = vi.hoisted(() => ({
   appConfig: undefined as unknown,
   ports: undefined as unknown,
   caseReferences: [] as unknown[],
+  bridgeConfig: undefined as unknown,
   roomOptions: undefined as unknown,
   nativeBridge: undefined as unknown,
 }));
@@ -53,8 +54,9 @@ vi.mock('../src/operation-bridge.js', () => ({
       accept: vi.fn(),
     };
     readonly sms = this.native;
-    constructor() {
+    constructor(config: unknown) {
       f.trace.push('new:bridge');
+      f.bridgeConfig = config;
     }
     metrics() {
       return { active: 0 };
@@ -125,6 +127,7 @@ beforeEach(() => {
   f.failAppConstruct = false;
   f.appConfig = undefined;
   f.ports = undefined;
+  f.bridgeConfig = undefined;
   f.roomOptions = undefined;
 });
 function fixture() {
@@ -176,6 +179,15 @@ describe('actual-runtime owner composition', () => {
     expect(f.trace.indexOf('close:bridge')).toBeGreaterThan(f.trace.indexOf('closed:app'));
     expect(f.trace.indexOf('close:case')).toBeGreaterThan(f.trace.indexOf('close:bridge'));
     expect(x.metrics()).toMatchObject({ closed: true, bridgeCalls: 0, caseCalls: 0 });
+  });
+  it('gives each bridge lookup/accept the joined 5,000 ms dispatch step deadline', async () => {
+    const x = fixture();
+    await x.start();
+    try {
+      expect(f.bridgeConfig).toMatchObject({ timeoutMs: 5000 });
+    } finally {
+      await x.close();
+    }
   });
   it('forwards only the actual configured P1 revision and explicit investigation preparation', async () => {
     const x = fixture();

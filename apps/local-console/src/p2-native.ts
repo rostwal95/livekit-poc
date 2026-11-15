@@ -494,7 +494,6 @@ async function refreshResponse(responseId: string): Promise<void> {
     await deadline(
       trackActual(
         read().finally(() => {
-          contextReads--;
           observeReady();
         }),
       ),

@@ -1,22 +1,57 @@
 # Outbound replies and resumable completion processing
 
-Status: Completed
-Last reviewed: 11 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Completed |
+| Purpose | Record the plan, observed verification and handoff for P2-I12 outbound replies and P3-I10 resumable completion processing |
+| Audience | Engineers changing the P2 outbox and routes or P3 consumer processing; coding agents |
+| Scope | Selected P2-I12 and P3-I10 local phase gates; excludes callbacks, ambiguous resend, booking-completion handoff and integrated release |
+| Owns | Change plan, observed verification and handoff for P2-I12 and P3-I10 |
+| Related | [Work item 0032](0032-linked-confirmation-and-result-projections.md) · [Work item 0034](0034-callback-evidence-and-applicability-refresh.md) · [P2 task plan](../implementation/p2-channel-continuity.md) · [P3 task plan](../implementation/p3-delegation-reliability.md) · [Validation plan](../validation-plan.md) |
 
 ## Behavior and scope
 
-Implement P2-I12's durable reply intents, authorized versioned routes and ordinary
-fake-carrier sends, alongside P3-I10's resumable completion processing. Continue the
+This work item implements two tasks side by side:
+
+| Project | Task | Behavior |
+| --- | --- | --- |
+| P2 | P2-I12 | Durable reply intents, authorized versioned routes and ordinary fake-carrier sends |
+| P3 | P3-I10 | Resumable completion processing |
+
+It continues the
 [completed linked-confirmation/projection phase](0032-linked-confirmation-and-result-projections.md).
 Use the maintained Downloads/repositories/livekit-agent-ecosystem checkout.
 Preserve closed evidence, original M1 data and every existing accepted identity.
 
-P1 continues to own execution, result events and delivery/action receipts. P2 owns
-communication intents and provider observations; P3 owns derived projection and
-consumer-processing metadata. No new P1 schema/API or dependency version is required.
-The existing P1 result feed contains delegation results, not booking completion
-notifications. Automatic booking-completion-to-P2 integration needs a separately
-published application handoff; this phase does not claim it.
+Ownership stays split across the three projects:
+
+| Project | Owns |
+| --- | --- |
+| P1 | Continues to own execution, result events and delivery/action receipts |
+| P2 | Communication intents and provider observations |
+| P3 | Derived projection and consumer-processing metadata |
+
+No new P1 schema/API or dependency version is required. The existing P1 result
+feed contains delegation results, not booking completion notifications. Automatic
+booking-completion-to-P2 integration needs a separately published application
+handoff; this phase does not claim it.
+
+### Terms used in this record
+
+| Term | Meaning |
+| --- | --- |
+| Implementation task IDs | Such as P2-I12; identify tasks in the [P2 task plan](../implementation/p2-channel-continuity.md) and [P3 task plan](../implementation/p3-delegation-reliability.md) |
+| Acceptance IDs | Such as P2-10; identify rows in the project charters |
+| Selected local phase gates | The gates chosen for this work item; passing them does not complete a full charter row |
+| Gate names | Such as G-READY and G-DURABLE; refer to the engineering gates in the [validation plan](../validation-plan.md) |
+| Acknowledgement (ACK) | A receiver's confirmation that it accepted a message, command or event; a lost ACK leaves the outcome unknown |
+| Compare-and-set (CAS) | A write that succeeds only when the stored version still matches the expected value |
+| Data definition language (DDL) | Schema-changing SQL; explicit owner upgrades run it, serving code does not |
+| M1 | The original confirmed-investigation intake data, which every phase preserves |
+| Process ID (PID) | Identifies an operating-system process; an owned-PID kill terminates a process that the gate itself started |
+| Run labels | Such as first01, diagnostic03 or final05; name individual retained gate reports in attempt order |
+
+### Criteria
 
 | Criterion | Given | When | Then: safety | Then: useful progress | Test/mode and evidence |
 | --- | --- | --- | --- | --- | --- |
@@ -38,69 +73,91 @@ v2-to-v3 upgrade. Preserve inbox v1/v2 records, dispatch state and existing APIs
 The shared inbox admission guard serializes current association, route/suppression
 checks and possible-send reservation. Serving performs no DDL or catalog repair.
 
-Trusted publisher configuration binds credentials to tenant/account/case/
-conversation. A reply draft has schema version, stable outbound UUID, response
-reference and at most 4096 exact UTF-8 bytes. Recipient identity comes from trusted
-configuration, never an untrusted phone number or a model-supplied account label.
-Immutable enqueue receipt and intent digest are distinct from a P1 result digest.
-A future P1-result adapter needs a bounded notice/reference rather than silently
-truncating an 8192-byte result into SMS text.
+Trusted publisher configuration binds credentials to
+tenant/account/case/conversation. A reply draft has:
+
+- a schema version;
+- a stable outbound UUID;
+- a response reference;
+- at most 4096 exact UTF-8 bytes.
+
+Recipient identity comes from trusted configuration, never from an untrusted phone
+number or a model-supplied account label. The immutable enqueue receipt and intent
+digest are distinct from a P1 result digest. A future P1-result adapter needs a
+bounded notice/reference rather than silently truncating an 8192-byte result into
+SMS text.
 
 Authenticated recipient reads expose retained replies and bounded pending IDs.
-Route selection requires the current verified original association and an expected
-route-version CAS. Recipient-level suppression persists through route changes;
-selecting a route never implicitly unsuppresses it. Missing/unauthorized routes
-hold work without a provider attempt. Reassignment cannot transfer old ownership.
+Route selection requires the current verified original association and an
+expected route-version CAS. Recipient-level suppression persists through route
+changes; selecting a route never implicitly unsuppresses it. Missing/unauthorized
+routes hold work without a provider attempt. Reassignment cannot transfer old
+ownership.
 
-Each actual invocation has a new immutable attempt UUID and frozen logical
-recipient, address, association epoch, route version, provider operation key and
-request digest. A separate immutable result row records validated provider
-acceptance or definitive nonacceptance. A possible attempt without a validated
-result remains unknown after restart and blocks another send of that reply.
-Only known definitive nonacceptance permits another explicit bounded attempt.
-Provider calls execute outside database locks. Reservation is the local permission
-commitment; later revoke/suppress cannot independently fence a paused external call.
+Each actual invocation has a new immutable attempt UUID and a frozen:
 
-Persisted reply cap defaults to 1000, maximum 10000; attempts default to three,
-maximum five per reply. Retained attempt growth is bounded by those settings;
-replay/read remain available at capacity. Actual calls default to two per instance,
-maximum four, with finite SQL, carrier, socket and cleanup budgets. No daemon,
-process-memory acknowledgement queue, callback endpoint or implicit resend loop
-is introduced. I13 owns callback evidence; I14 owns capability-specific ambiguous
-resend/reconciliation qualification. Ordinary provider acceptance is not delivery,
-playback, hearing, human acknowledgement or booking consent.
+- logical recipient and address;
+- association epoch and route version;
+- provider operation key and request digest.
+
+A separate immutable result row records validated provider acceptance or
+definitive nonacceptance. A possible attempt without a validated result remains
+unknown after restart and blocks another send of that reply. Only known definitive
+nonacceptance permits another explicit bounded attempt. Provider calls execute
+outside database locks. Reservation is the local permission commitment; a later
+revoke/suppress cannot independently fence a paused external call.
+
+| Limit | Default | Maximum |
+| --- | --- | --- |
+| Persisted replies | 1000 | 10000 |
+| Attempts per reply | three | five |
+| Actual calls per instance | two | four |
+
+Retained attempt growth is bounded by those settings. Replay/read remain
+available at capacity. Calls also have finite SQL, carrier, socket and cleanup
+budgets. No daemon, process-memory acknowledgement queue, callback endpoint or
+implicit resend loop is introduced. P2-I13 owns callback evidence. P2-I14 owns
+capability-specific ambiguous resend/reconciliation qualification. Ordinary
+provider acceptance is not delivery, playback, hearing, human acknowledgement or
+booking consent.
 
 ### P3 consumer-processing metadata
 
-Explicit owner projection v1-to-v2 upgrade preserves source UUID/scope, all old
-projection bytes/checkpoint and configured limits. Add only fixed processing
-policy/control and immutable terminal per-event acknowledgements. Policy binds
-receiver UUID and finite case/conversation-to-recipient mappings before I/O;
-runtime cannot change it. Existing projection reads/writes remain compatible.
+An explicit owner projection v1-to-v2 upgrade preserves the source UUID/scope, all
+old projection bytes/checkpoint and configured limits. It adds only fixed
+processing policy/control and immutable terminal per-event acknowledgements. The
+policy binds the receiver UUID and finite case/conversation-to-recipient mappings
+before I/O; runtime cannot change it. Existing projection reads/writes remain
+compatible.
 
 A bounded processor read exposes existing projected references through its
-version-checked metadata client.
-The explicit processor observes at most eight rows total per step, including at
-most one wrap. A scan cursor tracks discovery. A separate terminal watermark
-advances only over contiguous acknowledged events. Unknown/unavailable delivery
-gets no terminal ACK; scan progress allows later eligible work without claiming
-that earlier work completed. No retry/due/lease/execution queue fields are added.
+version-checked metadata client. Scanning works as follows:
 
-For a known receipt, match exact source event, work, attempt, result digest,
-receiver and recipient before acknowledgement, even after later cancellation.
-A receipt for another attempt cannot acknowledge a historical event. For a new
+- The explicit processor observes at most eight rows total per step, including at
+  most one wrap.
+- A scan cursor tracks discovery.
+- A separate terminal watermark advances only over contiguous acknowledged events.
+- Unknown/unavailable delivery gets no terminal ACK. Scan progress allows later
+  eligible work without claiming that earlier work completed.
+- No retry/due/lease/execution queue fields are added.
+
+For a known receipt, match the exact source event, work, attempt, result digest,
+receiver and recipient before acknowledgement, even after later cancellation. A
+receipt for another attempt cannot acknowledge a historical event. For a new
 delivery, use the existing public delivery facade's fresh result/case preflight
-and P1 eligibility checks; stored as-of projection status grants no permission.
-Existing possible-send plus reliable receiver absence remains unknown and lookup
-only. No automatic acceptance retry, recipient rebase or action is authorized.
+and P1 eligibility checks. Stored as-of projection status grants no permission.
+An existing possible-send plus reliable receiver absence remains unknown and
+lookup only. No automatic acceptance retry, recipient rebase or action is
+authorized.
 
-Terminal ACK plus scan/control CAS commit atomically. Same-event replay returns
-its original terminal observation. Unknown write acknowledgement performs one
-exact lookup, never blind resubmission. Definite rejected/historical not-required
-observations may be terminal under the fixed versioned policy; unavailable,
-ambiguous or unbound state cannot be invented. I11 retains broader applicability
-refresh and replay-horizon/tombstone policy. Feed cursors remain source history;
-processing ACK is P3-owned metadata, not a P1 consumer-ACK API.
+The terminal ACK plus scan/control CAS commit atomically. Same-event replay
+returns its original terminal observation. An unknown write acknowledgement
+performs one exact lookup, never blind resubmission. Definite
+rejected/historical not-required observations may be terminal under the fixed
+versioned policy. Unavailable, ambiguous or unbound state cannot be invented.
+P3-I11 retains broader applicability refresh and replay-horizon/tombstone policy.
+Feed cursors remain source history. A processing ACK is P3-owned metadata, not a
+P1 consumer-ACK API.
 
 Public facade policy inspection returns immutable copies with current binding
 validation. Each resource has one declared lifecycle owner. Application-owned
@@ -121,19 +178,28 @@ ownership immediately. No current dependency/image/toolchain version changes.
 | Runtime/docs | Local operation and clean handoff | Ordinary Docker readiness/text/audio smoke, original M1 identity, documentation standards and current Mermaid syntax | No reset/default media/provider rollout | Exact measured evidence, source hashes and previous checkpoint verification |
 | Full-product release | Remains separate | No new full row without all normative assertions and required independent review | Callback/resend, broader recovery, native media and integrated product gates remain explicit | Catalog stays honest; no blanket release/capacity claim |
 
-Freeze inventories and work/cleanup budgets before measuring. Preserve the first
-failure and distinguish diagnostic reproductions from original capture. Use fixed
-safe error/outcome codes and bounded per-instance counters from real operations;
-no payload, route address, tenant/recipient or credential as metric labels.
-Telemetry failure cannot change persisted truth. A timeout never proves that a
-provider call or worker stopped. Retain actual thread/task/socket/process ownership
-until settlement, and fail incomplete cleanup visibly.
+Measurement and diagnostics rules:
+
+- Freeze inventories and work/cleanup budgets before measuring.
+- Preserve the first failure and distinguish diagnostic reproductions from the
+  original capture.
+- Use fixed safe error/outcome codes and bounded per-instance counters from real
+  operations. Never use a payload, route address, tenant/recipient or credential
+  as a metric label.
+- Telemetry failure cannot change persisted truth.
+- A timeout never proves that a provider call or worker stopped.
+- Retain actual thread/task/socket/process ownership until settlement, and fail
+  incomplete cleanup visibly.
 
 ## Results and handoff
 
 P2-I12 and P3-I10 completed their selected local phase gates. P1 remains the
-case/execution/result/delivery authority; P2 owns communication state and P3 owns
+case/execution/result/delivery authority. P2 owns communication state, and P3 owns
 derived projection/processing metadata. No complete charter row was added.
+
+The evidence checkpoint is `.local/validation/p2-outbox-p3-processing/3b3ca5c5ca79483b92f1fe9b3f214b7a`.
+Its final ignored index binds current reports, package/source hashes, retained
+first failures, independent reviews and preserved previous checkpoints.
 
 | Area | Implemented behavior | Observed proof |
 | --- | --- | --- |
@@ -147,79 +213,104 @@ derived projection/processing metadata. No complete charter row was added.
 | Local runtime | Ordinary stack rebuild/readiness/transport and original state | Ordinary start/doctor/smoke passed: 8 checks, 10 actual audio frames, original M1 identity preserved without reset |
 | Documentation | Standardized guides and design diagrams remain current | 106 documents pass; 14 current root/project Mermaid blocks parse with malformed-input negative, qualifying syntax only |
 
+### Commands and reused evidence
+
 Commands ran from the maintained checkout with its Python 3.14 interpreter and
-pinned Node/pnpm environment: make check, make frontend-check, make format-check,
-make typecheck, explicit p2_outbox_check.py and p3_processing_check.py, the old
-P2/P3 database/process gates and registered harness run P3-01/P3-03/P3-11. Required
-lanes passed without skips. Correctness durations are not production latency or
-capacity measurements.
+pinned Node/pnpm environment:
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| Shared fast gates | `make check`, `make frontend-check`, `make format-check` and `make typecheck` | None |
+| New P2/P3 lanes | Explicit `p2_outbox_check.py` and `p3_processing_check.py` | None |
+| Regression lanes | The old P2/P3 database/process gates | None |
+| Registered lab rows | Registered `harness run P3-01/P3-03/P3-11` | None |
+
+Required lanes passed without skips. Correctness durations are not production
+latency or capacity measurements.
 
 P1 product code, all 77 runtime payload bytes and the qualified package archive
-are reused unchanged. This phase does not rerun the previous 327-case P1 PostgreSQL lane;
-provider/native qualification also remains historical. Current compatibility evidence comes
-from exact runtime/archive parity and the actual public interfaces exercised by
-these P2/P3 gates. Historical provider evidence retains its original source scope.
-This phase did not read provider keys or a private CA, call paid inference, upgrade
-dependencies, publish Git changes or require remote CI.
+are reused unchanged. This phase does not rerun the previous 327-case P1
+PostgreSQL lane. Provider/native qualification also remains historical. Current
+compatibility evidence comes from exact runtime/archive parity and the actual
+public interfaces exercised by these P2/P3 gates. Historical provider evidence
+retains its original source scope. This phase did not read provider keys or a
+private CA, call paid inference, upgrade dependencies, publish Git changes or
+require remote CI.
 
-P2 provider acceptance is distinct from physical delivery, human acknowledgement
-and booking consent. Its possible-send reservation commits the current route and
-suppression permission; later revocation cannot retract an already admitted
-external call. Unknown attempts retain their original route and cannot be
-automatically retried. Automatic booking-completion-to-P2 integration still needs
-a separately published application handoff; the delegation result feed is not a
-booking-completion feed. Callback and ambiguous resend qualification remain later
-I13/I14 work. The installed fake-send consumer makes no P1 or real-provider claim.
+### Boundaries confirmed by this phase
 
-P3 processing ACKs describe the fixed delivery-only policy. Discovery never
-acknowledges an unresolved gap; possible-send plus receiver absence remains unknown
-after cancellation, expiry or case change. Known exact receipts are facts before
-fresh applicability. Stored as-of metadata supplies no action or current delivery
-permission. Fresh case/recipient preflights are not an atomic cross-authority
-revocation fence. Full action/recovery, refresh and tombstone policy remain
-separate. The profile-row backup/restore procedure is validated and explicitly
-labelled separately from pg_dump.
+P2:
+
+- Provider acceptance is distinct from physical delivery, human acknowledgement
+  and booking consent.
+- The possible-send reservation commits the current route and suppression
+  permission. Later revocation cannot retract an already admitted external call.
+- Unknown attempts retain their original route and cannot be automatically
+  retried.
+- Automatic booking-completion-to-P2 integration still needs a separately
+  published application handoff. The delegation result feed is not a
+  booking-completion feed.
+- Callback and ambiguous resend qualification remain later P2-I13/P2-I14 work.
+- The installed fake-send consumer makes no P1 or real-provider claim.
+
+P3:
+
+- Processing ACKs describe the fixed delivery-only policy.
+- Discovery never acknowledges an unresolved gap. Possible-send plus receiver
+  absence remains unknown after cancellation, expiry or case change.
+- Known exact receipts are facts before fresh applicability. Stored as-of metadata
+  supplies no action or current delivery permission.
+- Fresh case/recipient preflights are not an atomic cross-authority revocation
+  fence.
+- Full action/recovery, refresh and tombstone policy remain separate.
+- The profile-row backup/restore procedure is validated and explicitly labelled
+  separately from pg_dump.
+
+### Reviews, failures and corrections
 
 Independent reviews resolved strict primitive models, same-case conversation
 routing, exact source/attempt/digest binding, retained thread/task/socket lifetime
-and full receiver/ACK/control identity joins. The original P3 source16 passed
-before the concurrency review. That review changed the ACK transaction to
-repeatable read and maps SQLSTATE 40001 to definite checkpoint_conflict, followed
-by one exact ACK lookup without another write. The strengthened source16 and
-exact unadapted installed16 passed. Their isolation schedule proves a frozen
-snapshot through seven while the old public projector appends eight, rather than
-claiming to reproduce the exact old race. No actual P3 PostgreSQL run failed.
+and full receiver/ACK/control identity joins.
 
-P2 first01 correctly observed DispatchUnavailable and persisted uncertainty after
-a lost ACK; the fixture had expected an uncertain return instead of the public
-exception. Second02 and diagnostic03 correctly rejected the old client with
-UpgradeRequired, then failed a cross-process object/prototype comparison. The
-fixture now compares serialized immutable values. All three original failed
-reports and raw captures remain retained; each observed zero carrier calls and
-complete cleanup. These corrections did not weaken a guard. Corrected04 and
-final05 passed their narrower inventories. The final backup fixture adds an actual
-populated v3 round trip without changing product code or the installed archive.
-Narrow lint, type, import, fixture and Mermaid iterations remain retained without
-promoting an intermediate result to the final scope.
+The original 16-assertion P3 source run (source16) passed before the concurrency
+review. That review changed the ACK transaction to repeatable read. It maps
+SQLSTATE 40001 to a definite checkpoint_conflict, followed by one exact ACK lookup
+without another write. The strengthened source16 and the exact unadapted
+16-assertion installed run (installed16) then passed. Their isolation schedule
+proves a frozen snapshot through seven while the old public projector appends
+eight. It does not claim to reproduce the exact old race. No actual P3 PostgreSQL
+run failed.
+
+P2 runs and corrections:
+
+| Run | Observed result | Cause or correction |
+| --- | --- | --- |
+| first01 | Correctly observed DispatchUnavailable and persisted uncertainty after a lost ACK | The fixture had expected an uncertain return instead of the public exception |
+| Second02 and diagnostic03 | Correctly rejected the old client with UpgradeRequired, then failed a cross-process object/prototype comparison | The fixture now compares serialized immutable values |
+| Corrected04 and final05 | Passed their narrower inventories | None |
+
+- All three original failed reports and raw captures remain retained. Each
+  observed zero carrier calls and complete cleanup. These corrections did not
+  weaken a guard.
+- The final backup fixture adds an actual populated v3 round trip without changing
+  product code or the installed archive.
+- Narrow lint, type, import, fixture and Mermaid iterations remain retained,
+  without promoting an intermediate result to the final scope.
 
 The full 1,501 Python and 723 TypeScript suites preceded the final test-only
 populated restore strengthening. The strengthened 24-case lane, narrow 16-case
 wrapper checks and final global types/format checks passed afterward. Existing
-full-suite results retain their measured source scope; the final fixture changes
+full-suite results retain their measured source scope. The final fixture changes
 are covered by those subsequent focused and static checks.
 
 ### Remaining boundaries and next phase
 
-- P2-I13 adds authenticated correlated callback evidence and reduction; I14 owns
-  provider-specific ambiguous send/reconciliation policy.
+- P2-I13 adds authenticated correlated callback evidence and reduction; P2-I14
+  owns provider-specific ambiguous send/reconciliation policy.
 - P3-I11 adds applicability refresh and replay/tombstone policy. Broader protected
-  action/cancellation recovery remains I12/I13/I14 work.
+  action/cancellation recovery remains P3-I12/P3-I13/P3-I14 work.
 - The catalog remains 24 registered of 55: all 17 P2 and 14 P3 rows stay planned,
   with only P3-01/P3-03/P3-11 qualified as complete lab rows.
 - Complete native/media integration, production capacity and full P2/P3 release
-  retain their own gates. The local POC stays independent of GitHub/remote CI.
-
-The evidence checkpoint is `.local/validation/p2-outbox-p3-processing/3b3ca5c5ca79483b92f1fe9b3f214b7a`.
-Its final ignored index binds current reports, package/source hashes,
-retained first failures, independent reviews and preserved previous checkpoints.
-
+  retain their own gates. The local POC (proof of concept) stays independent of
+  GitHub/remote CI.

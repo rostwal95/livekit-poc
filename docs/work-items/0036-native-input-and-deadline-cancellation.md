@@ -1,48 +1,95 @@
 # Native committed input and delegation deadline cancellation
 
-Status: Completed
-Last reviewed: 11 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Completed |
+| Purpose | Record the plan, observed verification and handoff for P2-I15/P2-I16 native committed input and P3-I13 deadline cancellation |
+| Audience | Engineers changing P2 native ingress or P3 deadline and cancellation schedules; coding agents |
+| Scope | Selected P2-I15/P2-I16 and P3-I13 local phase; excludes P2-I17 playback, P2-I18 rehydration, broader P3 recovery and release |
+| Owns | Change plan, observed verification and handoff for P2-I15, P2-I16 and P3-I13 |
+| Related | [Work item 0035](0035-send-policy-and-action-races.md) · [Work item 0037](0037-playback-evidence-and-process-recovery.md) · [P2 task plan](../implementation/p2-channel-continuity.md) · [P3 task plan](../implementation/p3-delegation-reliability.md) · [Validation plan](../validation-plan.md) |
 
 ## Behavior and scope
 
-Implement P2-I15/I16 and P3-I13 after the
+This work item implements P2-I15/P2-I16 and P3-I13 after the
 [completed send-policy/action-race phase](0035-send-policy-and-action-races.md).
 The [P2 task plan](../implementation/p2-channel-continuity.md),
 [P3 task plan](../implementation/p3-delegation-reliability.md), project charters,
 [shared design](../../Design.md) and [validation plan](../validation-plan.md)
-remain authoritative. P2 contributes to P2-15 through native committed text/audio;
-P3 contributes to P3-09/P3-10 through deadline and cancellation schedules.
+remain authoritative.
+
+| Project | Task | Behavior |
+| --- | --- | --- |
+| P2 | P2-I15/P2-I16 | Native committed text/audio; contributes to P2-15 |
+| P3 | P3-I13 | Deadline and cancellation schedules; contributes to P3-09/P3-10 |
+
 Task completion is separate from complete charter-row registration or release.
 
-P2 adds a separate opt-in native LiveKit composition over the existing durable
-P2 input/dispatch authority. Each committed browser text message or final voice
-utterance must be durably accepted before Python conversational processing or
-business dispatch. Preserve native stream/utterance identity across retries;
-interim transcription is observation only. Disable the competing SDK automatic
-text/reply path. One stable scoped input may have repeated processing attempts
-but only one original logical acceptance and operation identity. Native media,
-generation, interruption, browser playback and business consent remain distinct.
+### P2 native input
+
+P2 adds a separate opt-in native LiveKit composition over the existing durable P2
+input/dispatch authority:
+
+- Each committed browser text message or final voice utterance must be durably
+  accepted before Python conversational processing or business dispatch.
+- Preserve native stream/utterance identity across retries. Interim transcription
+  is observation only.
+- Disable the competing SDK automatic text/reply path.
+- One stable scoped input may have repeated processing attempts, but only one
+  original logical acceptance and operation identity.
+- Native media, generation, interruption, browser playback and business consent
+  remain distinct.
+
+### P3 deadlines and cancellation
 
 P3 uses P1's existing accepted-work, issued-attempt, deadline, cancellation and
-protected-action interfaces. Validate expiry before invocation and while work is
-held, ignored remote cancellation, late known result retention/invalidation and
-later eligible progress. Keep request, remote acknowledgement, remote outcome,
-stored result and current applicability separate. Add no recovering scheduler.
+protected-action interfaces. Validate:
+
+- expiry before invocation and while work is held;
+- ignored remote cancellation;
+- late known result retention/invalidation;
+- later eligible progress.
+
+Keep request, remote acknowledgement, remote outcome, stored result and current
+applicability separate. Add no recovering scheduler.
+
+### Preservation and deferred scope
 
 Preserve the preceding checkpoint, ordinary M1 state, P1's 77 qualified runtime
-payloads/README/schema/public API, image pins and default composition. Prefer
+payloads/README/schema/public API, image pins and default composition. Prefer an
 unchanged P3 runtime where existing guards already implement the contract. Any
-observed production defect requires a focused reviewed fix and affected regressions.
+observed production defect requires a focused reviewed fix and affected
+regressions.
+
 Use installed pinned SDK versions. A new public adapter dependency edge must be
-declared and checked through isolated installed consumption; changing an edge is
+declared and checked through isolated installed consumption. Changing an edge is
 not permission to update unrelated versions. No paid provider or real carrier is
 needed. Provider credential files are not inputs to this phase's checks.
 
-P2-I17's complete interruption/missing-playback inventory and I18's cross-channel
-room resumption remain separate slices; this phase must still run actual hybrid
-browser/SDK input and returned-media checks for the behavior it implements.
-Broader P3 specialist/coordinator kill recovery, document capabilities, load and
-full integrated/package release retain their later phase gates.
+P2-I17's complete interruption/missing-playback inventory and P2-I18's
+cross-channel room resumption remain separate slices. This phase must still run
+actual hybrid browser/SDK input and returned-media checks for the behavior it
+implements. Broader P3 specialist/coordinator kill recovery, document
+capabilities, load and full integrated/package release retain their later phase
+gates.
+
+### Terms used in this record
+
+| Term | Meaning |
+| --- | --- |
+| Implementation task IDs | Such as P2-I15; identify tasks in the project task plans |
+| Acceptance IDs | Such as P2-15; identify rows in the project charters |
+| Selected local phase | The gates chosen for this work item; passing them does not complete a full charter row |
+| Gate names | Such as G-READY and G-MEDIA; refer to the engineering gates in the [validation plan](../validation-plan.md) |
+| SDK | Software development kit; in this record usually the pinned LiveKit Agents SDK |
+| lk.chat | The LiveKit text-stream topic that carries browser chat messages |
+| Automatic speech recognition (ASR) | Turns audio into text; this phase uses a scripted native recognizer |
+| Real-time communication (RTC) | The WebRTC media path through self-hosted LiveKit |
+| Acknowledgement (ACK) | A receiver's confirmation that it accepted a request; an ACK does not prove that work stopped or finished |
+| Data definition language (DDL) | Schema-changing SQL |
+| M1 | The original confirmed-investigation intake data, which every phase preserves |
+
+### Criteria
 
 | Criterion | Given | When | Then: safety | Then: useful progress | Test/mode and evidence |
 | --- | --- | --- | --- | --- | --- |
@@ -61,30 +108,43 @@ full integrated/package release retain their later phase gates.
 
 ## Interfaces and ownership
 
+### P2
+
 P2 owns channel contracts, trusted native ingress, the Python adapter and project
 tests/examples. Its existing PostgreSQL inbox and processing intent retain input
-and operation authority. Native source identity and verified business binding
-must be authenticated independently of text/transcription contents. Do not disguise
-native events as authenticated SMS or trust a caller-constructed principal.
-Use a separate opt-in composition; preserve qualified P1 service behavior.
-Readiness includes the SDK's public RoomIO subscription barrier. Bound and close
-custom lk.chat readers; disable the SDK default text consumer and session-host
-alternate ingress. Document exact commit points, body/stream caps, pool ownership,
-retry identities, capabilities and public dependency edges before qualification.
+and operation authority.
 
-P3 owns its deadline/cancellation schedules, fixtures, public composition example
-if needed and project tests/docs. Existing P1 public execution/case/action ports
-own time and authority; derived metadata remains as-of evidence. Test-only owner
-fixtures may inspect isolated schemas for exact reconciliation but product adapters
-must not import sibling stores. Known receipts/results survive later expiry or
-cancellation; no cached applicability permits a new action.
+- Native source identity and verified business binding must be authenticated
+  independently of text/transcription contents.
+- Do not disguise native events as authenticated SMS or trust a
+  caller-constructed principal.
+- Use a separate opt-in composition and preserve qualified P1 service behavior.
+- Readiness includes the SDK's public RoomIO subscription barrier.
+- Bound and close custom lk.chat readers. Disable the SDK default text consumer
+  and session-host alternate ingress.
+- Before qualification, document exact commit points, body/stream caps, pool
+  ownership, retry identities, capabilities and public dependency edges.
+
+### P3
+
+P3 owns its deadline/cancellation schedules, fixtures, a public composition
+example if needed and project tests/docs. Existing P1 public execution/case/action
+ports own time and authority; derived metadata remains as-of evidence. Test-only
+owner fixtures may inspect isolated schemas for exact reconciliation, but product
+adapters must not import sibling stores. Known receipts/results survive later
+expiry or cancellation. No cached applicability permits a new action.
+
+### Root integration
 
 Root integration owns this work item, shared Make/discovery/policy, independent
-gate-negative tests, shared guides and final source-bound evidence. Agree adapter,
-browser and local setup ownership before editing overlapping files. Freeze exact
-case/mode inventories, role-specific environments, resource/cleanup budgets and
-source hashes before any normal qualification measurement. Preserve earlier
-failures and diagnostic/nonqualifying runs separately.
+gate-negative tests, shared guides and final source-bound evidence.
+
+- Agree adapter, browser and local setup ownership before editing overlapping
+  files.
+- Freeze exact case/mode inventories, role-specific environments,
+  resource/cleanup budgets and source hashes before any normal qualification
+  measurement.
+- Preserve earlier failures and diagnostic/nonqualifying runs separately.
 
 ## Failure cases and validation
 
@@ -99,27 +159,38 @@ failures and diagnostic/nonqualifying runs separately.
 | G-PACKAGE | Python adapter and public P2/P3 consumer boundaries | Archive payload/metadata parity, isolated installs and actual public example behavior | Existing pinned third-party versions, declared dependency edges, no repository PYTHONPATH | Current source-bound wheel/npm and selected integration reports |
 | G-RELEASE | Complete project/ecosystem qualification | Not closed by selected task evidence | Remaining normative acceptance rows and later phases still required | Keep complete product release pending |
 
-Existing commands include make check, make frontend-check, make format-check,
-make p2-postgres-check, make p2-send-policy-check, make p3-execution-check,
-make p3-applicability-check and make p3-action-races-check, plus the selected
-registered P3 lab rows and ordinary local stack doctor/smoke. New focused native
-and deadline commands enter the maintained Make/README surfaces only with their
-actual implementation and negative report/environment tests. Missing setup,
+### Commands
+
+Existing commands include:
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| Shared fast gates | `make check`, `make frontend-check` and `make format-check` | None |
+| P2 lanes | `make p2-postgres-check` and `make p2-send-policy-check` | None |
+| P3 lanes | `make p3-execution-check`, `make p3-applicability-check` and `make p3-action-races-check` | None |
+| Registered lab rows and stack | The selected registered P3 lab rows and ordinary local stack doctor/smoke | None |
+
+New focused native and deadline commands enter the maintained Make/README surfaces
+only with their actual implementation and negative report/environment tests. Missing setup,
 zero-test runs, required skips, timeouts or incomplete cleanup cannot pass.
 
-Logs use fixed event/operation/code/outcome fields with finite numeric duration
-and occupancy measurements. Preserve uncertainty in exception translation;
-cancellation propagates while actual I/O retains its owner. Exclude bodies,
-headers, grants, addresses, credentials, arbitrary URLs and exception chains from
-logs/metrics/reports. Native generation and playback observations never become
-acceptance, human acknowledgement or exact quote confirmation.
+### Logging and exception rules
+
+- Logs use fixed event/operation/code/outcome fields with finite numeric duration
+  and occupancy measurements.
+- Preserve uncertainty in exception translation. Cancellation propagates while
+  actual I/O retains its owner.
+- Exclude bodies, headers, grants, addresses, credentials, arbitrary URLs and
+  exception chains from logs/metrics/reports.
+- Native generation and playback observations never become acceptance, human
+  acknowledgement or exact quote confirmation.
 
 ## Results and handoff
 
-P2-I15/I16 and P3-I13 completed their selected local phase. Actual source,
+P2-I15/P2-I16 and P3-I13 completed their selected local phase. Actual source,
 isolated installed consumption, affected compatibility, full fast checks and
 ordinary stack validation passed. Full P2/P3 charter and ecosystem release remain
-pending; no catalog registration is added by this slice.
+pending. No catalog registration is added by this slice.
 
 | Evidence | Result | Scope and limit |
 | --- | --- | --- |
@@ -137,58 +208,74 @@ pending; no catalog registration is added by this slice.
 | Harness/format/design | 45 native gate tests and 29 deadline gate tests; Python formatting of 355 files; 109 documentation checks and 28 Mermaid syntax checks passed | Invalid Mermaid rejected; diagrams retain separate semantic source review. Catalog remains 55 cases/24 registered, with 17 P2 and 14 P3 rows planned |
 | Runtime preservation | Ordinary stack doctor and smoke passed eight checks and ten audio frames, preserving original M1 identity | Diagnostic transport only, with inference disabled. Read-only final audit found zero native fixture schemas and zero native lab rooms; no ordinary reset |
 
-The P2 final report is
-.local/validation/p2-native/i15-i16-final-10.json, with its same-stem artifacts.
-The preceding successful native run and every failed attempt remain separately
-retained. P3's selected source report is
-.local/validation/p3-deadlines/i13-corrected-03.json. The phase checkpoint under
-.local/validation/p2-native-p3-deadlines retains source/contract indices, package
-archives, raw safe gate outputs, independent reviews and the final summary.
-The selected P2 Python package is the refreshed installed 55-test tree; the earlier
-51-test tree remains earlier evidence and is never relabeled. Npm installation
-qualifies PostgreSQL/HTTP, while the source gate independently qualifies RTC/media.
+### Reports and evidence
+
+| Evidence | Location | Notes |
+| --- | --- | --- |
+| P2 final report | `.local/validation/p2-native/i15-i16-final-10.json`, with its same-stem artifacts | The preceding successful native run and every failed attempt remain separately retained |
+| P3 selected source report | `.local/validation/p3-deadlines/i13-corrected-03.json` | None |
+| Phase checkpoint | Under `.local/validation/p2-native-p3-deadlines` | Retains source/contract indices, package archives, raw safe gate outputs, independent reviews and the final summary |
+| Selected P2 Python package | The refreshed installed 55-test tree | The earlier 51-test tree remains earlier evidence and is never relabeled |
+
+Npm installation qualifies PostgreSQL/HTTP, while the source gate independently
+qualifies RTC/media.
 
 ### Preserved failures and corrections
 
+#### P2 fixture and dispatcher
+
 The first P2 fixture compared a hardened null-prototype codec object with a
-JSON-loaded ordinary object. An independent browser-free reproduction proved equal
-serialized values; complete public-object comparisons were normalized while raw
-SQL bytes and stable identity checks stayed unchanged. The subsequent expiry
-schedule exposed a real missing v6 dispatcher branch: an actual diagnostic observed
-UpgradeRequired with zero prepare/operation calls. The fix adds only version six
-after the unchanged role/catalog/definition validation, with independent positive
-and malformed-metadata regressions. Early fixture dispatch failure now races the
-owned barrier and a finite timer rather than leaving an unresolved top-level await.
+JSON-loaded ordinary object. An independent browser-free reproduction proved
+equal serialized values. Complete public-object comparisons were normalized,
+while raw SQL bytes and stable identity checks stayed unchanged.
+
+The subsequent expiry schedule exposed a real missing v6 dispatcher branch: an
+actual diagnostic observed UpgradeRequired with zero prepare/operation calls. The
+fix adds only version six after the unchanged role/catalog/definition validation,
+with independent positive and malformed-metadata regressions. Early fixture
+dispatch failure now races the owned barrier and a finite timer rather than
+leaving an unresolved top-level await.
+
+#### Browser and startup
 
 The Vite /p2 prefix also captured the native HTML entry. The corrected API-only
 regular expression is supported by the
 [official proxy contract](https://vite.dev/config/server-options.html#server-proxy)
-and an actual local HTTP regression. Startup separately waits for the exact bound
-participant under a 60-second precondition before the unchanged 10-second SDK
-readiness/whole-start bound; six ordered monotonic milestones document what actually
-happened. Timing alone is not claimed as the cause of the previous browser failure.
+and an actual local HTTP regression.
+
+Startup separately waits for the exact bound participant under a 60-second
+precondition, before the unchanged 10-second SDK readiness/whole-start bound. Six
+ordered monotonic milestones document what actually happened. Timing alone is not
+claimed as the cause of the previous browser failure.
+
 A further isolated browser control proved that innerText of the closed evidence
 panel was empty while textContent held valid JSON. The harness now reads bounded
-textContent; producer metrics from that failed run independently showed accepted
+textContent. Producer metrics from that failed run independently showed accepted
 text and a completed reply. Screenshot review then corrected the stale voice hint
 using known receipt/generation facts, followed by a fresh passing media run.
+
+#### Cleanup reporting
 
 Earlier native attempts with cleanup reported false remain false. Controlled Vite
 shutdown now recognizes its conventional encoded signal exit only after this owner
 actually requested termination; an already exited nonzero process still fails.
 The later zero-residual audit does not rewrite historical cleanup reports. Failure
-diagnostics retain closed stages, fixed source locations, finite producer counters
-and body-free browser statuses; raw private capture/configuration stays ephemeral.
-A diagnostic sink failure cannot skip independent resource cleanup.
+diagnostics retain closed stages, fixed source locations, finite producer
+counters and body-free browser statuses. Raw private capture/configuration stays
+ephemeral. A diagnostic sink failure cannot skip independent resource cleanup.
 
-P3's initial normal run failed the fixture's projection-schema prefix guard; the
+#### P3 runs
+
+P3's initial normal run failed the fixture's projection-schema prefix guard. The
 fixture was corrected to the existing public prefix without changing that guard.
-The explicitly declared macOS child-environment correction, proof-schema hardening
-and offline npm config preparation failure remain distinct retained records.
-The final source and isolated installed runs are the only selected qualifications.
-The deliberately noncooperating peer is test-only; production cancellation remains
-cooperative. All nine invoke responses in the temporal proof finished at the local
-HTTP server, which does not establish a human acknowledgement.
+The explicitly declared macOS child-environment correction, proof-schema
+hardening and offline npm config preparation failure remain distinct retained
+records. The final source and isolated installed runs are the only selected
+qualifications.
+
+The deliberately noncooperating peer is test-only; production cancellation
+remains cooperative. All nine invoke responses in the temporal proof finished at
+the local HTTP server, which does not establish a human acknowledgement.
 
 ### Boundaries and next work
 
@@ -198,12 +285,19 @@ quality, production capacity or every interruption/playback outcome. Acceptance,
 SDK generation, observed playback, specialist result truth and human consent stay
 separate. No provider credential file, paid inference, real carrier, publication
 or remote CI was used. The declared optional Python native dependency edge reuses
-the existing Agents 1.8.11 pin; all 97 resolved package versions and the pnpm lock
+the existing Agents 1.8.11 pin. All 97 resolved package versions and the pnpm lock
 remain unchanged.
 
-P2-I17 is next for complete interruption/missing-playback behavior; I18 then covers
-verified current-case continuation across a new room, browser text and fake SMS.
-P3-I14 is next for broader specialist/coordinator process recovery. Those tasks,
-document modalities, load, remaining complete charter rows and integrated release
-retain their own acceptance gates. Known late results remain immutable facts;
-new action or delivery always requires current public authority.
+Next work:
+
+| Task | Next behavior |
+| --- | --- |
+| P2-I17 | Next, for complete interruption/missing-playback behavior |
+| P2-I18 | Then covers verified current-case continuation across a new room, browser text and fake SMS |
+| P3-I14 | Next, for broader specialist/coordinator process recovery |
+
+Those tasks, document modalities, load, remaining complete charter rows and
+integrated release retain their own acceptance gates.
+
+Known late results remain immutable facts. New action or delivery always requires
+current public authority.

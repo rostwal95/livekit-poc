@@ -263,7 +263,7 @@ function fixture(version: 1 | 5 | 6 | 7 = 6) {
       return result();
     }
     if (sql.includes("SET state=$2,last_code='association_required'")) {
-      row.state = values[1];
+      Object.assign(row, { state: values[1], last_code: 'association_required' });
       return result();
     }
     if (sql.includes('dispatch_attempts') && (sql.startsWith('INSERT') || sql.startsWith('UPDATE')))
@@ -448,6 +448,30 @@ for (const kind of ['expired', 'revoked'] as const)
       await f.dispatcher.close();
     }
   });
+test('v6 revoked binding parks possible external input outside automatic eligibility', async () => {
+  const f = fixture();
+  Object.assign(f.row, {
+    state: 'uncertain',
+    possible_external: true,
+    attempt_count: 1,
+    last_code: 'adapter_unavailable',
+  });
+  f.binding.revoked_at = now;
+  try {
+    assert.equal((await f.dispatcher.step(token, f.receiptId)).status, 'uncertain');
+    assert.deepEqual(f.observed, { agent: 0, accept: 0, lookup: 0 });
+    assert.equal(f.row.state, 'uncertain');
+    assert.equal(f.row.last_code, 'association_required');
+    assert.equal(f.row.attempt_count, 1);
+    await f.dispatcher.eligible(token, 4);
+    const due = f.calls.filter((q) => q.includes('SELECT i.receipt_id::text'));
+    assert.equal(due.length, 1);
+    assert.ok(due[0]!.includes("NOT (d.state='uncertain' AND d.last_code='association_required')"));
+    assert.ok(due[0]!.includes("d.state IN ('pending','running','uncertain')"));
+  } finally {
+    await f.dispatcher.close();
+  }
+});
 test('valid intake-only schema v1 remains upgrade-required for dispatch', async () => {
   const f = fixture(1);
   try {

@@ -116,7 +116,8 @@ class TransportDiagnostics:
                         )
         finally:
             await stream.aclose()
-            self.audio_tasks.pop(track_sid, None)
+            if self.audio_tasks.get(track_sid) is asyncio.current_task():
+                del self.audio_tasks[track_sid]
 
     def on_audio(self, track, track_sid: str) -> None:
         if track_sid in self.audio_tasks:

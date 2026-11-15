@@ -160,6 +160,14 @@
         "Commands",
         "Validation",
         "Next milestone"
+      ],
+      "requiredTables": [
+        "Implementation status",
+        "Documentation",
+        "Requirements",
+        "Commands",
+        "Validation",
+        "Next milestone"
       ]
     },
     {
@@ -179,6 +187,11 @@
         "Development rules",
         "Verification",
         "Handoff"
+      ],
+      "requiredTables": [
+        "Read first",
+        "Owned paths",
+        "Verification"
       ]
     },
     {
@@ -214,7 +227,15 @@
       "requiredTables": [
         "Objectives",
         "Functional requirements",
-        "Non-functional requirements"
+        "Non-functional requirements",
+        "Back-of-the-envelope calculations",
+        "Components and related details",
+        "Security and privacy",
+        "Observability",
+        "Metrics",
+        "Exception handling",
+        "Design considerations and trade-offs",
+        "Validation and acceptance gates"
       ],
       "requiredDiagrams": {
         "High-level design": [

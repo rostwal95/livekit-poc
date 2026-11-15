@@ -117,6 +117,8 @@ describe('AgentProcess', () => {
   it('imports/constructs without spawning and validates a normal independently owned worker', async () => {
     const events: AgentProcessEvent[] = [],
       value = agent('normal', {
+        // The file's first spawn pays the cold Node start-up on a loaded host.
+        timeoutMs: 1500,
         observer: (event) => {
           events.push(event);
         },

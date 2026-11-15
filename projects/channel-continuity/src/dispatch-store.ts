@@ -64,6 +64,7 @@ export class DispatchStore {
   #active = 0;
   #closing = false;
   #idle: (() => void) | undefined;
+  #ending: Promise<unknown> | undefined;
   #closed: Promise<void> | undefined;
   constructor(input: DatabaseSettings, integration: FakeSmsIntegration, accounts: SeededAccounts) {
     this.#value = settings(input, 'livekit_lab');
@@ -512,7 +513,9 @@ export class DispatchStore {
       );
     });
   }
-  /** Bounded persisted eligibility observation; claim() revalidates all authority. */
+  /** Bounded persisted eligibility observation; claim() revalidates all authority.
+   * Possible-external input held for a missing association waits for an explicit step or reconcile.
+   */
   async eligible(token: string, limit = 4): Promise<readonly string[]> {
     const account = this.#account(token);
     if (!Number.isSafeInteger(limit) || limit < 1 || limit > 16)
@@ -521,7 +524,7 @@ export class DispatchStore {
       const now = await this.#clock(client),
         p = this.#integration.providerScope;
       const found = await client.query(
-        `SELECT i.receipt_id::text FROM ${this.#q('inbox')} i JOIN ${this.#q('processing_intents')} d USING(receipt_id) WHERE i.tenant_id=$1 AND i.provider=$2 AND i.provider_account_id=$3 AND i.account_id=$4 AND i.conversation_id=$5 AND d.state IN ('pending','running','uncertain') AND d.attempt_count<$6 AND (d.claim_owner IS NULL OR d.claim_until<=$7) AND (d.next_attempt_at IS NULL OR d.next_attempt_at<=$7) ORDER BY i.acceptance_sequence LIMIT $8`,
+        `SELECT i.receipt_id::text FROM ${this.#q('inbox')} i JOIN ${this.#q('processing_intents')} d USING(receipt_id) WHERE i.tenant_id=$1 AND i.provider=$2 AND i.provider_account_id=$3 AND i.account_id=$4 AND i.conversation_id=$5 AND d.state IN ('pending','running','uncertain') AND NOT (d.state='uncertain' AND d.last_code='association_required') AND d.attempt_count<$6 AND (d.claim_owner IS NULL OR d.claim_until<=$7) AND (d.next_attempt_at IS NULL OR d.next_attempt_at<=$7) ORDER BY i.acceptance_sequence LIMIT $8`,
         [
           p.tenantId,
           p.provider,
@@ -582,21 +585,28 @@ export class DispatchStore {
   close(): Promise<void> {
     if (this.#closed) return this.#closed;
     this.#closing = true;
-    const idle =
-      this.#active === 0
-        ? Promise.resolve()
-        : new Promise<void>((done) => {
-            this.#idle = done;
-          });
-    this.#closed = this.#closeOwned(idle);
-    return this.#closed;
+    if (!this.#ending) {
+      const idle =
+        this.#active === 0
+          ? Promise.resolve()
+          : new Promise<void>((done) => {
+              this.#idle = done;
+            });
+      this.#ending = Promise.all([this.#pool.end(), idle]);
+    }
+    const closed = this.#closeOwned(this.#ending);
+    this.#closed = closed;
+    void closed.catch(() => {
+      this.#closed = undefined;
+    });
+    return closed;
   }
-  async #closeOwned(idle: Promise<void>): Promise<void> {
+  async #closeOwned(ending: Promise<unknown>): Promise<void> {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const deadline = performance.now() + 6000;
     try {
       await Promise.race([
-        Promise.all([this.#pool.end(), idle]),
+        ending,
         new Promise<never>((_done, reject) => {
           timer = setTimeout(() => reject(new ChannelError('CleanupIncomplete')), 6000);
         }),

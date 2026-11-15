@@ -288,6 +288,8 @@ export class ChannelPolicyGatewayRuntime {
             native: { endpoint: c.originEndpoints.native, bearer: k.nativeOriginBearer },
             sms: { endpoint: c.originEndpoints.sms, bearer: k.smsOriginBearer },
           },
+          // Matches the application's dispatch step deadline, whose abort still bounds each call.
+          timeoutMs: 5000,
         });
         const ready = await cases.inspect(
           { scope: r.scope, caseId: r.caseId, conversationId: r.conversationId },

@@ -118,7 +118,8 @@ class _Recognizer(stt.STT[Never]):
             )
         )
         self.profile = profile
-        self.streams = _Streams(1)
+        # SDK clear_user_turn opens a replacement before its old stream finishes closing.
+        self.streams = _Streams(2)
         self.current: str | None = None
         self.seen: set[str] = set()
         self.open: set[str] = set()

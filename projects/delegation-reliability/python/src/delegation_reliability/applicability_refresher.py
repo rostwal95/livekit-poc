@@ -24,6 +24,7 @@ from continuity_lab.work_api import WorkError, WorkScope
 from .applicability_api import ApplicabilityClient
 from .applicability_models import ApplicabilityRefresh, _RefreshDraft, parse_refresh, snapshot_view
 from .completion import CompletionError, _evidence
+from .completion_processor import _dependency_code
 from .contracts import (
     CAPABILITY,
     Attempt,
@@ -283,14 +284,7 @@ class ApplicabilityRefresher(_ProjectionOwner):
             ):
                 raise ProjectionError("invalid_source_state")
         except WorkError as error:
-            raise ProjectionError(
-                "storage_unavailable"
-                if error.code
-                in {"storage_unavailable", "acknowledgement_unknown", "deadline_exceeded"}
-                else "unauthorized"
-                if error.code == "unauthorized"
-                else "invalid_source_state"
-            ) from None
+            raise ProjectionError(_dependency_code(error.code)) from None
         except (ValueError, TypeError, AttributeError):
             raise ProjectionError("invalid_source_state") from None
 
@@ -367,14 +361,7 @@ class ApplicabilityRefresher(_ProjectionOwner):
             observed, number = await self._observe(row, grant, request, transport, parsed)
             return _RefreshDraft(row, grant.number, number, observed)
         except WorkError as error:
-            raise ProjectionError(
-                "storage_unavailable"
-                if error.code
-                in {"storage_unavailable", "acknowledgement_unknown", "deadline_exceeded"}
-                else "unauthorized"
-                if error.code == "unauthorized"
-                else "invalid_source_state"
-            ) from None
+            raise ProjectionError(_dependency_code(error.code)) from None
         except (ContractError, AttributeError, TypeError, ValueError):
             raise ProjectionError("invalid_source_state") from None
 

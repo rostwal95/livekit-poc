@@ -335,6 +335,19 @@ describe('joined browser activation decisions', () => {
       [input.inputId, 'pending'],
     ]);
   });
+  it('retrying an existing input keeps one user entry and its original body', () => {
+    const s = active();
+    const input = s.c.addInput(s.room, crypto.randomUUID(), 'web_chat', 'Is this eligible?');
+    s.c.inputUnknown(s.room, input.inputId);
+    expect(s.c.addInput(s.room, input.inputId, 'web_chat', 'Is this eligible?')).toEqual(input);
+    expect(() => s.c.addInput(s.room, input.inputId, 'web_chat', 'Changed')).toThrow();
+    expect(s.c.snapshot().messages.map((row) => [row.role, row.inputId])).toEqual([
+      ['user', input.inputId],
+    ]);
+    expect(s.c.snapshot().inputs.map((row) => [row.inputId, row.status])).toEqual([
+      [input.inputId, 'unknown'],
+    ]);
+  });
   it('never exposes either operator key or RTC token through view JSON', () => {
     const s = active();
     const text = JSON.stringify(s.c.snapshot());

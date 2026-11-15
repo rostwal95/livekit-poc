@@ -51,6 +51,8 @@ _CODES = frozenset(
 BASE = frozenset({"PATH", "LANG", "CI", "NO_COLOR", "__CF_USER_TEXT_ENCODING"})
 T = TypeVar("T")
 STARTUP_SECONDS, SHUTDOWN_SECONDS = 60.0, 60.0
+RETRY_SECONDS, RETRY_MAXIMUM_SECONDS = 0.1, 5.0
+STOP_SIGNALS = (signal.SIGTERM, signal.SIGINT, signal.SIGHUP, signal.SIGQUIT)
 PRIVATE_BYTES = 32768
 
 
@@ -791,7 +793,7 @@ async def serve(request: LaunchRequest) -> int:
     launcher = JoinedLauncher(request)
     loop = asyncio.get_running_loop()
     stopped = asyncio.Event()
-    for sig in (signal.SIGTERM, signal.SIGINT):
+    for sig in STOP_SIGNALS:
         loop.add_signal_handler(sig, stopped.set)
     startup = task(launcher.start())
     stopping = task(stopped.wait())
@@ -812,8 +814,9 @@ async def serve(request: LaunchRequest) -> int:
         failed = True
         emit({"schemaVersion": 1, "status": "unavailable", "code": "unavailable"})
     finally:
-        # Repeated SIGTERM/INT retries this same retained cleanup. Once an actual
+        # Repeated stop signals retry this same retained cleanup. Once an actual
         # cleanup settles successfully after the observer, observe it and exit.
+        reported, pause = False, RETRY_SECONDS
         while True:
             stopped.clear()
             try:
@@ -822,11 +825,22 @@ async def serve(request: LaunchRequest) -> int:
             except asyncio.CancelledError:
                 continue
             except Exception:  # noqa: BLE001 - no forced exit over incomplete owners
-                emit({"schemaVersion": 1, "status": "closing", "code": "cleanup_incomplete"})
+                if not reported:
+                    emit({"schemaVersion": 1, "status": "closing", "code": "cleanup_incomplete"})
+                    reported = True
                 retry = task(stopped.wait())
                 actual = launcher._cleanup
                 waiters = (retry,) if actual is None or actual.done() else (retry, actual)
                 await asyncio.wait(waiters, return_when=asyncio.FIRST_COMPLETED)
+                if (
+                    not retry.done()
+                    and actual is not None
+                    and (actual.cancelled() or actual.exception() is not None)
+                ):
+                    # Past the shutdown deadline every close() fails at once, so pace
+                    # unsignalled retries of a cleanup that settled unsuccessfully.
+                    await asyncio.wait((retry,), timeout=pause)
+                    pause = min(2 * pause, RETRY_MAXIMUM_SECONDS)
                 retry.cancel()
                 await asyncio.gather(retry, return_exceptions=True)
         for observer in (stopping, terminal):
@@ -836,7 +850,7 @@ async def serve(request: LaunchRequest) -> int:
             *(value for value in (stopping, terminal, startup) if value is not None),
             return_exceptions=True,
         )
-        for sig in (signal.SIGTERM, signal.SIGINT):
+        for sig in STOP_SIGNALS:
             loop.remove_signal_handler(sig)
     final_state = launcher.status()
     emit(final_state)

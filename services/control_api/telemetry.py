@@ -177,7 +177,8 @@ async def http_error_handler(request: Request, error: Exception) -> JSONResponse
     if not isinstance(error, StarletteHTTPException):
         return error_response(request.scope, 500, "Internal server error", "internal_error")
     if isinstance(error, ApiError):
-        code, detail = error.code, str(error.detail)
+        code = error.code
+        detail = error.detail if isinstance(error.detail, (dict, list)) else str(error.detail)
     else:
         code, detail = DEFAULT_ERRORS.get(error.status_code, ("http_error", "HTTP request failed"))
     # Preserve only known HTTP response semantics, not arbitrary provider headers.

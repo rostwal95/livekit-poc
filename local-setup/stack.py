@@ -26,6 +26,7 @@ from types import ModuleType
 
 SETUP = Path(__file__).resolve().parent
 DEFAULT_PROJECT = "livekit-agent-ecosystem"
+DEFAULT_UI_PORT = "13000"
 # Compose project names scope containers, networks, volumes and built image tags.
 PROJECT_PATTERN = re.compile(r"[a-z][a-z0-9-]{2,40}")
 OWNER_LABEL = "io.livekit-ecosystem.owner"
@@ -140,6 +141,20 @@ def configured_project(setup: Path = SETUP) -> str:
     except (SetupError, OSError, UnicodeError):
         return DEFAULT_PROJECT
     return value if PROJECT_PATTERN.fullmatch(value) else DEFAULT_PROJECT
+
+
+def configured_ui_port(setup: Path = SETUP) -> str:
+    """Return the configured console UI_PORT, else 13000, without reading credentials."""
+    path = setup / ".env"
+    if path.is_symlink() or not path.is_file():
+        return DEFAULT_UI_PORT
+    try:
+        value = parse_env(path).get("UI_PORT", DEFAULT_UI_PORT)
+    except (SetupError, OSError, UnicodeError):
+        return DEFAULT_UI_PORT
+    if re.fullmatch(r"[0-9]{1,5}", value) and 1024 <= int(value) <= 65535:
+        return value
+    return DEFAULT_UI_PORT
 
 
 PROJECT = configured_project()
@@ -591,7 +606,7 @@ def doctor(setup: Path = SETUP, observability: bool = False) -> dict:
     base = compose_arguments(setup, observability)
     assert_owned_containers(setup, values)
     if (setup.parent / ".git").exists() and run(
-        ["git", "ls-files", "--", ".env", ".secrets.env"], values, setup
+        ["git", "ls-files", "--", ".env", ".secrets.env", ".env.providers"], values, setup
     ).strip():
         raise SetupError("Local environment and credential files must not be tracked")
     run(base + ["config", "--quiet"], values, setup)
@@ -605,6 +620,17 @@ def doctor(setup: Path = SETUP, observability: bool = False) -> dict:
         "composeVersion": version.strip(),
         "productAcceptance": "not_certified",
     }
+
+
+def business_activation(output: str) -> str:
+    """Return the schema action named on the business helper's final result line."""
+    try:
+        value = json.loads(output.strip().splitlines()[-1])["schema_activation"]
+    except (IndexError, KeyError, TypeError, ValueError):
+        value = None
+    if value not in ("explicit_empty_bootstrap", "owner_upgrade_v5", "read_only_ready"):
+        raise SetupError("Business preparation reported an unrecognized schema action")
+    return value
 
 
 def prepare_models(
@@ -675,6 +701,14 @@ class ProviderStopError(SetupError):
     def __init__(self, *, cleanup_incomplete: bool) -> None:
         self.cleanup_incomplete = cleanup_incomplete
         super().__init__("provider_stop_failed")
+
+
+class ProviderStartError(SetupError):
+    """Provider serving failed after it began; stop_provider cleanup was attempted."""
+
+    def __init__(self, *, cleanup_incomplete: bool) -> None:
+        self.cleanup_incomplete = cleanup_incomplete
+        super().__init__("provider_start_failed")
 
 
 def stop_provider(base: list[str], values: dict[str, str], setup: Path) -> str:
@@ -874,7 +908,7 @@ def main(argv=None, setup: Path = SETUP) -> int:
                 output = run([str(interpreter), str(helper)], values, setup, 120)
                 report = {
                     "status": "business_prepared",
-                    "schemaActivation": "explicit_empty_bootstrap_or_read_only_ready",
+                    "schemaActivation": business_activation(output),
                     "fixtureInitialization": False,
                     "servingM1Unchanged": True,
                     "productAcceptance": "not_certified",
@@ -1019,26 +1053,41 @@ def main(argv=None, setup: Path = SETUP) -> int:
                                 **serving_values,
                                 "P1_PROVIDER_CA_SNAPSHOT": str(ca_snapshot),
                             }
-                    output = run(
-                        serving_base
-                        + [
-                            "up",
-                            "-d",
-                            "--no-deps",
-                            *(["--force-recreate"] if ca_snapshot is not None else []),
-                            "--wait",
-                            "--wait-timeout",
-                            "60",
-                            "jaeger",
-                            "p1-worker",
-                            "conversation-agent",
-                            "control-api",
-                        ],
-                        serving_values,
-                        setup,
-                        120,
-                        merge_output=True,
-                    )
+                    try:
+                        output = run(
+                            serving_base
+                            + [
+                                "up",
+                                "-d",
+                                "--no-deps",
+                                *(["--force-recreate"] if ca_snapshot is not None else []),
+                                "--wait",
+                                "--wait-timeout",
+                                "60",
+                                "jaeger",
+                                "p1-worker",
+                                "conversation-agent",
+                                "control-api",
+                            ],
+                            serving_values,
+                            setup,
+                            120,
+                            merge_output=True,
+                        )
+                    except BaseException as error:
+                        if not provider_real:
+                            raise
+                        scripted = {
+                            **business_values,
+                            "P1_BUSINESS_ENABLED": "0",
+                            "P1_CONVERSATION_INFERENCE": "scripted",
+                            "P1_TRACE_MODE": "scripted",
+                        }
+                        try:
+                            stop_provider(business_base, scripted, setup)
+                        except ProviderStopError:
+                            raise ProviderStartError(cleanup_incomplete=True) from error
+                        raise ProviderStartError(cleanup_incomplete=False) from error
                 elif args.action == "stop-provider":
                     output = stop_provider(business_base, business_values, setup)
                 else:
@@ -1047,6 +1096,14 @@ def main(argv=None, setup: Path = SETUP) -> int:
                         business_values,
                         setup,
                         90,
+                        merge_output=True,
+                    )
+                    # A stopped container keeps its environment, including earlier provider keys.
+                    run(
+                        business_base + ["rm", "--force", "conversation-agent"],
+                        business_values,
+                        setup,
+                        30,
                         merge_output=True,
                     )
                     output = run(
@@ -1228,6 +1285,17 @@ def main(argv=None, setup: Path = SETUP) -> int:
                         "cleanup_incomplete": error.cleanup_incomplete
                         if isinstance(error, ProviderStopError)
                         else True,
+                    }
+                )
+            )
+        elif isinstance(error, ProviderStartError):
+            print(
+                json.dumps(
+                    {
+                        "status": "failed",
+                        "code": "provider_start_failed",
+                        "stage": "serving",
+                        "cleanup_incomplete": error.cleanup_incomplete,
                     }
                 )
             )

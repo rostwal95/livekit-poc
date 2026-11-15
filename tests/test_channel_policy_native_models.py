@@ -19,7 +19,8 @@ from unittest.mock import patch
 from uuid import uuid4
 
 from livekit import rtc
-from livekit.agents import llm, stt, tts
+from livekit.agents import Agent, AgentSession, llm, stt, tts
+from livekit.agents.voice.io import AudioInput
 
 from channel_continuity.native_models import CommittedTranscript, NativeRecognizer
 from services.channel_policy_demo import native_models as m
@@ -439,17 +440,72 @@ class NativeModelsTests(unittest.IsolatedAsyncioTestCase):
         await stream.aclose()
         self.assertEqual(self.bundle.pending_count, 0)
 
-    async def test_single_asr_stream_capacity_and_useful_progress_after_close(self):
-        first = self.bundle.stt.stream()
+    async def test_sdk_clear_user_turn_replacement_commits_first_voice_turn(self):
+        class QueueInput(AudioInput):
+            def __init__(self):
+                super().__init__(label="scripted-reset-fixture")
+                self.frames: asyncio.Queue[rtc.AudioFrame] = asyncio.Queue()
+
+            async def __anext__(self):
+                return await self.frames.get()
+
+        turns: tuple[tuple[m.InputFixture, str], ...] = (
+            ("input-investigate.wav", "investigate"),
+            ("input-status.wav", "status"),
+        )
+        audio = QueueInput()
+        session: AgentSession[None] = AgentSession(
+            stt=self.bundle.stt,
+            vad=None,
+            turn_handling={"turn_detection": "manual", "preemptive_generation": {"enabled": False}},
+        )
+        session.input.audio = audio
+        await session.start(
+            Agent(instructions="Offline scripted manual turn fixture."),
+            record=False,
+            session_host=False,
+        )
+        session.input.set_audio_enabled(False)
+        try:
+            async with asyncio.timeout(2):
+                while not self.bundle.metrics()["stt_streams"]:
+                    await asyncio.sleep(0.001)
+            for fixture, expected in turns:
+                input_id = str(uuid4())
+                self.bundle.recognizer.begin_turn(input_id)
+                session.clear_user_turn()
+                session.input.set_audio_enabled(True)
+                pcm = self.bundle.input_audio(fixture).pcm
+                for offset in range(0, len(pcm), 640):
+                    audio.frames.put_nowait(frame(pcm[offset : offset + 640]))
+                async with asyncio.timeout(2):
+                    while not audio.frames.empty():
+                        await asyncio.sleep(0.001)
+                session.input.set_audio_enabled(False)
+                transcript = await session.commit_user_turn(
+                    transcript_timeout=1, stt_flush_duration=0.1, skip_reply=True
+                )
+                self.assertEqual(transcript, expected)
+                snapshot = self.bundle.recognizer.final_snapshot(input_id)
+                assert snapshot is not None
+                self.assertEqual((snapshot.input_id, snapshot.body), (input_id, expected))
+                self.assertEqual(self.bundle.metrics()["stt_streams"], 1)
+                self.bundle.recognizer.end_turn(input_id)
+        finally:
+            await session.aclose()
+        self.assertEqual(self.bundle.pending_count, 0)
+        first, second = self.bundle.stt.stream(), self.bundle.stt.stream()
         self.addAsyncCleanup(first.aclose)
+        self.addAsyncCleanup(second.aclose)
         with self.assertRaises(m.NativeModelError) as error:
             self.bundle.stt.stream()
         self.assertEqual(error.exception.code, "capacity_exhausted")
         await first.aclose()
-        second = self.bundle.stt.stream()
-        self.addAsyncCleanup(second.aclose)
-        self.assertEqual(self.bundle.pending_count, 1)
+        third = self.bundle.stt.stream()
+        self.addAsyncCleanup(third.aclose)
+        self.assertEqual(self.bundle.pending_count, 2)
         await second.aclose()
+        await third.aclose()
         self.assertEqual(self.bundle.pending_count, 0)
 
     async def test_close_timeout_retains_actual_stream_and_closes_independent_models(self):
@@ -554,6 +610,8 @@ class NativeModelsTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(str(error.exception), "unavailable")
         await entered.wait()
         self.assertEqual(self.bundle.pending_count, 1)
+        replacement = self.bundle.stt.stream()
+        self.addAsyncCleanup(replacement.aclose)
         with self.assertRaises(m.NativeModelError) as capacity:
             self.bundle.stt.stream()
         self.assertEqual(capacity.exception.code, "capacity_exhausted")

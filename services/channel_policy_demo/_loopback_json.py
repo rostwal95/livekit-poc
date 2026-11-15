@@ -113,6 +113,16 @@ def _raw(status: int, raw: bytes) -> tuple[int, bytes]:
     return status, raw
 
 
+async def close_writer(writer: asyncio.StreamWriter) -> None:
+    writer.close()
+    try:
+        await writer.wait_closed()
+    except OSError:
+        # connection_lost stored the transport's error in the close waiter, which
+        # re-raises it on every await; the socket is already closed by then.
+        pass
+
+
 @dataclass(eq=False, slots=True)
 class _Call:
     published: asyncio.Future[None]
@@ -210,9 +220,7 @@ class LoopbackJSONTransport:
 
     async def _close_writer(self, call: _Call) -> None:
         if call.writer is not None:
-            writer = call.writer
-            writer.close()
-            await writer.wait_closed()
+            await close_writer(call.writer)
             call.writer = None
 
     async def _exchange(self, call: _Call, body: bytes) -> tuple[int, bytes]:

@@ -1,344 +1,174 @@
 # Delegation Reliability Kit
 
-Status: Active
-Last reviewed: 13 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Active |
+| Purpose | Introduce P3: what is implemented, how the pieces fit, how to run and validate them and what remains planned |
+| Audience | Engineers new to P3 or changing its packages; coding agents |
+| Scope | The P3 project, its Python and TypeScript packages, examples and selected gates; per-API detail lives in the package guides |
+| Owns | P3 product onboarding, slice status, repository commands and selected gate summaries |
+| Related | [V1 charter](../../docs/projects/delegation-reliability-scope.md) · [Project design](Design.md) · [Project instructions](AGENTS.md) · [Python package guide](python/README.md) · [TypeScript specialist guide](specialist-ts/README.md) |
 
 ## Overview
 
-Build a Python coordination SDK and TypeScript specialist service for reliable background collaboration during a LiveKit conversation.
-The V1 charter defines behavior and stable P3 acceptance IDs.
+The Delegation Reliability Kit (P3) builds a Python coordination software
+development kit (SDK) and a TypeScript specialist service for reliable background
+collaboration during a LiveKit conversation. The [V1 charter](../../docs/projects/delegation-reliability-scope.md)
+defines behavior and the stable P3 acceptance IDs.
+
+This guide is the project overview for engineers who are new to P3. It summarizes
+what is implemented, how the pieces fit together, how to run and validate them and
+what remains planned. Each package has its own guide, which also ships inside the
+package and holds the API, configuration limits and lifecycle ownership:
+
+| Component | Path | Responsibility | Documented in |
+| --- | --- | --- | --- |
+| `delegation-reliability` (import `delegation_reliability`) | [python/src/delegation_reliability](python/src/delegation_reliability) | Python coordination SDK | [Python package guide](python/README.md) |
+| `@livekit-ecosystem/delegation-specialist` | [specialist-ts/src](specialist-ts/src) | TypeScript specialist service | [TypeScript specialist guide](specialist-ts/README.md) |
+| Examples | [examples](examples) | Configured public Python examples | [Python package guide](python/README.md) |
+| Project tests | [tests](tests) | Project test suites | [Commands](#commands) |
+| Specialist tests | [specialist-ts/tests](specialist-ts/tests) | Specialist test suites and test-only fixtures | [TypeScript specialist guide](specialist-ts/README.md) |
+
+Terms used throughout this guide:
+
+| Term | Meaning |
+| --- | --- |
+| P1 | The agent-continuity project. It is the durable authority for accepted work, issued attempts, results, cases, delivery and guarded action. |
+| P2 | The channel-continuity project. It provides the stable conversation receiver and the original channel input that origin-bound policy work retains. |
+| ACK | Acknowledgement. |
+| Issued attempt (grant) | A P1-created execution attempt. Only a newly issued, current and uncancelled running grant permits a specialist HTTP invocation. |
+| `eligible_at_commit` | P1's time, lease and cancellation disposition for a stored result. It is not semantic validity or permission to act. |
+| As-of applicability | A read-only, explicitly non-atomic observation of whether a result still fits current work and case state. |
+| Possible send | A committed P1 delivery marker. It permits receiver lookup only, never a second acceptance. |
+| Selected gate | A frozen set of named assertions that qualifies one slice. Passing it does not by itself register or complete a charter acceptance row. |
+
+Contents:
+
+- [Implementation status](#implementation-status): slice summary and the authority
+  rules that apply to every slice
+- [Documentation](#documentation), [Requirements](#requirements) and
+  [Commands](#commands)
+- [Capabilities](#capabilities): what each slice adds, with links to the package
+  guides
+- [Validation](#validation): what each gate exercises and its selected
+  qualification
+- [Next milestone](#next-milestone): remaining work
 
 ## Implementation status
 
-P3-A now includes a provider-free Python baseline comparing one real native
-AgentSession tool with an AgentTask inside the SDK TaskGroup. Both receive the
-same immutable synthetic policy facts, answer a useful read-only question while
-held and expose the eventual result through the SDK. This is controlled same-process
-supervisor orchestration, not independent background reasoning or product V1.
-P3-I03/I04 now add strict Python/TypeScript first-capability contracts, local service
-principal/evidence checks and a finite live-attempt boundary. The actual TypeScript
-producer is tested through the installed Python consumer. P3-I05 adds an authenticated
-loopback HTTP handler/client for one scripted read-only policy capability. Status
-and cancellation are observations of live attempts; they are not durable work or
-remote-stop guarantees. P3-I06 adds the Python submit/find/get/cancel coordinator
-through P1's public opt-in read-only accepted-work profile, a read-only managed-case
-adapter and a typed Python specialist HTTP consumer. P1 retains the original full
-canonical envelope before acknowledgement. I07A now adds an explicit one-step
-DelegationRunner over P1's owner-upgraded version-2 issued-execution profile. It
-invokes only a newly issued and freshly observed current grant, validates scoped
-policy facts and retains a complete canonical result through P1. Proposed wire
-attempts alone remain insufficient. Result eligibility at commit, fresh read-only
-case applicability and action/delivery authority are separate. I07B now adds an
-explicit durable result delivery client, cooperating persisted receiver and exact
-confirmation authorizer over P1's owner-upgraded v3 completion profile. The actual
-v4 case authority atomically guards work/result eligibility and exact case intent;
-one existing leased P1 worker applies the fake effect. Autonomous scheduling and real models remain planned. I16 selected qualification
-passed for the separate read-only document HTTP path described below. I08 now adds actual concurrent admission/conflict
-proof, the complete bounded rejection inventory and public composition/inspection
-example. I09 adds an owner-installed PostgreSQL projection v1 over P1 work v4
-result references, with explicit bounded steps and immutable as-of applicability.
-I10 adds owner-upgraded v2 delivery-only processing, gap-aware discovery and
-immutable terminal event acknowledgements. I11 adds explicit per-result as-of
-refresh commands, monotonic retained invalidation evidence and permanent display
-tombstones through an owner v3 upgrade. I12 validates the existing guarded action
-and external-effect boundaries under actual SQL revision/cancellation races and
-process loss; it adds no runtime API, schema or execution owner. I13 adds selected
-before/during invocation deadline and cancellation schedules over those same
-authorities, including a deliberately noncooperating test-only HTTP peer.
-I14 adds explicit specialist/coordinator process-recovery qualification tooling
-through the unchanged public authorities; its selected source/installed qualification
-is recorded separately in the current phase handoff.
-P3-01, P3-03 and P3-11 have registered lab runners; fourteen complete
-product cases remain planned.
-The [HTTP/standalone work item](../../docs/work-items/0027-p2-standalone-and-p3-http.md)
-records the earlier selected gates. Actual PostgreSQL, issued HTTP and process
-proof remain separate from fake-port checks. The [I07A execution checkpoint](../../docs/work-items/0029-p2-gateway-and-p3-issued-execution.md)
-records the versioned upgrade, historical results and useful current-result gates.
+P3 is partially implemented. P3-01, P3-03 and P3-11 have registered lab runners.
+Fourteen complete product cases remain planned, so the full project gate remains
+incomplete. Autonomous scheduling and real models remain planned. Actual PostgreSQL,
+issued HTTP and process proof remain separate from fake-port checks.
 
+### Slice summary
 
-The explicit FixedPolicyDeliveryClient now delivers verified v2 results through a
-stable P2 conversation receiver. Selected sixteen storage/four return assertions
-passed with original-receipt lookup, historical context and stale-delivery denial.
-These are scripted/public-port checks without a room or provider; joined
-voice/text/SMS and fresh installed qualification remain separate in the
-[0043 handoff](../../docs/work-items/0043-stable-result-delivery-and-return-context.md).
+Each row links the handoff that records the slice's evidence. Status labels follow
+the [implementation status vocabulary](../../docs/documentation-standards.md#implementation-status-vocabulary).
+Gate commands and details are under [Validation](#validation).
 
-### Origin-bound channel policy work
+| Slice | Capability | Status | Evidence |
+| --- | --- | --- | --- |
+| P3-A | Provider-free native baseline | Implemented | [0023](../../docs/work-items/0023-p3-native-baseline.md) |
+| P3-I03/I04 | Strict cross-language first-capability contracts, local service principal and evidence checks, finite live-attempt boundary | Implemented | [0025](../../docs/work-items/0025-p3-specialist-contracts-and-trust.md): actual TypeScript producer tested through the installed Python consumer |
+| P3-I05 | Authenticated loopback HTTP handler and client | Qualified | [0027](../../docs/work-items/0027-p2-standalone-and-p3-http.md): handler and client review and selected shared local gates passed |
+| P3-I06 | Acceptance coordinator, managed-case adapter and Python HTTP consumer | Implemented | [0028](../../docs/work-items/0028-p2-dispatch-and-p3-coordinator.md) |
+| P3-I07A | Issued execution runner | Qualified | [0029](../../docs/work-items/0029-p2-gateway-and-p3-issued-execution.md): versioned upgrade, historical results and useful current-result gates recorded |
+| P3-I07B | Result delivery and exact-confirmation action path | Qualified | [0030](../../docs/work-items/0030-p2-agent-recovery-and-p3-completion.md): first explicit delivery and exact fake-action path qualified |
+| P3-I08 | Concurrent admission proof, rejection inventory, public example | Qualified | [0031](../../docs/work-items/0031-revision-routing-and-delegation-acceptance.md): P3-01, P3-03 and P3-11 runners registered |
+| P3-I09 | Result projection v1 | Qualified | [0032](../../docs/work-items/0032-linked-confirmation-and-result-projections.md): twelve actual PostgreSQL assertions |
+| P3-I10 | Delivery-only processing v2 | Qualified | [0033](../../docs/work-items/0033-outbound-replies-and-completion-processing.md): sixteen actual assertions |
+| P3-I11 | Applicability refresh and display retention v3 | Qualified | [0034](../../docs/work-items/0034-callback-evidence-and-applicability-refresh.md): 18-case actual fixture |
+| P3-I12 | Validation of protected action and external-effect boundaries | Qualified | [0035](../../docs/work-items/0035-send-policy-and-action-races.md): sixteen selected assertions; measured source and installed qualification |
+| P3-I13 | Deadline and cancellation schedules | Qualified | [0036](../../docs/work-items/0036-native-input-and-deadline-cancellation.md): eighteen selected temporal assertions |
+| P3-I14 | Process-recovery qualification tooling | Qualified | [0037](../../docs/work-items/0037-playback-evidence-and-process-recovery.md): source and installed seventeen-assertion checks passed |
+| P3-I15 | Standalone installed consumer | Qualified | [0038](../../docs/work-items/0038-case-rehydration-and-standalone-release.md): all sixteen selected assertions passed |
+| P3-I16 | Read-only document (image) HTTP | Qualified | [0039](../../docs/work-items/0039-bounded-channel-workloads-and-image-evidence.md): twenty source and twenty installed assertions passed |
+| P3-I17 | Fixed-policy version 2 HTTP | Qualified | [0040](../../docs/work-items/0040-operations-ui-and-fixed-policy-evidence.md): twenty source and twenty installed assertions passed |
+| P3-I18A | Durable fixed-policy version 2 | Qualified | [0041](../../docs/work-items/0041-standalone-channel-and-durable-policy.md): twelve source and twelve installed assertions passed |
+| P3-I18B | Native background policy and compact real-time communication (RTC) text view | Qualified | [0042](../../docs/work-items/0042-responsive-native-policy-and-compact-demo.md): source and installed backend and browser gates passed |
+| Result return | Fixed-policy result delivery | Qualified | [0043](../../docs/work-items/0043-stable-result-delivery-and-return-context.md): sixteen storage and four return assertions passed |
+| Origin binding | Origin-bound channel policy | Qualified | [0044](../../docs/work-items/0044-origin-bound-channel-policy.md): unit and socket evidence; package lane and fourteen actual assertions passed; joined journey pending |
 
-The [0044 work item](../../docs/work-items/0044-origin-bound-channel-policy.md)
-adds explicit ChannelPolicyCoordinator, ChannelPolicyRunner and
-ChannelPolicyDeliveryClient facades. Their version-3 request/result envelopes
-retain the original P2 profile, operation, input receipt, digest and byte length;
-the specialist still consumes the unchanged policy-v2 contract. Explicit accept
-returns the first accepted context across equal-origin retries. Exact submit
-continues to compare the complete logical request, and a newly created response
-must preserve every submitted byte.
+### Authority and safety boundaries
 
-The application bridge and bounded loopback publisher are implemented with unit
-and socket evidence. Run `make channel-origin-unit` from the repository root.
-The isolated origin package lane also passed its eight offline assertions and
-20 legacy plus 41 origin fake-port tests. Fourteen real P2/P1 original-input
-assertions passed with complete cleanup; the joined native/voice/SMS journey
-remains pending. This adds no worker, provider call, new
-queue, migration or complete charter registration. HTTP drain and authority drain
-are separate; applications close the HTTP host, then its service/coordinator,
-then shared case readers, retaining any incomplete owner for explicit retry.
+These rules apply across every slice. The package guides give the per-API detail.
 
-## Standalone installed consumer
-
-The maintained `make p3-package-check` command builds a fresh declared P1 dependency
-wheel, P3 wheel/source archive/rebuilt wheel and specialist npm archive. It checks
-exact payloads, raw package guides, wheel RECORD/dependencies, installed public
-imports and strict consumers, then executes the native baseline and shipped HTTP
-example outside the checkout. The default eight assertions need cached frozen
-build dependencies and no database, room or provider configuration.
-
-Use `.venv/bin/python local-setup/scripts/p3_package_check.py --lab --report
-.local/validation/p3-package/<fresh-name>.json` for the explicitly configured local
-lab. This repeats the eight offline assertions and adds eight lab assertions; the
-sixteen total are not sixteen PostgreSQL scenarios. The selected host is macOS
-arm64 with Python 3.14.10 and Node 24.22.2. Other platforms and a published release
-remain separate qualification work.
-
-`examples/standalone_policy.py` composes configured public ports and actually calls
-`policy_completion.run_completion`. The application supplies immutable evidence,
-finite case/receiver mappings and a separate exact operator Confirmation. Import
-starts no listener, migration or worker. Successful configuration transfers client
-ownership to the application. Close attempts independent owners within each tier,
-preserves the first failure and retains cleanup after caller abandonment. Shared
-readers stay open until dependent clients settle; an explicit close retry observes
-those same owners. Owner installation and the synthetic leased worker remain
-separately labelled test tooling.
-
-The lab uses actual P1 work/case authority, the installed scripted HTTP specialist,
-a cooperating SQLite receiver and one leased synthetic supplier effect. A caller
-process is killed after known completion; a fresh process replays the original
-owner, request and commands. Lookup reads are allowed, while new issue/completion/
-authorization writes, specialist invocation, receiver acceptance and supplier apply
-must remain zero. Cancellation preserves the original result, delivery/action
-receipts and terminal ACK; a separate refresh records invalidation without new
-permission. Three bounded proofs join exact identities and a complete retained-file
-index binds nested summaries and captures. This is local synthetic qualification,
-not P2 integration, remote models, human acknowledgement or a full charter release.
-The selected I15 gate passed all sixteen assertions, comprising eight offline and
-eight installed lab assertions, with one owned caller-process kill and complete
-cleanup. Fresh Python archives preserved all thirty runtime payloads, the npm
-archive preserved sixteen, and the declared P1 wheel preserved seventy-seven.
-The [current handoff](../../docs/work-items/0038-case-rehydration-and-standalone-release.md) records the source-bound evidence, failure provenance and remaining work.
-
-## Bounded document HTTP
-
-I16 adds the read-only booking.extract_document capability beside the existing
-policy wire. Python exposes DocumentSpecialistClient and separate document request/
-result codecs; TypeScript exposes the public document module, DocumentHandler and
-configured scripted provider. The examples document_extraction.py and
-document-http.mjs accept explicit clients/requests. Import loads no source image,
-model, listener or credentials; the application owns configured evidence and clients.
-
-One scoped immutable PNG supplies four ordered fields: booking reference, property,
-check-in and check-out. Known values carry exact source/region witnesses; missing
-and ambiguous values require clarification. Structural validity and exact correlation
-are checked separately from the independent synthetic-image factual oracle.
-Image text remains inert data. The finite scripted mapping is not OCR or general
-vision inference, and no mutation/notification permission comes from its output.
-
-Actual PNG bytes are checked before provider entry: at most 2 MiB and 2048×2048,
-RGB8/RGBA8 noninterlaced, bounded framing/CRC/zlib/scanline/filter checks. Unsupported
-formats, animation/ancillary chunks, truncation and trailing data fail closed.
-The fixed worker runs without inherited environment or caller-selected code; normal
-results require actual exit 0. Direct handler calls, workers, sockets and provider
-promises retain finite ownership through timeout/cancel and incomplete shutdown.
-A fresh original deadline is checked after decoding before provider work; retrying
-public close observes remaining owners rather than assuming remote cancellation.
-
-Use `.venv/bin/python local-setup/scripts/p3_document_check.py --plan` to inspect
-the closed twenty-case inventory. The source command uses actual local Python/Node
-HTTP; `--installed` rebuilds fresh artifacts, repeats the maintained offline package
-assertions and reruns the same twenty image cases outside the checkout. These are
-socket/contract/fixture checks, not twenty PostgreSQL or real-model scenarios.
-The selected host remains Python 3.14.10 and Node 24.22.2 on macOS arm64.
-
-Selected I16 qualification passed twenty source assertions and the same twenty
-installed assertions. Installed mode also passed the separate eight offline package
-assertions. Both image runs observed eight scripted provider entries, seventeen
-worker records and five canonical client-returned wires, with complete cleanup.
-The affected current compatibility gate passed 146 named assertions across ten
-serial lanes, including the sixteen-assertion policy composition gate and registered
-P3-01/P3-03/P3-11 counts of thirteen/eight/twelve. The compatibility total includes
-the policy gate's eight offline assertions; it is not a PostgreSQL-only count.
-The I16 checkpoint's fresh archives preserved thirty-two Python and twenty-seven npm payloads
-and the declared P1 dependency's seventy-seven payloads.
-
-P1's public work operation remains policy-only. Image HTTP is not durable image
-acceptance, issued execution, projection, delivery, confirmation or action. A reviewed
-versioned P1 operation extension is required before that integration. See the
-[current image handoff](../../docs/work-items/0039-bounded-channel-workloads-and-image-evidence.md)
-for the selected qualification, retained failures and remaining gates. I17 fixed-policy
-selected qualification is recorded below; all fourteen complete
-charter rows remain planned.
-
-## Versioned fixed-policy HTTP
-
-I17 implements an explicit input/result version 2 for booking.evaluate_policy.
-Version-1 canonical bytes and public defaults stay unchanged. The new typed path
-accepts two scoped immutable JSON sources: a notice_v1 policy declaring only
-notice_minimum_days with threshold seven, and zero to two identified notice-day
-observations. Source reference versions remain independent of the semantic policy
-version. All exact source bytes, digests, scope and complete fact witnesses must
-match; two agreeing observations are usable, missing or conflicting observations
-require clarification, and invented rules or values fail factual verification.
-Policy, fact and image text remains data and grants no tool or mutation permission.
-
-Shape/correlation validation and factual verification are separate. Factual checks
-also run on expired results, so lateness cannot hide unsupported answers. The fixed
-handler is a deterministic evaluator of this one declared rule, without a model,
-provider call, generic policy interpreter or new worker. The configured public
-examples receive explicit requests, evidence and clients; importing them performs
-no setup. Client metrics describe owned transport calls and validated correlations,
-not factual truth or business permission. Timeout/cancel retains actual I/O until
-settlement; incomplete close and later close retry remain explicit.
-
-Use `make p3-fixed-policy-plan` for the twenty-case inventory,
-`make p3-fixed-policy-check` for the source contract/loopback journey and
-`make p3-fixed-policy-package-check` for the same journey using fresh installed
-artifacts. Installed mode separately repeats eight offline package assertions;
-twenty is not a PostgreSQL or model-inference count. The declared source/installed
-budgets are 120/360 seconds including twenty cleanup seconds, with at most 32
-owned child processes, 64 KiB per captured stream, 2 MiB aggregate capture and
-32 KiB per proof/report. The selected host is macOS arm64, Python 3.14.10 and
-Node 24.22.2. Selected I17 qualification passed twenty source assertions and the
-same twenty from fresh installed artifacts; installed mode separately passed eight
-offline package assertions. The current document compatibility gates passed twenty
-source and twenty installed assertions, with another separate offline eight. The
-full affected compatibility run passed 146 assertions across ten serial lanes,
-including the policy composition gate's eight offline assertions. See the
-[fixed-policy handoff](../../docs/work-items/0040-operations-ui-and-fixed-policy-evidence.md).
-
-The original DelegationCoordinator and DelegationRunner retain version-1 defaults.
-Explicit FixedPolicyCoordinator and FixedPolicyRunner now compose policy version 2
-through the same public P1 work/execution ports and shared typed ownership cores.
-P1 accepts opaque policy-operation bytes; P3 verifies their versioned facts. This
-I18A implementation and its selected qualification are recorded in the [handoff](../../docs/work-items/0041-standalone-channel-and-durable-policy.md).
-Projection, refresh, completion, delivery and action remain version-1-only. I18B
-adds the explicit native application described below; fourteen full charter rows
-and broader integrated release remain planned.
-
-Selected I18A qualification passed twelve source assertions and twelve isolated
-installed assertions, with eight separate offline package assertions. Each durable
-journey exercised thirteen invocations, retained eight validated results and rejected
-five invalid bodies. The affected fixed-policy and document source and installed
-gates passed twenty assertions each; the fresh ten-lane compatibility batch passed
-146 assertions with complete cleanup.
-
-Selected I18B native RTC text qualification passed twelve backend/SDK assertions
-and three browser groups in both source and isolated installed modes, with eight
-separate installed package assertions and complete cleanup. Its
-[native-policy handoff](../../docs/work-items/0042-responsive-native-policy-and-compact-demo.md)
-records exact bounds, first-failure provenance and the compact UI. Full charter/release acceptance is separate.
-
-### Opt-in durable policy version 2
-
-Construct FixedPolicyCoordinator with a public authenticated TaskExecutionPort and
-trusted CaseAuthorityPort. Submit acknowledges the original immutable request
-through P1 before an explicit FixedPolicyRunner.run_once(work_id, command_id).
-The runner requires the original logical owner plus exactly two immutable scoped
-JSON EvidenceRecord values, at most 4096 bytes each. Only a newly issued current
-grant permits HTTP invocation. Replaying its original command never grants a new
-invocation; known results preserve their original bytes and commit disposition.
-
-FixedPolicySpecialistClient.invoke_observed(request, evidence=records) in Python
-and invokeObserved(request, records) in TypeScript copy and validate that exact
-pair before I/O, then verify every fact and witness even on a late result. They
-return the typed result, observation time and separate candidate, clarification or
-expired classification. The existing invoke method remains the correlation-only
-transport API. The durable runner independently checks facts before P1 completion
-and stored-result inspection; P1 eligibility uses fresh authority time and stays
-separate from semantic validity and current case applicability. Missing/conflicting
-facts clarify. Cancellation does not erase previously eligible result truth.
-
-The configured Python example examples/durable_fixed_policy.py and TypeScript
-observeFixedPolicy export receive explicit public clients, evidence and identities.
-They perform no implicit DDL, provider setup or scheduling. Close independent
-owners within a tier, await successful facade closure, then close shared case
-readers; incomplete close retains actual I/O and may be retried.
-
-Use make p3-fixed-work-plan, make p3-fixed-work-check and
-make p3-fixed-work-package-check for the declared twelve-assertion source/installed
-journey. Installed mode separately repeats eight offline package assertions.
-The selected bounds are 180/360 seconds including twenty cleanup seconds,
-at most 32 owned children, 64 KiB per stream, 2 MiB aggregate capture and 32 KiB
-per proof/report. The synthetic local profile creates thirteen issued attempts,
-retains eight valid results and rejects five invalid bodies, with one owned
-postcommit kill, fresh-process original lookup and independent scoped authority
-proofs. The linked handoff records measured outcomes, prerequisites and retained
-failure provenance for these assertions. No new P1 storage
-version, supplier call, result action or native/session owner is introduced.
-
-### Opt-in native background policy
-
-NativePolicyApplication and NativePolicyAgent compose the explicit policy-v2
-facades with one supplied AgentSession. Trusted setup freezes one positive-revision
-request, original command and exactly two immutable JSON sources. Configure the
-runner with two slots for one run and one concurrent read; its default remains one.
-The model receives no scope, case, command or evidence-selection arguments.
-
-The tool acknowledges through P1 before its silent ctx.update releases the SDK
-foreground. One retained run_once task is shielded from the SDK waiter. SDK
-cancellation means stopped waiting, never business cancellation. Admission remains
-reserved until that task and the public facade pending counts actually settle;
-a timed-out wrapper alone cannot free the slot. Repeated calls inspect the original
-work rather than issue another command. Close preserves actual owners and may
-report cleanup_incomplete until a later explicit retry observes settlement.
-
-NativePolicyObservation exposes a copied closed JSON value of at most 4,096 UTF-8
-bytes. It separates original result/disposition from as-of applicability and labels
-application read completion time. No-work requires an actual original-key read;
-unknown reads never invent fresh authority fields. Missing/conflicting facts retain
-null eligibility and full witnesses. The card cannot authorize an action, and the
-DTO supplies no invented current-case revision or case-observation timestamp.
-
-The configured examples/native_fixed_policy.py function accepts an already supplied
-session, application, room and exact browser participant. Its first profile is RTC
-text with one SDK input owner and audio input/output disabled. The lab host owns
-fixed authenticated session/observation routes and separate in-memory operator
-capability; an RTC token grants no privileged read. The [native-policy handoff](../../docs/work-items/0042-responsive-native-policy-and-compact-demo.md)
-records implementation and selected qualification. SDK-local unit results do not
-establish PostgreSQL, RTC/browser, audio, model-quality or full-release evidence.
-No P2 runtime, new queue/schema, autonomous retry or v2 action/delivery adapter is
-introduced.
+- P1 is the only durable authority. It owns accepted work, issuance, results,
+  delivery receipts, the case and guarded action. P3 adds no scheduler, execution
+  ledger, queue or source acknowledgement.
+- Specialists are read-only. The specialist receives no mutation permission, and
+  image, policy and fact text is inert data that grants no tool or mutation
+  permission.
+- A result never authorizes an action or claims delivery by itself. Action requires a
+  separately supplied exact confirmation, which P1's action port checks atomically
+  with intent commitment.
+- Receiver acceptance, carrier delivery, playback, human acknowledgement, supplier
+  completion and guarded booking action are separate facts.
+- Uncertainty is preserved. An existing possible send is lookup-only, and an
+  ambiguous commit is reconciled by one exact read without another write.
+- Read preflights and as-of applicability are observations, not atomic fences or
+  action permission.
+- Owned work keeps its capacity until actual settlement. Caller timeout or
+  cancellation does not prove that remote work stopped, and close reports
+  `cleanup_incomplete` while work is still held.
+- Storage changes are explicit owner upgrades. Serving code performs no data
+  definition language (DDL), that is, no schema changes.
 
 ## Documentation
 
-- [Project instructions](AGENTS.md)
-- [Project design](Design.md)
-- [Python baseline guide](python/README.md)
-- [TypeScript contract guide](specialist-ts/README.md)
-- [Contract and trust work item](../../docs/work-items/0025-p3-specialist-contracts-and-trust.md)
-- [Native baseline and isolation decision](../../docs/work-items/0023-p3-native-baseline.md)
-- [V1 scope and acceptance matrix](../../docs/projects/delegation-reliability-scope.md)
-- [Shared architecture](../../Design.md)
-- [Validation plan](../../docs/validation-plan.md)
-- [Technology baseline](../../docs/technology-baseline.md)
-- [Harness guide](../../harness/README.md)
-- [Local stack setup](../../local-setup/README.md)
-- [Local console](../../apps/local-console/README.md)
+| Document | Purpose |
+| --- | --- |
+| [Project instructions](AGENTS.md) | Agent workflow, development rules and verification for P3 |
+| [Project design](Design.md) | P3 implementation boundaries and design decisions |
+| [V1 scope and acceptance matrix](../../docs/projects/delegation-reliability-scope.md) | Project requirements and stable P3 acceptance IDs |
+| [Granular implementation plan](../../docs/implementation/p3-delegation-reliability.md) | Phase gates, task prerequisites and failure evidence |
+| [Python package guide](python/README.md) | Python API, configuration limits and lifecycle ownership |
+| [TypeScript specialist guide](specialist-ts/README.md) | Specialist exports, HTTP routes, grants, resource bounds and fixtures |
+| [Native baseline and isolation decision](../../docs/work-items/0023-p3-native-baseline.md) | Foundational work item for the provider-free baseline |
+| [Contract and trust work item](../../docs/work-items/0025-p3-specialist-contracts-and-trust.md) | Foundational work item for contracts and local trust |
+| [Shared architecture](../../Design.md) | Shared data flow, state authority, interfaces and failure boundaries |
+| [Validation plan](../../docs/validation-plan.md) | Test lanes, required fault scenarios, benchmarks and evidence |
+| [Technology baseline](../../docs/technology-baseline.md) | Selected versions and validation boundaries |
+| [Harness guide](../../harness/README.md) | Harness commands and outcome semantics |
+| [Local stack setup](../../local-setup/README.md) | Host requirements and lifecycle commands for the shared lab |
+| [Local console](../../apps/local-console/README.md) | TypeScript operator console and browser lifecycle |
 
-Read the [granular implementation plan](../../docs/implementation/p3-delegation-reliability.md)
-for phase gates, task prerequisites and failure evidence. These task IDs are not
-product acceptance IDs; the charter remains authoritative.
+The granular plan's task IDs are not product acceptance IDs; the charter remains
+authoritative. The 0023 and 0025 work items are foundational, and the
+[slice summary](#slice-summary) links every later handoff.
 
 ## Requirements
 
-Use the pinned root Python runtime and frozen uv.lock with all declared extras and development dependencies before the full fast suite. Service, Agents SDK and inference-boundary tests require those dependencies; the pure intake subset remains standard-library-only. No
-external inference credentials are needed for the controlled baseline. Docker and Compose 2+ run the shared
-lab with pinned images; see the [local setup guide](../../local-setup/README.md)
-for host requirements and lifecycle commands. The
-[technology baseline](../../docs/technology-baseline.md) records selected versions
-and validation boundaries.
+| Requirement | Version or value | Notes |
+| --- | --- | --- |
+| Python runtime | Pinned root Python runtime | Use it with the frozen `uv.lock` |
+| Python dependencies | Frozen `uv.lock` with all declared extras and development dependencies | Install before running the full fast suite; service, Agents SDK and inference-boundary tests require them |
+| Pure intake subset | Standard library only | Needs no third-party dependencies |
+| External inference credentials | None | Not needed for the controlled baseline |
+| Shared lab | Docker and Compose 2+ with pinned images | See the [local setup guide](../../local-setup/README.md) for host requirements and lifecycle commands |
+| Selected versions | [Technology baseline](../../docs/technology-baseline.md) | Records selected versions and validation boundaries |
+| Package runtimes | Per package | Listed in the [Python](python/README.md#requirements) and [TypeScript specialist](specialist-ts/README.md#requirements) guides |
 
 ## Commands
 
-Run from the repository root:
+Run every command from the repository root. The table explains each task, and the
+block below lists the commands for copying.
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| Install the frozen environment | `uv sync --frozen --all-extras --dev` | All declared extras and development dependencies |
+| List P3 acceptance cases | `.venv/bin/python -m harness list --project p3` | Limits the harness list to P3 |
+| Run the fast lane focused on P3 | `HARNESS_PYTHON=.venv/bin/python sh scripts/harness-check.sh --module p3` | Still runs all current Python suites |
+| Run the native baseline | `.venv/bin/python -m delegation_reliability` | Provider-free; prints one safe JSON report |
+| Run the project tests | `.venv/bin/python -m unittest discover -s projects/delegation-reliability/tests -p 'test_*.py' -v` | Unit and socket tests |
+| Typecheck the specialist | `corepack pnpm --filter @livekit-ecosystem/delegation-specialist typecheck` | Source and test projects |
+| Test the specialist | `corepack pnpm --filter @livekit-ecosystem/delegation-specialist test` | Actual loopback sockets |
+| Build the specialist | `corepack pnpm --filter @livekit-ecosystem/delegation-specialist build` | Compiles `src` to `dist` |
+| Run the specialist demo | `make p3-demo` | Builds the specialist and runs its policy HTTP example |
+| Run a selected slice gate | `make p3-execution-check` | Every `make p3-*` gate is listed under [Validation](#validation) |
+| Run a registered lab runner | `.venv/bin/python -m harness run P3-01` | Use `P3-03` or `P3-11` for the other runners |
+| Run the full project gate | `.venv/bin/python -m harness run --project p3` | Currently reports incomplete with exit 2 |
 
 ```sh
 uv sync --frozen --all-extras --dev
@@ -366,364 +196,647 @@ make p3-recovery-check
 
 The final command currently reports incomplete with exit 2 because product
 acceptance scenarios remain unimplemented. A passing structural check does not
-complete those scenarios. The fast lane runs all current Python suites even when
-its structural checks focus on this project.
+complete those scenarios. The fast lane runs all current Python suites even when its
+structural checks focus on this project.
 
-## Python acceptance and client boundaries
+The `make p3-*` gates and the other slice commands are described under
+[Validation](#validation).
 
-DelegationCoordinator snapshots strict immutable input before its first port call.
-It binds scope to trusted application composition and uses a credential-bound P1
-TaskExecutionPort. The public credential-bound scope is checked before any port
-operation, so a misbound client cannot first accept another scope's body. Exact logical replay returns the original bytes and deadline;
-only attempt transport metadata may differ. Changed same-ID input conflicts,
-including during concurrent admission. An uncertain acknowledgement is inspected
-through the original key, without a second submission. P1 owns the only durable
-acceptance record; this slice starts no scheduler or specialist attempt.
+## Capabilities
 
-CaseAuthorityPort is a mandatory read preflight for new work. ManagedCaseAuthority
-maps trusted logical IDs to exact P1 task/case IDs through the public managed-case
-projection. It fails closed with case_state_unavailable for committed cases: that
-projection cannot distinguish subsequent cancellation. Ordinary uncommitted reads
-remain usable. A read preflight is not atomic current-case or action authorization.
-Replay, inspection and cancellation of accepted work remain available after case
-change or expiry. I07B's ExactManagedCaseAuthority instead consumes the public
-CaseControlClient's authenticated exact read, including cancellation after intent
-commitment. Its trusted ActionBinding fixes logical IDs, exact task/case, actor,
-scope and schema. Neither read adapter grants action authority.
+Each subsection summarizes one slice or group of slices and links to the package
+guide that holds its API, limits and ownership rules.
 
-The coordinator remains acceptance-only. ResultDeliveryPort is implemented by a
-separately composed DelegationDeliveryClient; delivery and exact action each own
-their public P1 client. The application owns the shared result inspector and exact
-case client. Closing a facade never closes that shared inspector.
+### Native baseline (P3-A)
 
-SpecialistClient uses native asyncio streams to literal 127.0.0.1 only, one request
-per connection, no proxy, redirect or retry. It validates bounded exact responses,
-correlation and expiry. Caller cancellation or timeout does not prove remote work
-stopped. Owned transport/case/P1 operations retain capacity until actual settlement;
-finite close reports cleanup_incomplete when that cannot yet be observed. See the
-[Python guide](python/README.md) for configuration limits and lifecycle ownership.
+The provider-free Python baseline compares one real native AgentSession tool with an
+AgentTask inside the SDK TaskGroup, using the same immutable synthetic policy facts.
+This is controlled same-process supervisor orchestration, not independent
+background reasoning or product V1. The
+[Python guide](python/README.md#native-baseline-p3-a) describes what it observes.
 
-## Issued execution and read-only results
+### Specialist contracts and loopback HTTP (P3-I03 to P3-I05)
 
-DelegationRunner receives a credential-bound public P1 ExecutionPort, trusted
-Scope/owner UUID, bounded immutable policy evidence, a case-read port and a typed
-specialist client. run_once(work_id, command_id) requests one durable attempt.
-Only newly created issuance can invoke. A replay or uncertain issuance is inspected
-without another invocation; an ambiguous result commit is reconciled by its exact
-attempt, without another write. A fresh P1 observation must still show that exact
-uncancelled running grant before HTTP. This observation cannot fence a process
-paused after the check or guarantee a remote stop.
+P3-I03/I04 add strict Python and TypeScript first-capability contracts, local service
+principal and evidence checks and a finite live-attempt boundary. The actual
+TypeScript producer is tested through the installed Python consumer.
 
-Transport correlation is attempt_ followed by the issued UUID's 32 hexadecimal
-characters, satisfying the frozen letter-leading wire grammar. Original accepted
-bytes, logical fingerprint, deadline and proposed attempt remain unchanged. The
-specialist authenticates its own principal/capability/evidence grants; the HTTP
-service does not independently verify P1 issuance. P1-issued execution is enforced
-by the runner path, while direct development HTTP computation grants no durable
-result or business authority.
+P3-I05 adds an authenticated loopback HTTP handler and client for one scripted
+read-only policy capability. Status and cancellation are observations of live
+attempts. They are not durable work or remote-stop guarantees. The
+[TypeScript specialist guide](specialist-ts/README.md#http-routes-and-authority)
+describes routes, grants and resource bounds.
 
-P1 alone records bounded opaque result bytes and time/lease/cancellation
-disposition. eligible_at_commit is not semantic or current-action approval. P3
-validates identity, evidence and factual policy claims even for late history, then
-reports fresh read-only candidate/clarification/outdated/cancelled/expired or
-unavailable applicability. A valid old computation may remain historical while
-an independently issued current attempt progresses. No result authorizes a booking
-mutation or claims delivery by itself.
+### Coordinator and acceptance (P3-I06)
 
-## Durable result delivery and exact action
+P3-I06 adds the Python submit, find, get and cancel coordinator through P1's public
+opt-in read-only accepted-work profile, a read-only managed-case adapter and a typed
+Python specialist HTTP consumer. P1 retains the original full canonical envelope
+before acknowledgement. The coordinator is acceptance-only: P1 owns the only durable
+acceptance record, and the coordinator starts no scheduler or specialist attempt.
+See the [coordinator and case adapters](python/README.md#coordinator-and-case-adapters-p3-i06)
+and the [specialist HTTP client](python/README.md#specialist-http-client).
 
-DelegationDeliveryClient independently reconstructs the original accepted request,
-issued result, canonical bytes, evidence and applicability. Its finite trusted
-DeliveryBinding maps case/conversation to one recipient and configured receiver.
-P1 prepares immutable stored-result bytes before any receiver I/O. Only a newly
-committed possible-send marker permits accept; an existing possible send performs
-find only. Reliable absence remains unknown until a later recovery policy exists.
-Known original receipts survive expiry, work cancellation and case invalidation.
-Receiver acceptance means retained bytes, separate from playback or human ACK.
+### Issued execution (P3-I07A)
 
-DelegationAuthorizer requires a separately supplied exact Confirmation for the
-same trusted task/case/revision and factual eligible result. It never infers consent
-from a candidate. P1's public ActionPort validates current work/result eligibility
-and case revision/quote/confirmation atomically with intent and action receipt.
-A cancellation arriving after P3 preflight therefore rejects new intent. Known
-committed receipts remain facts after later cancellation; replay or ACK loss reads
-the original command without another authorization write. The specialist receives
-no mutation permission. The existing P1 mutation worker owns the eventual effect.
+I07A adds an explicit one-step DelegationRunner over P1's owner-upgraded version-2
+issued-execution profile. It invokes only a newly issued and freshly observed current
+grant, validates scoped policy facts and retains a complete canonical result through
+P1. Proposed wire attempts alone remain insufficient. Result eligibility at commit,
+fresh read-only case applicability and action or delivery authority are separate.
+See the [issued execution runner](python/README.md#issued-execution-runner-p3-i07a).
 
-make p3-completion-check uses actual restricted-role PostgreSQL work v3 and case
-v4, loopback TypeScript HTTP and the cooperating SQLite receiver. Thirteen named
-cases prove stale A revision2 cannot deliver/act, useful B revision4 progresses,
-receiver commit ACK loss, changed route rejection, cancellation at the atomic
-guard, exact intent and one leased fake effect, later-cancel fact replay, fresh
-process reads and receiver-commit SIGKILL reconciliation. Independent SQL, receiver
-and supplier reads reconcile identities, exact confirmation, result digests and
-counts; Node separately observes four evaluations and zero remaining resources.
-Owner credentials never enter runtime children. Synthetic evidence is retained
-under ignored .local/validation/p3-completion. This is a bounded explicit path,
-not a recovering consumer, P2 route, real media/model or full charter qualification.
+### Result delivery and exact action (P3-I07B)
 
-## Concurrent acceptance, rejection and public example
+I07B adds an explicit durable result delivery client, a cooperating persisted
+receiver and an exact confirmation authorizer over P1's owner-upgraded v3 completion
+profile. The actual v4 case authority atomically guards work and result eligibility
+together with exact case intent. One existing leased P1 worker applies the fake
+effect. See [result delivery](python/README.md#result-delivery-p3-i07b) and
+[exact confirmation and guarded action](python/README.md#exact-confirmation-and-guarded-action-p3-i07b).
 
-P3-I08's actual P3-03 runner starts three separate runtime processes after their
-initial scoped reads missed. Original acceptance holds P1's admission lock; the
-owner independently observes one SQL holder and two blocked backends before
-release. Equal input returns the same logical work, changed nested content
-conflicts, caller mutation cannot change the original canonical bytes, and fresh
-reads from another tenant/account disclose nothing. One selected issued HTTP
-invocation still returns useful policy evidence. This proves one logical
-acceptance, without promising one physical computation under arbitrary retry.
+### Composition example and acceptance runners (P3-I08)
 
-P3-11 runs every malformed-output, wrong-revision, unsupported-schema,
-mismatched-tenant and context/image/result size negative. Both language codecs
-and evidence registries reject safely before decoding images. Five named invalid
-HTTP outputs pass through actual P1-issued runner attempts; none commits a result,
-and a later valid result progresses. Fixed public reasons preserve the difference
-between schema/factual errors and the runner's transport_unknown observation.
-These checks qualify rejection bounds, not image extraction/model quality.
-
+I08 adds actual concurrent admission and conflict proof, the complete bounded
+rejection inventory and a public composition and inspection example.
 [policy_completion.py](examples/policy_completion.py) composes explicit application
-ports: two coordinators, one runner, delivery facade and authorizer. run_completion
-copies the request and already supplied exact Confirmation before awaiting,
-concurrently submits the original identity, reads actual accepted input/result,
-delivers and requests guarded action. inspect_accepted only reads those separate
-facts. The caller configures and closes every client, installs profiles and
-initializes the receiver beforehand. Import performs no setup, I/O or model work.
-Human acknowledgement remains unobserved.
+ports: two coordinators, one runner, a delivery facade and an authorizer. The
+[Python guide](python/README.md#composition-and-inspection-example-p3-i08) describes
+its use, and [registered acceptance runners](#registered-acceptance-runners)
+describes the P3-03 and P3-11 runners.
 
-## Durable result metadata and explicit resume
+### Result metadata (P3-I09 to P3-I11)
 
-P3-I09 consumes P1's generic result-only v4 feed through public ResultFeedPort and
-ExecutionPort. An explicit owner v3-to-v4 upgrade adopts existing results with
-stable source/event identities and origin adopted_history. Adoption order is
-deterministic; it does not reconstruct original commit order. Accepted input,
-attempts, opaque result bytes and completion receipts stay in P1.
+| Slice | Adds | Storage change | Configured example | Guide |
+| --- | --- | --- | --- | --- |
+| I09 | PostgreSQL projection over P1 work v4 result references, with explicit bounded steps and immutable as-of applicability | Owner-installed projection v1 | [result_projection.py](examples/result_projection.py) | [Result projection](python/README.md#result-projection-p3-i09) |
+| I10 | Delivery-only processing, gap-aware discovery and immutable terminal event acknowledgements | Owner-upgraded v2 | [result_processing.py](examples/result_processing.py) | [Delivery-only processing](python/README.md#delivery-only-processing-p3-i10) |
+| I11 | Explicit per-result as-of refresh commands, monotonic retained invalidation evidence and permanent display tombstones | Owner v3 upgrade | [result_applicability.py](examples/result_applicability.py) | [Applicability refresh](python/README.md#applicability-refresh-and-display-retention-p3-i11) |
 
-P3's explicitly installed projection v1 has three tables for schema metadata,
-one scoped source checkpoint and bounded result-reference observations. It stores
-request/result digests, issued identities, validation status and an immutable
-as_of_non_atomic execution/case/time observation; it copies no result body and
-owns no queue, delivery/action ledger or source acknowledgement. project_once
-consumes four references by default, at most eight. A definite invalid P3 result
-is rejected with a safe code while later useful results progress. An unavailable
-source leaves the checkpoint unchanged. An unavailable or foreign case read is
-recorded without its fields and cannot invent current applicability.
+P1 remains the source, result, case, delivery and action authority. The metadata
+owns no queue, delivery or action ledger, or source acknowledgement.
 
-Case revisions can change without a result event. A stored candidate describes
-past reads and never authorizes an action; the existing P1 same-transaction
-work/result plus exact case-confirmation guard remains mandatory. Complete batch
-replay returns original observations. Competing partial batches fail with
-checkpoint_conflict; there is no retry loop. Unknown commit performs one exact
-read and preserves acknowledgement_unknown if the outcome remains unavailable.
+### Failure schedules (P3-I12 to P3-I14)
 
-The [projection example](examples/result_projection.py) exposes explicit bounded
-projection and separate inspection through already configured public clients.
-It performs no setup. make p3-projection-check proves twelve actual PostgreSQL
-assertions, two owned-process commit-boundary kills, fresh resume, original replay
-under observed SQL contention, as-of preservation across case-only revisions,
-scoped/source/capacity rejection and independently reconciled zero intents/effects.
-These selected I09 gates do not register P3-04/P3-08 or qualify autonomous recovery.
+These slices validate existing authorities rather than add runtime behavior.
 
-## Resumable delivery-only processing
+- I12 validates the existing guarded action and external-effect boundaries under
+  actual SQL revision and cancellation races and process loss. It adds no runtime
+  API, schema or execution owner.
+- I13 adds selected before- and during-invocation deadline and cancellation
+  schedules over those same authorities, including a deliberately noncooperating
+  test-only HTTP peer.
+- I14 adds explicit specialist and coordinator process-recovery qualification
+  tooling through the unchanged public authorities.
 
-P3-I10 extends an existing projection with an explicit v1-to-v2 owner upgrade.
-The original three tables remain; processing_control and processing_acks add a
-fixed receiver/route policy, discovery position and immutable terminal event
-observations. Original source identity, metadata bytes, checkpoint and limits
-survive upgrade, interruption, versioned-profile backup/restore and repeat.
+The schedules are described under [Validation](#validation). The resulting API
+guarantees are in the
+[Python guide](python/README.md#behavior-under-races-deadlines-and-process-loss).
 
-CompletionProcessor.process_once reads at most eight unACKed projected references,
-four by default, across at most two queries and one wrap. Discovery may pass
-unknown A so later eligible B progresses. The terminal watermark never skips A.
-Only a known exact P1/receiver receipt or a definite rejected/historical
-not-required-as-of decision creates a terminal ACK. It acknowledges this delivery
-policy's processing; it grants no action, source acknowledgement or human consent.
+### Package installation and standalone consumer (P3-I15)
 
-A possible send with no receiver receipt stays unknown after restart, case change,
-cancellation or expiry. It is lookup-only and never automatically accepted again.
-An exact original receipt remains a fact and is considered before fresh case
-applicability, including later case-read outage. Stored projection observations
-cannot authorize a new delivery; the existing public facade performs its fresh
-result/case preflight and P1 eligibility check. Those reads do not establish an
-atomic cross-authority case/recipient revocation fence.
+I15 qualifies both packages as standalone installed consumers. The
+[standalone package gate](#standalone-package-gate) builds fresh Python and npm
+artifacts and runs strict consumers outside the checkout.
+[standalone_policy.py](examples/standalone_policy.py) composes configured public
+ports and calls `policy_completion.run_completion`; see the
+[Python guide](python/README.md#standalone-composition-example-p3-i15).
 
-ACK and discovery/control updates share a repeatable-read CAS transaction.
-Concurrent replay returns the original acknowledgement. Definite checkpoint
-conflict and ambiguous commit each permit one exact read, without another write;
-missing/failed lookup preserves the original conflict or unknown code. Source,
-scope or fixed-policy mismatch cannot create an ACK or retarget a recipient.
+### Document extraction (P3-I16)
 
-The [public processing example](examples/result_processing.py) performs one
-configured step or reads an exact event ACK. make p3-processing-check provides
-sixteen actual PostgreSQL/receiver assertions, five owned-process kills, a
-concurrent projector snapshot schedule and independent identity reconciliation.
-No scheduler, provider call, automatic action or full P3 release is added. The
-[phase handoff](../../docs/work-items/0033-outbound-replies-and-completion-processing.md)
-records the selected evidence and remaining boundaries.
+I16 adds the read-only `booking.extract_document` capability beside the existing
+policy wire. One scoped immutable PNG supplies four ordered fields: booking
+reference, property, check-in and check-out. Missing and ambiguous values require
+clarification. The finite scripted mapping is not optical character recognition
+(OCR) or general vision inference.
 
-## Explicit applicability refresh and display retention
+Python exposes `DocumentSpecialistClient`; see the
+[Python guide](python/README.md#document-extraction-client-p3-i16). TypeScript exposes
+the document module, `DocumentHandler` and a configured scripted provider, and checks
+the actual PNG bytes; see the
+[TypeScript specialist guide](specialist-ts/README.md#document-capability-p3-i16).
 
-P1 remains the source/result/case/delivery/action authority. The explicit owner
-projection v2-to-v3 upgrade adds only fixed refresh policy/control, per-event heads
-and immutable refresh command receipts. Original projection and processing ACK
-bytes are preserved; old public projection/processing APIs remain usable.
+P1's public work operation remains policy-only. Image HTTP is not durable image
+acceptance, issued execution, projection, delivery, confirmation or action. A
+reviewed versioned P1 operation extension is required before that integration.
 
-ApplicabilityRefresher.refresh(work_id, attempt_id, command_id, expected_revision)
-observes one exact retained result. Replay of an equal command returns the original
-historical receipt before new reads/caps. A changed target or expected revision
-conflicts. A new command verifies the current exact feed event, historical grant,
-request/result bytes and trusted evidence, then separately reads current work and
-case state. A local revision CAS orders metadata. Current/outdated/invalidated/
-unavailable/rejected are explicitly non-atomic as-of observations, never action
-or delivery permission. Candidate and clarification remain distinguishable.
+### Fixed policy version 2 (P3-I17 and P3-I18A)
 
-Verified higher revision, different attempt and cancellation evidence cannot be
-silently cleared by a stale/unavailable read. Host deadline expiry is local/as-of
-and never a P1 database-time receipt. A stored eligible result remains eligible
-at its original commitment even after its old grant lease elapses. Existing
-receiver receipts and terminal processing ACKs remain facts after invalidation.
+I17 implements an explicit input and result version 2 for `booking.evaluate_policy`.
+Version-1 canonical bytes and public defaults stay unchanged. Version 2 accepts two
+scoped immutable JSON sources: a `notice_v1` policy that declares only
+`notice_minimum_days` with threshold seven, and zero to two identified notice-day
+observations. A deterministic handler evaluates this one declared rule. Shape and
+correlation validation are separate from factual verification, which also runs on
+expired results.
 
-ApplicabilityClient.command and inspect retain exact authenticated facts.
-hide_display stores one stable permanent tombstone; display returns that marker.
-Original projection/refresh/ACK reads still work, and the processor continues to
-examine hidden unresolved events. No protected row or identity is deleted and no
-capacity is reclaimed. Replay is supported for the retained profile lifetime.
-Default caps are 3000 total refresh commands and four per result, configurable to
-30000 and eight; each receipt is at most 4096 bytes. New identities fail closed at
-capacity while reads/replays remain available. There is no TTL or cleanup daemon.
+The original DelegationCoordinator and DelegationRunner retain version-1 defaults.
+I18A adds explicit FixedPolicyCoordinator and FixedPolicyRunner, which compose policy
+version 2 through the same public P1 work and execution ports and shared typed
+ownership cores. P1 accepts opaque policy-operation bytes; P3 verifies their
+versioned facts. Projection, refresh and action remain version-1-only. Explicit
+version-2 delivery is described in the next subsection.
 
-The [public example](examples/result_applicability.py) exposes explicit refresh,
-inspect and hide calls on configured clients. The refresher owns feed/execution/
-metadata clients; the application owns the shared exact case reader. Unknown
-commit or stale CAS performs at most one exact lookup, never another write.
-Actual I/O stays owned after caller timeout/cancellation. make p3-applicability-check
-make p3-action-races-check
-exercises the bounded 18-case PostgreSQL/process fixture, including five owned-PID
-kills, SQL contention, populated profile-row restore and a separately confirmed
-fake B action. This fixture is distinct from new HTTP/media/provider evidence.
-The [phase handoff](../../docs/work-items/0034-callback-evidence-and-applicability-refresh.md)
-records exact observed qualification and limitations. No full P3-05 registration,
-automatic accept/action retry or source-incarnation repair is added.
+See the Python [contract and client](python/README.md#fixed-policy-version-2-contract-and-client-p3-i17)
+and [durable facades](python/README.md#durable-fixed-policy-p3-i18a), and the
+TypeScript [handler and client](specialist-ts/README.md#fixed-policy-version-2-p3-i17).
 
-## Protected action and external-effect schedules
+### Fixed-policy result delivery
 
-make p3-action-races-check exercises sixteen selected assertions through unchanged
-public P1 work/case/action clients and P3 completion facades. A passes facade
-preflight before two prewarmed writers queue behind an isolated case admission
-lock. Actual pg_blocking_pids chains prove both writer orders within P1's unchanged
-lock timeout. B-first commits the first revision change before stale A is rejected;
-a later trusted ABA edit produces current B4 with its own exact confirmation and
-one useful supplier application. This does not imply both ABA edits preceded A's
-protected check. A-first commits its intent, rejects B's revision with
-intent_committed and preserves the original A receipt and successful effect.
+The explicit FixedPolicyDeliveryClient delivers verified v2 results through a stable
+P2 conversation receiver. It looks up original receipts, preserves historical
+context and denies stale delivery. See the
+[Python guide](python/README.md#fixed-policy-result-delivery) and the
+[0043 handoff](../../docs/work-items/0043-stable-result-delivery-and-return-context.md).
 
-Separate freshly quoted suppliers prove cancellation before intent or dispatch
-prevents application, after-claim cancellation leaves a safe TransitionConflict,
-and cancellation after reservation cannot fence an admitted external call. A killed
-process after independent supplier success is recovered by exact lookup without
-another physical apply, after cancellation and observed work/lease expiry. Three
-owned process kills cover pre/post action commit and supplier commit. Original
-cancellation commands keep their original disposition; a fresh terminal command
-observes already_terminal. Caller abandonment retains actual I/O capacity and close
-remains incomplete until settlement.
+### Native background policy (P3-I18B)
 
-Independent SQL/SQLite reads join exact scope/work/attempt/request/result digests,
-confirmation, intent/effect, supplier truth and receiver identities. Result receiver
-acceptance, supplier/business completion and human acknowledgement remain separate.
-The unchanged [configured public example](examples/policy_completion.py) performs
-read-only inspection; only separate exact controller input authorizes an action.
-The [phase handoff](../../docs/work-items/0035-send-policy-and-action-races.md)
-records measured source/installed qualification and remaining scope. No P1/P3
-runtime or schema change, automatic retry or acceptance registration follows.
+NativePolicyApplication and NativePolicyAgent compose the explicit policy-v2 facades
+with one supplied AgentSession. Trusted setup freezes one positive-revision request,
+its original command and exactly two immutable JSON sources. The model receives no
+scope, case, command or evidence-selection arguments. The first profile of the
+configured [native_fixed_policy.py](examples/native_fixed_policy.py) example is
+real-time communication (RTC) text with audio input and output disabled. See the
+[Python guide](python/README.md#native-background-policy-p3-i18b).
+
+### Origin-bound channel policy
+
+The [0044 work item](../../docs/work-items/0044-origin-bound-channel-policy.md) adds
+explicit ChannelPolicyCoordinator, ChannelPolicyRunner and
+ChannelPolicyDeliveryClient facades. Their version-3 request and result envelopes
+retain the original P2 profile, operation, input receipt, digest and byte length. The
+specialist still consumes the unchanged policy-v2 contract.
+
+Explicit accept returns the first accepted context across equal-origin retries. Exact
+submit continues to compare the complete logical request, and a newly created
+response must preserve every submitted byte. The application bridge and bounded
+loopback publisher are implemented. This work adds no worker, provider call, new
+queue, migration or complete charter registration. The
+[Python guide](python/README.md#origin-bound-policy-version-3) describes the API and
+the close order for applications.
 
 ## Validation
 
-The [V1 acceptance matrix](../../docs/projects/delegation-reliability-scope.md) defines required scenarios.
-The [shared validation plan](../../docs/validation-plan.md) separates deterministic
-correctness, actual local media and real-model evidence. Local-ready V1 requires
-the designated local checks; portfolio-ready V1 adds the required real-model runs,
-review, benchmark evidence and demonstration. Harness reports live under ignored .local/harness. The shared local stack has
-separate readiness/transport smoke checks and persistent volumes. Its actual
-text/audio checks do not provide STT, LLM, TTS or product V1 evidence. Normal
-stop/start preserves current local state; use the documented explicit reset only
-when synthetic data removal is intended.
+The [V1 acceptance matrix](../../docs/projects/delegation-reliability-scope.md)
+defines the required scenarios. The [shared validation plan](../../docs/validation-plan.md)
+separates deterministic correctness, actual local media and real-model evidence.
+Local-ready V1 requires the designated local checks. Portfolio-ready V1 adds the
+required real-model runs, review, benchmark evidence and demonstration.
 
-## Deadline and cancellation schedules
+Harness reports live under the ignored `.local/harness` directory. The shared local
+stack has separate readiness and transport smoke checks and persistent volumes. Its
+actual text and audio checks do not provide speech-to-text (STT), large language
+model (LLM), text-to-speech (TTS) or product V1 evidence. Normal stop and start
+preserves current local state. Use the documented explicit reset only when you
+intend to remove synthetic data.
 
-make p3-deadlines-check composes the existing public P1/P3 clients with eighteen
-selected temporal assertions. P1 samples its own database clock after admission;
-producer timestamps never restore eligibility. Expiry/cancellation before a new
-invocation creates no new HTTP evaluation. A held invocation may still return a
-strict late result, which remains an immutable, ineligible fact in P1. Result
-recording, refreshed applicability, remote cancel ACK and exact action permission
-remain separate observations.
+The gates below are selected slice checks, and each records its evidence in the
+linked handoff. Apart from the three registered runners, they register no complete
+charter row. Status labels follow the
+[implementation status vocabulary](../../docs/documentation-standards.md#implementation-status-vocabulary).
 
-The test-only deadline-peer.mjs intentionally ignores business cancellation and
-expiry. The production SpecialistServer remains cooperative and unchanged. A
-running cancel ACK does not establish remote stop; a lost cancel ACK stays unknown.
-Waiter timeout/cancellation retains the actual HTTP/runner slot and does not itself
-request business cancellation. A previously eligible result remains eligible at its
-original commit after its grant lease expires; later work cancellation is observed
-separately. Current separately confirmed work still delivers and applies one fake
-effect, with exact physical supplier/receiver and source identity reconciliation.
+| Check | Command | What it proves | Status |
+| --- | --- | --- | --- |
+| Issued execution (I07A) | `make p3-execution-check` | Versioned upgrade, historical results and useful current-result gates | Qualified |
+| Completion (I07B) | `make p3-completion-check` | Thirteen named delivery and exact-action cases | Qualified |
+| Registered runners (I08) | `.venv/bin/python -m harness run P3-01` | P3-01, P3-03 and P3-11 lab assertions; see [registered acceptance runners](#registered-acceptance-runners) | Qualified |
+| Result projection (I09) | `make p3-projection-check` | Twelve actual PostgreSQL assertions | Qualified |
+| Delivery-only processing (I10) | `make p3-processing-check` | Sixteen actual PostgreSQL and receiver assertions | Qualified |
+| Applicability refresh (I11) | `make p3-applicability-check` | Bounded 18-case PostgreSQL and process fixture | Qualified |
+| Action races (I12) | `make p3-action-races-check` | Sixteen selected assertions | Qualified |
+| Deadlines and cancellation (I13) | `make p3-deadlines-check` | Eighteen selected temporal assertions | Qualified |
+| Process recovery (I14) | `make p3-recovery-check` | Seventeen selected assertions with eight verified owned process kills | Qualified |
+| Standalone package (I15) | `make p3-package-check` | Eight offline assertions; the lab run adds eight more | Qualified |
+| Document HTTP (I16) | `.venv/bin/python local-setup/scripts/p3_document_check.py` | Twenty source image cases; installed mode repeats them | Qualified |
+| Fixed-policy HTTP (I17) | `make p3-fixed-policy-check` | Twenty source assertions; the package check repeats them installed | Qualified |
+| Durable fixed policy (I18A) | `make p3-fixed-work-check` | Twelve source assertions; the package check repeats them installed | Qualified |
+| Native policy (I18B) | Recorded in the [native-policy handoff](../../docs/work-items/0042-responsive-native-policy-and-compact-demo.md) | Twelve backend and SDK assertions and three browser groups | Qualified |
+| Result return (0043) | Recorded in the [0043 handoff](../../docs/work-items/0043-stable-result-delivery-and-return-context.md) | Sixteen storage and four return assertions | Qualified |
+| Origin-bound policy (0044) | `make channel-origin-unit`; other lanes in the [0044 work item](../../docs/work-items/0044-origin-bound-channel-policy.md) | Unit and socket evidence, package lane and fourteen actual assertions; joined journey pending | Qualified |
+| Compatibility | Ten serial lanes recorded in the handoffs | 146 named assertions at the I16, I17 and I18A checkpoints | Qualified |
+| Full project gate | `.venv/bin/python -m harness run --project p3` | Complete P3 product acceptance | Partial: fourteen product rows planned; exits 2 |
 
-The wrapper bounds total time to 180 seconds, reserves 15 for cleanup, starts at most
-24 processes and retains three closed proof files with directly reviewable IDs,
-digests, timing observations and one actual SQL blocking graph. One owned kill is
-after a late result commit; fresh inspection looks up that original fact without
-another invocation. This selected proof does not add recovering scheduling or a
-remote cancellation guarantee. The [phase handoff](../../docs/work-items/0036-native-input-and-deadline-cancellation.md)
-records qualification and failure provenance; fourteen full charter rows remain
-planned.
+### Gate bounds
 
-## Explicit process recovery
+| Limit | Value | Applies to | Notes |
+| --- | --- | --- | --- |
+| Work horizon | At most 60 seconds per schedule | Action races (I12) | Unchanged; each schedule has its own |
+| Gate budget | 180 seconds | Action races (I12) | Separate from the work horizon |
+| Total time | 180 seconds | Deadlines (I13) | Reserves 15 seconds for cleanup |
+| Processes | At most 24 | Deadlines (I13) | Started by the wrapper |
+| Total time | 180 seconds | Process recovery (I14) | Includes 15 seconds for cleanup |
+| Child processes | 28 planned | Process recovery (I14) | Within a ceiling of 32 |
+| Total time | 120 seconds source; 360 seconds installed | Fixed-policy HTTP (I17) | Includes 20 seconds for cleanup |
+| Owned child processes | At most 32 | Fixed-policy HTTP (I17) | None |
+| Captured output | 64 KiB per stream; 2 MiB aggregate | Fixed-policy HTTP (I17) | None |
+| Proof or report | 32 KiB each | Fixed-policy HTTP (I17) | None |
+| Total time | 180 seconds source; 360 seconds installed | Durable fixed policy (I18A) | Includes 20 seconds for cleanup |
+| Owned child processes | At most 32 | Durable fixed policy (I18A) | None |
+| Captured output | 64 KiB per stream; 2 MiB aggregate | Durable fixed policy (I18A) | None |
+| Proof or report | 32 KiB each | Durable fixed policy (I18A) | None |
 
-make p3-recovery-check exercises seventeen selected assertions with eight verified
-owned process kills and one prewarmed two-waiter SQL graph. The coordinator can
-lose its process after persisted issuance before first HTTP, during actual HTTP,
-or around result, delivery, receiver and guarded-action commits. Fresh processes
-inspect original accepted bytes, exact owner/command grants, results and receipts.
-Only a newly created explicit command after P1 observes the old lease expired may
-invoke again; replaying the original command never invokes, and changing its owner
-conflicts. These rules do not promise one physical read-only computation.
+### Execution and completion gates
 
-The early five recovery works use a clearly labelled synthetic read-only case
-preflight. Completion work has a separate authenticated account and actual P1 case,
-quote and independently supplied exact confirmation. Unknown possible delivery G
-remains lookup-only and unACKed, while current M obtains its own receiver receipt,
-processing ACK and guarded intent. One existing leased worker applies one fake
-supplier effect; later cancellation preserves original delivery/action receipts.
-The configured public example inspects these facts without authorizing another action.
+`make p3-execution-check` (I07A) runs after the documented local restricted-role
+PostgreSQL setup. It explicitly installs the v1 profile, seeds input, owner-upgrades
+to v2 and uses actual TypeScript sockets. Only the case-read preflight is synthetic.
+Owner credentials never enter runtime children. Package verification and complete
+recovery, media, action and delivery acceptance remain separate gates. The
+[I07A execution checkpoint](../../docs/work-items/0029-p2-gateway-and-p3-issued-execution.md)
+records the versioned upgrade, historical results and useful current-result gates.
 
-Three bounded proofs retain all authority, peer and SQL identities. Captured writer
-process/backend PIDs are compared with the parent's owned process handles; the
-observer never adopts unrelated role-wide waiters. A killed server retains its last
-running observation; only a normally closed server reports zero actual occupancy.
-Resources are bounded to 180 seconds, including fifteen for cleanup, and twenty-eight
-planned children within a ceiling of thirty-two. Diagnostic mode never qualifies.
+`make p3-completion-check` (I07B) uses actual restricted-role PostgreSQL work v3 and
+case v4, loopback TypeScript HTTP and the cooperating SQLite receiver. Owner and
+runtime credentials are distinct, and owner credentials never enter runtime
+children. Its thirteen named cases prove the following:
 
-The [current phase handoff](../../docs/work-items/0037-playback-evidence-and-process-recovery.md)
-records observed qualification and failure provenance. The source and isolated installed seventeen-assertion recovery checks passed in
-that handoff. This validation
-adds no scheduler, source ACK, automatic accept retry, inferred consent, P1/P3
-runtime API or storage schema. P3-04/P3-08 registration remains separately gated.
+- stale result A at case revision 2 cannot deliver or act, while useful result B at
+  revision 4 progresses;
+- receiver commit ACK loss;
+- changed route rejection;
+- cancellation at the atomic guard;
+- exact intent and one leased fake effect;
+- later-cancel fact replay;
+- fresh process reads; and
+- receiver-commit SIGKILL reconciliation.
+
+The trusted original inquiry supports a public-only ABA revision schedule, in which
+the case moves away from the original request and back: original revision 2 becomes
+stale after alternate revision 3 and original revision 4. No private quote injection
+or revision offset is used. Exact confirmation remains a separate synthetic operator
+input.
+
+Independent SQL, receiver and supplier reads reconcile identities, exact
+confirmation, result digests and counts. The Node completion fixture independently
+counts four evaluations, holds stale A at an explicit barrier and observes zero
+remaining resources. Synthetic evidence is retained under the ignored
+`.local/validation/p3-completion` directory.
+This is a bounded explicit path. It is not a recovering consumer, P2 route, voice,
+real media or model, autonomous recovery or full charter qualification.
+
+### Registered acceptance runners
+
+P3-01, P3-03 and P3-11 have registered lab runners:
+
+| Check | Command | What it proves | Status |
+| --- | --- | --- | --- |
+| P3-01 | `.venv/bin/python -m harness run P3-01` | Thirteen lab assertions | Qualified |
+| P3-03 | `.venv/bin/python -m harness run P3-03` | Eight lab assertions, including concurrent acceptance | Qualified |
+| P3-11 | `.venv/bin/python -m harness run P3-11` | Twelve lab assertions for rejection bounds | Qualified |
+
+P3-I08's actual P3-03 runner proves concurrent acceptance:
+
+- It starts three separate runtime processes after their initial scoped reads
+  missed. Original acceptance holds P1's admission lock, and the owner independently
+  observes one SQL holder and two blocked backends before release.
+- Equal input returns the same logical work, and changed nested content conflicts.
+  Caller mutation cannot change the original canonical bytes, and fresh reads from
+  another tenant or account disclose nothing.
+- One selected issued HTTP invocation still returns useful policy evidence.
+
+This proves one logical acceptance, without promising one physical computation under
+arbitrary retry.
+
+The P3-11 runner covers every malformed-output, wrong-revision, unsupported-schema,
+mismatched-tenant and context, image or result size negative:
+
+- Both language codecs and evidence registries reject safely before decoding images.
+- Five named invalid HTTP outputs pass through actual P1-issued runner attempts. None
+  commits a result, and a later valid result progresses.
+- Fixed public reasons preserve the difference between schema or factual errors and
+  the runner's `transport_unknown` observation.
+
+These checks qualify rejection bounds, not image extraction or model quality.
+
+### Result metadata gates
+
+`make p3-projection-check` (I09) proves twelve actual PostgreSQL assertions,
+separate from unit fake-port evidence. They cover two owned-process commit-boundary
+kills, fresh resume, original replay under observed SQL contention, as-of
+preservation across case-only revisions, scoped, source and capacity rejection and
+independently reconciled zero intents and effects. These selected I09 gates do not
+register P3-04 or P3-08 or qualify autonomous recovery.
+
+`make p3-processing-check` (I10) provides sixteen actual PostgreSQL and receiver
+assertions. They include five owned-process kills, a concurrent projector snapshot
+schedule, immutable receipts, independent identity reconciliation and independent
+cleanup. No scheduler, provider call, automatic action or full P3 release is added.
+The [phase handoff](../../docs/work-items/0033-outbound-replies-and-completion-processing.md)
+records the selected evidence, qualification limits and remaining boundaries. Full
+P3-04 and P3-08 remain unregistered.
+
+`make p3-applicability-check` (I11) exercises the bounded 18-case PostgreSQL and
+process fixture. It includes five owned process kills, SQL contention, a populated
+profile-row restore and a separately confirmed fake B action. This fixture is
+distinct from new HTTP, media or provider evidence. The
+[phase handoff](../../docs/work-items/0034-callback-evidence-and-applicability-refresh.md)
+records the exact observed qualification and limitations, the source-bound gate
+results, the populated quiescent profile-row restore and the isolated installed
+consumer. No full P3-05 registration, automatic accept or action retry, or
+source-incarnation repair is added.
+
+### Protected action and external-effect schedules
+
+`make p3-action-races-check` (I12) exercises sixteen selected assertions through
+unchanged public P1 work, case and action clients and P3 completion facades. Its
+tooling schedules existing public action failpoints and leased worker hooks in fresh
+synthetic authorities. No new P3 or P1 runtime module, API or schema is required.
+
+Revision races, where A is the pending action and B a competing case revision:
+
+- A passes the facade preflight before two prewarmed writers queue behind an
+  isolated case admission lock. Actual `pg_blocking_pids` chains prove both writer
+  orders within P1's unchanged lock timeout.
+- B first: B commits the first revision change before stale A is rejected. A later
+  trusted ABA edit produces current B4 with its own exact confirmation and one useful
+  supplier application. This does not imply that both ABA edits preceded A's
+  protected check.
+- A first: A commits its intent, rejects B's revision with `intent_committed` and
+  preserves the original A receipt and successful effect.
+
+Cancellation and process loss:
+
+- Separate freshly quoted suppliers prove that cancellation before intent or
+  dispatch prevents application. After-claim cancellation leaves a safe
+  `TransitionConflict`, and cancellation after reservation cannot fence an admitted
+  external call.
+- A process killed after independent supplier success is recovered by exact lookup
+  without another physical apply, after cancellation and observed work and lease
+  expiry.
+- Three owned process kills cover the cuts before and after action commit and at
+  supplier commit.
+- Original cancellation commands keep their original disposition. A fresh terminal
+  command observes `already_terminal`.
+- Caller abandonment retains actual I/O capacity, and close remains incomplete until
+  settlement.
+
+Each schedule has a fresh quote and supplier. Its work horizon and the separate gate
+budget are listed under [gate bounds](#gate-bounds). The gate preserves caller I/O
+after timeout or cancellation, original command receipts, finite role-separated
+resources and exact independent identity reconciliation.
+Independent SQL and SQLite reads join exact scope, work, attempt, request and result
+digests, confirmation, intent and effect, supplier truth and receiver identities.
+Result receiver acceptance, supplier or business completion and human
+acknowledgement remain separate. The unchanged
+[configured public example](examples/policy_completion.py) performs read-only
+inspection; only separate exact controller input authorizes an action.
+
+The [phase handoff](../../docs/work-items/0035-send-policy-and-action-races.md)
+records measured source and isolated installed-consumer qualification and remaining
+scope. No P1 or P3 runtime or schema change, automatic retry or acceptance
+registration follows.
+
+### Deadline and cancellation schedules
+
+`make p3-deadlines-check` (I13) composes the existing public P1 and P3 clients with
+eighteen selected temporal assertions, covering before- and during-invocation
+schedules.
+
+- P1 samples its own database clock after admission. Producer timestamps never
+  restore eligibility.
+- Expiry or cancellation before a new invocation creates no new HTTP evaluation.
+- A held invocation may still return a strict late result, which remains an
+  immutable, ineligible fact in P1.
+- Result recording, refreshed applicability, remote cancel ACK and exact action
+  permission remain separate observations.
+
+The test-only `deadline-peer.mjs` intentionally ignores business cancellation and
+expiry; see the
+[TypeScript specialist guide](specialist-ts/README.md#fault-and-recovery-fixtures).
+The production `SpecialistServer` remains cooperative and unchanged.
+
+- A running cancel ACK does not establish remote stop, and a lost cancel ACK stays
+  unknown.
+- Waiter timeout or cancellation retains the actual HTTP and runner slot and does
+  not itself request business cancellation.
+- A previously eligible result remains eligible at its original commit after its
+  grant lease expires. Later work cancellation is observed separately.
+- Current separately confirmed work still delivers and applies one fake effect, with
+  exact physical supplier, receiver and source identity reconciliation.
+
+The wrapper's time, cleanup and process bounds are listed under
+[gate bounds](#gate-bounds). It retains three closed proof files with directly
+reviewable IDs, digests, timing observations and one actual SQL blocking graph.
+These direct proof sidecars independently bind source, work, attempt and body
+digests, the receiver receipt and actual supplier calls. One owned kill follows a
+late result commit, and fresh inspection looks up that original fact without another
+invocation.
+
+This selected proof adds no recovering scheduling or remote cancellation guarantee.
+The [phase handoff](../../docs/work-items/0036-native-input-and-deadline-cancellation.md)
+records qualification and failure provenance separately from offline fake-port
+checks.
+
+### Explicit process recovery
+
+`make p3-recovery-check` (I14) runs the explicit actual PostgreSQL and process
+fixture: seventeen selected assertions with eight verified owned process kills and
+one prewarmed two-waiter SQL graph.
+
+- The coordinator can lose its process after persisted issuance before the first
+  HTTP call, during actual HTTP, or around result, delivery, receiver and
+  guarded-action commits.
+- Fresh processes inspect original accepted bytes, exact owner and command grants,
+  results and receipts.
+- Only a newly created explicit command, after P1 observes that the old lease
+  expired, may invoke again. Replaying the original command never invokes, and
+  changing its owner conflicts. These rules do not promise one physical read-only
+  computation.
+
+The five early recovery works use a clearly labelled synthetic read-only case
+preflight. Completion work has a separate authenticated account and an actual P1
+case, quote and independently supplied exact confirmation. An unknown possible
+delivery (work G) remains lookup-only and unACKed, while current work M obtains its
+own receiver receipt, processing ACK and guarded intent. One existing leased worker
+applies one fake supplier effect, and later cancellation preserves the original
+delivery and action receipts. The configured public example inspects these facts
+without authorizing another action.
+
+Three bounded proofs retain all authority, peer and SQL identities. They directly
+join source, request and result, Python and SQL backend, receiver and supplier
+identities. Captured writer process and backend process IDs are compared with the
+parent's owned process handles, and the observer never adopts unrelated role-wide
+waiters. A killed server retains its last running observation, and only a normally
+closed server reports zero actual occupancy. Time and child-process bounds are
+listed under [gate bounds](#gate-bounds). Diagnostics are bounded and body-free, and
+diagnostic mode never qualifies.
+
+The [phase handoff](../../docs/work-items/0037-playback-evidence-and-process-recovery.md)
+records the observed qualification and failure provenance. The source and isolated
+installed seventeen-assertion recovery checks passed there, recorded separately from
+offline tests. This validation adds no scheduler, source ACK, automatic accept
+retry, inferred consent, P1 or P3 runtime API or storage schema. P3-04 and P3-08
+registration remains separately gated.
+
+### Standalone package gate
+
+The maintained `make p3-package-check` command (I15) builds a fresh declared P1
+dependency wheel, the P3 wheel, source archive and rebuilt wheel, and the specialist
+npm archive. It checks exact payloads, raw package guides, wheel RECORD and
+dependencies, installed public imports and strict consumers. It then executes the
+native baseline and the shipped HTTP example outside the checkout. The default eight
+assertions need cached frozen build dependencies and no database, room or provider
+configuration.
+
+For the explicitly configured local lab, run:
+
+```sh
+.venv/bin/python local-setup/scripts/p3_package_check.py --lab --report .local/validation/p3-package/<fresh-name>.json
+```
+
+The lab run repeats the eight offline assertions and adds eight lab assertions; the
+sixteen total are not sixteen PostgreSQL scenarios. The lab uses actual P1 work and
+case authority, the installed scripted HTTP specialist, a cooperating SQLite receiver
+and one leased synthetic supplier effect.
+
+1. A caller process is killed after known completion.
+2. A fresh process replays the original owner, request and commands. Lookup reads
+   are allowed, while new issue, completion or authorization writes, specialist
+   invocation, receiver acceptance and supplier apply must remain zero.
+3. Cancellation preserves the original result, delivery and action receipts and the
+   terminal ACK. A separate refresh records invalidation without new permission.
+
+Three bounded proofs join exact identities, and a complete retained-file index binds
+nested summaries and captures. This is local synthetic qualification, not P2
+integration, remote models, human acknowledgement or a full charter release. The
+selected host is macOS arm64 with Python 3.14.10 and Node 24.22.2. Other platforms
+and a published release remain separate qualification work.
+
+The selected I15 gate passed all sixteen assertions, comprising eight offline and
+eight installed lab assertions, with one owned caller-process kill and complete
+cleanup. Fresh Python archives preserved all thirty runtime payloads, the npm archive
+preserved sixteen, and the declared P1 wheel preserved seventy-seven. The
+[current handoff](../../docs/work-items/0038-case-rehydration-and-standalone-release.md)
+records the source-bound evidence, failure provenance and remaining work.
+
+### Document HTTP gate
+
+Inspect the closed twenty-case inventory with:
+
+```sh
+.venv/bin/python local-setup/scripts/p3_document_check.py --plan
+```
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| Inspect the closed twenty-case inventory | `.venv/bin/python local-setup/scripts/p3_document_check.py --plan` | The command shown above |
+| Run the source gate | `.venv/bin/python local-setup/scripts/p3_document_check.py` | The same script without flags; actual local Python and Node HTTP |
+| Run the installed gate | `.venv/bin/python local-setup/scripts/p3_document_check.py --installed` | Rebuilds fresh artifacts, repeats the maintained offline package assertions and reruns the same twenty image cases outside the checkout |
+
+These are socket, contract and fixture checks, not twenty PostgreSQL or real-model
+scenarios. The selected host remains Python 3.14.10 and Node 24.22.2 on macOS
+arm64.
+
+Selected I16 qualification passed twenty source assertions and the same twenty
+installed assertions. Installed mode also passed the separate eight offline package
+assertions. Both image runs observed eight scripted provider entries, seventeen
+worker records and five canonical client-returned wires, with complete cleanup. The
+I16 checkpoint's fresh archives preserved thirty-two Python and twenty-seven npm
+payloads and the declared P1 dependency's seventy-seven payloads. The
+[image handoff](../../docs/work-items/0039-bounded-channel-workloads-and-image-evidence.md)
+records the selected qualification, retained failures and remaining gates.
+
+### Fixed-policy HTTP gate
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| Inspect the twenty-case inventory | `make p3-fixed-policy-plan` | None |
+| Run the source contract and loopback journey | `make p3-fixed-policy-check` | Twenty source assertions |
+| Run the same journey using fresh installed artifacts | `make p3-fixed-policy-package-check` | Also repeats eight offline package assertions |
+
+Installed mode separately repeats eight offline package assertions; twenty is not a
+PostgreSQL or model-inference count. The declared budgets and capture limits are
+listed under [gate bounds](#gate-bounds). The selected host is macOS arm64, Python
+3.14.10 and Node 24.22.2.
+
+Selected I17 qualification passed twenty source assertions and the same twenty from
+fresh installed artifacts; installed mode separately passed eight offline package
+assertions. The
+[fixed-policy handoff](../../docs/work-items/0040-operations-ui-and-fixed-policy-evidence.md)
+records source, installed and affected compatibility results and retained failure
+provenance.
+
+### Durable fixed-policy gate
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| Inspect the declared twelve-assertion journey | `make p3-fixed-work-plan` | None |
+| Run the source journey | `make p3-fixed-work-check` | Twelve source assertions |
+| Run the installed journey | `make p3-fixed-work-package-check` | Also repeats eight offline package assertions |
+
+Installed mode separately repeats eight offline package assertions. The selected
+bounds are listed under [gate bounds](#gate-bounds).
+
+The synthetic local profile creates thirteen issued attempts, retains eight valid
+results and rejects five invalid bodies. It includes one owned postcommit kill,
+fresh-process original lookup and independent scoped authority proofs.
+
+Selected I18A qualification passed twelve source assertions and twelve isolated
+installed assertions, with eight separate offline package assertions. Each durable
+journey exercised thirteen invocations, retained eight validated results and
+rejected five invalid bodies. The
+[I18A handoff](../../docs/work-items/0041-standalone-channel-and-durable-policy.md)
+records the measured outcomes, prerequisites and retained failure provenance.
+
+### Native policy gate
+
+Selected I18B native RTC text qualification passed twelve backend and SDK
+assertions and three browser groups in both source and isolated installed modes,
+with eight separate installed package assertions and complete cleanup. The
+[native-policy handoff](../../docs/work-items/0042-responsive-native-policy-and-compact-demo.md)
+records its commands, exact bounds, first-failure provenance and the compact UI.
+Full charter and release acceptance is separate.
+
+### Result-return gate
+
+For fixed-policy result delivery (0043), selected sixteen storage and four return
+assertions passed with original-receipt lookup, historical context and
+stale-delivery denial. The source result-return gate used three real P1 results, two
+P2 receipts and no carrier or provider calls. Its specialist port is explicitly
+scripted, and native-grant reads use no RTC room, so these are scripted and
+public-port checks without a room or provider. The separate fresh package gate
+checks installed public ports and twenty unchanged fake-port tests. It requires its
+own passing report; source execution does not substitute for an installed consumer.
+Joined voice, text and SMS qualification and fresh installed qualification remain
+separate; see the
+[0043 handoff](../../docs/work-items/0043-stable-result-delivery-and-return-context.md).
+
+### Origin-bound gate
+
+For origin-bound policy (0044), the application bridge and bounded loopback
+publisher have unit and socket evidence. Run `make channel-origin-unit` from the repository
+root. The isolated origin package lane passed its eight offline assertions and 20
+legacy plus 41 origin fake-port tests. Fourteen real P2/P1 original-input
+assertions passed with complete cleanup. Installed actual repetition remains
+separate later evidence, and the joined native, voice and SMS journey remains
+pending. The [0044 work item](../../docs/work-items/0044-origin-bound-channel-policy.md)
+records these checks.
+
+### Compatibility gate
+
+The affected compatibility gate runs ten serial lanes. At the I16 checkpoint, its 146
+named assertions included the sixteen-assertion policy composition gate and the
+registered P3-01, P3-03 and P3-11 counts of thirteen, eight and twelve. The total
+includes the policy gate's eight offline assertions, so it is not a
+PostgreSQL-only count.
+
+| Checkpoint | Compatibility result | Affected regression gates |
+| --- | --- | --- |
+| I16 | Passed 146 named assertions | None recorded here |
+| I17 | The full affected compatibility run passed 146 assertions again | The current document gates passed twenty source and twenty installed assertions, with another separate offline eight |
+| I18A | The fresh ten-lane compatibility batch passed 146 assertions with complete cleanup | The affected fixed-policy and document source and installed gates passed twenty assertions each |
 
 ## Next milestone
 
-The native baseline, policy/trust/HTTP boundaries, immutable acceptance, issued
-results and I07B's first explicit delivery/exact fake-action path are implemented.
-I08 adds registered P3-01/P3-03/P3-11 runners and the public example.
-I09/I10/I11 add bounded resumable metadata, delivery-only processing and explicit
-applicability refresh/display retention. I12 adds selected real protected-action
-revision/cancellation and process-loss validation. I13 adds selected invocation
-deadline/cancellation schedules. I14 selected source/installed recovery gates passed
-as recorded in its handoff. I15 selected standalone qualification passed through
-the maintained package command and public installed consumer. I16 selected source
-and installed static-image document gates and affected compatibility checks passed.
-I17 selected fixed-policy source/installed and affected compatibility gates passed.
-I18A selected durable-v2 qualification passed. I18B native application and compact
-RTC text view passed their selected
-source/installed backend and browser gates in
-[0042](../../docs/work-items/0042-responsive-native-policy-and-compact-demo.md).
-Broader platform/release and
-integrated comparison gates remain separate. Fourteen complete P3 rows remain
-planned; the full project gate remains incomplete.
+The [slice summary](#slice-summary) shows what has passed its selected gates. The
+[granular implementation plan](../../docs/implementation/p3-delegation-reliability.md)
+sequences the remaining tasks. Remaining work:
+
+| Step | Outcome | Gate |
+| --- | --- | --- |
+| Complete the fourteen planned P3 product rows | Complete P3 product acceptance | Full project gate, which remains incomplete |
+| Register P3-04 and P3-08, and fully register P3-05 | Registered rows; no full P3-05 registration exists yet | P3-04 and P3-08 registration is separately gated |
+| Qualify broader platforms and a published release | Other platforms and a published release qualified | Separate platform, release and integrated comparison gates |
+| Run the joined native, voice and SMS journey for origin-bound policy | Origin-bound policy in the joined journey | Joined journey gate, which remains pending |
+| Qualify joined voice, text and SMS for result return | Result return in the joined journey | Separate joined qualification |
+| Add autonomous scheduling and real models | Scheduling and real-model evidence | Planned; Portfolio-ready V1 requires real-model runs |

@@ -790,7 +790,7 @@ export class ChannelGateway {
         deadline = performance.now() + 2000;
       this.#cursor = (this.#cursor + 1) % this.#tokens.length;
       let remaining = this.#batchSize;
-      let found = false;
+      let dispatched = false;
       for (
         let offset = 0;
         offset < this.#tokens.length &&
@@ -803,7 +803,6 @@ export class ChannelGateway {
         const token = this.#tokens[(start + offset) % this.#tokens.length]!;
         try {
           const eligible = await this.#dispatcher.eligible(token, remaining);
-          if (eligible.length > 0) found = true;
           for (const id of eligible) {
             if (
               this.#closing ||
@@ -813,7 +812,10 @@ export class ChannelGateway {
               break;
             remaining--;
             const result = await this.#dispatcher.step(token, id);
-            if (result.status === 'dispatched') this.#increment('dispatched');
+            if (result.status === 'dispatched') {
+              dispatched = true;
+              this.#increment('dispatched');
+            }
             this.#emit('poll', result.status);
           }
         } catch (error) {
@@ -821,8 +823,9 @@ export class ChannelGateway {
           this.#emit('poll', failure(error).code);
         }
       }
-      // Work that appears without local intake waits at most idlePollMs.
-      delayMs = found || this.#nudged ? this.#pollMs : Math.min(delayMs * 2, this.#idlePollMs);
+      // Work that appears without local intake waits at most idlePollMs; re-selected work
+      // that dispatches nothing backs off like an idle cycle.
+      delayMs = dispatched || this.#nudged ? this.#pollMs : Math.min(delayMs * 2, this.#idlePollMs);
       this.#nudged = false;
       if (!this.#closing) await this.#pause(delayMs);
     }
@@ -833,7 +836,9 @@ export class ChannelGateway {
     this.#wake?.();
     if (!this.#cleanup) {
       this.#cleanup = this.#closeOwned();
-      void this.#cleanup.catch(() => undefined);
+      void this.#cleanup.catch(() => {
+        this.#cleanup = undefined;
+      });
     }
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {

@@ -1,15 +1,27 @@
 # P2 versioned channel contract slice
 
-Status: Completed
-Last reviewed: 10 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Completed |
+| Purpose | Record the strict version-1 P2 channel event contract, its producer and decoders, and their gates |
+| Audience | Engineers changing P2 channel contracts, codecs or shared fixtures; reviewers; coding agents |
+| Scope | Tasks P2-I01 and P2-I02 under PLAN-12; excludes receipts, gateway, signatures, PostgreSQL and media |
+| Owns | P2-I01 and P2-I02 change plan, observed verification and handoff |
+| Related | [P2 charter](../projects/channel-continuity-scope.md) · [P2 task plan](../implementation/p2-channel-continuity.md) · [Contracts guide](../../contracts/README.md) · [P3 native baseline](0023-p3-native-baseline.md) · [Verified intake](0024-p2-verified-durable-intake.md) |
 
 ## Behavior and scope
 
-Implement P2-I01/I02 under PLAN-12: a strict bounded version-1 channel event
-contract, real TypeScript text-event producer and TypeScript/Python decoders.
-This contributes contract assertions to P2-02/P2-12, not complete acceptance.
-Durable receipts, gateway, signature verification, association challenges,
-PostgreSQL, media and P2-I03 through I06 remain planned.
+This work item implements tasks P2-I01 and P2-I02 under work package PLAN-12 of
+the [build plan](../build-plan.md). It delivers:
+
+- a strict, bounded version-1 channel event contract;
+- a real TypeScript text-event producer;
+- TypeScript and Python decoders.
+
+The slice contributes contract assertions to acceptance IDs P2-02 and P2-12, not
+complete acceptance. Durable receipts, the gateway, signature verification,
+association challenges, PostgreSQL, media and tasks P2-I03 through P2-I06 remain
+planned.
 
 | Criterion | Given / When | Safety | Useful progress |
 | --- | --- | --- | --- |
@@ -19,37 +31,66 @@ PostgreSQL, media and P2-I03 through I06 remain planned.
 
 ## Interfaces and ownership
 
-P2 owns the TypeScript package and pure Python codec member. contracts/channel
-owns synthetic cross-language fixtures. Root workspace/lock/check registration
-is integrated by the primary agent. No imports of P1/P3 stores or services.
-No parser or producer returns an accepted receipt. Receipt/history/reply port
-types describe future implementations and grant no capability.
+| Owner | Responsibility |
+| --- | --- |
+| P2 | The TypeScript package and the pure Python codec member |
+| `contracts/channel` | Synthetic cross-language fixtures |
+| Primary agent | Root workspace, lock and check registration integration |
+
+The slice imports no P1 or P3 stores or services. No parser or producer returns an
+accepted receipt. Receipt, history and reply port types describe future
+implementations and grant no capability.
 
 ## Failure cases and validation
 
-Use exact fields/discriminants, 32 KiB wire bound, 4 KiB text UTF-8 bound,
-128-byte ASCII identifiers, UTC millisecond timestamps and safe integers.
-Producer preflight additionally enforces 256 total visited nodes and 32 KiB
-aggregate key/text UTF-8, including repeated visits to shared descendants; length
-checks precede encoding. Reject duplicate JSON keys, lone surrogates, booleans as revisions and all
-non-integer JSON numbers. Canonicalization sorts known ASCII keys, escapes all
-non-ASCII UTF-16 code units and excludes receivedAt/signature/retryCount only.
-Provider occurrence time and semantic account/case/conversation destinations
-remain canonical. The trusted principal is configuration from a future verified
-adapter; accepting its object is not authentication.
+### Contract bounds
 
-Required gates: G-FAST/G-CONTRACT and package build discovery. Run project
-TypeScript typecheck/test/build, Python unittest and strict typing; root runs
-shared fast/frontend/docs/format checks. No provider credentials, Docker or
-network calls are required. There is no product runtime exporter; fixed safe
-contract errors are tested and contain no raw payload. Future P2 runtime owns
-logs/metrics and durable concurrency/process evidence.
+| Limit | Value |
+| --- | --- |
+| Fields and discriminants | Exact |
+| Wire | 32 KiB |
+| Text | 4 KiB UTF-8 |
+| Identifiers | 128-byte ASCII |
+| Timestamps | UTC milliseconds |
+| Integers | Safe integers |
+| Producer preflight nodes | Additionally enforces 256 total visited nodes |
+| Producer preflight text | Additionally enforces 32 KiB of aggregate key and text UTF-8 |
+
+The preflight count includes repeated visits to shared descendants. Length checks
+precede encoding. Reject duplicate JSON keys, lone surrogates, booleans as
+revisions and all non-integer JSON numbers.
+
+Canonicalization sorts known ASCII keys and escapes all non-ASCII UTF-16 code
+units. It excludes only `receivedAt`, `signature` and `retryCount`. Provider
+occurrence time and the semantic account, case and conversation destinations
+remain canonical. The trusted principal is configuration from a future verified
+adapter. Accepting its object is not authentication.
+
+### Required gates
+
+The required gates are G-FAST and G-CONTRACT from the
+[validation plan](../validation-plan.md), plus package build discovery. Run these
+lanes:
+
+| Lane | Required checks |
+| --- | --- |
+| Project | TypeScript typecheck, test and build; Python unittest and strict typing |
+| Root | Shared fast, frontend, documentation and format checks |
+
+No provider credentials, Docker or network calls are required.
+
+There is no product runtime exporter. Fixed safe contract errors are tested and
+contain no raw payload. The future P2 runtime owns logs, metrics and durable
+concurrency/process evidence.
 
 ## Results and handoff
 
-P2-I01/I02 implementation and focused checks passed. The primary agent owns
-final shared workspace/discovery/lock/documentation gates before this work item
-can close. Full P2-A remains incomplete; no P2 acceptance runner is registered.
+P2-I01/I02 implementation and focused checks passed. The primary agent owns the
+final shared workspace, discovery, lock and documentation gates before this work
+item can close. The full Phase P2-A remains incomplete, and no P2 acceptance
+runner is registered.
+
+### Focused gates
 
 | Executed focused gate | Observed result |
 | --- | --- |
@@ -58,7 +99,7 @@ can close. Full P2-A remains incomplete; no P2 acceptance runner is registered.
 | Python strict typing | Passed for both codec source files |
 | TypeScript package typecheck | Source and test TypeScript projects passed |
 | TypeScript package test | Vitest passed 64 tests in one discovered test file |
-| TypeScript package build | Production declarations and JavaScript emitted by tsc |
+| TypeScript package build | Production declarations and JavaScript emitted by tsc (the TypeScript compiler) |
 
 Commands ran from the repository root using the frozen workspace interpreter and
 pinned pnpm toolchain:
@@ -73,44 +114,62 @@ corepack pnpm --filter @livekit-ecosystem/channel-continuity test
 corepack pnpm --filter @livekit-ecosystem/channel-continuity build
 ```
 
-Independent automated review identified a JavaScript trailing-line-terminator
-identifier mismatch. The codec now uses a true end assertion and shared LF/CR/
-Unicode-line-separator fixtures. Producer review additionally led to global
-traversal/text budgets, pre-encoding character bounds and array-hook rejection.
-Tests preserve the normal producer path after these negative cases, exact wire/
-text boundaries, canonical escape parity, metadata-only replay and immutable
-outputs. Earlier lint/type issues were fixed; the final fail-fast focused run
-passed. No provider credential, model endpoint, Docker service or network request
-was used for these codec checks.
+### Review findings
 
-Next bounded slice is P2-I03's fake-carrier verification and versioned seeded
-association lifecycle. Its authentication/challenge and protected access tests
-must precede durable inbox acceptance. Contract fixtures alone do not establish
-those controls, concurrent idempotency, actual carrier delivery or browser media.
+Independent automated review identified a JavaScript identifier mismatch caused
+by a trailing line terminator. The codec now uses a true end assertion and shared
+fixtures for line feed (LF), carriage return (CR) and the Unicode line separator.
+Producer review additionally led to:
+
+- global traversal and text budgets;
+- character bounds checked before encoding;
+- array-hook rejection.
+
+Tests preserve the normal producer path after these negative cases. They also
+cover exact wire and text boundaries, canonical escape parity, metadata-only
+replay and immutable outputs. Earlier lint and type issues were fixed, and the
+final fail-fast focused run passed. No provider credential, model endpoint, Docker
+service or network request was used for these codec checks.
 
 ### Shared validation and completion
 
-The first P2/P3 slices passed the final root gates with independent automated
-review. make check executed 1,132 Python tests: 1,079 root, 21 P1, 14 P2 and 18
-P3, with zero skips and zero structural violations. Ruff passed; maintained
-typing covered 95 sources and strict typing 35. make format-check passed for
-231 Python files. make frontend-check passed console typing/build/326 tests and
-P2 source/test typing/build/64 tests. All 95 documents passed and six project
-Mermaid diagrams parsed; the invalid syntax fixture was rejected.
+The [P3 native baseline work item](0023-p3-native-baseline.md) records the same
+shared validation. The first P2/P3 slices passed the final root gates with
+independent automated review:
 
-Root commands were also tested with temporary failing P2 test/type files: both
+| Check | Observed result |
+| --- | --- |
+| `make check` | Executed 1,132 Python tests (1,079 root, 21 P1, 14 P2 and 18 P3), with zero skips and zero structural violations |
+| Ruff and typing | Ruff passed; maintained typing covered 95 sources and strict typing 35 |
+| `make format-check` | Passed for 231 Python files |
+| `make frontend-check` | Passed console typing, build and 326 tests, plus P2 source/test typing, build and 64 tests |
+| Documentation and diagrams | All 95 documents passed and six project Mermaid diagrams parsed; the invalid syntax fixture was rejected |
+
+Root commands were also tested with temporary failing P2 test and type files. Both
 failed as required, and both files were removed before final validation. The
 expanded Python discovery negative fixture covers P2 and P3 failure propagation.
-Offline frozen installs included both dev-only members, without external version
-upgrades. Both Dockerfiles rebuilt and eight default transport/auth/M1 checks
-passed with the original M1 identity and ten audio frames. An owned nonroot,
-network-disabled serving-image probe imported P1 and confirmed P2/P3 development
-packages were absent. This smoke does not qualify either new product.
+Offline frozen installs included both development-only members, without external
+version upgrades.
 
-Evidence is retained under .local/validation/p2-p3-foundation/8c0eedd87dc746f5b56d02c3c01becc0.
-The complete project acceptance catalogs still contain 17 planned/unregistered
-rows each. No paid inference, new business database migration or remote CI ran.
-Previous P1 release artifacts remain intact; these new checks are separate.
+Both Dockerfiles rebuilt. Eight default transport, authentication and M1
+(confirmed-investigation intake) checks passed with the original M1 identity and
+ten audio frames. An owned nonroot, network-disabled serving-image probe imported
+P1 and confirmed that the P2 and P3 development packages were absent. This smoke
+does not qualify either new product.
 
-This completes P2-I01/I02 only. P2-A remains open for verified association,
+Evidence is retained under
+`.local/validation/p2-p3-foundation/8c0eedd87dc746f5b56d02c3c01becc0`. The complete
+project acceptance catalogs still contain 17 planned, unregistered rows each. No
+paid inference, new business database migration or remote continuous integration
+(CI) ran. Previous P1 release artifacts remain intact; these new checks are
+separate.
+
+### Completion and next slice
+
+This completes P2-I01/I02 only. Phase P2-A remains open for verified association,
 durable inbox/idempotency and the standalone example before its phase exit.
+
+The next bounded slice is P2-I03's fake-carrier verification and versioned seeded
+association lifecycle. Its authentication/challenge and protected access tests
+must precede durable inbox acceptance. Contract fixtures alone do not establish
+those controls, concurrent idempotency, actual carrier delivery or browser media.

@@ -7,6 +7,8 @@ import io
 import json
 import os
 import re
+import shlex
+import shutil
 import stat
 import subprocess
 import sys
@@ -592,6 +594,85 @@ class LocalSetupTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(run.call_args.args[0][-2:], ["config", "--quiet"])
         self.assertEqual(json.loads(output)["status"], "configuration_valid")
+
+    def test_doctor_refuses_tracked_settings_credential_or_provider_files_by_name_only(self):
+        (self.setup.parent / ".git").mkdir()
+        for tracked in (".env", ".secrets.env", ".env.providers", None):
+
+            def run(argv, *_args, tracked=tracked, **_kwargs):
+                if argv[:2] == ["git", "ls-files"]:
+                    return tracked + "\n" if tracked in argv else ""
+                if argv[-2:] == ["version", "--short"]:
+                    return "2.30.0\n"
+                return "running-container\n" if "ps" in argv else ""
+
+            with (
+                self.subTest(tracked=tracked),
+                patch.object(stack, "assert_owned_containers"),
+                patch.object(
+                    stack, "provider_configuration", side_effect=AssertionError("no key reads")
+                ),
+                patch.object(stack, "run", side_effect=run) as command,
+            ):
+                if tracked is None:
+                    self.assertEqual(stack.doctor(self.setup)["status"], "ready")
+                else:
+                    with self.assertRaisesRegex(stack.SetupError, "must not be tracked"):
+                        stack.doctor(self.setup)
+                listing = next(
+                    call.args[0]
+                    for call in command.call_args_list
+                    if call.args[0][:2] == ["git", "ls-files"]
+                )
+                self.assertEqual(listing[2:], ["--", ".env", ".secrets.env", ".env.providers"])
+
+    def test_console_ui_port_reads_only_nonsecret_settings_with_fixed_default(self):
+        env = self.setup / ".env"
+        env.write_text(env.read_text().replace("UI_PORT=13000", "UI_PORT=13001"))
+        (self.setup / ".secrets.env").chmod(0o644)
+        with self.assertRaises(stack.SetupError):
+            stack.load_settings(self.setup)
+        self.assertEqual(stack.configured_ui_port(self.setup), "13001")
+        for content in ("UI_PORT=80\n", "UI_PORT=70000\n", "UI_PORT=$(id)\n", "export A=1\n", ""):
+            with self.subTest(content=content):
+                env.write_text(content)
+                self.assertEqual(stack.configured_ui_port(self.setup), "13000")
+        env.unlink()
+        self.assertEqual(stack.configured_ui_port(self.setup), "13000")
+        env.symlink_to(self.setup / ".env.example")
+        self.assertEqual(stack.configured_ui_port(self.setup), "13000")
+
+    def test_makefile_console_url_reads_no_credentials_and_always_names_a_port(self):
+        root = Path(__file__).resolve().parents[1]
+        line = next(
+            text
+            for text in (root / "Makefile").read_text().splitlines()
+            if text.startswith("P1_CONSOLE_URL ?= ")
+        )
+        prefix, suffix = "P1_CONSOLE_URL ?= http://127.0.0.1:$(shell ", ")/"
+        self.assertTrue(line.startswith(prefix) and line.endswith(suffix))
+        command = line[len(prefix) : -len(suffix)].replace("$(PYTHON)", shlex.quote(sys.executable))
+        workspace = Path(self.temporary.name) / "make-workspace"
+        (workspace / "local-setup").mkdir(parents=True)
+        shutil.copyfile(root / "local-setup/stack.py", workspace / "local-setup/stack.py")
+
+        def url():
+            completed = subprocess.run(
+                ["sh", "-c", command],
+                cwd=workspace,
+                env={"PATH": "/usr/bin:/bin"},
+                capture_output=True,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            return "http://127.0.0.1:" + " ".join(completed.stdout.split()) + "/"
+
+        self.assertEqual(url(), "http://127.0.0.1:13000/")
+        (workspace / "local-setup/.env").write_text("UI_PORT=13001\n")
+        self.assertEqual(url(), "http://127.0.0.1:13001/")
+        (workspace / "local-setup/stack.py").unlink()
+        self.assertEqual(url(), "http://127.0.0.1:13000/")
 
     def legacy_credentials(self):
         path = self.setup / ".secrets.env"

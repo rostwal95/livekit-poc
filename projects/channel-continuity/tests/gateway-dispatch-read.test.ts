@@ -4,7 +4,7 @@ import { produceTextEvent } from '../src/index.js';
 import { ChannelGateway } from '../src/gateway.js';
 import { NativeGateway, createNativeIntegration } from '../src/native.js';
 import { createFakeSmsIntegration } from '../src/security.js';
-import type { DispatchPorts } from '../src/dispatch.js';
+import { ChannelDispatcher, type DispatchPorts } from '../src/dispatch.js';
 const driver = vi.hoisted(() => ({ query: vi.fn(), connect: vi.fn(), end: vi.fn() }));
 vi.mock('../src/database.js', async () => {
   const original = await vi.importActual<typeof import('../src/database.js')>('../src/database.js');
@@ -228,5 +228,33 @@ describe('public gateway integration-scoped dispatch read', () => {
     await x.gateway.close();
     expect(driver.end).toHaveBeenCalledTimes(2);
     expect(x.forbidden).not.toHaveBeenCalled();
+  });
+  it('retries close after the nested dispatcher deadline fails, once the retained read settles', async () => {
+    const x = fixture(false),
+      held = deferred(),
+      nested = vi.spyOn(ChannelDispatcher.prototype, 'close');
+    x.hold(held.promise);
+    try {
+      const reading = x.gateway.inspectDispatch(account, id);
+      await vi.waitFor(() =>
+        expect(driver.query.mock.calls.some(([q]) => String(q).startsWith('SELECT i.*'))).toBe(
+          true,
+        ),
+      );
+      await expect(x.gateway.close()).rejects.toMatchObject({ code: 'cleanup_incomplete' });
+      // The dispatcher's own one-second cleanup deadline expires while the read is held.
+      await expect(nested.mock.results[0]!.value).rejects.toMatchObject({
+        code: 'CleanupIncomplete',
+      });
+      await new Promise<void>((resolve) => setImmediate(resolve));
+      held.resolve();
+      await reading;
+      await x.gateway.close();
+      expect(nested).toHaveBeenCalledTimes(2);
+      expect(driver.end).toHaveBeenCalledTimes(2);
+    } finally {
+      held.resolve();
+      nested.mockRestore();
+    }
   });
 });

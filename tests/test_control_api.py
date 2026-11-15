@@ -14,7 +14,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 import jwt
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 from fastapi.testclient import TestClient
 from livekit.protocol import agent, agent_dispatch
 from prometheus_client.parser import text_string_to_metric_families
@@ -28,7 +28,7 @@ from services.control_api.app import (
     create_app,
 )
 from services.control_api.settings import Settings
-from services.control_api.telemetry import HttpTelemetry, TelemetryMiddleware
+from services.control_api.telemetry import HttpTelemetry, TelemetryMiddleware, http_error_handler
 
 
 class FakeBackend:
@@ -335,7 +335,20 @@ class ControlTests(unittest.TestCase):
         with TestClient(
             create_app(self.settings, backend=self.backend, readiness=unavailable)
         ) as client:
-            self.assertEqual(client.get("/readyz").status_code, 503)
+            response = client.get("/readyz")
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(
+            response.json()["detail"],
+            {"status": "not_ready", "dependencies": {"postgres": False, "livekit": True}},
+        )
+        self.assertEqual(response.json()["code"], "dependency_unavailable")
+        framework = asyncio.run(
+            http_error_handler(
+                Request({"type": "http", "state": {"request_id": "0" * 32}}),
+                HTTPException(503, detail={"private": "framework-detail"}),
+            )
+        )
+        self.assertEqual(json.loads(bytes(framework.body))["detail"], "Local service unavailable")
 
     def test_m1_confirmed_intake_replay_conflict_and_fixed_scope(self):
         first = self.client.post("/api/investigations", headers=self.headers, json=self.request)

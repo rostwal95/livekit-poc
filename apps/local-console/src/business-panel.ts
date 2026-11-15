@@ -5,6 +5,8 @@ import './business.css';
 
 export interface BusinessPanelOptions {
   takeToken(): string;
+  /** Background reads use only the token already held in memory; they never read or clear the input field. */
+  heldToken(): string;
   forgetToken(): void;
   onTask?(taskId: string): void;
   signal?: AbortSignal;
@@ -67,7 +69,7 @@ export function mountBusinessPanel(host: HTMLElement, options: BusinessPanelOpti
   const button = (selector: string): HTMLButtonElement => element<HTMLButtonElement>(selector);
   const setText = (selector: string, value: string): void => { element(selector).textContent = value; };
   function actionError(): void { setText('#business-status', 'Enter the local operator token above to inspect this scoped case.'); element('#business-status').dataset.phase = 'access_required'; }
-  function token(): string { try { return options.takeToken(); } catch { actionError(); throw new BusinessError('unauthorized', 'Enter the local operator token again.'); } }
+  function token(held = false): string { try { return held ? options.heldToken() : options.takeToken(); } catch { actionError(); throw new BusinessError('unauthorized', 'Enter the local operator token again.'); } }
   function details(projection: BusinessProjection | null): string {
     if (!projection) return 'No scoped case loaded.';
     return JSON.stringify({ task_id: projection.task_id, case_id: projection.case_id, case_revision: projection.case_revision, original_investigation: projection.inquiry.request, current_request: projection.request, inquiry: projection.inquiry, lifecycle: projection.lifecycle, quote: projection.quote, confirmation: projection.confirmation, effect: projection.effect, outcome: projection.outcome, delivery: projection.delivery, projection_revision: projection.projection_revision }, null, 2);
@@ -78,7 +80,8 @@ export function mountBusinessPanel(host: HTMLElement, options: BusinessPanelOpti
     setText('#business-state-title', stage.title); setText('#business-state-description', stage.description);
     const badge = element('#business-state-badge'); badge.dataset.tone = stage.tone; badge.textContent = access ? 'Access required' : state.phase === 'unknown' ? 'Acknowledgement unknown' : state.phase === 'error' ? 'Read needs attention' : busy ? 'Checking' : projection ? 'Persisted observation' : 'Ready';
     setText('#business-status', state.message); element('#business-status').dataset.phase = state.phase;
-    if (state.error_code === 'unauthorized' && !unauthorizedNotified) { unauthorizedNotified = true; options.forgetToken(); } else if (state.error_code !== 'unauthorized') unauthorizedNotified = false;
+    // Forget after the failing operation finishes; a re-entrant forget() would relabel its definitive rejection as uncertain.
+    if (state.error_code === 'unauthorized' && !unauthorizedNotified) { unauthorizedNotified = true; queueMicrotask(() => options.forgetToken()); } else if (state.error_code !== 'unauthorized') unauthorizedNotified = false;
     const frozen = state.pending_input;
     button('#business-submit').disabled = busy || state.task_id !== null;
     button('#business-submit').textContent = state.task_id ? 'Investigation accepted' : frozen ? 'Reconcile same investigation' : 'Submit investigation';
@@ -146,10 +149,10 @@ export function mountBusinessPanel(host: HTMLElement, options: BusinessPanelOpti
   button('#business-new').addEventListener('click', () => { if (controller.newInvestigation()) { formKey = `ui-${crypto.randomUUID()}`; investigation.checked = false; approval.checked = false; selectedTask = null; booking.focus(); } }, { signal: owned.signal });
   const pollMilliseconds = options.pollMilliseconds ?? 1500;
   if (!Number.isInteger(pollMilliseconds) || pollMilliseconds < 1000 || pollMilliseconds > 10000) throw new Error('Business polling must have a bounded interval.');
-  const schedule = (): void => { if (!disposed) timer = window.setTimeout(() => { const state = controller.state; if (!document.hidden && state.task_id && state.phase !== 'access_required' && state.phase !== 'busy' && !businessSettled(state.projection)) void invoke(() => controller.refresh(token())); schedule(); }, pollMilliseconds); };
+  const schedule = (): void => { if (!disposed) timer = window.setTimeout(() => { const state = controller.state; if (!document.hidden && state.task_id && state.phase !== 'access_required' && state.phase !== 'busy' && !businessSettled(state.projection)) void invoke(() => controller.refresh(token(true))); schedule(); }, pollMilliseconds); };
   schedule(); render(controller.state);
   function dispose(): void { if (disposed) return; disposed = true; if (timer !== undefined) window.clearTimeout(timer); owned.abort(); controller.dispose(); }
   options.signal?.addEventListener('abort', dispose, { once: true });
   if (options.signal?.aborted) dispose();
-  return { getCurrentTask: () => controller.state.projection?.task_id ?? null, getFrozenRequest: () => controller.state.pending_input, observeTask: (taskId) => invoke(() => controller.inspect(taskId, token())), resume: () => invoke(() => controller.refresh(token())), forget: () => controller.forget(), dispose };
+  return { getCurrentTask: () => controller.state.projection?.task_id ?? null, getFrozenRequest: () => controller.state.pending_input, observeTask: (taskId) => invoke(() => controller.inspect(taskId, token(true))), resume: () => invoke(() => controller.refresh(token())), forget: () => controller.forget(), dispose };
 }

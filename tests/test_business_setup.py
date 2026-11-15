@@ -151,13 +151,15 @@ class BusinessSetupTests(unittest.TestCase):
         ):
             code, result = self.cli("stop-business")
         self.assertEqual(code, 0)
-        self.assertEqual(run.call_count, 2)
-        stop, disable = run.call_args_list
+        self.assertEqual(run.call_count, 3)
+        stop, remove, disable = run.call_args_list
         self.assertEqual(stop.args[0][-5:], ["stop", "-t", "35", "conversation-agent", "p1-worker"])
+        self.assertEqual(remove.args[0][-3:], ["rm", "--force", "conversation-agent"])
         self.assertEqual(disable.args[0][-1], "control-api")
         self.assertEqual(disable.args[1]["P1_BUSINESS_ENABLED"], "0")
-        self.assertNotIn("--volumes", stop.args[0])
-        self.assertNotIn("down", stop.args[0])
+        for command in (stop, remove):
+            self.assertNotIn("--volumes", command.args[0])
+            self.assertNotIn("down", command.args[0])
         self.assertFalse(result["schemaActivation"])
 
     def test_normal_start_stays_opt_in_and_normal_stop_includes_owned_profiles(self):

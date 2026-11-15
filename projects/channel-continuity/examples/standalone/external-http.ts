@@ -71,12 +71,26 @@ export type OperationClientConfig = Readonly<{
   profileId: string;
   endpoint: ExternalEndpoint;
   bindings: readonly OperationClientBinding[];
+  /** Deadline for one external call (20–5,000ms); defaults to the starter's 2,000ms. */
+  callTimeoutMs?: number;
 }>;
 function operationConfig(value: unknown): OperationClientConfig {
   try {
-    const p = fields(value, ['schemaVersion', 'profileId', 'endpoint', 'bindings']);
+    const timed =
+      value !== null && typeof value === 'object' && Object.hasOwn(value, 'callTimeoutMs');
+    const p = fields(value, [
+      'schemaVersion',
+      'profileId',
+      'endpoint',
+      'bindings',
+      ...(timed ? ['callTimeoutMs'] : []),
+    ]);
     const endpoint = fields(p.endpoint, ['host', 'port']);
     if (
+      (timed &&
+        (!Number.isSafeInteger(p.callTimeoutMs) ||
+          (p.callTimeoutMs as number) < 20 ||
+          (p.callTimeoutMs as number) > 5000)) ||
       p.schemaVersion !== 1 ||
       endpoint.host !== '127.0.0.1' ||
       !Number.isSafeInteger(endpoint.port) ||
@@ -132,6 +146,7 @@ function operationConfig(value: unknown): OperationClientConfig {
       profileId: uuid(p.profileId),
       endpoint: Object.freeze({ host: '127.0.0.1', port: endpoint.port as number }),
       bindings: Object.freeze(bindings),
+      ...(timed ? { callTimeoutMs: p.callTimeoutMs as number } : {}),
     });
   } catch {
     throw new StarterError('InvalidConfiguration');
@@ -1010,7 +1025,7 @@ export class ExternalOperationClient {
         call.request?.destroy();
         call.socket?.destroy();
       };
-      timer = setTimeout(fail, STARTER_LIMITS.externalCallMs);
+      timer = setTimeout(fail, this.#config.callTimeoutMs ?? STARTER_LIMITS.externalCallMs);
       try {
         const req = httpRequest(
           {

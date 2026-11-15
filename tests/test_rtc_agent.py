@@ -166,6 +166,38 @@ class TransportTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(streams[0].closed)
         self.assertEqual(streams[0].options["capacity"], 32)
 
+    async def test_stale_audio_cleanup_keeps_the_resubscribed_track_task(self):
+        streams = []
+
+        class HeldAudio(Audio):
+            async def __anext__(self):
+                await asyncio.Event().wait()
+
+        def factory(*args, **kwargs):
+            stream = HeldAudio(*args, **kwargs)
+            streams.append(stream)
+            return stream
+
+        diagnostics = TransportDiagnostics(
+            SimpleNamespace(local_participant=Participant()), audio_stream_factory=factory
+        )
+        diagnostics.on_audio(object(), "TR_fixture")
+        stale = diagnostics.audio_tasks["TR_fixture"]
+        await asyncio.sleep(0)
+        diagnostics.remove_audio("TR_fixture")
+        diagnostics.on_audio(object(), "TR_fixture")
+        current = diagnostics.audio_tasks["TR_fixture"]
+        await asyncio.gather(stale, return_exceptions=True)
+        self.assertTrue(stale.cancelled())
+        self.assertIs(diagnostics.audio_tasks.get("TR_fixture"), current)
+        self.assertFalse(current.done())
+        diagnostics.remove_audio("TR_fixture")
+        await asyncio.gather(current, return_exceptions=True)
+        self.assertTrue(current.cancelled())
+        self.assertEqual(diagnostics.audio_tasks, {})
+        self.assertEqual([stream.closed for stream in streams], [True, True])
+        await diagnostics.close()
+
 
 class WorkerSerializationTests(unittest.TestCase):
     def test_cli_launcher_callbacks_pickle_in_a_fresh_interpreter(self):

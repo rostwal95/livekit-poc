@@ -19,6 +19,11 @@ from harness.static_check import (
     safe_path,
 )
 
+DOCUMENT_CARD = (
+    "| Field | Value |\n| --- | --- |\n| Status | Active |\n| Purpose | Fixture |\n"
+    "| Audience | Tests |\n| Scope | Fixture |\n| Owns | Fixture |\n| Related | None |\n"
+)
+
 
 class StructuralHarnessTests(unittest.TestCase):
     def setUp(self):
@@ -37,7 +42,7 @@ class StructuralHarnessTests(unittest.TestCase):
         ):
             (self.root / directory).mkdir(parents=True, exist_ok=True)
         (self.root / "README.md").write_text(
-            "# Fixture documentation\n\nStatus: Active\nLast reviewed: 9 November 2026\n\n## Overview\nFixture.\n"
+            "# Fixture documentation\n\n" + DOCUMENT_CARD + "\n## Overview\nFixture.\n"
         )
         (self.root / "harness/documentation.json").write_text(
             json.dumps(
@@ -332,7 +337,7 @@ class StructuralHarnessTests(unittest.TestCase):
         directory = self.root / "docs/decisions"
         directory.mkdir(parents=True)
         path = directory / "0001-fixture.md"
-        path.write_text("# A decision\n\nStatus: Active\nLast reviewed: 9 November 2026\n")
+        path.write_text("# A decision\n\n" + DOCUMENT_CARD)
         self.assertEqual(self.cli("--groups", "docs")[0], 0)
         path.write_text("# A decision with missing metadata\n")
         code, result = self.cli("--groups", "docs")

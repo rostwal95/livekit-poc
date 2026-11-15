@@ -200,8 +200,9 @@ class LocalInferenceSetupTests(unittest.TestCase):
         ):
             code, result = self.cli("stop-local-real")
         self.assertEqual(0, code)
-        stop, api, engines = run.call_args_list
+        stop, remove, api, engines = run.call_args_list
         self.assertEqual(["stop", "-t", "35", "conversation-agent", "p1-worker"], stop.args[0][-5:])
+        self.assertEqual(["rm", "--force", "conversation-agent"], remove.args[0][-3:])
         self.assertEqual("0", api.args[1]["P1_BUSINESS_ENABLED"])
         self.assertEqual("scripted", api.args[1]["P1_CONVERSATION_INFERENCE"])
         self.assertEqual(["stop", "-t", "15", *stack.MODEL_SERVICES], engines.args[0][-6:])

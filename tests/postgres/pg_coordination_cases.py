@@ -14,7 +14,7 @@ from psycopg import sql
 
 from continuity_lab.case_models import Confirmation, QuoteSnapshot
 from continuity_lab.completion_sink import CompletionSink, initialize_completion_sink
-from continuity_lab.effect_models import EffectState
+from continuity_lab.effect_models import CancellationDisposition, EffectFailure, EffectState
 from continuity_lab.execution_models import UnsupportedOperation
 from continuity_lab.lease_models import (
     CoordinationPolicy,
@@ -187,7 +187,7 @@ class PostgresCoordinationCases(unittest.TestCase):
         )
         return child, barrier
 
-    def stale_boundary(self, *, cooperating=True, after_success=False):
+    def stale_boundary(self, *, cooperating=True, after_success=False, during_pause=None):
         supplier = self.supplier if cooperating else self.noncooperating()
         record, intent = self.prepare(supplier=supplier)
         first = self.grant(record)
@@ -201,6 +201,13 @@ class PostgresCoordinationCases(unittest.TestCase):
             child.wait_for_barrier(barrier, timeout=10)
             # Public reads and protected authority transactions remain available.
             self.assertEqual(self.cases.get(actor=ACTOR, task_id=record.task_id).intent, intent)
+            if during_pause == "cancel":
+                receipt = self.effects.cancel(
+                    actor=ACTOR, task_id=record.task_id, command_id="cancel"
+                )
+                self.assertEqual(receipt.disposition, CancellationDisposition.REQUESTED)
+            elif during_pause == "deadline":
+                self.clock.value += timedelta(minutes=6)
             self.expire(first)
             second = self.grant(record)
             self.assertGreater(second.epoch, first.epoch)
@@ -208,10 +215,13 @@ class PostgresCoordinationCases(unittest.TestCase):
                 scope_id=ACTOR.scope_id, task_id=record.task_id
             )
             self.assertEqual(
-                value.state, EffectState.SUCCEEDED if cooperating else EffectState.UNCERTAIN
+                value.state,
+                EffectState.SUCCEEDED
+                if cooperating and during_pause is None
+                else EffectState.UNCERTAIN,
             )
             before = self.effects_for().completion(actor=ACTOR, task_id=record.task_id)
-            if not cooperating:
+            if not cooperating or during_pause is not None:
                 self.assertEqual(supplier.count_calls(scope_id=ACTOR.scope_id), 0)
             self.leases.release(second)
             child.release_barrier(barrier)
@@ -223,7 +233,7 @@ class PostgresCoordinationCases(unittest.TestCase):
         self.assertEqual(supplier.count_mutations(scope_id=ACTOR.scope_id), 1)
         self.assertEqual(
             supplier.count_calls(scope_id=ACTOR.scope_id),
-            1 if after_success or not cooperating else 2,
+            1 if after_success or not cooperating or during_pause is not None else 2,
         )
         self.assertEqual(
             MutationWorker(self.effects_for(), supplier).run_one(
@@ -231,6 +241,7 @@ class PostgresCoordinationCases(unittest.TestCase):
             ),
             value,
         )
+        return before.outcome
 
     def test_paused_old_external_call_after_takeover_is_cooperatively_deduplicated(self):
         self.stale_boundary()
@@ -240,6 +251,28 @@ class PostgresCoordinationCases(unittest.TestCase):
 
     def test_known_supplier_success_reconciles_after_epoch_takeover_and_rejects_old_ack(self):
         self.stale_boundary(after_success=True)
+
+    def test_cancel_during_paused_old_call_is_uncertain_not_prevented_after_takeover(self):
+        outcome = self.stale_boundary(during_pause="cancel")
+        self.assertEqual(
+            (outcome.state, outcome.error_code, outcome.cancellation),
+            (
+                EffectState.UNCERTAIN,
+                EffectFailure.AMBIGUOUS_OUTCOME,
+                CancellationDisposition.REQUESTED,
+            ),
+        )
+
+    def test_deadline_during_paused_old_call_is_uncertain_not_failed_after_takeover(self):
+        outcome = self.stale_boundary(during_pause="deadline")
+        self.assertEqual(
+            (outcome.state, outcome.error_code, outcome.cancellation),
+            (
+                EffectState.UNCERTAIN,
+                EffectFailure.AMBIGUOUS_OUTCOME,
+                CancellationDisposition.NOT_REQUESTED,
+            ),
+        )
 
     def test_missing_lease_cannot_start_inquiry_mutation_or_delivery(self):
         record = self.submit("missing")

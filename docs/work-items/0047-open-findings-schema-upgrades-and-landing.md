@@ -1,7 +1,13 @@
 # Open review findings, schema upgrades and landing page
 
-Status: Active
-Last reviewed: 14 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Active |
+| Purpose | Record the plan, results and handoff for the owner-selected 0046 findings, the P1 v5 and P2 v9 upgrades, the landing page and the complete demo recording |
+| Audience | Engineers changing P1 v5 retry pacing, P2 v9 indexes, gateway polling or the joined showcase; coding agents |
+| Scope | Selected 0046 findings, both schema upgrades, the landing page, P1 requalification and the complete recording; remaining open findings stay listed |
+| Owns | Change plan, results and handoff for the 0047 findings, schema upgrades and complete recording |
+| Related | [Work item 0046](0046-joined-showcase-providers-and-demo.md) · [Work item 0048](0048-code-audit-fixes-and-documentation-cleanup.md) · [P1 task plan](../implementation/p1-agent-continuity.md) · [P2 task plan](../implementation/p2-channel-continuity.md) · [Validation plan](../validation-plan.md) |
 
 ## Behavior and scope
 
@@ -12,6 +18,8 @@ selected on 14 November 2026: contained fixes, versioned schema upgrades
 P1 requalification including the paid `provider_real` deep gate. Per-transaction
 schema validation stays as a fail-closed control by the owner's decision; the
 optimizations work around it.
+
+### Criteria
 
 | Criterion | Given | When | Then: safety | Then: useful progress | Test/mode and evidence |
 | --- | --- | --- | --- | --- | --- |
@@ -47,11 +55,17 @@ optimizations work around it.
 
 ## Decisions
 
-* **Native-policy resume declined.** P3's documented design says repeated
+| Decision | Outcome |
+| --- | --- |
+| Native-policy resume | Declined |
+| P1/P3 pooling | Deferred |
+| Per-task worker failure budget | Folded into v5 |
+
+- **Native-policy resume declined.** P3's documented design says repeated
   `evaluate` calls "only inspect original facts", and a qualified test asserts
   that a cancelled call never starts a run later. Resuming would be a design
   change, outside the selected contained scope.
-* **P1/P3 pooling deferred.** Measured locally, connection setup costs 3.7 ms
+- **P1/P3 pooling deferred.** Measured locally, connection setup costs 3.7 ms
   (median) and P1 schema validation 11.4 ms per transaction, so pooling would
   save about a quarter of per-operation overhead. P1/P3 stores are stateless,
   connection-per-operation objects without a lifecycle, the worker slot depends
@@ -60,7 +74,7 @@ optimizations work around it.
   provider owned and closed by long-lived composition roots, per-operation
   connections by default and a dedicated slot connection. P2 already pools; its
   pools now keep connections after clean rollbacks.
-* **Per-task worker failure budget folded into v5.** The claim order comes from
+- **Per-task worker failure budget folded into v5.** The claim order comes from
   the database, so the durable fix is the persisted due time.
 
 ## Failure cases and validation
@@ -75,7 +89,6 @@ optimizations work around it.
 | Package gates failed after v5 | P1 runtime payloads are pinned | 77 updated to 78 where pinned; plan digests updated |
 | P1-14 and P1-20 failed at image provenance | 0046 added the showcase's `checking.wav` to P1's conversation-agent assets and manifest, so P1's qualified nine-recording set changed | The showcase owns that reply in `services/channel_policy_demo/assets/`, pinned by digest; P1's original manifest is restored and the root package still ships 86 payloads |
 | `business_preflight` refused v5 | It required exactly ACTIVE v4 | Accepts v4 or v5 with the same fixed failure code; unit test added |
-
 | P1-20 real-media suite could not start | `playwright.real.config.ts` matched every `*.media.ts`, including P2/P3 suites that need their own private fixtures | Match only `local-real.media.ts`; P2/P3 suites keep their own configs |
 
 | Gate | Applicable and why | Status |
@@ -100,7 +113,7 @@ Three further findings remain open.
 | --- | --- | --- | --- | --- | --- |
 | Join during routine reads | Status/progress polls hold both ordinary tickets | The operator presses Join | Start is still refused while any command other than a read is in flight; End/Forget clear a deferred Join | Start runs once the reads settle instead of showing "must be reconciled first" | `channel-policy-policy.test.ts` (new case) and the recorded takes |
 | Console after an API recreate | `start-business` recreated `control-api` after the console started | The console submits an investigation | Unresolvable upstreams fail per request (502/504) instead of preventing nginx startup | The request reaches the current container | Isolated network test below; `nginx -t` passes without a network |
-| SMS dispatch budget | A loaded joined showcase | A simulated SMS dispatches through the P1 bridges | Defaults are unchanged for other consumers; a late possible accept still records uncertainty | The step has the same 5,000 ms as native input, so a slow committed accept is observed | `gateway.test.ts` (new case) and the final take |
+| SMS dispatch budget | A loaded joined showcase | A simulated SMS dispatches through the P1 bridges | Defaults are unchanged for other consumers; a late possible accept still records uncertainty | The step has the same 5,000 ms as native input. Inner per-call limits (the operation bridge's 1.5 s default, and 2 s in the external client and origin hosts) still cut off slower accepts; [0048](0048-code-audit-fixes-and-documentation-cleanup.md) aligned them with the step and raised the new-profile lease | `gateway.test.ts` (new case) and the final take |
 | Complete recording | A provider showcase on a fresh profile and the P1 business profile | `make ecosystem-demo-record` runs | The console token comes from `stack.py token` into memory, is entered under a title card and is never logged | One take covers the landing page, showcase steps 1–6 and one P1 case | `docs/media/ecosystem-demo.mp4` |
 
 | Symptom | Root cause | Fix and regression |
@@ -119,7 +132,7 @@ Three further findings remain open.
 
 Open findings from the recording:
 
-* **First Join can exceed the worker startup budget on a loaded host.** In 2 of
+- **First Join can exceed the worker startup budget on a loaded host.** In 2 of
   10 recorder-driven Joins, both the first after a launcher start, the Parent
   rejected Start exactly 10 s after room control, while the native worker had not
   reached `prepare_ready`.
@@ -129,7 +142,7 @@ Open findings from the recording:
   provider-mode budget aligned across the worker, room, Parent and operator
   layers, or a prewarmed worker. The README advises one Join and End before
   recording.
-* **One Ctrl-C does not stop a launcher with a live voice turn.** The scripted
+- **One Ctrl-C does not stop a launcher with a live voice turn.** The scripted
   room cleanup budget is 2 s, but the worker needed 3.9 s to close (session
   closed after 2.5 s), so the Parent reported `cleanup_incomplete`. The launcher
   then waits for another signal, although the retained close finished about
@@ -137,18 +150,22 @@ Open findings from the recording:
   Candidates are a budget that matches the measured close, or letting the
   launcher re-observe retained front-tier cleanup inside its 60 s shutdown
   window.
-* **The scripted recorded-voice turn did not link once.** In one scripted
+- **The scripted recorded-voice turn did not link once.** In one scripted
   rehearsal the text turn linked but the recorded voice turn did not within
-  45 s. This is not root-caused. Provider-mode voice turns linked in all four
-  recorded takes. Separately, the showcase exposes no control for P2's explicit
-  lookup-only reconciliation of an uncertain, exhausted dispatch.
+  45 s. Provider-mode voice turns linked in all four recorded takes. Root cause
+  and fix: [0048](0048-code-audit-fixes-and-documentation-cleanup.md) (the
+  scripted recognizer allowed one stream handle, while the SDK opens the
+  replacement stream before closing the old one). Separately, the showcase
+  exposes no control for P2's explicit lookup-only reconciliation of an
+  uncertain, exhausted dispatch.
 
 ## Results and handoff
 
 Open after this item: P1-20 with `P1_PROVIDER_CA_BUNDLE` pointing at the owner's
 approved bundle; P1/P3 pooling (design above); batched gateway polling; P2
 lifetime capacity tombstones; P1 lock-free reads and incremental validation
-(owner kept per-transaction validation); the three recording findings above.
+(owner kept per-transaction validation); the first two recording findings above
+(the third is fixed in [0048](0048-code-audit-fixes-and-documentation-cleanup.md)).
 `git rm -r --cached apps/local-console/dist-channel-policy` and committing remain
 with the owner.
 

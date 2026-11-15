@@ -30,8 +30,34 @@ from .processing_models import (
     snapshot_policy,
 )
 from .projection_api import _Call, _ProjectionOwner
-from .projection_models import ProjectedResult, ProjectionError, event_digest, parse_projected
+from .projection_models import (
+    ProjectedResult,
+    ProjectionCode,
+    ProjectionError,
+    event_digest,
+    parse_projected,
+)
+from .runner import DelegationRunError
 from .security import EvidenceRecord
+
+_UNAVAILABLE = frozenset(
+    {
+        "storage_unavailable",
+        "acknowledgement_unknown",
+        "deadline_exceeded",
+        "capacity",
+        "closed",
+        "cleanup_incomplete",
+        "request_aborted",
+    }
+)
+
+
+def _dependency_code(code: str) -> ProjectionCode:
+    """Dependency availability is never evidence about the source or result bytes."""
+    if code in _UNAVAILABLE:
+        return "storage_unavailable"
+    return "unauthorized" if code == "unauthorized" else "invalid_source_state"
 
 
 class ProcessingDeliveryPort(ResultDeliveryPort, Protocol):
@@ -244,11 +270,7 @@ class CompletionProcessor(_ProjectionOwner):
             if event_digest(copied) != event_digest(original):
                 raise ProjectionError("invalid_source_state")
         except WorkError as error:
-            raise ProjectionError(
-                "storage_unavailable"
-                if error.code in {"storage_unavailable", "acknowledgement_unknown"}
-                else "invalid_source_state"
-            ) from None
+            raise ProjectionError(_dependency_code(error.code)) from None
         except (AttributeError, ValueError, TypeError):
             raise ProjectionError("invalid_source_state") from None
 
@@ -341,7 +363,12 @@ class CompletionProcessor(_ProjectionOwner):
     async def _evaluate(
         self, call: _Call, row: ProjectedResult
     ) -> tuple[ProcessingAcknowledgement | None, str]:
-        await self._source_event(row)
+        try:
+            await self._source_event(row)
+        except ProjectionError as error:
+            if error.code != "storage_unavailable":
+                raise
+            return None, "unavailable"
         self._check(call)
         if row.validation == "rejected":
             return self._ack(row, "rejected_content", "rejected_content"), "acknowledged"
@@ -406,7 +433,7 @@ class CompletionProcessor(_ProjectionOwner):
                     return self._ack(row, "not_required_as_of", applicability), "acknowledged"
                 if applicability not in {"candidate", "clarification"}:
                     raise ProjectionError("invalid_source_state")
-            self._check(call)
+            self._proceed(call)
             self._require()
             call.writing = True
             delivered = self._snapshot_delivery(
@@ -422,22 +449,18 @@ class CompletionProcessor(_ProjectionOwner):
                     row, "receiver_accepted", "known_receipt", delivered.snapshot.receipt
                 ), "acknowledged"
             return None, "unknown"
-        except CompletionError as error:
+        except (CompletionError, DelegationRunError) as error:
             if error.code == "acknowledgement_unknown":
                 return None, "unknown"
-            if error.code in {
+            code = _dependency_code(error.code)
+            if code == "storage_unavailable" or error.code in {
                 "not_eligible",
                 "expired",
                 "case_changed",
                 "case_cancelled",
-                "deadline_exceeded",
-                "cleanup_incomplete",
-                "storage_unavailable",
             }:
                 return None, "unavailable"
-            raise ProjectionError(
-                "unauthorized" if error.code == "unauthorized" else "invalid_source_state"
-            ) from None
+            raise ProjectionError(code) from None
 
     def _committed(
         self,
@@ -485,12 +508,18 @@ class CompletionProcessor(_ProjectionOwner):
             raise ProjectionError("identity_conflict")
         return copied, ack
 
+    def _proceed(self, call: _Call) -> None:
+        # close() spares a call mid-write; that call still starts no later row or send.
+        if self._closed:
+            call.abandoned = True
+        self._check(call)
+
     async def _step(self, call: _Call, limit: int) -> ProcessingStep:
         page = self._page(await self._processing._page(limit), limit)
         point = page.checkpoint
         outcomes = []
         for row in page.rows:
-            self._check(call)
+            self._proceed(call)
             self._counts["examined"] += 1
             self._require()
             ack, state = await self._evaluate(call, row)
@@ -513,6 +542,7 @@ class CompletionProcessor(_ProjectionOwner):
                     raise ProjectionError(original_code)
                 point, known = self._committed(found, point, row)
                 self._counts["ack_reconciliations"] += 1
+            call.writing = False
             self._counts["acknowledged" if known is not None else state] += 1
             outcomes.append(
                 ProcessingOutcome(

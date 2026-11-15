@@ -465,8 +465,8 @@ channel-policy-setup-plan:
 channel-policy-python-plan:
 	$(VENV)/bin/python -m services.channel_policy_demo --plan
 
-# The showcase landing page links the P1 console; only the configured UI port is read.
-P1_CONSOLE_URL ?= http://127.0.0.1:$(shell $(PYTHON) -c 'import sys; sys.path.insert(0, "local-setup"); import stack; print(stack.load_settings().get("UI_PORT", "13000"))' 2>/dev/null)/
+# The showcase landing page links the P1 console; only the non-secret UI_PORT is read.
+P1_CONSOLE_URL ?= http://127.0.0.1:$(shell $(PYTHON) -c 'import sys; sys.path.insert(0, "local-setup"); import stack; print(stack.configured_ui_port())' 2>/dev/null || echo 13000)/
 .PHONY: channel-policy-ui-build channel-policy-ui-dev
 channel-policy-ui-build:
 	VITE_P1_CONSOLE_URL=$(P1_CONSOLE_URL) $(PNPM) --filter @livekit-ecosystem/local-console run channel-policy:build

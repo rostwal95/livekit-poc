@@ -5,7 +5,7 @@ import hashlib
 import time
 import unittest
 from dataclasses import replace
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
 import test_projection as projection_fixtures
@@ -14,6 +14,7 @@ import test_runner as runner_fixtures
 from continuity_lab.delivery_api import DeliveryIntent, DeliveryReceipt, DeliverySnapshot
 from continuity_lab.work_api import WorkError, WorkScope
 from delegation_reliability import CompletionPolicy, CompletionProcessor
+from delegation_reliability.completion import CompletionError
 from delegation_reliability.delivery_contract import DelegationDelivery, DeliveryBinding
 from delegation_reliability.processing_models import (
     ProcessingAcknowledgement,
@@ -23,6 +24,7 @@ from delegation_reliability.processing_models import (
     parse_policy,
 )
 from delegation_reliability.projection_models import ProjectionBinding, ProjectionError
+from delegation_reliability.runner import DelegationRunError
 from delegation_reliability.security import EvidenceRecord
 
 
@@ -340,6 +342,56 @@ class ProcessingTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((self.metadata.acks, self.delivery.delivers), ({}, 0))
         self.assertEqual(p.metrics()["unroutable"], 4)
 
+    async def first_call_unavailable(self, port, name, error):
+        original, failures = getattr(port, name), iter((error,))
+
+        async def busy(*args, **kwargs):
+            failure = next(failures, None)
+            if failure is not None:
+                raise failure
+            return await original(*args, **kwargs)
+
+        setattr(port, name, busy)
+        p = self.processor()
+        step = await p.process_once()
+        self.assertEqual([x.state for x in step.outcomes], ["unavailable", "acknowledged"])
+        self.assertEqual((sorted(self.metadata.acks), step.after.scan_after), ([2], 2))
+        self.assertEqual(p.metrics()["unavailable"], 1)
+        again = await p.process_once()
+        self.assertEqual([x.state for x in again.outcomes], ["acknowledged"])
+        self.assertEqual(again.after.terminal_watermark, 2)
+
+    async def test_feed_capacity_is_unacked_unavailable_while_later_work_progresses(self):
+        await self.first_call_unavailable(self.feed, "read", WorkError("capacity"))
+
+    async def test_delivery_capacity_is_unacked_unavailable_while_later_work_progresses(self):
+        await self.first_call_unavailable(
+            self.delivery, "deliver_once", CompletionError("capacity")
+        )
+        self.assertEqual(self.delivery.accepts, 2)
+
+    async def test_result_read_capacity_is_unacked_unavailable_while_later_work_progresses(self):
+        await self.first_call_unavailable(self.results, "inspect", DelegationRunError("capacity"))
+
+    async def test_definite_dependency_failures_still_fail_the_step_closed(self):
+        p = self.processor()
+        for port, name, error, code in (
+            (self.feed, "read", WorkError("unauthorized"), "unauthorized"),
+            (
+                self.results,
+                "inspect",
+                DelegationRunError("invalid_stored_state"),
+                "invalid_source_state",
+            ),
+        ):
+            with (
+                self.subTest(code=code),
+                patch.object(port, name, AsyncMock(side_effect=error)),
+                self.assertRaisesRegex(ProjectionError, f"^{code}$"),
+            ):
+                await p.process_once()
+        self.assertEqual((self.metadata.commits, self.delivery.delivers), (0, 0))
+
     async def test_public_models_reject_duplicate_outcomes_and_inconsistent_reason(self):
         from delegation_reliability.processing_models import ProcessingOutcome, ProcessingStep
 
@@ -498,6 +550,42 @@ class ProcessingTests(unittest.IsolatedAsyncioTestCase):
         self.delivery.release.set()
         await asyncio.sleep(0.01)
         self.assertEqual(self.metadata.commits, 0)
+
+    async def close_while_held(self, port, name, hold):
+        entered, release = asyncio.Event(), asyncio.Event()
+        original = getattr(port, name)
+
+        async def held(*args, **kwargs):
+            if hold(*args, **kwargs):
+                entered.set()
+                await release.wait()
+            return await original(*args, **kwargs)
+
+        setattr(port, name, held)
+        p = self.processor()
+        task = asyncio.create_task(p.process_once(limit=2))
+        await asyncio.wait_for(entered.wait(), 1)
+        closing = asyncio.create_task(p.close())
+        await asyncio.sleep(0)
+        release.set()
+        with self.assertRaisesRegex(ProjectionError, "^request_aborted$"):
+            await task
+        await closing
+        self.assertEqual(p.pending_count, 0)
+        self.assertEqual(
+            (sorted(self.metadata.acks), self.metadata.commits, self.delivery.delivers),
+            ([1], 1, 1),
+        )
+
+    async def test_close_while_later_row_reads_starts_no_delivery_or_ack(self):
+        await self.close_while_held(
+            self.feed, "read", lambda *, after=None, limit=25: after.sequence == 1
+        )
+
+    async def test_close_during_ack_write_retains_it_and_starts_no_later_row(self):
+        await self.close_while_held(
+            self.metadata, "_commit", lambda point, row, ack: row.event.sequence == 1
+        )
 
     async def test_telemetry_failure_does_not_change_ack_fact(self):
         p = self.processor()

@@ -364,9 +364,12 @@ export function verifyPolicyFacts(
   const refs = result.evidence_refs.filter((ref) => ref.source_id === policy.reference.source_id);
   if (refs.length !== 1 || refs[0]!.rule_id !== 'notice_minimum_days')
     throw new ContractError('unsupported_facts');
+  if (
+    result.uncertainty === 'none' &&
+    result.eligible !== request.context_snapshot.days_before_arrival >= days
+  )
+    throw new ContractError('unsupported_facts');
   if (applicability === 'expired') return 'expired';
   if (result.uncertainty !== 'none') return 'clarification';
-  if (result.eligible !== request.context_snapshot.days_before_arrival >= days)
-    throw new ContractError('unsupported_facts');
   return 'candidate';
 }

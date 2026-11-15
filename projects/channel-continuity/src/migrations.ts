@@ -1535,6 +1535,10 @@ export async function upgradeChannelSchemaV9(
       )
     ).rows[0]?.version;
     if (version !== 8 && version !== 9) throw new ChannelError('UpgradeRequired');
+    await client.query(
+      `LOCK TABLE ${['schema_metadata', 'admission', 'processing_intents', 'send_attempts', 'send_recovery_commands'].map((n) => table(value.schema, n)).join(',')} IN ACCESS EXCLUSIVE MODE`,
+    );
+    await check();
     if (version === 8) {
       await client.query(
         INDEX_SPEC.replace(

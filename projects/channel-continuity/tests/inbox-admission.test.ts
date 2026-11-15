@@ -2,7 +2,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ChannelInbox, SeededAccounts } from '../src/postgres.js';
 import { createFakeSmsIntegration, signFakeSms, WebhookError } from '../src/security.js';
-const driver = vi.hoisted(() => ({ query: vi.fn(), release: vi.fn(), connect: vi.fn() }));
+const driver = vi.hoisted(() => ({
+  query: vi.fn(),
+  release: vi.fn(),
+  connect: vi.fn(),
+  end: vi.fn(),
+}));
 vi.mock('../src/database.js', async () => {
   const original = await vi.importActual<typeof import('../src/database.js')>('../src/database.js');
   return {
@@ -19,7 +24,9 @@ vi.mock('../src/database.js', async () => {
         driver.connect();
         return { query: driver.query, release: driver.release };
       }
-      async end() {}
+      async end() {
+        driver.end();
+      }
     },
   };
 });
@@ -129,5 +136,35 @@ describe('pooled connection reuse', () => {
     });
     expect(driver.release).toHaveBeenLastCalledWith(true);
     await store.close();
+  });
+});
+describe('close retry', () => {
+  it('observes a retained transaction again after a timed-out close and ends the pool once', async () => {
+    const store = inbox();
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const original = driver.query.getMockImplementation()!;
+    driver.query.mockImplementation(async (text: string, values?: unknown[]) => {
+      if (text.startsWith('SELECT i.*,p.operation_key,p.state')) await held;
+      return original(text, values);
+    });
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      const reading = store.history(ACCOUNT);
+      const timedOut = expect(store.close()).rejects.toMatchObject({ code: 'CleanupIncomplete' });
+      await vi.advanceTimersByTimeAsync(6000);
+      await timedOut;
+      await expect(store.history(ACCOUNT)).rejects.toMatchObject({ code: 'StorageUnavailable' });
+      release();
+      await expect(reading).resolves.toEqual({ messages: [] });
+      await store.close();
+      expect(driver.end).toHaveBeenCalledTimes(1);
+      expect(store.metrics().active).toBe(0);
+    } finally {
+      release();
+      vi.useRealTimers();
+    }
   });
 });

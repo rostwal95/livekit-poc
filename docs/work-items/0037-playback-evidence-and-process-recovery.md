@@ -1,35 +1,58 @@
 # Source-qualified playback evidence and process recovery
 
-Status: Completed
-Last reviewed: 11 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Completed |
+| Purpose | Record the plan, observed verification and handoff for P2-I17 playback evidence and P3-I14 process recovery |
+| Audience | Engineers changing P2 communication evidence and playback or P3 process recovery; coding agents |
+| Scope | Selected P2-I17 and P3-I14 local gates; excludes P2-I18 rehydration, broader capabilities and load, and integrated release |
+| Owns | Change plan, observed verification and handoff for P2-I17 and P3-I14 |
+| Related | [Work item 0036](0036-native-input-and-deadline-cancellation.md) · [Work item 0038](0038-case-rehydration-and-standalone-release.md) · [P2 task plan](../implementation/p2-channel-continuity.md) · [P3 task plan](../implementation/p3-delegation-reliability.md) · [Validation plan](../validation-plan.md) |
 
 ## Behavior and scope
 
-Implement P2-I17 and P3-I14 after the
+This work item implements P2-I17 and P3-I14 after the
 [completed native/deadline phase](0036-native-input-and-deadline-cancellation.md).
-The [P2 charter](../projects/channel-continuity-scope.md),
+These documents remain authoritative: the
+[P2 charter](../projects/channel-continuity-scope.md),
 [P3 charter](../projects/delegation-reliability-scope.md),
 [P2 task plan](../implementation/p2-channel-continuity.md),
 [P3 task plan](../implementation/p3-delegation-reliability.md),
-[shared design](../../Design.md) and [validation plan](../validation-plan.md)
-remain authoritative. P2 contributes to P2-07/P2-08. P3 contributes to P3-08 and
-P3-04 recovery. Task completion is distinct from complete charter registration.
+[shared design](../../Design.md) and [validation plan](../validation-plan.md).
+
+| Project | Task | Behavior |
+| --- | --- | --- |
+| P2 | P2-I17 | Communication evidence; contributes to P2-07/P2-08 |
+| P3 | P3-I14 | Process recovery; contributes to P3-08 and P3-04 recovery |
+
+Task completion is distinct from complete charter registration.
+
+### P2 communication evidence
 
 P2 adds opt-in durable communication evidence to the existing native composition.
-A response binds original accepted input/receipt/operation, native room binding,
-generation and exact public SDK speech identity. Actual full generated text,
-SDK synchronized/terminal observations and browser-reported playback remain
-separate immutable facts. Interruption is a speech operation; it cannot supply
-consent, undo accepted input or automatically regenerate a known read-only result.
-A client disconnect without completion evidence leaves playback unknown.
+A response binds the original accepted input/receipt/operation, native room
+binding, generation and exact public SDK speech identity.
 
-P3 exercises real specialist and coordinator process loss through the existing
-P1 public execution, result, delivery and guarded-action ports. Replayed issuance
-is lookup-only. An explicitly supplied new command after actual authority lease
-expiry may admit another bounded read-only attempt; repeated computation cannot
-create another authorized effect. Existing possible delivery with no known receipt
-remains unknown and receives no automatic accept retry. No recovering scheduler
-or competing execution ledger is introduced.
+- Actual full generated text, SDK synchronized/terminal observations and
+  browser-reported playback remain separate immutable facts.
+- Interruption is a speech operation. It cannot supply consent, undo accepted
+  input or automatically regenerate a known read-only result.
+- A client disconnect without completion evidence leaves playback unknown.
+
+### P3 process recovery
+
+P3 exercises real specialist and coordinator process loss through the existing P1
+public execution, result, delivery and guarded-action ports.
+
+- Replayed issuance is lookup-only.
+- An explicitly supplied new command after actual authority lease expiry may admit
+  another bounded read-only attempt. Repeated computation cannot create another
+  authorized effect.
+- Existing possible delivery with no known receipt remains unknown and receives no
+  automatic accept retry.
+- No recovering scheduler or competing execution ledger is introduced.
+
+### Preservation and deferred scope
 
 Preserve all closed prior evidence, P1's 77 runtime payloads/README/schema/API,
 P3's 30 runtime payloads when existing public guards suffice, original M1 and the
@@ -37,7 +60,31 @@ default Compose/services/UI. Hold the validated dependency and image baseline.
 Use local scripted fixtures, actual PostgreSQL, owned processes and self-hosted
 LiveKit/browser media. Provider credential files, private CA data, paid inference,
 Git publication and remote CI are not inputs to this phase. P2-I18 cross-channel
-room rehydration, broader capabilities/load and full integrated release remain later.
+room rehydration, broader capabilities/load and full integrated release remain
+later.
+
+### Terms used in this record
+
+| Term | Meaning |
+| --- | --- |
+| Implementation task IDs | Such as P2-I17; identify tasks in the project task plans |
+| Acceptance IDs | Such as P2-07; identify rows in the project charters |
+| Selected | Gates and tasks chosen for this work item; passing them does not complete a full charter row |
+| Gate names | Such as G-READY and G-MEDIA; refer to the engineering gates in the [validation plan](../validation-plan.md) |
+| SDK | Software development kit; here usually the pinned LiveKit Agents SDK |
+| Large language model (LLM), text-to-speech (TTS) and automatic speech recognition (ASR) | The conversational model stages; this phase uses scripted fixtures for them |
+| Real-time communication (RTC) | The WebRTC media path through the self-hosted LiveKit selective forwarding unit (SFU) |
+| Pulse-code modulation (PCM) windows | Raw audio sample blocks measured at the browser |
+| Remote procedure call (RPC) | A request/response message over the room |
+| End of file (EOF) | Here means normal exhaustion of the model output stream |
+| PostgreSQL (PG) | The actual database used by the durable gates |
+| Acknowledgement (ACK) | A receiver's confirmation that it accepted a message or event; a lost ACK leaves the outcome unknown |
+| Data definition language (DDL) | Schema-changing SQL; serving code runs none |
+| Process ID (PID) | Identifies an operating-system process; an owned PID kill terminates a process that the gate itself started |
+| M1 | The original confirmed-investigation intake data, which every phase preserves |
+| Proof of concept (POC) | This local repository's delivery target |
+
+### Criteria
 
 | Criterion | Given | When | Then: safety | Then: useful progress | Test/mode and evidence |
 | --- | --- | --- | --- | --- | --- |
@@ -59,54 +106,87 @@ room rehydration, broader capabilities/load and full integrated release remain l
 
 ## Interfaces and ownership
 
-P2 owns the TypeScript communication contract/store/facade, explicit owner v7
+### P2 communication store and wire
+
+P2 owns the TypeScript communication contract/store/facade, the explicit owner v7
 migration, native Python communication ports/SDK capture, project fixtures/tests
-and project guides. Proposed additive tables are communication_settings,
-native_responses and native_observations. They share the original inbox admission,
-four SQL operations and two connections; no new pool, queue or execution owner.
-The existing channel codec and closed six-key p2.generation wire stay compatible.
-A separate versioned response mapping and authenticated response-bound playback
-RPC carry observation identity. Browser RTC tokens expose neither publication nor
-SQL/native-ingress credentials. No acknowledgement or inferred-consent variant
-is added by this phase.
+and project guides.
 
-Fix the response anchor before the captured LLM node emits output. An app-owned
-ContextVar is set only around synchronous generate_reply and reset immediately;
-a one-shot handle binding connects the returned public handle to that captured
-context before any node publication. Do not use session.current_speech as node
-identity. Do not treat SpeechHandle.done as actual iterator settlement: explicitly
-retain node/iterator ownership through ignored cancellation, then retire mappings.
-Use public SDK surfaces only. Store SDK synchronized text only as that source's
-observation; unsupported per-segment positions stay unavailable. A known interrupted
-preparation is limited to the opt-in scripted read-only profile, with an actually
-completed LLM stream, no SDK failure and settled ownership. Incomplete/error streams
-remain unknown and do not authorize business acceptance.
+- Proposed additive tables are communication_settings, native_responses and
+  native_observations. They share the original inbox admission, four SQL
+  operations and two connections, with no new pool, queue or execution owner.
+- The existing channel codec and closed six-key p2.generation wire stay
+  compatible.
+- A separate versioned response mapping and an authenticated response-bound
+  playback RPC carry observation identity.
+- Browser RTC tokens expose neither publication nor SQL/native-ingress
+  credentials.
+- No acknowledgement or inferred-consent variant is added by this phase.
 
-Response/observation identities and tombstones last for profile lifetime, with no
-physical pruning or reclaimed capacity. Proposed persisted defaults are 1,024
-responses/8,192 observations/16 observations per response; maxima are
-10,000/100,000/64. Raw generated text is bounded to 4,096 UTF8 bytes. Exact schemas,
-source roles, reducer and limits receive a separate immutable contract before code.
-Late evidence can append only to its original response after grant expiry/revoke;
-current permission is still required for a new response, prepare or operation.
+### P2 SDK capture rules
 
-P3 owns recovery fixture/server/test composition and five project guides. Prefer
-unchanged P1/P3 production schemas/APIs/runtime. The planned actual gate has
-17 named assertions, eight verified owned kills, one actual two-waiter issuance
-order graph, 25 one-time Python modes and two specialist lifetimes plus one
-compiler command: 28 children within a ceiling of 32. Freeze exact modes, expected
-responses and counts before implementation. Two authenticated scopes may share
-one P1 profile; only completion scope is projected, without collapsing case/account
-bindings or adding another ledger. The final current action uses actual public P1
-case/quote/confirmation and an independently observed supplier application.
+Fix the response anchor before the captured LLM node emits output.
 
-Root owns this work item, browser/controller/evidence UI, new storage/media/recovery
-orchestration and wrapper negatives, Make/discovery, shared guides and checkpoint.
-Keep generated full text, native progress and client-reported playback visibly
-separate. UI progress must follow actual observations; no timers invent workflow
-progress. Preserve reduced motion, keyboard access, safe text rendering and empty
-credential fields in screenshots. Actual case/consent/business authority remains
-outside communication evidence.
+- An app-owned ContextVar is set only around synchronous generate_reply and reset
+  immediately. A one-shot handle binding connects the returned public handle to
+  that captured context before any node publication.
+- Do not use session.current_speech as node identity.
+- Do not treat SpeechHandle.done as actual iterator settlement. Explicitly retain
+  node/iterator ownership through ignored cancellation, then retire mappings.
+- Use public SDK surfaces only. Store SDK synchronized text only as that source's
+  observation. Unsupported per-segment positions stay unavailable.
+- A known interrupted preparation is limited to the opt-in scripted read-only
+  profile, with an actually completed LLM stream, no SDK failure and settled
+  ownership. Incomplete/error streams remain unknown and do not authorize business
+  acceptance.
+
+### P2 retention and limits
+
+Response/observation identities and tombstones last for the profile lifetime, with
+no physical pruning or reclaimed capacity.
+
+| Proposed persisted limit | Default | Maximum |
+| --- | --- | --- |
+| Responses | 1,024 | 10,000 |
+| Observations | 8,192 | 100,000 |
+| Observations per response | 16 | 64 |
+
+Raw generated text is bounded to 4,096 UTF-8 bytes. Exact schemas, source roles,
+reducer and limits receive a separate immutable contract before code. Late
+evidence can append only to its original response after grant expiry/revoke.
+Current permission is still required for a new response, prepare or operation.
+
+### P3 recovery composition
+
+P3 owns the recovery fixture/server/test composition and five project guides.
+Prefer unchanged P1/P3 production schemas/APIs/runtime. The planned actual gate
+has:
+
+| Item | Planned value |
+| --- | --- |
+| Named assertions | 17 |
+| Verified owned kills | Eight |
+| Issuance order graph | One actual two-waiter graph |
+| Children | 25 one-time Python modes and two specialist lifetimes plus one compiler command: 28 children within a ceiling of 32 |
+
+Freeze exact modes, expected responses and counts before implementation. Two
+authenticated scopes may share one P1 profile. Only the completion scope is
+projected, without collapsing case/account bindings or adding another ledger. The
+final current action uses actual public P1 case/quote/confirmation and an
+independently observed supplier application.
+
+### Root integration and UI
+
+Root owns this work item, the browser/controller/evidence UI, new
+storage/media/recovery orchestration and wrapper negatives, Make/discovery, shared
+guides and the checkpoint.
+
+- Keep generated full text, native progress and client-reported playback visibly
+  separate.
+- UI progress must follow actual observations; no timers invent workflow progress.
+- Preserve reduced motion, keyboard access, safe text rendering and empty
+  credential fields in screenshots.
+- Actual case/consent/business authority remains outside communication evidence.
 
 ## Failure cases and validation
 
@@ -119,68 +199,97 @@ outside communication evidence.
 | G-DURABLE P3 | 17 recovery assertions and exact original input/result/receipt/effect reconciliation | 180 seconds total/15 cleanup, at most 32 commands, 2 KiB streams/128 KiB aggregate, 32 KiB report; every work has a fresh horizon of at most 60 seconds | Eight owned kills, one true two-waiter SQL graph, bounded explicit recovery and one authorized physical fake effect |
 | G-OBS | New producer fields and error/code semantics | Finite metric names/labels, bounded sinks/tasks/capture; secret/body/URL sentinels and real failure paths | Safe emitted records, meaningful counters and independent cleanup after sink failure |
 | G-PACKAGE | New P2 evidence API and P3 recovery composition | Current wheel/sdist/rebuilt/npm payload/README parity, isolated public imports/types plus unadapted fixture/example behavior | Default codec remains SDK-free; installed actual scopes labeled accurately |
-| Compatibility | Affected previously qualified native/store/process and shared contracts | Prior native six-group gate and P2 141 lanes; P3 deadline/execution/applicability/action/processing as affected; preserve P1 qualification for unchanged inputs | Fresh required normal reports; no missing/skip/timeout pass and no overwriting closed evidence |
+| Compatibility | Affected previously qualified native/store/process and shared contracts | Prior native six-group gate and the P2 141-assertion compatibility lanes; P3 deadline/execution/applicability/action/processing as affected; preserve P1 qualification for unchanged inputs | Fresh required normal reports; no missing/skip/timeout pass and no overwriting closed evidence |
 | Final local handoff | Current docs/design/harness, ordinary stack and source-bound checkpoint | Documentation/Mermaid checks, default doctor/smoke, M1 preservation, independent review and owned residual checks | Accurate completed selected tasks, source/artifact hashes and explicit remaining charter work |
 | G-RELEASE | Complete product/ecosystem qualification remains later | Consider only complete P2-07/08 or P3-04/08 registrations after every required assertion and independent review passes | No blanket project, physical hearing, general model, capacity or hosted-release claim |
 
-The budgets above are planned preimplementation ceilings; exact child/case/env/
-proof contracts must be frozen before any normal measurement. A correction after
-failure retains the earlier failed run and adds a new explicit source/contract
-version. Diagnostics never qualify normal gates. Do not enlarge budgets or weaken
-authority guards to hide a failure.
+### Budget rules
 
-Existing commands include make check, make frontend-check, make format-check,
-make p2-native-check, make p2-postgres-check, make p2-send-policy-check,
-make p3-deadlines-check, make p3-execution-check, make p3-processing-check,
-make p3-applicability-check and make p3-action-races-check. New focused commands
-are added only with real implementation and negative report/environment fixtures.
-Keep actual PostgreSQL lanes serialized; package preparation and offline checks
+The budgets above are planned preimplementation ceilings. Exact
+child/case/env/proof contracts must be frozen before any normal measurement.
+
+- A correction after failure retains the earlier failed run and adds a new
+  explicit source/contract version.
+- Diagnostics never qualify normal gates.
+- Do not enlarge budgets or weaken authority guards to hide a failure.
+
+### Commands
+
+Existing commands include:
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| Shared fast gates | `make check`, `make frontend-check` and `make format-check` | None |
+| P2 lanes | `make p2-native-check`, `make p2-postgres-check` and `make p2-send-policy-check` | None |
+| P3 lanes | `make p3-deadlines-check`, `make p3-execution-check`, `make p3-processing-check`, `make p3-applicability-check` and `make p3-action-races-check` | None |
+
+New focused commands are added only with real implementation and negative
+report/environment fixtures. Keep actual PostgreSQL lanes serialized; package preparation and offline checks
 may run independently. Never reset ordinary named volumes or emit token commands
 into shared diagnostics.
 
-Logs carry fixed component/event/code/source/outcome plus finite durations and
-occupancy, never transcript, token, arbitrary URL, body or exception text. New
-Python public models/ports are typed; cancellation propagates and actual resource
-ownership survives caller timeout. Browser report acceptance is not human hearing,
-acknowledgement or exact quote confirmation.
+### Logging and exception rules
+
+- Logs carry fixed component/event/code/source/outcome plus finite durations and
+  occupancy. They never carry transcript, token, arbitrary URL, body or exception
+  text.
+- New Python public models/ports are typed. Cancellation propagates, and actual
+  resource ownership survives caller timeout.
+- Browser report acceptance is not human hearing, acknowledgement or exact quote
+  confirmation.
 
 ## Results and handoff
 
 Selected P2-I17 and P3-I14 are complete for this local POC. All required selected
-source, installed-artifact, regression, shared and cleanup gates passed. P2-I18
-current-case room rehydration and P3-I15 standalone release completeness are next;
-complete P2/P3 charter, broader workload and conversational-media qualification
-remain separately gated. The catalog stays at 55 cases and 24 registered runners,
-with all seventeen full P2 and fourteen remaining full P3 rows still planned.
+source, installed-artifact, regression, shared and cleanup gates passed.
+
+- P2-I18 current-case room rehydration and P3-I15 standalone release completeness
+  are next.
+- Complete P2/P3 charter, broader workload and conversational-media qualification
+  remain separately gated.
+- The catalog stays at 55 cases and 24 registered runners, with all seventeen full
+  P2 and fourteen remaining full P3 rows still planned.
 
 ### Implemented behavior
 
-P2 explicitly upgrades v6 to v7 through owner maintenance, adding three tables
-without another pool or execution owner. Source roles, original input/operation/
-room/speech bindings, commutative contradictory facts, profile growth limits and
-original replay stay separate from current preparation permission. Response
-sequences are scoped to tenant/account/conversation; observation sequences are
-local to the response. Late facts cannot create new acceptance or consent.
+#### P2 storage
 
-The Python adapter captures immutable context at the actual public LLM/TTS node
-call and binds the exact returned public SpeechHandle. It retains real producers,
-streams and SDK tasks through ignored cancellation. Normal EOF supplies full
-generated text; a failed/incomplete LLM iterator does not. A later TTS or playback
-failure preserves an already completed generated-text fact. The scoped communication
-profile rejects the legacy session-wide interrupt while preserving the older
-profile. The browser shows generated text, SDK output and client reports in
-separate lanes. Actual PCM windows support the controlled interruption demo;
-missing completion reports stay unknown. Latest-read fences prevent stale failures
-from overwriting recovered response availability. End owns every actual reader,
-I/O, worklet, port, source and AudioContext through settlement.
+P2 explicitly upgrades v6 to v7 through owner maintenance, adding three tables
+without another pool or execution owner. Source roles, original
+input/operation/room/speech bindings, commutative contradictory facts, profile
+growth limits and original replay stay separate from current preparation
+permission. Response sequences are scoped to tenant/account/conversation;
+observation sequences are local to the response. Late facts cannot create new
+acceptance or consent.
+
+#### P2 adapter and browser
+
+- The Python adapter captures immutable context at the actual public LLM/TTS node
+  call and binds the exact returned public SpeechHandle. It retains real
+  producers, streams and SDK tasks through ignored cancellation.
+- Normal EOF supplies full generated text; a failed/incomplete LLM iterator does
+  not. A later TTS or playback failure preserves an already completed
+  generated-text fact.
+- The scoped communication profile rejects the legacy session-wide interrupt while
+  preserving the older profile.
+- The browser shows generated text, SDK output and client reports in separate
+  lanes. Actual PCM windows support the controlled interruption demo; missing
+  completion reports stay unknown.
+- Latest-read fences prevent stale failures from overwriting recovered response
+  availability.
+- End owns every actual reader, I/O, worklet, port, source and AudioContext
+  through settlement.
+
+#### P3 recovery
 
 P3 adds qualification composition over unchanged public P1/P3 runtime authority.
-Real specialist/coordinator process loss reconciles original issued input, results,
-delivery and exact confirmed action. Original possible delivery with no receipt
-stays unknown; only an explicit new eligible command admits another read-only
-attempt. There is no recovering daemon, second accepted-work queue, automatic
-receiver accept retry or inferred consent. Independent supplier truth records one
-authorized fake application, without claiming exactly-once computation.
+Real specialist/coordinator process loss reconciles original issued input,
+results, delivery and exact confirmed action. Original possible delivery with no
+receipt stays unknown; only an explicit new eligible command admits another
+read-only attempt. There is no recovering daemon, second accepted-work queue,
+automatic receiver accept retry or inferred consent. Independent supplier truth
+records one authorized fake application, without claiming exactly-once
+computation.
 
 ### Executed qualification
 
@@ -202,67 +311,89 @@ authorized fake application, without claiming exactly-once computation.
 
 ### Failure provenance and corrections
 
-Earlier failures remain retained and non-passing. P2 storage normal 01 exposed a
-v6 seed reply that inherited a v7 terminal literal. Normal 02 reached both actual
-kill/lock schedules but rejected four uncontracted expiry-proof fields. The fixture
-was aligned with the frozen v6/closed proof contract; the guards were not relaxed.
-Normal 03 passed; normal 04 reconfirmed the final shared helper/source binding.
+Earlier failures remain retained and non-passing.
 
-Playback normal 01 lost its browser stage before temporary-tree removal; its exact
-original cause is unavailable. Normal 02 retained the normal-stage timeout. A
-subsequent static audit found the test filling a field inside a closed Input
-references disclosure. The test now follows the visible UI, as the earlier native
-positive already did. Normal 03 passed all browser paths and receiving-side media
-verification but rejected a source-proof file written as 0644. A controlled
-reproduction confirmed the writer behavior; explicit O_EXCL/O_NOFOLLOW 0600 writes
-and exclusive/symlink tests fixed it. A nonexistent redundant artifact filename
-was removed; all seven real required proofs remained. Normal 04 passed. Visual
-review then found the stale read-warning presentation; final normal 05 adds actual
-read-failure/recovery evidence and passes all original playback predicates.
+#### P2 storage runs
 
-P3 diagnostic runs never qualify normal recovery. Retained failure/source versions
-record restricted-role SQL visibility, the safe parent/child diagnostic refinement,
-a fixture actor-scope argument error, and manual confirmation serialization that
-omitted the public schema. Named public bindings and public payload serializers
-fixed those defects; physical apply/count and authority predicates stayed strict.
-The first failed source run and one early diagnostic lacked enough context to
-recover their exact original causes. This limitation is preserved. The final source
-and installed gates, safe proofs and independent reviews pass.
+| Run | Observed result | Cause or correction |
+| --- | --- | --- |
+| Normal 01 | Exposed a v6 seed reply that inherited a v7 terminal literal | None |
+| Normal 02 | Reached both actual kill/lock schedules but rejected four uncontracted expiry-proof fields | The fixture was aligned with the frozen v6/closed proof contract; the guards were not relaxed |
+| Normal 03 | Passed | None |
+| Normal 04 | Reconfirmed the final shared helper/source binding | None |
 
-First npm preparation referenced a missing private driver template before actual
-PG measurement; the corrected isolated driver is retained. Earlier 91- and 93-test
-Python artifacts remain valid historical predecessors. The fresh 94-test artifact
-binds the current example writer and unadapted test copies. Missing discovery owners
-and outdated test-corpus report literals were corrected; final full gates pass.
-No authority, resource, audio or timeout budget was enlarged to hide a failure.
+#### P2 playback runs
+
+| Run | Observed result | Cause or correction |
+| --- | --- | --- |
+| Normal 01 | Lost its browser stage before temporary-tree removal | Its exact original cause is unavailable |
+| Normal 02 | Retained the normal-stage timeout; a subsequent static audit found the test filling a field inside a closed Input references disclosure | The test now follows the visible UI, as the earlier native positive already did |
+| Normal 03 | Passed all browser paths and receiving-side media verification but rejected a source-proof file written as 0644; a controlled reproduction confirmed the writer behavior | Explicit O_EXCL/O_NOFOLLOW 0600 writes and exclusive/symlink tests fixed it; a nonexistent redundant artifact filename was removed, and all seven real required proofs remained |
+| Normal 04 | Passed; visual review then found the stale read-warning presentation | None |
+| Final normal 05 | Adds actual read-failure/recovery evidence and passes all original playback predicates | None |
+
+#### P3 runs
+
+P3 diagnostic runs never qualify normal recovery. Retained failure/source
+versions record:
+
+- restricted-role SQL visibility;
+- the safe parent/child diagnostic refinement;
+- a fixture actor-scope argument error;
+- manual confirmation serialization that omitted the public schema.
+
+Named public bindings and public payload serializers fixed those defects;
+physical apply/count and authority predicates stayed strict. The first failed
+source run and one early diagnostic lacked enough context to recover their exact
+original causes. This limitation is preserved. The final source and installed
+gates, safe proofs and independent reviews pass.
+
+#### Package preparation
+
+The first npm preparation referenced a missing private driver template before
+actual PG measurement; the corrected isolated driver is retained. Earlier 91- and
+93-test Python artifacts remain valid historical predecessors. The fresh 94-test
+artifact binds the current example writer and unadapted test copies. Missing
+discovery owners and outdated test-corpus report literals were corrected; final
+full gates pass. No authority, resource, audio or timeout budget was enlarged to
+hide a failure.
 
 ### Source and evidence binding
 
-Local reports live under .local/validation/p2-communication,
-.local/validation/p2-playback, .local/validation/p3-recovery and the existing
-regression/artifact families. The consolidated source-bound checkpoint is
-.local/validation/p2-playback-p3-recovery/ccfb98f7872c4cf6afc099dd482439c9.
-Machine evidence owns file/archive identities, safe diagnostics, commands,
-independent reviews and provenance; source-control identifiers are not documentation.
+| Evidence | Location | Notes |
+| --- | --- | --- |
+| Local reports | Under `.local/validation/p2-communication`, `.local/validation/p2-playback` and `.local/validation/p3-recovery` | Plus the existing regression/artifact families |
+| Consolidated source-bound checkpoint | `.local/validation/p2-playback-p3-recovery/ccfb98f7872c4cf6afc099dd482439c9` | None |
 
-Independent reviews recomputed the storage restore/receipt/clock joins, all seven
-media proof hashes and actual SDK publication/SQL joins, source/installed P3 proof
-bundles, isolated archives/README/RECORD and current consumer copies. Reviewers
-explicitly disclose authored fixtures/tests. The final media freeze includes 127
-unchanged maintained inputs plus three unused generated build entries; the latter
-were replaced by the subsequent native build. The actual gate serves Vite source,
-not those generated outputs. This overbroad freeze and current build identities
-are explicitly recorded. Storage normal 04 binds its 111-file snapshot through 109 unchanged current inputs
+Machine evidence owns file/archive identities, safe diagnostics, commands,
+independent reviews and provenance. Source-control identifiers are not
+documentation.
+
+Independent reviews recomputed:
+
+- the storage restore/receipt/clock joins;
+- all seven media proof hashes and actual SDK publication/SQL joins;
+- source/installed P3 proof bundles;
+- isolated archives/README/RECORD and current consumer copies.
+
+Reviewers explicitly disclose authored fixtures/tests.
+
+The final media freeze includes 127 unchanged maintained inputs plus three unused
+generated build entries; the latter were replaced by the subsequent native build.
+The actual gate serves Vite source, not those generated outputs. This overbroad
+freeze and the current build identities are explicitly recorded.
+
+Storage normal 04 binds its 111-file snapshot through 109 unchanged current inputs
 and two retained, byte-verified playback helper/test snapshots. Those later deltas
-change a non-executed browser-proof literal and playback test corpus; all four
-media-helper dependencies actually used by the SQL wrapper have identical ASTs
-and global construction. No 111-current claim is made. Historical source snapshots
-reconstructed after edits were byte-verified against premeasurement hashes and
-labelled as reconstructions.
+change a non-executed browser-proof literal and the playback test corpus. All four
+media-helper dependencies actually used by the SQL wrapper have identical abstract
+syntax trees (ASTs) and global construction. No 111-current claim is made.
+Historical source snapshots reconstructed after edits were byte-verified against
+premeasurement hashes and labelled as reconstructions.
 
 All 1,145 closed prior artifacts were reverified. P1's 77 and P3's 30 production
 payloads, P1 READMEs, locks, image pins, default Compose/console and original M1
-remain unchanged. Provider/private-CA files were not read. Known SDK/browser
-facts do not establish physical hearing, human acknowledgement, consent, model
-quality, general ASR, supported-platform release or production capacity. Continue
-with I18/I15 under a new scoped work item and fresh gates.
+remain unchanged. Provider/private-CA files were not read. Known SDK/browser facts
+do not establish physical hearing, human acknowledgement, consent, model quality,
+general ASR, supported-platform release or production capacity. Continue with
+P2-I18/P3-I15 under a new scoped work item and fresh gates.

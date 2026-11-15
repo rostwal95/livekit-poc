@@ -341,6 +341,26 @@ describe('bounded persisted dispatch adapter orchestration', () => {
     await tick();
     expect(calls.close).toHaveBeenCalledTimes(1);
   });
+  it('retries close against retained work after a failed attempt instead of caching the failure', async () => {
+    const held = deferred<typeof CURRENT>(),
+      d = make(fixture({ cases: { inspect: () => held.promise } }).ports, {
+        timeoutMs: 20,
+        cleanupTimeoutMs: 20,
+      });
+    const work = d.step('token', RECEIPT);
+    await tick();
+    await Promise.all([
+      rejects(work, 'DispatchUnavailable'),
+      rejects(d.close(), 'CleanupIncomplete'),
+    ]);
+    await rejects(d.close(), 'CleanupIncomplete');
+    held.resolve(CURRENT);
+    await tick();
+    await tick();
+    await d.close();
+    expect(calls.fail).toHaveBeenCalledWith('token', expect.anything(), 'timeout');
+    await rejects(d.step('token', RECEIPT), 'StorageUnavailable');
+  });
   it('includes synchronous abort listeners in the total cleanup deadline', async () => {
     const held = deferred<typeof CURRENT>();
     let seen: AbortSignal | undefined;

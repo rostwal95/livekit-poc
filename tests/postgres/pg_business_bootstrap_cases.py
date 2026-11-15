@@ -92,13 +92,14 @@ class PostgresBusinessBootstrapCases(unittest.TestCase):
     def unchanged_m1(self):
         self.assertEqual(self.main_sha, hashlib.sha256(self.main.read_bytes()).hexdigest())
 
-    def test_fresh_absent_target_reaches_active_v4_then_readonly_ready_preserves_accepted_business_and_m1(
+    def test_fresh_absent_target_reaches_active_v5_then_readonly_ready_preserves_accepted_business_and_m1(
         self,
     ):
         result = self.prepare()
         self.assertTrue(result["changed"])
+        self.assertEqual("explicit_empty_bootstrap", result["schema_activation"])
         self.assertEqual(
-            (4, "active"),
+            (5, "active"),
             (read_import_state(self.owner).version, read_import_state(self.owner).state),
         )
 
@@ -120,6 +121,7 @@ class PostgresBusinessBootstrapCases(unittest.TestCase):
         before = self.snapshot()
         replay = self.prepare()
         self.assertFalse(replay["changed"])
+        self.assertEqual("read_only_ready", replay["schema_activation"])
         self.assertIsNone(replay["bootstrap_run_id"])
         self.assertEqual(before, self.snapshot())
         self.assertIn(task, str(before))
@@ -129,7 +131,7 @@ class PostgresBusinessBootstrapCases(unittest.TestCase):
         install_schema(self.owner)
         self.assertEqual("staging", read_import_state(self.owner).state)
         self.assertTrue(self.prepare()["changed"])
-        self.assertEqual(4, read_import_state(self.owner).version)
+        self.assertEqual(5, read_import_state(self.owner).version)
         self.unchanged_m1()
 
     def test_nonempty_imported_staging_refuses_before_target_rows_or_source_artifacts_change(
@@ -179,5 +181,5 @@ class PostgresBusinessBootstrapCases(unittest.TestCase):
                 for p in folder.glob("before-*.sqlite3")
             },
         )
-        self.assertEqual(4, read_import_state(self.owner).version)
+        self.assertEqual(5, read_import_state(self.owner).version)
         self.unchanged_m1()

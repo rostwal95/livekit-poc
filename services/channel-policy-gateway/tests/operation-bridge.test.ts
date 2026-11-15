@@ -215,6 +215,14 @@ async function fixture(timeoutMs = 1000) {
   };
 }
 describe('source-attested fresh operation bridge', () => {
+  it('lets a slow committed accept finish within the bridge budget rather than a 2 s client cap', async () => {
+    const x = await fixture(3500);
+    const p = x.add('sms');
+    x.remote.state.wait = new Promise<void>((resolve) => setTimeout(resolve, 2300));
+    const receipt = await x.bridge.sms.accept(p, new AbortController().signal);
+    expect(receipt).toMatchObject({ operationKey: p.submission.operationKey });
+    expect(x.remote.state.receipts.has(p.submission.operationKey)).toBe(true);
+  }, 10000);
   it('derives distinct original native A/B and SMS senders without fake native metadata', async () => {
     const x = await fixture();
     expect(Object.getOwnPropertyDescriptor(x.bridge, 'native')?.writable).toBe(false);

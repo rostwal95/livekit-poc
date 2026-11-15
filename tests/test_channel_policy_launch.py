@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import signal
 import subprocess
 import sys
 import tempfile
@@ -607,6 +608,84 @@ class Composition(unittest.IsolatedAsyncioTestCase):
                 ui = next(row for row in final["children"] if row["role"] == "ui")
                 self.assertEqual(ui["gracefulClosed"], not abnormal)
                 self.assertEqual(final["status"], "closed")
+
+    async def test_hangup_and_quit_drain_like_terminate_and_remove_every_handler(self):
+        from io import StringIO
+
+        loop = asyncio.get_running_loop()
+        for stop in (signal.SIGHUP, signal.SIGQUIT):
+            with self.subTest(signal=stop.name):
+                launcher = self.launcher()
+                installed, removed = {}, []
+                with (
+                    patch.object(m, "JoinedLauncher", return_value=launcher),
+                    patch.object(
+                        loop,
+                        "add_signal_handler",
+                        side_effect=lambda value, callback, saved=installed: saved.__setitem__(
+                            value, callback
+                        ),
+                    ),
+                    patch.object(loop, "remove_signal_handler", side_effect=removed.append),
+                    patch.object(m.sys, "stdout", StringIO()),
+                ):
+                    serving = asyncio.create_task(m.serve(self.request))
+                    await self.until(lambda owner=launcher: owner.status()["status"] == "ready")
+                    self.assertEqual(
+                        set(installed),
+                        {signal.SIGTERM, signal.SIGINT, signal.SIGHUP, signal.SIGQUIT},
+                    )
+                    installed[stop]()
+                    code = await serving
+                self.assertEqual(code, 0)
+                self.assertEqual(sorted(removed), sorted(installed))
+                self.assertTrue(all(child.closed.is_set() for child in self.children.values()))
+                self.assertFalse((launcher._prepared.runtime / "active.json").exists())
+
+    async def test_cleanup_past_deadline_reports_once_and_paces_unsignalled_retries(self):
+        from io import StringIO
+
+        loop = asyncio.get_running_loop()
+        for pause, signalled in ((30.0, True), (0.1, False)):
+            with self.subTest(pause=pause, signalled=signalled):
+                launcher = self.launcher()
+                installed = {}
+                output = StringIO()
+                self.log.clear()
+                self.faults.add("parent:close")
+                with (
+                    patch.object(m, "SHUTDOWN_SECONDS", 0.0),
+                    patch.object(m, "RETRY_SECONDS", pause),
+                    patch.object(m, "JoinedLauncher", return_value=launcher),
+                    patch.object(
+                        loop,
+                        "add_signal_handler",
+                        side_effect=lambda value, callback, saved=installed: saved.__setitem__(
+                            value, callback
+                        ),
+                    ),
+                    patch.object(loop, "remove_signal_handler", return_value=True),
+                    patch.object(m.sys, "stdout", output),
+                ):
+                    serving = asyncio.create_task(m.serve(self.request))
+                    await self.until(lambda owner=launcher: owner.status()["status"] == "ready")
+                    installed[signal.SIGTERM]()
+                    await asyncio.sleep(0.5)
+                    self.assertLessEqual(self.log.count("parent:close"), 4)
+                    self.assertFalse(serving.done())
+                    self.assertTrue((launcher._prepared.runtime / "active.json").exists())
+                    self.faults.remove("parent:close")
+                    if signalled:
+                        installed[signal.SIGTERM]()
+                    async with asyncio.timeout(2):
+                        code = await serving
+                frames = [json.loads(line) for line in output.getvalue().splitlines()]
+                self.assertEqual(code, 0)
+                self.assertEqual(
+                    [frame.get("code") for frame in frames].count("cleanup_incomplete"), 1
+                )
+                self.assertEqual(frames[-1]["status"], "closed")
+                self.assertFalse((launcher._prepared.runtime / "active.json").exists())
 
     async def test_queued_cancellation_does_not_allocate_prepare_or_children(self):
         launcher = self.launcher()

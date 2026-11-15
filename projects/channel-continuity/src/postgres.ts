@@ -201,6 +201,7 @@ export class ChannelInbox {
   #observer: InboxObserver;
   #active = 0;
   #closing = false;
+  #ending: Promise<unknown> | undefined;
   #closePromise: Promise<void> | undefined;
   #onIdle: (() => void) | undefined;
   #counts = {
@@ -927,20 +928,27 @@ export class ChannelInbox {
   close(): Promise<void> {
     if (this.#closePromise) return this.#closePromise;
     this.#closing = true;
-    const idle =
-      this.#active === 0
-        ? Promise.resolve()
-        : new Promise<void>((resolve) => {
-            this.#onIdle = resolve;
-          });
-    this.#closePromise = this.#finishClose(idle);
-    return this.#closePromise;
+    if (!this.#ending) {
+      const idle =
+        this.#active === 0
+          ? Promise.resolve()
+          : new Promise<void>((resolve) => {
+              this.#onIdle = resolve;
+            });
+      this.#ending = Promise.all([this.#pool.end(), idle]);
+    }
+    const closing = this.#finishClose(this.#ending);
+    this.#closePromise = closing;
+    void closing.catch(() => {
+      this.#closePromise = undefined;
+    });
+    return closing;
   }
-  async #finishClose(idle: Promise<void>): Promise<void> {
+  async #finishClose(ending: Promise<unknown>): Promise<void> {
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
       await Promise.race([
-        Promise.all([this.#pool.end(), idle]),
+        ending,
         new Promise<never>((_resolve, reject) => {
           timer = setTimeout(() => reject(new ChannelError('CleanupIncomplete')), 6000);
         }),

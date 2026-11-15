@@ -470,6 +470,15 @@ describe('trusted local principal and finite live attempt boundary', () => {
       ),
     ).toBe('expired');
   });
+  it('rejects unsupported facts before reporting expiry, in the same order as Python', () => {
+    const request = req(),
+      late = request.deadline_at_ms + 1;
+    const wrong = parseResult(canonical({ ...res(), eligible: false }));
+    expect(code(() => verifyPolicyFacts(request, wrong, records(request), late))).toBe(
+      'unsupported_facts',
+    );
+    expect(verifyPolicyFacts(request, res(), records(request), late)).toBe('expired');
+  });
   it('rejects expiry, unknown attempt, duplicate attempt and forged release; valid current work progresses', () => {
     const request = req();
     const boundary = new AttemptBoundary(

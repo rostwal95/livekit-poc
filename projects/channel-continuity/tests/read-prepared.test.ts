@@ -435,6 +435,27 @@ describe('read-only retained prepared dispatch', () => {
       await closing;
     }
   });
+  it('store close retry observes the original SQL again after a timed-out attempt', async () => {
+    const f = data(),
+      store = new DispatchStore(DB, f.integration, f.accounts),
+      held = deferred();
+    f.hold(held.promise);
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      const read = store.readPrepared(ACCOUNT, RECEIPT);
+      const timedOut = expect(store.close()).rejects.toMatchObject({ code: 'CleanupIncomplete' });
+      await vi.advanceTimersByTimeAsync(6000);
+      await timedOut;
+      held.resolve();
+      expect(await read).toEqual(f.prepared);
+      await store.close();
+      expect(driver.end).toHaveBeenCalledTimes(1);
+      expect(driver.release).toHaveBeenCalledTimes(1);
+    } finally {
+      held.resolve();
+      vi.useRealTimers();
+    }
+  });
   it.each([false, true])(
     'gateway delegates to its owned dispatcher without listening or creating authority: native=%s',
     async (native) => {

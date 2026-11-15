@@ -223,6 +223,43 @@ class WorkerTelemetryTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(self.records()[-1]["code"], code)
         self.assertNotIn("SECRET_SENTINEL", self.stream.getvalue())
 
+    async def test_concurrent_admission_counts_pending_accept_and_rejects_second_job(self):
+        from services.rtc_agent import worker
+
+        active, entered, release = [], asyncio.Event(), asyncio.Event()
+
+        async def accept(**_kwargs):
+            entered.set()
+            await release.wait()
+            active.append(object())
+
+        first = SimpleNamespace(
+            room=SimpleNamespace(name="lab-first"),
+            accept=AsyncMock(side_effect=accept),
+            reject=AsyncMock(),
+        )
+        second = SimpleNamespace(
+            room=SimpleNamespace(name="lab-second"), accept=AsyncMock(), reject=AsyncMock()
+        )
+        with (
+            patch.object(worker, "server", SimpleNamespace(active_jobs=active)),
+            patch.object(worker, "admission", worker.JobAdmission()),
+        ):
+            accepting = asyncio.create_task(worker.accept_local_job(first))
+            await entered.wait()
+            self.assertEqual(worker.calculate_load(worker.server), 1.0)
+            competing = asyncio.create_task(worker.accept_local_job(second))
+            await asyncio.sleep(0)
+            second.accept.assert_not_awaited()
+            release.set()
+            await asyncio.gather(accepting, competing)
+            self.assertEqual(worker.admission.pending, 0)
+            self.assertEqual(worker.calculate_load(worker.server), 1.0)
+        first.accept.assert_awaited_once_with(name="Local transport diagnostic")
+        second.accept.assert_not_awaited()
+        second.reject.assert_awaited_once_with(terminate=False)
+        self.assertEqual(self.records()[-1]["code"], "job_capacity")
+
     async def test_actual_session_entry_preserves_connect_failure_and_cancellation(self):
         from services.rtc_agent import worker
 

@@ -1,7 +1,17 @@
 /** Real outbox transaction/error path with a synthetic PG driver; no database qualification. */
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
-import { ChannelOutbox } from '../src/outbox.js';
+import { ChannelOutbox, type CarrierResult, type CarrierSendPort } from '../src/outbox.js';
+import { OutboxStore } from '../src/outbox-store.js';
+import { sendRequest, sha } from '../src/outbox-types.js';
+import { SendPolicyStore } from '../src/send-policy-store.js';
+import {
+  lookup,
+  operationDigest,
+  operationFrom,
+  recoveryObservation,
+  recoveryReceipt,
+} from '../src/send-policy-types.js';
 import { ChannelInbox, SeededAccounts, ChannelError } from '../src/postgres.js';
 import { createFakeSmsIntegration } from '../src/security.js';
 import { ChannelResultReader } from '../src/result-receiver.js';
@@ -195,6 +205,166 @@ describe('native denial semantics before the existing outbox safe boundary', () 
       expect(x.box.metrics().storageActive).toBe(0);
     } finally {
       await x.reader.close();
+      await x.box.close();
+    }
+  });
+});
+describe('known carrier results while ordinary calls hold every store slot', () => {
+  const controller = 'c'.repeat(43),
+    providerScope = { tenantId: scope.tenantId, provider: 'fake_sms', providerAccountId: 'sms' },
+    request = sendRequest({
+      schemaVersion: 1,
+      outboundId: randomUUID(),
+      responseId: 'response',
+      body: 'Notice',
+      ...ref,
+      attemptId: randomUUID(),
+      providerOperationKey: randomUUID(),
+      providerScope,
+      senderId: 'sender',
+      associationVersion: '1',
+      routeVersion: '1',
+    }),
+    op = operationFrom(request, 'idempotent_fake_sms_v1');
+  afterEach(() => vi.restoreAllMocks());
+  function loaded(carrier: CarrierSendPort) {
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const original = driver.query.getMockImplementation()!;
+    driver.query.mockImplementation(async (text: string, values?: unknown[]) => {
+      if (text.startsWith('SELECT i.outbound_id')) await held;
+      if (text.startsWith('SELECT canonical_request FROM'))
+        return { rows: [{ canonical_request: JSON.stringify(request) }], rowCount: 1 };
+      return original(text, values);
+    });
+    const box = new ChannelOutbox(
+      DB,
+      createFakeSmsIntegration(providerScope, Buffer.alloc(32, 7)),
+      new SeededAccounts([
+        { token: account, ...scope, caseId: ref.caseId, conversationId: ref.conversationId },
+      ]),
+      [{ token: publisher, ...ref }],
+      carrier,
+      { observer: () => {}, recoveryControllers: [{ token: controller, ...ref }] },
+    );
+    const reads = Array.from({ length: 4 }, () => box.pending(account));
+    return { box, reads, release };
+  }
+  it.each(['accepted_by_provider', 'definitive_not_accepted'] as const)(
+    'records a %s send result instead of reporting unknown',
+    async (status) => {
+      const digest = sha(JSON.stringify(request)),
+        result: CarrierResult =
+          status === 'accepted_by_provider'
+            ? {
+                schemaVersion: 1,
+                attemptId: request.attemptId,
+                requestDigest: digest,
+                status,
+                providerMessageId: 'provider-message',
+              }
+            : { schemaVersion: 1, attemptId: request.attemptId, requestDigest: digest, status };
+      vi.spyOn(OutboxStore.prototype, 'reserve').mockResolvedValue({ request });
+      const x = loaded({ capabilities: 'ordinary_fake_sms_v1', send: async () => result });
+      try {
+        expect(x.box.metrics().storageActive).toBe(4);
+        await expect(x.box.pending(account)).rejects.toMatchObject({ code: 'Overloaded' });
+        expect(await x.box.send(account, request.outboundId)).toEqual({
+          status,
+          outboundId: request.outboundId,
+          attemptId: request.attemptId,
+        });
+        expect(
+          driver.query.mock.calls
+            .filter(([text]) => /^INSERT INTO \S+send_results"/.test(text as string))
+            .map(([, values]) => values),
+        ).toEqual([[request.attemptId, JSON.stringify(result)]]);
+        expect(x.box.metrics()).toMatchObject({ unknown: 0, storageActive: 4 });
+      } finally {
+        x.release();
+        await Promise.all(x.reads);
+        await x.box.close();
+      }
+    },
+  );
+  it('records a known recovery lookup instead of rejecting it as overloaded', async () => {
+    const receipt = recoveryReceipt({
+        schemaVersion: 1,
+        receiptId: randomUUID(),
+        commandId: randomUUID(),
+        kind: 'reconcile',
+        outboundId: request.outboundId,
+        sourceAttemptId: request.attemptId,
+        providerOperationKey: op.providerOperationKey,
+        operationDigest: operationDigest(op),
+        decision: 'lookup_authorized',
+        code: 'lookup',
+        newAttemptId: null,
+        acceptedAt: '2030-01-01T00:00:00.000Z',
+      }),
+      found = lookup(
+        {
+          schemaVersion: 1,
+          providerScope,
+          providerOperationKey: op.providerOperationKey,
+          operationDigest: operationDigest(op),
+          state: 'accepted_by_provider',
+          providerMessageId: 'provider-message',
+        },
+        op,
+      ),
+      observation = recoveryObservation(
+        {
+          schemaVersion: 1,
+          commandId: receipt.commandId,
+          providerOperationKey: op.providerOperationKey,
+          operationDigest: operationDigest(op),
+          source: 'lookup',
+          state: 'accepted_by_provider',
+          assessment: 'reported',
+          providerMessageId: 'provider-message',
+          observedAt: '2030-01-01T00:00:00.000Z',
+        },
+        receipt,
+      );
+    vi.spyOn(OutboxStore.prototype, 'reserveRecovery').mockResolvedValue({
+      view: { receipt, observation: null },
+      created: true,
+      action: 'lookup',
+      operation: op,
+      request: null,
+    });
+    vi.spyOn(SendPolicyStore.prototype, 'command').mockResolvedValue({
+      receipt,
+      observation: null,
+    });
+    const observe = vi
+      .spyOn(SendPolicyStore.prototype, 'observe')
+      .mockImplementation(async (_client, saved) => ({ receipt: saved, observation }));
+    const x = loaded({
+      capabilities: 'idempotent_fake_sms_v1',
+      async send() {
+        throw Error('unused');
+      },
+      lookup: async () => found,
+    });
+    try {
+      await expect(x.box.pending(account)).rejects.toMatchObject({ code: 'Overloaded' });
+      expect(
+        await x.box.reconcile(controller, {
+          commandId: receipt.commandId,
+          outboundId: request.outboundId,
+          attemptId: request.attemptId,
+        }),
+      ).toEqual({ receipt, observation });
+      expect(observe).toHaveBeenCalledTimes(1);
+      expect(observe.mock.calls[0]![3]).toEqual(found);
+      expect(x.box.metrics()).toMatchObject({ recoveryKnown: 1, recoveryCapacityRejected: 0 });
+    } finally {
+      x.release();
+      await Promise.all(x.reads);
       await x.box.close();
     }
   });

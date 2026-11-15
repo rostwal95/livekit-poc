@@ -886,8 +886,11 @@ def _copy_snapshot(
                 raise ValueError("invalid attempt error")
         if len({(r["task_id"], r["attempt_no"]) for r in attempts}) != len(attempts):
             raise ValueError("duplicate attempt number")
+        histories: dict[str, list[dict[str, Any]]] = {}
+        for row in attempts:
+            histories.setdefault(row["task_id"], []).append(row)
         for execution in executions:
-            history = [row for row in attempts if row["task_id"] == execution["task_id"]]
+            history = histories.get(execution["task_id"], [])
             if [row["attempt_no"] for row in history] != list(range(1, len(history) + 1)):
                 raise ValueError("attempt sequence is not contiguous")
             status = ExecutionStatus(execution["status"])

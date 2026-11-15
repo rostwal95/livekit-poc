@@ -611,7 +611,12 @@ class PostgresEffects:
                 raise TransitionConflict("This attempt already reserved dispatch")
             now = self._now()
             stamp = now.isoformat()
-            if not absence_confirmed:
+            # A prior reservation may still land after a lookup miss, so it cannot prove
+            # prevention or a definite deadline failure.
+            if not absence_confirmed or (
+                row["dispatch_count"] > 0
+                and (case.cancelled or now >= self._deadline(connection, case))
+            ):
                 self._finish_row(
                     connection,
                     case,

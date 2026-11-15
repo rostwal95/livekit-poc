@@ -29,15 +29,25 @@ def fixture_policy():
     }
 
 
-VALID = """# Fixture project
+CARD = """| Field | Value |
+| --- | --- |
+| Status | Active |
+| Purpose | Exercise the documentation checker |
+| Audience | Harness maintainers |
+| Scope | One fixture document |
+| Owns | Checker fixture behavior |
+| Related | None |
+"""
 
-Status: Active
-Last reviewed: 9 November 2026
-
+VALID = (
+    "# Fixture project\n\n"
+    + CARD
+    + """
 ## Overview
 
 Use explicit database commit boundaries.
 """
+)
 
 DESIGN_HEADINGS = [
     "Overview",
@@ -65,7 +75,7 @@ DIAGRAMS = {
 
 
 def design_fixture():
-    text = "# Fixture design\n\nStatus: Active\nLast reviewed: 9 November 2026\n"
+    text = "# Fixture design\n\n" + CARD
     for heading in DESIGN_HEADINGS:
         content = "This section records a reviewed boundary and its verification."
         if heading in {"Objectives", "Functional requirements", "Non-functional requirements"}:
@@ -294,22 +304,63 @@ class DocumentationTests(unittest.TestCase):
         self.assertEqual(report["status"], "documentation_checks_passed")
         self.assertEqual(report["documentsChecked"], 1)
 
-    def test_missing_or_duplicate_metadata_and_invalid_date_fail(self):
+    def test_document_card_is_required_complete_ordered_and_before_sections(self):
+        purpose = "| Purpose | Exercise the documentation checker |\n"
+        audience = "| Audience | Harness maintainers |\n"
         variants = [
-            VALID.replace("Status: Active\n", ""),
-            VALID.replace("Status: Active", "Status: Done"),
-            VALID + "\nStatus: Active\n",
-            VALID.replace("Last reviewed: 9 November 2026", "Last reviewed: yesterday"),
-            VALID + "\nLast reviewed: 9 November 2026\n",
+            VALID.replace(CARD, ""),
+            VALID.replace("| Field | Value |", "| Key | Value |"),
+            VALID.replace(audience, ""),
+            VALID.replace(purpose + audience, audience + purpose),
+            VALID.replace("| Related | None |", "| Related | None |\n| Extra | Value |"),
+            VALID.replace("| Scope | One fixture document |", "| Scope | |"),
+            VALID.replace("| Owns | Checker fixture behavior |", "| Owns | Checker | extra |"),
+            VALID.replace(CARD, "").replace("## Overview\n", "## Overview\n\n" + CARD),
+            CARD + "\n" + VALID.replace(CARD, ""),
         ]
         for text in variants:
             with self.subTest(text=text):
-                self.assertTrue(
-                    self.codes(self.check(text)) & {"status_metadata", "review_metadata"}
-                )
+                self.assertIn("document_card", self.codes(self.check(text)))
 
-    def test_review_date_is_parsed_instead_of_hardcoded(self):
-        report = self.check(VALID.replace("9 November 2026", "12 December 2027"))
+    def test_card_status_must_be_supported(self):
+        report = self.check(VALID.replace("| Status | Active |", "| Status | Done |"))
+        self.assertEqual(self.codes(report), {"status_metadata"})
+        for status in ("Planned", "Completed", "Template"):
+            with self.subTest(status=status):
+                report = self.check(VALID.replace("| Status | Active |", f"| Status | {status} |"))
+                self.assertEqual(report["status"], "documentation_checks_passed")
+
+    def test_status_lines_and_review_dates_are_rejected_outside_examples(self):
+        for line in ("Status: Active", "Last reviewed: 9 November 2026", "  Last reviewed: soon"):
+            with self.subTest(line=line):
+                report = self.check(VALID.replace("## Overview", line + "\n\n## Overview"))
+                self.assertIn("legacy_metadata", self.codes(report))
+        report = self.check(
+            VALID + "\n```text\nStatus: Active\nLast reviewed: 9 November 2026\n```\n"
+        )
+        self.assertEqual(report["status"], "documentation_checks_passed")
+        report = self.check(VALID + "\n- Status: shown as a list item, not metadata\n")
+        self.assertEqual(report["status"], "documentation_checks_passed")
+
+    def test_html_embeds_must_resolve_local_files_but_ignore_inline_code(self):
+        (self.root / "docs/logo.svg").write_text("<svg/>")
+        text = VALID + (
+            '\n<picture><source srcset="docs/logo.svg 1x, docs/logo.svg 2x" />'
+            '<img src="docs/logo.svg" alt="Logo" /></picture>\n'
+            '<img src="https://img.shields.io/badge/a-b-blue" alt="Badge" />\n'
+            '<video src="docs/logo.svg" poster="docs/logo.svg" controls></video>\n'
+            '<a href="#overview">Overview</a> and `<img src="docs/example-only.svg">`\n'
+        )
+        self.assertEqual(self.check(text)["status"], "documentation_checks_passed")
+        for markup in (
+            '<img src="docs/missing.svg" alt="Missing" />',
+            '<video src="docs/logo.svg" poster="docs/missing.png"></video>',
+            "<a href='docs/missing.md'>Missing</a>",
+            '<source srcset="docs/logo.svg 1x, docs/missing.svg 2x" />',
+        ):
+            with self.subTest(markup=markup):
+                self.assertIn("broken_link", self.codes(self.check(VALID + "\n" + markup + "\n")))
+        report = self.check(VALID + '\n```html\n<img src="docs/missing.svg">\n```\n')
         self.assertEqual(report["status"], "documentation_checks_passed")
 
     def test_exactly_one_h1_ignores_fenced_examples(self):

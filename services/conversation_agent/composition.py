@@ -23,6 +23,8 @@ from continuity_lab.tracing import TraceRuntime, TraceSettings
 from .observations import SessionObserver
 from .session import BusinessPort, ConversationBinding, Receipt
 
+OPERATION_TIMEOUT_SECONDS = 7
+
 
 class SessionBusinessPort:
     """Freeze identity, consent and replay key before entering a native tool."""
@@ -30,6 +32,7 @@ class SessionBusinessPort:
     def __init__(self, client: ManagedCaseClient, grant: ConversationGrant) -> None:
         self._client, self._grant = client, grant
         self._task_id = grant.task_id
+        self._submit_issued = False
         self._closed = False
         self._lock = asyncio.Lock()
         self._tracing: TraceRuntime | None = None
@@ -43,7 +46,7 @@ class SessionBusinessPort:
     async def _run(self, operation: str, action: Callable[[], Awaitable[Receipt]]) -> Receipt:
         if self._closed:
             raise RuntimeError("The conversation port has closed")
-        async with asyncio.timeout(7):
+        async with asyncio.timeout(OPERATION_TIMEOUT_SECONDS):
             async with self._lock:
                 if self._tracing is None:
                     return await action()
@@ -69,34 +72,40 @@ class SessionBusinessPort:
             "approval_channel": "authenticated_workflow_panel",
         }
 
-    async def submit_investigation(self) -> Receipt:
-        async def submit() -> Receipt:
-            accepted = await self._client.submit(
-                idempotency_key=self._grant.request_key,
-                request=self._grant.request,
-            )
-            return self._summary(accepted.projection.payload())
-
-        result = await self._run("submit", submit)
+    async def _submit(self) -> Receipt:
+        self._submit_issued = True
+        accepted = await self._client.submit(
+            idempotency_key=self._grant.request_key,
+            request=self._grant.request,
+        )
+        result = self._summary(accepted.projection.payload())
         self._task_id = str(result["task_id"])
         return result
 
+    async def _owned_task(self) -> str:
+        # A submit whose acknowledgement was lost may still have committed; only
+        # the idempotent frozen replay can identify its original task.
+        return self._task_id or str((await self._submit())["task_id"])
+
+    async def submit_investigation(self) -> Receipt:
+        return await self._run("submit", self._submit)
+
     async def get_case(self) -> Receipt:
-        if self._task_id is None:
+        if self._task_id is None and not self._submit_issued:
             return {"schema_version": 1, "status": "not_accepted"}
-        task = self._task_id
 
         async def get() -> Receipt:
+            task = await self._owned_task()
             return self._summary((await self._client.get(task_id=task)).payload())
 
         return await self._run("get", get)
 
     async def cancel_case(self) -> Receipt:
-        if self._task_id is None:
+        if self._task_id is None and not self._submit_issued:
             return {"schema_version": 1, "status": "not_accepted"}
-        task = self._task_id
 
         async def cancel() -> Receipt:
+            task = await self._owned_task()
             receipt = await self._client.cancel(task_id=task, command_id=self._cancel_command)
             return {"schema_version": 1, "task_id": task, "disposition": receipt.disposition.value}
 

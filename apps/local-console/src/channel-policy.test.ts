@@ -5,6 +5,7 @@ import { JoinedPanel, policyReadCaption } from './channel-policy-panel';
 import type { PanelFacts } from './channel-policy-panel';
 import type { View } from './channel-policy-policy';
 import type { JoinedRoom } from './channel-policy-room';
+import type { FrozenNativeInput } from './p2-native-policy';
 const O = '11111111-1111-4111-8111-111111111111',
   B = '33333333-3333-4333-8333-333333333333',
   T = '2026-11-13T12:00:00.000Z',
@@ -138,6 +139,7 @@ function setup(
     connect: vi.fn(() => connect.promise),
     close: vi.fn(() => media.promise),
     whenClosed: vi.fn(() => media.promise),
+    sendText: vi.fn<(input: FrozenNativeInput) => Promise<void>>(async () => undefined),
     controlsPending: false,
     voicePrepared: false,
     turnInput: null,
@@ -752,5 +754,97 @@ describe('current-result read availability in the actual coordinator', () => {
     expect(s.app.model.snapshot().policy).toBeNull();
     expect(s.app.model.snapshot().policyRead).toBe('idle');
     expect(s.app.model.snapshot().phase).toBe('locked');
+  });
+});
+
+describe('joined text input identity', () => {
+  async function ready() {
+    let started: string | null = null;
+    const s = setup({
+      start: async (body) => {
+        started = body.commandId as string;
+        return response(originalGrant(body));
+      },
+      status: async () =>
+        response(started ? { ...status('1', started, 'ready'), sdkReady: true } : status()),
+    });
+    await authorize(s);
+    s.app.join();
+    await tick();
+    s.connect.resolve();
+    await tick();
+    const room = (
+      s.factory.mock.calls[0] as unknown as ConstructorParameters<typeof JoinedRoom>
+    )[1];
+    room.connection('connected');
+    room.native('agent_1', 'agent', {
+      'p2.session_ready': 'true',
+      'p2.inference_mode': 'scripted',
+      'lk.agent.state': 'listening',
+    });
+    expect(s.app.model.snapshot().ready).toBe(true);
+    return { ...s, room };
+  }
+  const accepted = (inputId: string) =>
+    new TextEncoder().encode(
+      JSON.stringify({
+        schemaVersion: 1,
+        bindingId: B,
+        inputId,
+        channel: 'web_chat',
+        status: 'accepted',
+        receiptId: '55555555-5555-4555-8555-555555555555',
+        operationKey: '66666666-6666-4666-8666-666666666666',
+        acceptanceSequence: '1',
+        code: null,
+      }),
+    );
+  const users = (s: Awaited<ReturnType<typeof ready>>) =>
+    s.app.model.snapshot().messages.filter((row) => row.role === 'user');
+  it('reuses one frozen input for a repeated Send until it is accepted, then mints a new one', async () => {
+    const s = await ready();
+    const field = s.panel.element<HTMLTextAreaElement>('message');
+    field.value = 'Is this eligible?';
+    s.app.send(false);
+    await tick();
+    s.app.send(false);
+    await tick();
+    const [first, second] = s.port.sendText.mock.calls.map(([input]) => input);
+    expect(second).toEqual(first);
+    expect(s.app.model.snapshot().inputs).toHaveLength(1);
+    expect(users(s)).toHaveLength(1);
+    s.room.data('p2.acceptance', accepted(first!.inputId));
+    expect(field.value).toBe('');
+    field.value = 'Does the refund apply?';
+    s.app.send(false);
+    await tick();
+    expect(s.port.sendText.mock.calls[2]![0].inputId).not.toBe(first!.inputId);
+    expect(users(s).map((row) => row.text)).toEqual([
+      'Is this eligible?',
+      'Does the refund apply?',
+    ]);
+  });
+  it('sends on Enter only while Send is enabled and ignores key repeat', async () => {
+    const s = await ready();
+    const field = s.panel.element<HTMLTextAreaElement>('message'),
+      send = s.panel.element<HTMLButtonElement>('send');
+    field.value = 'Is this eligible?';
+    const enter = (repeat: boolean) => {
+      const event = Object.assign(new Event('keydown', { cancelable: true }), {
+        key: 'Enter',
+        shiftKey: false,
+        isComposing: false,
+        repeat,
+      });
+      field.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+    send.disabled = true;
+    expect(enter(false)).toBe(true);
+    send.disabled = false;
+    expect(enter(true)).toBe(true);
+    expect(s.port.sendText).not.toHaveBeenCalled();
+    expect(enter(false)).toBe(true);
+    expect(s.port.sendText).toHaveBeenCalledOnce();
   });
 });

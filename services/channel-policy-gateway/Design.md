@@ -1,18 +1,43 @@
 # Channel policy gateway design
 
-Status: Active
-Last reviewed: 14 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Active |
+| Purpose | Describe the design of the Node gateway of the joined showcase for engineers who change it |
+| Audience | Engineers changing the gateway; coding agents |
+| Scope | Public P2 reads, worker transport, room control, context and operation bridge; excludes the Python side |
+| Owns | Gateway implementation boundaries and design decisions |
+| Related | [README](README.md) · [Agent instructions](AGENTS.md) · [Joined application design](../channel_policy_demo/Design.md) · [Work item 0045](../../docs/work-items/0045-joined-native-channel-policy.md) |
 
 ## Overview
 
-Compose public P2 reads for one configured case/conversation. The source reader
-and its loopback worker transport are implemented. The public gateway application
-adds ordered owner construction and a P3-compatible result listener. The operation
-bridge/runtime and scripted specialist host are implemented. Preliminary actual
-SMS/result joins are observed. Opt-in current-room control, native worker attachment
-and public context rehydration have component/interoperability checks; complete
-joined database/native qualification remains under
-the [active work item](../../docs/work-items/0045-joined-native-channel-policy.md).
+This document describes the design of the Node gateway of the joined showcase
+for engineers who change it. The gateway composes public P2 (channel continuity)
+reads for one configured case and conversation.
+
+- The source reader and its loopback worker transport are implemented.
+- The public gateway application adds ordered owner construction and a
+  P3-compatible result listener.
+- The operation bridge/runtime and the scripted specialist host are implemented.
+  Preliminary actual SMS/result joins are observed.
+- Opt-in current-room control, native worker attachment and public context
+  rehydration have component and interoperability checks.
+
+Complete joined database/native qualification remains under the
+[active work item](../../docs/work-items/0045-joined-native-channel-policy.md).
+The [joined application design](../channel_policy_demo/Design.md) covers the
+Python side.
+
+Terms used in this document:
+
+| Term | Meaning |
+| --- | --- |
+| Parent | The Python room owner that publishes rooms and attaches workers |
+| Room A and room B | An older room and a newer current room |
+| As-of observation | An observation that is true only at the time it was read |
+| RTC | Real-time communication |
+| JWT | JSON Web Token |
+| SFU | Selective forwarding unit |
 
 ## Objectives
 
@@ -24,7 +49,7 @@ the [active work item](../../docs/work-items/0045-joined-native-channel-policy.m
 
 ## Functional requirements
 
-| Reference | Kind | Requirement | Status |
+| ID or reference | Kind | Requirement | Status |
 | --- | --- | --- | --- |
 | P2-I22/P3-I19 | Technical | Scan persisted inputs, including later work past a pending gap | Implemented component; actual gate pending |
 | Original prepared input | Technical | Read exact original frame without creating a plan | Implemented composition; P2 owns the store |
@@ -36,7 +61,7 @@ the [active work item](../../docs/work-items/0045-joined-native-channel-policy.m
 
 ## Non-functional requirements
 
-| Concern | Bound | Verification | State |
+| Concern | Bound or target | Verification | Status |
 | --- | --- | --- | --- |
 | Retained inputs | Sixteen per profile; explicit overflow | Full page and corrupt cursor negatives | Component implemented |
 | Reads | Two actual lifetimes, including abandoned waiters | Held dependency and close retry | Component implemented |
@@ -50,10 +75,13 @@ the [active work item](../../docs/work-items/0045-joined-native-channel-policy.m
 
 ## Back-of-the-envelope calculations
 
-Sixteen prepared payloads at 32768 bytes total 524288 payload bytes in P2. This
-reader returns one frame at a time; two concurrent maximum frames are 65536
-payload bytes before JSON copies, SQL buffers and runtime overhead. These are
-configured upper bounds, not measured RSS, throughput or production capacity.
+| Quantity | Inputs | Formula and result | Limits of inference |
+| --- | --- | --- | --- |
+| Retained prepared payloads in P2 | Sixteen payloads at 32768 bytes | 16 × 32768 = 524288 payload bytes | Stored in P2; this reader returns one frame at a time |
+| Concurrent read payload | Two concurrent maximum frames | 2 × 32768 = 65536 payload bytes | Before JSON copies, SQL buffers and runtime overhead |
+
+These are configured upper bounds, not measured resident set size (RSS),
+throughput or production capacity.
 
 ## High-level design
 
@@ -75,13 +103,15 @@ flowchart LR
     Context --> Case[Public case port]
 ```
 
-1. Trusted construction fixes scope, route and integration owners.
-2. Stored provider/event identity selects a source; a caller label adds no authority.
-3. The reader observes persisted facts. P1/P3 separately validate and issue work.
+1. Trusted construction fixes the scope, route and integration owners.
+2. Stored provider/event identity selects a source. A caller label adds no
+   authority.
+3. The reader observes persisted facts. P1 and P3 separately validate and issue
+   work.
 4. Room publication and worker attachment use fixed publisher authority and an
    observed epoch/generation. Browser input chooses no privileged client.
 5. The optional context facade checks the same current room before and after
-   public P2 reads, borrowing existing history/case owners.
+   public P2 reads, borrowing the existing history and case owners.
 
 ## Sequence diagram
 
@@ -144,112 +174,190 @@ classDiagram
     CurrentRoomRehydrator --> ChannelInbox : borrows
 ```
 
+The application owns the source reader and, when opted in, the room manager and
+the context rehydrator with its HTTP server. Borrowed P2 owners close outside the
+reader.
+
 ## Components and related details
 
-ChannelPolicyReadHttp exposes only two authenticated POST worker reads. Discovery
-accepts exactly canonical {schemaVersion:1}; prepared accepts canonical schemaVersion,
-receiptId and sourceBindingId. Canonical request bytes reject duplicate keys and
-ignored fields. A known missing plan is HTTP 204 with no body; found frames retain
-exact original bytes. Scope/provider credentials never come from the body. The
-transport borrows its source reader and must drain before that reader closes.
-Its listener, full handlers and actual socket-close observers settle separately.
+Paths without a directory are in `services/channel-policy-gateway/src`.
 
-ChannelPolicyGatewayApplication creates nine default public owners during explicit
-start. Opt-in room management adds one; native context adds a reader and HTTP
-owner, totaling twelve with the same six existing PostgreSQL pools.
-It binds worker-read and result HTTP before native/SMS gateways can drive retained
-inputs. Transport drains before readers, which drain before storage. Case, agent,
-operation and carrier ports are borrowed and close outside the application.
-Both gateways reach P1 through the same loopback case and origin bridges, so both
-use the native 5,000 ms dispatch step deadline (`dispatchTimeoutMs`). With P2's
-2,000 ms standalone default, a slow but committed SMS accept could otherwise
-finish after the step deadline and leave the input uncertain.
-Its nativeResult method is internal to a trusted room owner; there is no browser
-route accepting a caller-selected native bearer.
+| Component | Path | Responsibility | Status |
+| --- | --- | --- | --- |
+| Worker read HTTP | `read-http.ts` | Two authenticated `POST` worker reads over a borrowed source reader | Implemented |
+| Gateway application | `application.ts` | Ordered construction, startup and drain of the public owners | Implemented |
+| Result listener | `result-http.ts` | P3-compatible result listener | Implemented |
+| Room manager | `native-room-manager.ts`, `native-room-agent.ts`, `native-room-http.ts` | One original publication, attachment and public native prepare client for the current room | Implemented |
+| Current-room context | `native-room-agent.ts` | Public rehydration over existing storage with before/after current-room checks | Implemented |
+| Operation bridge and runtime | `operation-bridge.ts`, `runtime.ts` | Source-attested public operation clients; the runtime owns the borrowed case and operation clients | Implemented |
+| Scripted specialist host | `specialist-runtime.ts` | Public SDK fixed-policy handler with immutable evidence and a separate one-key role | Implemented |
+| Source reader | `source-reader.ts` | Bounded reads of persisted inputs and original prepared frames; owns only its actual read lifetimes | Implemented |
 
-The room manager owns one original publication, attachment and public native
-prepare client. Exact replay cannot renew or replace its prepare capability.
-Missing attachment for matching current-room input is unavailable; older/dormant
-inputs retain their background semantics. Before/after current-room checks reject
-late agent/context returns, and actual call/close ownership blocks B. Deeper P2
-SQL remains application-owned after a room-facing waiter settles.
+### Worker read HTTP
 
-CurrentRoomRehydrator is a public ChannelRehydrator specialization using the same
-native inbox, case port and SMS integration. Its public HTTP server retains the
-SDK's two-handler/sixteen-socket limits, distinct from room controls. Parent and
-worker lifecycle fencing still applies after a context read is returned.
+ChannelPolicyReadHttp exposes only two authenticated `POST` worker reads:
 
-The source-attested operation bridge derives each native/SMS sender from the
+| Read | Accepted request |
+| --- | --- |
+| Discovery | Exactly canonical `{schemaVersion:1}` |
+| Prepared | Canonical `schemaVersion`, `receiptId` and `sourceBindingId` |
+
+- Canonical request bytes reject duplicate keys and ignored fields.
+- A known missing plan is HTTP 204 with no body. Found frames retain the exact
+  original bytes.
+- Scope and provider credentials never come from the body.
+- The transport borrows its source reader and must drain before that reader
+  closes. Its listener, full handlers and actual socket-close observers settle
+  separately.
+
+### Gateway application
+
+ChannelPolicyGatewayApplication creates its public owners during explicit start:
+
+| Configuration | Owners created at startup | PostgreSQL pools |
+| --- | --- | --- |
+| Default | Nine | Six |
+| With opt-in room management (adds one owner) | Ten | Six |
+| With native context (adds a reader and an HTTP owner) | Twelve | Six |
+
+All variants use the same six existing PostgreSQL pools.
+
+Startup and drain order:
+
+1. It binds the worker-read and result HTTP listeners before the native and SMS
+   gateways can drive retained inputs.
+2. On close, the transport drains before the readers, and the readers drain
+   before storage.
+
+Case, agent, operation and carrier ports are borrowed and close outside the
+application. Its `nativeResult` method is internal to a trusted room owner.
+There is no browser route accepting a caller-selected native bearer.
+
+**Dispatch step deadline.** Both gateways reach P1 through the same loopback case
+and origin bridges, so both use the native 5,000 ms dispatch step deadline
+(`dispatchTimeoutMs`). With P2's 2,000 ms standalone default, a slow but
+committed SMS accept could otherwise finish after the step deadline and leave the
+input uncertain.
+
+### Room manager
+
+- The room manager owns one original publication, attachment and public native
+  prepare client. Exact replay cannot renew or replace its prepare capability.
+- Missing attachment for matching current-room input is unavailable. Older or
+  dormant inputs retain their background semantics.
+- Before/after current-room checks reject late agent and context returns, and
+  actual call/close ownership blocks room B.
+- Deeper P2 SQL remains application-owned after a room-facing waiter settles.
+
+### Current-room context
+
+CurrentRoomRehydrator is a public ChannelRehydrator specialization that uses the
+same native inbox, case port and SMS integration. Its public HTTP server retains
+the SDK's two-handler/sixteen-socket limits, distinct from the room controls.
+Parent and worker lifecycle fencing still applies after a context read is
+returned.
+
+### Operation bridge
+
+The source-attested operation bridge derives each native or SMS sender from the
 original persisted plan before constructing a public operation client. Its two
-actual lifetimes include source reads, a possible origin call and late close.
-The Python router independently attests the original plan. This repeated local
-read costs I/O and permits clean restart without a sender cache or new ledger.
-Failed startup clears its own listeners and permits explicit retry.
+actual lifetimes include source reads, a possible origin call and late close. The
+Python router independently attests the original plan. This repeated local read
+costs I/O, but it permits a clean restart without a sender cache or new ledger.
+Failed startup clears its own listeners and permits an explicit retry.
 
-SourceReaderConfiguration copies trusted route/provider values and receives public
-history/inspect/readPrepared interfaces. ChannelPolicySourceReader owns only its
-actual read lifetimes, not pools/gateways. close stops admission and waits under
-its cleanup budget; a failed observer leaves actual owners retained for retry.
-The outer application drains this reader before closing shared P2 owners.
+**Per-call budget and claim lease.**
 
-There is no storage change, migration, acceptance ACK, execution queue or persisted
-cursor. Current dispatch state and historical input may be separate observations;
-the executor revalidates the full original P1/P3 request before invoking work.
+| Limit | Value | Applies to | Notes |
+| --- | --- | --- | --- |
+| Dispatch step deadline (`dispatchTimeoutMs`) | 5,000 ms | Both gateways | See [Gateway application](#gateway-application) |
+| Bridge per-call budget (`timeoutMs: 5000` in `runtime.ts`) | 5,000 ms | Each operation bridge lookup or accept | Equals the step deadline |
+| Client call budget (`callTimeoutMs`) | 5,000 ms | P2 `ExternalOperationClient` | The bridge passes its own budget |
+| Bridge default | 1,500 ms | Operation bridge | Replaced by the runtime budget |
+| Client default | 2,000 ms | P2 `ExternalOperationClient` | Replaced by the bridge budget |
+| Claim lease, newly prepared joined profiles | 8,000 ms | Dispatch claims; persisted by `local-setup/scripts/channel_policy_setup.py` | Exceeds the step deadline |
+| Claim lease, earlier profiles | 5,000 ms | Profiles prepared earlier | Kept |
+
+Neither the bridge's 1,500 ms default nor the client's 2,000 ms default can then
+cut off a slow accept inside the 5,000 ms [dispatch step](#gateway-application).
+With the 8,000 ms lease, a receipt that arrives near the step deadline still
+passes the claim guard.
+
+### Source reader
+
+SourceReaderConfiguration copies trusted route and provider values and receives
+the public `history`, `inspect` and `readPrepared` interfaces.
+ChannelPolicySourceReader owns only its actual read lifetimes, not pools or
+gateways.
+
+- `close` stops admission and waits under its cleanup budget. A failed observer
+  leaves actual owners retained for retry.
+- The outer application drains this reader before closing shared P2 owners.
+
+### Persistence
+
+There is no storage change, migration, acceptance acknowledgement (ACK),
+execution queue or persisted cursor. Current dispatch state and historical input
+may be separate observations. The executor revalidates the full original P1/P3
+request before invoking work.
 
 ## Security and privacy
 
-Account credentials remain private constructor configuration. Reads compare
-stored tenant/account/case/conversation and exact provider identities. Prepared
-frames retain original receipt/op/event/message/sender/body and digest. Public
-adapter methods are snapshotted from data descriptors without invoking accessors.
-Error translation likewise reads only known own data codes; malformed/getter
-codes become finite unavailable. Tokens and
-provider keys never appear in returned discovery or aggregate metrics. The frame
-contains original input and belongs only on the authenticated worker boundary.
+| Boundary or threat | Control | Test or evidence |
+| --- | --- | --- |
+| Worker boundary and credentials | Account credentials remain private constructor configuration; the frame contains original input and belongs only on the authenticated worker boundary | Actual local HTTP tests cover credentials |
+| Forged scope or source | Reads compare the stored tenant, account, case and conversation, and exact provider identities | Pure tests with forged scope/payload |
+| Altered original input | Prepared frames retain the original receipt, operation, event, message, sender, body and digest | Exact Unicode byte tests; native/SMS frame and scope/digest negatives |
+| Hostile adapter methods | Public adapter methods are snapshotted from data descriptors without invoking accessors | Dependency sentinel and accessor tests |
+| Malformed error codes | Error translation reads only known own data codes; malformed or getter codes become a finite `unavailable` | Dependency sentinel and accessor tests |
+| Secret leakage | Tokens and provider keys never appear in returned discovery or aggregate metrics | Dependency sentinel and accessor tests |
 
 ## Observability
 
-metrics returns active/completed/failed read counts and closing state. Counters
-describe process observations, never durable business totals. This component
-configures no logger/exporter; HTTP/process diagnostics remain outer ownership.
-Follow the [shared guide](../../docs/observability.md).
+| Signal | Producer | Fields or labels | Status |
+| --- | --- | --- | --- |
+| Active, completed and failed read counts; closing state | Source reader `metrics` | Aggregate numeric counts and a boolean | Implemented |
+| Logs and exports | None; this component configures no logger or exporter | Not applicable | Not applicable |
+| HTTP and process diagnostics | Outer owner | Not applicable | Not applicable |
+
+Counters describe process observations, never durable business totals. HTTP and
+process diagnostics remain outer ownership. Follow the
+[shared guide](../../docs/observability.md).
 
 ## Metrics
 
-| Signal | Unit | Interpretation |
+| Metric | Unit | Labels and interpretation |
 | --- | --- | --- |
-| active | Read lifetimes | Includes actual I/O after waiter timeout |
-| completed/failed | Count | Process-local settled observations |
-| closing | Boolean | Admission stopped; does not establish full dependent closure |
+| `active` | Read lifetimes | Includes actual I/O after waiter timeout |
+| `completed`/`failed` | Count | Process-local settled observations |
+| `closing` | Boolean | Admission stopped; does not establish full dependent closure |
 
 ## Exception handling
 
 | Failure | Handling | Recovery |
 | --- | --- | --- |
-| Invalid/foreign request or source | Finite invalid_input/unauthorized | Reject before source read |
-| Unknown input | not_found | No manufactured plan or hidden dispatch |
-| Changed/corrupt bytes or joins | invalid_state | Preserve original facts; fail visibly |
-| Two actual reads | capacity | Wait for an actual owner to settle |
-| Dependency failure/timeout | unavailable without private text | Retain actual slot until settlement |
-| Incomplete close | cleanup_incomplete | Retry observation; do not close borrowed owners early |
+| Invalid/foreign request or source | Finite `invalid_input`/`unauthorized` | Reject before source read |
+| Unknown input | `not_found` | No manufactured plan or hidden dispatch |
+| Changed/corrupt bytes or joins | `invalid_state` | Preserve original facts; fail visibly |
+| Two actual reads | `capacity` | Wait for an actual owner to settle |
+| Dependency failure/timeout | `unavailable` without private text | Retain actual slot until settlement |
+| Incomplete close | `cleanup_incomplete` | Retry observation; do not close borrowed owners early |
 
 ## Design considerations and trade-offs
 
-A bounded full rescan costs reads but cannot skip unresolved gaps. Separate
-integration-scoped owners prevent source impersonation. Original framed bytes
-avoid a duplicate parsed wrapper; both canonical and encoded-frame caps apply.
-Profile growth, fairness and arbitrary crash recovery retain their separate gates.
-Room control tracks application-owned media resources; its closed observation does
-not promise permanent RTC JWT revocation or global SQL cancellation. The parent
-separately proves exact SFU-room absence as of its admin observation and disposes
-old browser/worker activations. Native input and result authority remain gated by
-P2's current grant independently of RTC transport.
+| Decision | Reason | Cost or alternative | Revisit trigger |
+| --- | --- | --- | --- |
+| Full rescan | A bounded full rescan cannot skip unresolved gaps | It costs reads | Profile growth, fairness and arbitrary crash recovery retain their separate gates |
+| Separate source owners | Separate integration-scoped owners prevent source impersonation | None recorded | None recorded |
+| Original framed bytes | Returning the original framed bytes avoids a duplicate parsed wrapper | Both the canonical and the encoded-frame caps apply | None recorded |
+| Room control scope | Room control tracks application-owned media resources; the Parent separately proves exact SFU room absence as of its admin observation and disposes old browser and worker activations | Its closed observation does not promise permanent RTC JWT revocation or global SQL cancellation | None recorded |
+| Grant-gated authority | Native input and result authority remain gated by P2's current grant, independently of RTC transport | None recorded | None recorded |
 
 ## Validation and acceptance gates
 
-Pure tests exercise both sources, useful progress across a gap, exact Unicode
-bytes, forged scope/payload, overflow and held actual reads. Strict types and
-formatting apply through the root workspace. Actual PG, HTTP/process, native
-media, installed/container and provider evidence are separate gates in 0045.
-Real loopback HTTP tests additionally establish held-handler admission, absolute
-partial-header expiry, exact responses and actual server-socket drain.
+| Gate | Assertion or lane | Evidence | Status |
+| --- | --- | --- | --- |
+| Pure tests | Both sources, useful progress across a gap, exact Unicode bytes, forged scope/payload, overflow and held actual reads | `make frontend-check` in [0048](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md) | Passed |
+| Real loopback HTTP tests | Additionally establish held-handler admission, absolute partial-header expiry, exact responses and actual server-socket drain | `make frontend-check` in [0048](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md) | Passed |
+| Strict types and formatting | Apply through the root workspace | `make frontend-check` in [0048](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md) | Passed |
+| Actual PostgreSQL, HTTP/process, native media, installed/container and provider evidence | Separate gates | [0045](../../docs/work-items/0045-joined-native-channel-policy.md) | Pending |

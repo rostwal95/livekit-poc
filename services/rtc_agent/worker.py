@@ -18,8 +18,36 @@ from .transport import TransportDiagnostics
 MAX_JOBS = 1
 
 
+class JobAdmission:
+    """Serialize acceptance through assignment so pending jobs count as load."""
+
+    def __init__(self) -> None:
+        self.pending = 0
+        self._lock = asyncio.Lock()
+
+    async def accept(self, request: JobRequest) -> None:
+        configure_logging()
+        if not re.fullmatch(r"lab-[a-z0-9][a-z0-9-]{0,47}", request.room.name):
+            emit_event("job_rejected", code="invalid_room")
+            await request.reject()
+            return
+        async with self._lock:
+            if len(server.active_jobs) >= MAX_JOBS:
+                emit_event("job_rejected", code="job_capacity")
+                await request.reject(terminate=False)
+                return
+            self.pending += 1
+            try:
+                await request.accept(name="Local transport diagnostic")
+            finally:
+                self.pending -= 1
+
+
+admission = JobAdmission()
+
+
 def calculate_load(server: AgentServer) -> float:
-    return min(len(server.active_jobs) / MAX_JOBS, 1.0)
+    return min((len(server.active_jobs) + admission.pending) / MAX_JOBS, 1.0)
 
 
 server = AgentServer(
@@ -38,15 +66,7 @@ server = AgentServer(
 
 
 async def accept_local_job(request: JobRequest) -> None:
-    configure_logging()
-    if not re.fullmatch(r"lab-[a-z0-9][a-z0-9-]{0,47}", request.room.name):
-        emit_event("job_rejected", code="invalid_room")
-        await request.reject()
-    elif len(server.active_jobs) >= MAX_JOBS:
-        emit_event("job_rejected", code="job_capacity")
-        await request.reject(terminate=False)
-    else:
-        await request.accept(name="Local transport diagnostic")
+    await admission.accept(request)
 
 
 @server.rtc_session(agent_name=AGENT_NAME, on_request=accept_local_job)

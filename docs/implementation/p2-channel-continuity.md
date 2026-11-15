@@ -1,302 +1,725 @@
 # P2 Channel Continuity Kit implementation plan
 
-Status: Active
-Last reviewed: 13 November 2026
-
-## Purpose, authority and starting point
-
-Implement one independently usable TypeScript continuity package and its gateway,
-Python LiveKit adapter and browser example. This plan decomposes PLAN-12 through
-PLAN-16 from the [build plan](../build-plan.md); it does not redefine the
-[P2 charter](../projects/channel-continuity-scope.md) or create acceptance IDs.
-The [shared design](../../Design.md), [validation plan](../validation-plan.md),
-[observability contract](../observability.md) and [demo plan](../demo-plan.md)
-remain authoritative for their subjects.
-
-The pinned TypeScript toolchain, browser SDK, diagnostic console, Compose stack,
-API metrics and documentation/structural harness already exist. Reuse them.
-The console's current echo and M1 intake are foundation capabilities, not a P2
-message inbox, channel history, association service or business acceptance path.
-All P2-01 through P2-17 remain planned until their actual assertions pass.
-
-Task IDs P2-I01 through P2-I22 identify implementation slices, not test outcomes.
-Estimates are provisional engineering hours including the slice's targeted tests,
-documentation and first review. They are not elapsed-time promises. Split a task
-when its failure schedule or interfaces no longer fit one reviewable change;
-re-estimate after the first real gateway crash and first browser audio run.
-Study, setup failures and subsequent review work consume the shared weekly budget.
-
-
-Select applicable engineering gates from the [validation authority](../validation-plan.md)
-for every task. Record Given/When/Then safety and useful-progress criteria, safe
-producer log/error/metric assertions and actual test-mode evidence. Python work
-follows the [engineering guide](../python-engineering.md); changed Design.md uses
-the [standard template](../design-template.md). These are task completion rules,
-not evidence that planned acceptance scenarios already pass.
-
-Current first-source work is recorded in the [slice work item](../work-items/0022-p2-channel-contracts.md).
-P2-I01/I02 passed their bounded first-slice gates. This plan remains active;
-unimplemented tasks and all full project acceptance rows remain pending. Phase
-completion requires the actual exit evidence below.
-
-Current I03/I04/I05 work is recorded in the [verified-intake](../work-items/0024-p2-verified-durable-intake.md)
-and [PostgreSQL inbox](../work-items/0026-p2-postgres-inbox.md) work items. The
-[I06 standalone work item](../work-items/0027-p2-standalone-and-p3-http.md) adds the
-public example and new-process replay. The
-[I07 phase](../work-items/0028-p2-dispatch-and-p3-coordinator.md) now adds an explicit
-owner v2 upgrade, persisted bounded claims/attempts, frozen investigation input and
-lookup-only reconciliation against a cooperating operation port. A possible external
-call never returns to a not_executed state; the old standalone preview rejects
-nonpending inputs. The [I08 phase](../work-items/0029-p2-gateway-and-p3-issued-execution.md)
-adds the actual bounded gateway, durable eligible polling and post-acknowledgement
-process restart proof. The [I09 phase](../work-items/0030-p2-agent-recovery-and-p3-completion.md)
-adds an explicit trusted agent-process adapter and framed worker helper, preserving
-input/case/operation identity through independently killed scripted-worker replay.
-A live gateway observes claim expiry and repeated attempts while the cooperating
-operation accepts one logical investigation. The selected phase gates passed, completing I09;
-I10 adds the explicit structured-command router, standalone reference authority
-and public-P1 loopback application bridge. The selected 22-case equivalent
-authority gate and final phase checks passed, completing I10. The
-[linked-confirmation phase](../work-items/0032-linked-confirmation-and-result-projections.md)
-completed I11 with immutable prompt bindings, exact P1 confirmation, explicit original
-receipt replay and a current-association preflight. Its 18-case actual integration
-and installed npm gates passed. The preflight is not an atomic association-revocation
-commitment fence. I12 outbound replies completed their selected local gates;
-I13 now adds authenticated correlated callback evidence and a conservative
-reservation veto within its selected scope. I14 explicit uncertain-send policy
-passed its selected source/installed gates. I15/I16 native text/committed voice
-passed selected actual six-group native and isolated Python/npm artifact gates in
-the [completed phase](../work-items/0036-native-input-and-deadline-cancellation.md).
-Final regression/shared gates and the affected media rerun passed, completing
-I15/I16 within their selected native/artifact scope. The
-[current I17 handoff](../work-items/0037-playback-evidence-and-process-recovery.md)
-implements source-qualified generated text, SDK progress, response-scoped
-interruption and client-reported playback through an explicit owner v7 upgrade.
-Its sixteen-case PostgreSQL storage gate, three-group actual browser/media gate,
-isolated public npm consumer and current eight-payload Python package with
-ninety-four unadapted tests passed, together with 147 P2 compatibility assertions.
-This completes selected I17 qualification; final shared phase closure is recorded
-in the linked handoff. I18 completed its selected verified current-case room/channel
-rehydration gates in the [handoff](../work-items/0038-case-rehydration-and-standalone-release.md):
-eighteen storage assertions, three actual voice/text/SMS/new-room browser groups,
-a nine-payload Python distribution with 111 unadapted tests, a 96-payload installed
-npm consumer and 166 compatibility assertions passed with complete cleanup. Native
-loading and source facts remain separate non-atomic as-of observations. Loaded P1
-revision0 stays read-only under the existing positive-revision native command
-contract; changing that domain requires its own versioned work before integrated
-release. I19 capacity/dormant-case experiments passed selected qualification;
-I20 operational UI/telemetry passed selected qualification in 0040. I21 completed
-selected installed-application qualification in [0041](../work-items/0041-standalone-channel-and-durable-policy.md):
-twenty standalone and six separate public-P1 assertions passed. P3-I18B's separate
-native RTC text application passed selected source/installed qualification in
-[0042](../work-items/0042-responsive-native-policy-and-compact-demo.md).
-The completed [0043 handoff](../work-items/0043-stable-result-delivery-and-return-context.md)
-qualifies P2's v8 receiver/current-channel result data reads and P3 backend v2
-delivery with sixteen storage/four return actual source assertions plus a separate
-twenty-five-stage offline package lane. These reads do not qualify RTC media.
-
-[0044](../work-items/0044-origin-bound-channel-policy.md) implements original
-P2-input binding, schema3 facades, a narrow operation client and application HTTP
-with passing focused unit/socket checks and isolated package/fake-port qualification.
-Its fourteen selected actual source assertions passed. I22 remains the release frontier;
-joined native voice/text/SMS, restart/discovery, applicable provider runs and video
-retain their later gates. All seventeen complete charter rows remain
-planned/unregistered; the catalog stays fifty-five definitions/twenty-four
-registered runners.
-
-### Qualified I19 study
-
-The [completed handoff](../work-items/0039-bounded-channel-workloads-and-image-evidence.md)
-freezes seed 39, separate retained limits of 64 capacity-study and 1,024 dormant-study
-inputs, and dormant samples at 0/64/256/1,000 cases. Public bounded setup/read windows
-stay at 64. Accepted rows remain inspectable; display eviction reclaims no replay
-capacity. The workload's actual PostgreSQL/HTTP/restart/restore and installed package
-gates passed within selected scope, without production capacity, per-case RAM or general fairness
-claims. make p2-workload-plan exposes the inventory. I20 joined operations/telemetry
-passed selected qualification in 0040. I21's explicit installed starter application
-and separate public-P1 consumer qualified in the completed
-[0041 handoff](../work-items/0041-standalone-channel-and-durable-policy.md).
-All seventeen complete acceptance rows and I22 remain separately gated.
-
-### Qualified I21 application and active origin boundary
-
-Route the explicit accepted structured input while quiescent before serving.
-The session mutex excludes concurrent mutating commands and a live gateway across
-processes; reads remain available. Original send acknowledgements stay unknown
-when a separately sourced lookup later reports provider acceptance. Ordinary
-unknown sends receive no automatic resend permission. The read-only operations
-page grants no mutation controls. The current-case contract remains non-atomic
-and as of its observations; P1 revision 0 is readable, while integrated/native
-execution at zero needs its own coherent versioned work. Active
-[0044](../work-items/0044-origin-bound-channel-policy.md) adds an optional original-origin
-application adapter without making P3 a dependency of the standalone P2 package.
-It retains original input identities in existing P1-owned work; the raw message
-stays in P2. Unit/socket checks and isolated package/fake-port qualification passed;
-the fourteen selected actual source assertions passed. Complete I22 and charter release gates remain
-planned after selected standalone qualification.
-
-## Boundaries and dependencies
-
-| Boundary | Required decision |
+| Field | Value |
 | --- | --- |
-| Case authority | Exactly one authority owns current revision and confirmed facts. A small standalone adapter implements the same port; integrated mode uses the shared authority rather than copying its store. |
-| Message persistence | P2 owns inbox, processing intents, reply outbox, provider attempts and communication evidence. It does not own supplier execution or P3 specialist scheduling. |
-| Business operation | The fake standalone operation port and P1 integration preserve stable logical operation identity. Processing or model invocation can repeat; business acceptance cannot silently duplicate. |
-| Trusted identity | Verified provider integration scope and verified end-user account scope are distinct. A JSON tenant, sender number or familiar room name grants no case access. |
-| Media | LiveKit owns rooms, tracks, text streams, transcription synchronization and interruption. P2 records source-qualified evidence and adds durable acceptance/history. |
-| Storage/runtime | Reuse the local PostgreSQL infrastructure with P2-owned migrations/store adapter and bounded connections. Pin a compatible TypeScript database client when introduced. Do not add Redis, Kafka, Cloud, a real carrier or Node Agents merely for HTTP/message handling. |
+| Status | Active |
+| Purpose | Break P2, the Channel Continuity Kit, into bounded implementation tasks with prerequisites, estimates and evidence |
+| Audience | Engineers and coding agents who choose the next P2 task, check its prerequisites or record its evidence |
+| Scope | Phases P2-A to P2-E, tasks P2-I01 to P2-I22 and their acceptance traceability; excludes P2 requirements and shared tasks |
+| Owns | P2 task decomposition, phase gates, effort sizing and per-task handoff |
+| Related | [P2 charter](../projects/channel-continuity-scope.md) · [Granular roadmap](../implementation-plan.md) · [Build plan](../build-plan.md) · [P2 project instructions](../../projects/channel-continuity/AGENTS.md) |
 
-Contract and fake-carrier work may begin once the CaseAuthorityPort and operation
-identity fixtures have agreed versions, while P1 implementation continues. It does
-not require the full P1 deployment. Integrated case/confirmation tests require the
-P1 PLAN-04 authority contract; P1 result delivery requires its durable completion
-contract. Actual browser voice/playback requires the PLAN-11 conversational agent
-and permission-qualified local media lane. P3 is never a dependency of P2.
+## Purpose and authority
 
-Keep the current TypeScript console and native browser SDK as the default UI.
-Evaluate official Agents UI components only when a real product conversation
-surface warrants them; a React rewrite is not a prerequisite. Build the authorized
-timeline/history as a durable GET/cursor projection with bounded polling and
-replay-safe rendering. Do not add a bespoke WebSocket transport or parallel event
-bus. A source event enters one acceptance path before any projection consumes it.
+This plan breaks P2, the Channel Continuity Kit, into bounded implementation tasks.
+It is for engineers and coding agents who choose the next P2 task, check its
+prerequisites or record its evidence. P2 is one independently usable TypeScript
+continuity package with its gateway, a Python LiveKit adapter and a browser
+example.
 
-Keep one primary feature slice active. Parallel work may prepare fixtures, review
-an API or implement a clearly frozen adapter; two agents must not invent different
-case revisions or confirmation semantics.
+### Contents
 
-## Phase P2-A: Contract and standalone durable intake
+| Section | What it covers |
+| --- | --- |
+| [Current status](#current-status) | What has passed and what remains open |
+| [Starting point and dependencies](#starting-point-and-dependencies) | The foundation to reuse, the boundary decisions and the cross-project dependencies |
+| [Planning and completion rules](#planning-and-completion-rules) | Task sizing, engineering gates, what a task can claim and parallel work |
+| [Phases and tasks](#phases-and-tasks) | Phases P2-A through P2-E, each with its status, entry conditions, task table, task details, exit criteria and UI and signal requirements |
+| [Acceptance traceability](#acceptance-traceability) | The primary task for each acceptance ID |
+| [Demonstrations and signals](#demonstrations-and-signals) | Demonstration checkpoints and the required telemetry, errors and data decisions |
+| [Commands and task handoff](#commands-and-task-handoff) | Existing commands, the runner policy and a task packet example |
 
-**Entry:** frozen root toolchain, an agreed version of the shared case/operation
-ports, and the current M1/transport baseline. No P2 executable is assumed.
+### Authority
 
-| Task | Prerequisites | PLAN | Concrete deliverable | Required failure assertion | Acceptance | Effort |
+| Document | Owns |
+| --- | --- |
+| [P2 charter](../projects/channel-continuity-scope.md) | The P2 requirements and acceptance IDs |
+| [Build plan](../build-plan.md) | The PLAN work-package sequence, including PLAN-12 through PLAN-16 |
+| [Granular roadmap](../implementation-plan.md) | The shared tasks and the cross-project execution gates |
+| [Shared design](../../Design.md) | Shared data flow, state authority, interfaces and failure boundaries |
+| [Validation plan](../validation-plan.md) | Test lanes, required fault scenarios, benchmarks and evidence |
+| [Observability contract](../observability.md) | Signals, safe errors, cardinality and operational evidence |
+| [Demo plan](../demo-plan.md) | Capability demonstrations and honest observable UI transitions |
+
+- This plan does not redefine the charter or create acceptance IDs.
+- This plan decomposes PLAN-12 through PLAN-16 from the build plan.
+- This plan is subordinate to the granular roadmap.
+- The shared design, validation plan, observability contract and demo plan
+  remain authoritative for their subjects.
+
+### How to read the task tables
+
+Each phase lists its tasks in one table with these columns:
+
+| Column | Meaning |
+| --- | --- |
+| Task | The implementation task ID |
+| PLAN | The build-plan work package that the task implements |
+| Prerequisites | The tasks, shared tasks (S-I IDs) or contracts that must exist first |
+| Acceptance | The acceptance IDs that the task contributes assertions to |
+| Estimate | The planning estimate in engineering hours |
+| Status | The recorded implementation status |
+| Evidence | The work item that records the gate results |
+
+The [granular roadmap](../implementation-plan.md) defines the shared S-I tasks.
+"Completed (selected scope)" means the task's selected gates passed. It never
+means that a charter acceptance row passed.
+
+The task details below each table give the concrete deliverable, the required
+failure assertion and, where recorded, status notes with the qualification counts
+and remaining limits.
+
+## Current status
+
+P2-I01 through P2-I21 completed their selected gates. P2-I22 remains the release
+frontier. All seventeen complete charter rows, P2-01 through P2-17, remain planned
+and unregistered until their actual assertions pass. The harness catalog stays at
+fifty-five definitions with twenty-four registered runners.
+
+| Phase | Tasks | Task status | Evidence |
+| --- | --- | --- | --- |
+| [P2-A](#phase-p2-a-contract-and-standalone-durable-intake) | P2-I01 to P2-I06 | Completed (selected scope) | [0022](../work-items/0022-p2-channel-contracts.md), [0024](../work-items/0024-p2-verified-durable-intake.md), [0026](../work-items/0026-p2-postgres-inbox.md), [0027](../work-items/0027-p2-standalone-and-p3-http.md) |
+| [P2-B](#phase-p2-b-recoverable-dispatch-and-revision-safe-case-routing) | P2-I07 to P2-I11 | Completed (selected scope) | [0028](../work-items/0028-p2-dispatch-and-p3-coordinator.md), [0029](../work-items/0029-p2-gateway-and-p3-issued-execution.md), [0030](../work-items/0030-p2-agent-recovery-and-p3-completion.md), [0031](../work-items/0031-revision-routing-and-delegation-acceptance.md), [0032](../work-items/0032-linked-confirmation-and-result-projections.md) |
+| [P2-C](#phase-p2-c-outbound-delivery-with-explicit-uncertainty) | P2-I12 to P2-I14 | Completed (selected scope) | [0033](../work-items/0033-outbound-replies-and-completion-processing.md), [0034](../work-items/0034-callback-evidence-and-applicability-refresh.md), [0035](../work-items/0035-send-policy-and-action-races.md) |
+| [P2-D](#phase-p2-d-native-livekit-voice-and-text-continuity) | P2-I15 to P2-I18 | Completed (selected scope) | [0036](../work-items/0036-native-input-and-deadline-cancellation.md), [0037](../work-items/0037-playback-evidence-and-process-recovery.md), [0038](../work-items/0038-case-rehydration-and-standalone-release.md) |
+| [P2-E](#phase-p2-e-capacity-packaging-operability-and-release) | P2-I19 to P2-I22 | P2-I19 to P2-I21 completed (selected scope); P2-I22 open | [0039](../work-items/0039-bounded-channel-workloads-and-image-evidence.md), [0040](../work-items/0040-operations-ui-and-fixed-policy-evidence.md), [0041](../work-items/0041-standalone-channel-and-durable-policy.md), [0043](../work-items/0043-stable-result-delivery-and-return-context.md), [0044](../work-items/0044-origin-bound-channel-policy.md) |
+
+### Open work
+
+- P2-I22 remains the release frontier. Joined native voice, text and SMS,
+  restart and discovery, applicable provider runs and the video retain their later
+  gates.
+- All seventeen complete acceptance rows and P2-I22 remain separately gated.
+- This plan remains active. Unimplemented tasks and all full project acceptance
+  rows remain pending. Phase completion requires the actual exit evidence in each
+  phase.
+
+### Related P3 checkpoint
+
+P3-I18B's separate native real-time communication (RTC) text application passed
+selected source and installed qualification in
+[0042](../work-items/0042-responsive-native-policy-and-compact-demo.md).
+
+## Starting point and dependencies
+
+### Existing foundation
+
+The pinned TypeScript toolchain, the browser software development kit (SDK), the
+diagnostic console, the Compose stack, API metrics and the documentation and
+structural harness already exist. Reuse them.
+
+The console's current echo and M1 intake (the existing confirmed-investigation
+intake) are foundation capabilities. They are not a P2 message inbox, channel
+history, association service or business acceptance path.
+
+### Boundaries
+
+Each boundary records a required decision:
+
+| Boundary | Decision | Consequence |
+| --- | --- | --- |
+| Case authority | Exactly one authority owns the current revision and the confirmed facts | A small standalone adapter implements the same port; integrated mode uses the shared authority rather than copying its store |
+| Message persistence | P2 owns the inbox, processing intents, reply outbox, provider attempts and communication evidence | P2 does not own supplier execution or P3 specialist scheduling |
+| Business operation | The fake standalone operation port and the P1 integration preserve a stable logical operation identity | Processing or model invocation can repeat; business acceptance cannot silently duplicate |
+| Trusted identity | Verified provider integration scope and verified end-user account scope are distinct | A JSON tenant, a sender number or a familiar room name grants no case access |
+| Media | LiveKit owns rooms, tracks, text streams, transcription synchronization and interruption | P2 records source-qualified evidence and adds durable acceptance and history |
+| Storage and runtime | Reuse the local PostgreSQL infrastructure with P2-owned migrations, a P2 store adapter and bounded connections | Pin a compatible TypeScript database client when one is introduced |
+
+Do not add Redis, Kafka, Cloud, a real carrier or Node Agents merely for HTTP or
+message handling.
+
+### Dependencies
+
+| Dependency | What must exist | Needed by |
+| --- | --- | --- |
+| P1 case and operation contracts | Agreed versions of the `CaseAuthorityPort` and the operation identity fixtures | Contract and fake-carrier work, which may begin while P1 implementation continues and does not require the full P1 deployment |
+| P1 authority contract | The P1 PLAN-04 authority contract | Integrated case and confirmation tests |
+| P1 completion contract | P1's durable completion contract | P1 result delivery |
+| Media lane | The PLAN-11 conversational agent and a permission-qualified local media lane | Actual browser voice and playback |
+| P3 | Never a dependency of P2 | Not applicable |
+
+### User interface approach
+
+- Keep the current TypeScript console and the native browser SDK as the default
+  UI.
+- Evaluate official Agents UI components only when a real product conversation
+  surface warrants them. A React rewrite is not a prerequisite.
+- Build the authorized timeline and history as a durable GET/cursor projection
+  with bounded polling and replay-safe rendering.
+- Do not add a bespoke WebSocket transport or a parallel event bus.
+- A source event enters one acceptance path before any projection consumes it.
+
+## Planning and completion rules
+
+### Task IDs and estimates
+
+- Task IDs P2-I01 through P2-I22 identify implementation slices, not test
+  outcomes.
+- Estimates are provisional engineering hours, including the slice's targeted
+  tests, documentation and first review. They are not elapsed-time promises.
+- Split a task when its failure schedule or interfaces no longer fit one
+  reviewable change.
+- Re-estimate after the first real gateway crash and the first browser audio run.
+- Study, setup failures and subsequent review work consume the shared weekly
+  budget.
+
+### Engineering gates for every task
+
+Select the applicable engineering gates from the
+[validation authority](../validation-plan.md) for every task. Record:
+
+- Given/When/Then safety and useful-progress criteria;
+- safe producer log, error and metric assertions;
+- actual test-mode evidence.
+
+Python work follows the [engineering guide](../python-engineering.md). A changed
+Design.md uses the [standard template](../design-template.md). These are task
+completion rules, not evidence that planned acceptance scenarios already pass.
+
+### What a task can claim
+
+- Register a P2 ID only when every assertion in its charter row exists, not merely
+  because one related task passed.
+- Phase completion requires the actual exit evidence in each phase.
+
+### Parallel work
+
+- Keep one primary feature slice active.
+- Parallel work may prepare fixtures, review an API or implement a clearly frozen
+  adapter.
+- Two agents must not invent different case revisions or confirmation semantics.
+
+## Phases and tasks
+
+### Phase P2-A: contract and standalone durable intake
+
+**Phase status:** all six tasks completed their selected gates. P2-I01 and P2-I02 passed
+their bounded first-slice gates in the
+[slice work item](../work-items/0022-p2-channel-contracts.md). P2-I03 through
+P2-I05 are recorded in the
+[verified-intake](../work-items/0024-p2-verified-durable-intake.md) and
+[PostgreSQL inbox](../work-items/0026-p2-postgres-inbox.md) work items. The
+[P2-I06 standalone work item](../work-items/0027-p2-standalone-and-p3-http.md)
+adds the public example and new-process replay.
+
+**Entry:**
+
+- The root toolchain is frozen.
+- An agreed version of the shared case and operation ports exists.
+- The current M1 and transport baseline is available.
+
+No P2 executable is assumed.
+
+| Task | PLAN | Prerequisites | Acceptance | Estimate | Status | Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| P2-I01 | Agreed CaseAuthorityPort and operation-identity contract | PLAN-12 | Freeze version-1 event discriminants, exported principal/receipt/history/error types, scoped identities and semantic canonicalization rules under the project source boundary. Record the contract decision. | Unsupported version, oversized variant and forged body scope fail before acceptance; two distinct identical-text messages remain distinct. | P2-02, P2-12 | 2–4h |
-| P2-I02 | P2-I01 | PLAN-12 | Add language-neutral valid/invalid fixtures under contracts, runtime TypeScript validation and a narrow Python decoder for the adapter boundary. Define which retry metadata is excluded from semantic identity. | Both languages agree on unsupported versions, unknown variants, scope errors and changed destinations; metadata-only retry does not conflict. | P2-02, P2-12 | 2–4h |
-| P2-I03 | P2-I01, P2-I02 | PLAN-12 | Implement fake-carrier signature verification plus a seeded-account association adapter. Only the trusted adapter attaches AccountScope. Define bounded single-use challenges, association versions/revocation and a local credential/principal configuration contract. | Invalid signature, forged association, another tenant/case and an unassociated sender cannot read, write or route case data. Also reject expired/reused challenges and revoked/reassigned identities; race challenge consumption atomically and permit a valid new association. Verify these failures independently. | P2-12 | 2–4h |
-| P2-I04 | P2-I02, P2-I03; S-I05 applied to P2 schema/grants | PLAN-12 | Add versioned P2-owned PostgreSQL inbox/receipt/processing-intent migrations and atomic accept-before-acknowledgement. Persist the original per-tenant/account/conversation acceptance sequence; keep provider occurrence and server receipt times distinct. Provide bounded inspect/history queries. | Failure before commit produces no accepted receipt; loss after commit is reconciled by the original identity. Existing accepted records remain inspectable at admission capacity. | P2-01, P2-03 | 3–5h |
-| P2-I05 | P2-I04 | PLAN-12 | Implement scoped concurrent replay/conflict and canonical-payload tests. Decide provider replay horizons, receipt/delivery tombstones and expired-identity behavior before any cleanup. | Concurrent equal events yield one logical message; changed semantics conflict; metadata-only retry deduplicates; pruning display history does not permit late duplicate acceptance. | P2-01, P2-02 | 2–4h |
-| P2-I06 | P2-I03, P2-I05 | PLAN-12/13 | Add the first standalone fake-carrier example with narrow case, scripted-agent and operation adapters. Wire the P2 workspace package, explicit test discovery and the smallest real harness runners. | Run with no P1/P3 service present; an omitted adapter/setup or zero-test runner fails explicitly. Do not mistake existing root console tests for P2 coverage. | P2-16 foundation | 2–4h |
+| P2-I01 | PLAN-12 | Agreed CaseAuthorityPort and operation-identity contract | P2-02, P2-12 | 2–4h | Completed (selected scope) | [0022](../work-items/0022-p2-channel-contracts.md) |
+| P2-I02 | PLAN-12 | P2-I01 | P2-02, P2-12 | 2–4h | Completed (selected scope) | [0022](../work-items/0022-p2-channel-contracts.md) |
+| P2-I03 | PLAN-12 | P2-I01, P2-I02 | P2-12 | 2–4h | Completed (selected scope) | [0024](../work-items/0024-p2-verified-durable-intake.md) |
+| P2-I04 | PLAN-12 | P2-I02, P2-I03; S-I05 applied to P2 schema/grants | P2-01, P2-03 | 3–5h | Completed (selected scope) | [0024](../work-items/0024-p2-verified-durable-intake.md), [0026](../work-items/0026-p2-postgres-inbox.md) |
+| P2-I05 | PLAN-12 | P2-I04 | P2-01, P2-02 | 2–4h | Completed (selected scope) | [0024](../work-items/0024-p2-verified-durable-intake.md), [0026](../work-items/0026-p2-postgres-inbox.md) |
+| P2-I06 | PLAN-12/13 | P2-I03, P2-I05 | P2-16 foundation | 2–4h | Completed (selected scope) | [0027](../work-items/0027-p2-standalone-and-p3-http.md) |
 
-Run P2-owned migrations through S-I05's one-shot migration principal and
-versioned configuration upgrade. Serving roles retain only required runtime
-permissions; they cannot create schemas or receive bootstrap administrator secrets.
-Test preserved-volume and repeated upgrades before accepting inputs.
+**Task details:**
 
-**Exit:** the standalone example accepts a synthetic message, returns a durable
-receipt and replays it under a new process. Concurrent dedupe and trust negatives
-have executable evidence. P2-16 is only partial here: full history/delivery/recovery
-and isolated package installation still follow. Register a P2 ID only when every
-assertion in its charter row exists, not merely because one related task passed.
+- **P2-I01**
+  - Deliverable: freeze the version-1 event discriminants, the exported
+    principal, receipt, history and error types, scoped identities and semantic
+    canonicalization rules under the project source boundary. Record the contract
+    decision.
+  - Required failure assertion: an unsupported version, an oversized variant and
+    a forged body scope fail before acceptance. Two distinct messages with
+    identical text remain distinct.
+- **P2-I02**
+  - Deliverable: add language-neutral valid and invalid fixtures under contracts,
+    runtime TypeScript validation and a narrow Python decoder for the adapter
+    boundary. Define which retry metadata is excluded from semantic identity.
+  - Required failure assertion: both languages agree on unsupported versions,
+    unknown variants, scope errors and changed destinations. A metadata-only retry
+    does not conflict.
+- **P2-I03**
+  - Deliverable: implement fake-carrier signature verification and a
+    seeded-account association adapter. Only the trusted adapter attaches
+    `AccountScope`. Define bounded single-use challenges, association versions and
+    revocation, and a local credential and principal configuration contract.
+  - Required failure assertion: an invalid signature, a forged association,
+    another tenant or case and an unassociated sender cannot read, write or route
+    case data. Also reject expired or reused challenges and revoked or reassigned
+    identities. Race challenge consumption atomically and permit a valid new
+    association. Verify these failures independently.
+- **P2-I04**
+  - Deliverable: add versioned P2-owned PostgreSQL inbox, receipt and
+    processing-intent migrations and atomic accept-before-acknowledgement. Persist
+    the original acceptance sequence per tenant, account and conversation. Keep
+    provider occurrence time and server receipt time distinct. Provide bounded
+    inspect and history queries.
+  - Required failure assertion: a failure before commit produces no accepted
+    receipt. A loss after commit is reconciled by the original identity. Existing
+    accepted records remain inspectable at admission capacity.
+- **P2-I05**
+  - Deliverable: implement scoped concurrent replay and conflict tests and
+    canonical-payload tests. Decide provider replay horizons, receipt and delivery
+    tombstones and expired-identity behavior before any cleanup.
+  - Required failure assertion: concurrent equal events yield one logical
+    message. Changed semantics conflict. A metadata-only retry deduplicates.
+    Pruning display history does not permit late duplicate acceptance.
+- **P2-I06**
+  - Deliverable: add the first standalone fake-carrier example with narrow case,
+    scripted-agent and operation adapters. Wire the P2 workspace package, explicit
+    test discovery and the smallest real harness runners.
+  - Required failure assertion: run with no P1/P3 service present. An omitted
+    adapter or setup, or a zero-test runner, fails explicitly. Do not mistake
+    existing root console tests for P2 coverage.
 
-**Visible proof:** the current I06 CLI shows committed acceptance followed by
-replay of the same receipt/operation key/sequence, with pending/not_executed preview.
-The planned browser projection must show pending to accepted only after receipt
-validation, the same receipt on repetition and actionable typed rejection. That
-browser proof belongs to the later gateway/UI integration; CLI proof cannot
-qualify a browser or modality assertion.
+**Migration rules:**
 
-## Phase P2-B: Recoverable dispatch and revision-safe case routing
+- Run P2-owned migrations through the S-I05 one-shot migration principal and its
+  versioned configuration upgrade. Shared task S-I05 is defined in the
+  [granular roadmap](../implementation-plan.md).
+- Serving roles retain only the required runtime permissions. They cannot create
+  schemas or receive bootstrap administrator secrets.
+- Test preserved-volume and repeated upgrades before accepting inputs.
 
-**Entry:** Phase P2-A accepted-message/store contract. The standalone authority
-must share the real authority's revision/confirmation fixtures; integrated tests
-wait for PLAN-04 rather than inventing a second truth model.
+**Exit:**
 
-| Task | Prerequisites | PLAN | Concrete deliverable | Required failure assertion | Acceptance | Effort |
+- The standalone example accepts a synthetic message, returns a durable receipt
+  and replays it under a new process.
+- Concurrent deduplication and trust negatives have executable evidence.
+- P2-16 is only partial here. Full history, delivery and recovery and isolated
+  package installation still follow.
+
+**UI and signals:**
+
+- The current P2-I06 CLI shows committed acceptance followed by replay of the same
+  receipt, operation key and sequence, with a pending/`not_executed` preview.
+- The planned browser projection must show pending to accepted only after receipt
+  validation, the same receipt on repetition and an actionable typed rejection.
+- That browser proof belongs to the later gateway and UI integration. CLI proof
+  cannot qualify a browser or modality assertion.
+
+### Phase P2-B: recoverable dispatch and revision-safe case routing
+
+**Phase status:** all five tasks completed their selected gates. The evidence for each
+task is linked from the table.
+
+**Entry:**
+
+- The Phase P2-A accepted-message and store contract exists.
+- The standalone authority must share the real authority's revision and
+  confirmation fixtures.
+- Integrated tests wait for PLAN-04 rather than inventing a second truth model.
+
+| Task | PLAN | Prerequisites | Acceptance | Estimate | Status | Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| P2-I07 | P2-I06 | PLAN-13 | Implemented bounded per-receipt dispatch and lookup-only reconciliation under explicit owner-upgraded v2 claims/attempts and immutable prepared investigation. Cooperating operation acceptance remains external; gateway deployment follows I08. | Slow/ignored adapters retain owned capacity; stale epochs cannot publish; unknown acknowledgement preserves uncertainty and the original key. Actual-PG takeover and external-commit kill/reconciliation are selected slice evidence, not a complete product row. | P2-03, P2-13 foundation | 2–4h |
-| P2-I08 | P2-I07 | PLAN-13 | Implemented real bounded loopback gateway and trusted failpoint after accepted acknowledgement before dispatch. Restart polls the same persisted eligible state; selected owned-process gates inspect original history. | Accepted input is dispatched after restart; repeated recovery cannot create another logical business acceptance. Include the normal live path. | P2-03 | 2–4h |
-| P2-I09 | P2-I08 | PLAN-13 | Implemented explicit owned-process scripted agent adapter, bounded framed worker helper and independent worker-kill/replay fixture. Selected phase gates passed; the native LiveKit adapter is separately qualified in selected I15/I16 scope. | A live gateway preserves original input/case/operation through worker death and claim expiry; repeated attempts are visible with one cooperating logical acceptance. Actual process/group/pipe ownership must settle before releasing capacity. | P2-04 contribution | 2–4h |
-| P2-I10 | P2-I06; shared authority fixtures from PLAN-04 | PLAN-13 | Implemented strict structured investigation router and one-selected-authority ports: owner-installed standalone reference PostgreSQL or public P1 CAS through explicit loopback application composition. The selected equivalent-authority and final phase gates passed, completing I10. | Observe real blocking graphs and one winning revision despite skewed timestamps; valid current input progresses. Lost ACK stays unknown with no receipt inference/rebase. Retained inbox access does not fence current association revocation. | P2-05 contribution; full P2-12 remains later | 3–5h |
-| P2-I11 | P2-I10 | PLAN-13 | Implemented immutable quote/revision/prompt bindings, linked user confirmation and ambiguous/unlinked clarification. Selected local integration, installed package and final phase gates passed, completing I11. Current sender eligibility is a separate preflight, not an atomic cross-authority revocation fence. | Old-revision confirmation cannot authorize the current mutation; an unlinked SMS yes asks clarification, while a valid current linked confirmation can progress. | P2-06 | 2–4h |
+| P2-I07 | PLAN-13 | P2-I06 | P2-03, P2-13 foundation | 2–4h | Completed (selected scope) | [0028](../work-items/0028-p2-dispatch-and-p3-coordinator.md) |
+| P2-I08 | PLAN-13 | P2-I07 | P2-03 | 2–4h | Completed (selected scope) | [0029](../work-items/0029-p2-gateway-and-p3-issued-execution.md) |
+| P2-I09 | PLAN-13 | P2-I08 | P2-04 contribution | 2–4h | Completed (selected scope) | [0030](../work-items/0030-p2-agent-recovery-and-p3-completion.md) |
+| P2-I10 | PLAN-13 | P2-I06; shared authority fixtures from PLAN-04 | P2-05 contribution; full P2-12 remains later | 3–5h | Completed (selected scope) | [0031](../work-items/0031-revision-routing-and-delegation-acceptance.md) |
+| P2-I11 | PLAN-13 | P2-I10 | P2-06 | 2–4h | Completed (selected scope) | [0032](../work-items/0032-linked-confirmation-and-result-projections.md) |
 
-**Exit:** gateway and agent failure scenarios use actual independent processes,
-not a reopened database connection. The operation adapter records one logical
-acceptance under replay. Current and stale confirmations are distinguished without
-using provider timestamps as a universal order.
+**Task details:**
 
-**Visible proof:** one case snapshot shows the winning revision. The losing or
-ambiguous input retains its own receipt and explanation. Attempt history may show
-reprocessing; it cannot be presented as another accepted booking operation.
+- **P2-I07**
+  - Deliverable: bounded per-receipt dispatch and lookup-only reconciliation under
+    explicit owner-upgraded v2 claims and attempts and an immutable prepared
+    investigation. Cooperating operation acceptance remains external. Gateway
+    deployment follows P2-I08.
+  - Required failure assertion: slow or ignored adapters retain owned capacity.
+    Stale epochs cannot publish. An unknown acknowledgement preserves uncertainty
+    and the original key.
+  - Status notes: the [P2-I07 phase](../work-items/0028-p2-dispatch-and-p3-coordinator.md)
+    adds an explicit owner-only inbox schema v2 upgrade, persisted bounded claims
+    and attempts, frozen investigation input and lookup-only reconciliation
+    against a cooperating operation port. A possible external call never returns
+    to a `not_executed` state. The old standalone preview rejects nonpending
+    inputs. The actual PostgreSQL takeover and the external-commit kill and
+    reconciliation are selected slice evidence, not a complete product row.
+- **P2-I08**
+  - Deliverable: a real bounded loopback gateway and a trusted failpoint after the
+    accepted acknowledgement and before dispatch. Restart polls the same persisted
+    eligible state.
+  - Required failure assertion: accepted input is dispatched after restart.
+    Repeated recovery cannot create another logical business acceptance. Include
+    the normal live path.
+  - Status notes: the
+    [P2-I08 phase](../work-items/0029-p2-gateway-and-p3-issued-execution.md) adds
+    the actual bounded gateway, durable eligible polling and a process restart
+    proof after acknowledgement. Selected owned-process gates inspect the original
+    history.
+- **P2-I09**
+  - Deliverable: an explicit owned-process scripted agent adapter, a bounded
+    framed worker helper and an independent worker-kill and replay fixture.
+  - Required failure assertion: a live gateway preserves the original input, case
+    and operation through worker death and claim expiry. Repeated attempts are
+    visible with one cooperating logical acceptance. Actual process, process-group
+    and pipe ownership must settle before capacity is released.
+  - Status notes: the
+    [P2-I09 phase](../work-items/0030-p2-agent-recovery-and-p3-completion.md) adds
+    an explicit trusted agent-process adapter and framed worker helper. It
+    preserves input, case and operation identity through independently killed
+    scripted-worker replay. A live gateway observes claim expiry and repeated
+    attempts while the cooperating operation accepts one logical investigation.
+    The selected phase gates passed, completing P2-I09. The native LiveKit adapter
+    is separately qualified within the selected P2-I15/I16 scope.
+- **P2-I10**
+  - Deliverable: a strict structured investigation router and
+    one-selected-authority ports. The selected authority is either the
+    owner-installed standalone reference PostgreSQL store or the public P1
+    expected-revision compare-and-set (CAS) authority, reached through explicit
+    loopback application composition.
+  - Required failure assertion: observe real blocking graphs and one winning
+    revision despite skewed timestamps. Valid current input progresses. A lost
+    acknowledgement (ACK) stays unknown, with no receipt inference or rebase.
+    Retained inbox access does not fence current association revocation.
+  - Status notes: P2-I10 adds the explicit structured-command router, the
+    standalone reference authority and the public-P1 loopback application bridge.
+    The selected 22-case equivalent-authority gate and the final phase checks
+    passed, completing P2-I10.
+- **P2-I11**
+  - Deliverable: immutable quote, revision and prompt bindings, linked user
+    confirmation and clarification for ambiguous or unlinked replies.
+  - Required failure assertion: an old-revision confirmation cannot authorize the
+    current mutation. An unlinked SMS "yes" asks for clarification, while a valid
+    current linked confirmation can progress.
+  - Status notes: the
+    [linked-confirmation phase](../work-items/0032-linked-confirmation-and-result-projections.md)
+    completed P2-I11 with immutable prompt bindings, exact P1 confirmation,
+    explicit original receipt replay and a current-association preflight. Its
+    18-case actual integration gate, installed npm gate and final phase gates
+    passed. Current sender eligibility is a separate preflight, not an atomic
+    cross-authority association-revocation commitment fence.
 
-## Phase P2-C: Outbound delivery with explicit uncertainty
+**Exit:**
 
-**Entry:** durable input identities, trusted association and the reply-intent
-contract. This phase may proceed alongside media work after these interfaces are
-frozen. Automatic integration needs a separately published P1/application completion
-handoff; the current result-only delegation feed is not that handoff. The
-implemented outbox consumes an explicit trusted application reply intent and
-never reads P1 store internals.
+- Gateway and agent failure scenarios use actual independent processes, not a
+  reopened database connection.
+- The operation adapter records one logical acceptance under replay.
+- Current and stale confirmations are distinguished without using provider
+  timestamps as a universal order.
 
-| Task | Prerequisites | PLAN | Concrete deliverable | Required failure assertion | Acceptance | Effort |
+**UI and signals:**
+
+- One case snapshot shows the winning revision.
+- The losing or ambiguous input retains its own receipt and explanation.
+- Attempt history may show reprocessing. It cannot be presented as another
+  accepted booking operation.
+
+### Phase P2-C: outbound delivery with explicit uncertainty
+
+**Phase status:** all three tasks completed their selected local gates. Automatic
+booking-completion integration remains separate.
+
+**Entry:**
+
+- Durable input identities, trusted association and the reply-intent contract
+  exist. This phase may proceed alongside media work after these interfaces are
+  frozen.
+- Automatic integration needs a separately published P1 or application completion
+  handoff. The current result-only delegation feed is not that handoff.
+- The implemented outbox consumes an explicit trusted application reply intent
+  and never reads P1 store internals.
+
+| Task | PLAN | Prerequisites | Acceptance | Estimate | Status | Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| P2-I12 | P2-I07, P2-I10; agreed result-delivery contract | PLAN-14 | Implemented immutable-recipient reply intents, stable outbound identity, versioned authorized route/suppression reservation and bounded attempts in owner-upgraded inbox v3. The 24-case actual gate, populated upgrade/restore/replay, isolated ordinary fake-send consumer and final phase gates passed, completing I12. Automatic booking-completion integration remains separate. | Crash after reply-intent commit leaves recoverable work; a revocation/suppression that wins before reservation prevents a new call; later changes cannot retract an admitted call or disclose another recipient. A newly verified route for the same recipient progresses; reassignment cannot transfer ownership. | P2-10 foundation, P2-16 | 2–4h |
-| P2-I13 | P2-I03, P2-I12 | PLAN-14 | Implemented authenticated callback intake with a 60-second envelope window, immutable exact-attempt observations and the deterministic fake-provider evidence reducer. The 24-case source gate and isolated installed consumer passed; final phase gates passed, completing I13. Retained callbacks veto a new reservation without retracting an already admitted call or authorizing resend. | Duplicate/reordered callbacks keep correct correlation; an obsolete callback cannot silently regress stronger evidence; another account cannot submit or inspect the callback. | P2-10, P2-12 | 2–4h |
-| P2-I14 | P2-I13 | PLAN-14 | Implemented ordinary unknown holds and explicit cooperating same-key recovery with distinct local attempts in owner v5. The selected 30-case gate, populated upgrade/restore, isolated public npm consumer and final local gates passed, completing I14. Historical admission proofs survive late facts; all-prior acceptance/conflict vetoes new calls. | The outcome becomes unknown rather than failed-for-retry; the UI/report never promises one physical SMS delivery when the provider cannot establish it. Route changes cannot retarget an already sent/uncertain attempt or its recipient. Include a definitive failure and ordinary success. | P2-11 | 2–4h |
+| P2-I12 | PLAN-14 | P2-I07, P2-I10; agreed result-delivery contract | P2-10 foundation, P2-16 | 2–4h | Completed (selected scope) | [0033](../work-items/0033-outbound-replies-and-completion-processing.md) |
+| P2-I13 | PLAN-14 | P2-I03, P2-I12 | P2-10, P2-12 | 2–4h | Completed (selected scope) | [0034](../work-items/0034-callback-evidence-and-applicability-refresh.md) |
+| P2-I14 | PLAN-14 | P2-I13 | P2-11 | 2–4h | Completed (selected scope) | [0035](../work-items/0035-send-policy-and-action-races.md) |
 
-**Exit:** logical notification identity, send attempts and provider evidence are
-separate records. Both certain and uncertain fake-provider outcomes are visible.
-All callbacks are scoped and validated. Retention policy preserves receipt/delivery
-protection independently of display-history pruning. The charter's verified-association, acceptance-sequence and immutable-recipient contracts are authoritative; callbacks and route changes never rewrite an uncertain prior send.
+**Task details:**
 
-**Visible proof:** fake SMS changes from queued to sending to accepted-by-provider,
-delivered, definitively failed or unknown only as actual evidence warrants. None
-of these observations is labelled user acknowledgement or booking consent.
+- **P2-I12**
+  - Deliverable: immutable-recipient reply intents, a stable outbound identity, a
+    versioned authorized route and suppression reservation, and bounded attempts
+    in owner-upgraded inbox v3.
+  - Required failure assertion: a crash after reply-intent commit leaves
+    recoverable work. A revocation or suppression that wins before reservation
+    prevents a new call. Later changes cannot retract an admitted call or disclose
+    another recipient. A newly verified route for the same recipient progresses.
+    Reassignment cannot transfer ownership.
+  - Status notes: outbound replies completed their selected local gates. The
+    24-case actual gate, populated upgrade, restore and replay, an isolated
+    ordinary fake-send consumer and the final phase gates passed, completing
+    P2-I12. Automatic booking-completion integration remains separate.
+- **P2-I13**
+  - Deliverable: authenticated callback intake with a 60-second envelope window,
+    immutable exact-attempt observations and the deterministic fake-provider
+    evidence reducer.
+  - Required failure assertion: duplicate or reordered callbacks keep correct
+    correlation. An obsolete callback cannot silently regress stronger evidence.
+    Another account cannot submit or inspect the callback.
+  - Status notes: P2-I13 adds authenticated correlated callback evidence and a
+    conservative reservation veto within its selected scope. The 24-case source
+    gate, the isolated installed consumer and the final phase gates passed,
+    completing P2-I13. Retained callbacks veto a new reservation without
+    retracting an already admitted call or authorizing a resend.
+- **P2-I14**
+  - Deliverable: an explicit uncertain-send policy. Ordinary unknown sends are
+    held, and explicit cooperating same-key recovery uses distinct local attempts,
+    in owner-only inbox schema v5.
+  - Required failure assertion: the outcome becomes unknown rather than
+    failed-for-retry. The UI or report never promises one physical SMS delivery
+    when the provider cannot establish it. Route changes cannot retarget an
+    already sent or uncertain attempt or its recipient. Include a definitive
+    failure and an ordinary success.
+  - Status notes: the explicit uncertain-send policy passed its selected source
+    and installed gates. The selected 30-case gate, populated upgrade and restore,
+    an isolated public npm consumer and the final local gates passed, completing
+    P2-I14. Historical admission proofs survive late facts. Acceptance or conflict
+    on any earlier operation vetoes new calls.
 
-## Phase P2-D: Native LiveKit voice/text continuity
+**Exit:**
 
-**Entry:** Phase P2-B routing and Phase P2-C delivery contracts, plus the actual
-PLAN-11 conversational agent and self-hosted media path. The existing diagnostic
-worker is reused as a baseline only; it is not a voice conversation adapter.
-Resolve microphone/audio-play permission before the corresponding browser check.
-A blocked or unavailable capability remains pending and cannot count as a pass.
+- Logical notification identity, send attempts and provider evidence are separate
+  records.
+- Both certain and uncertain fake-provider outcomes are visible.
+- All callbacks are scoped and validated.
+- The retention policy preserves receipt and delivery protection independently of
+  display-history pruning.
+- The charter's verified-association, acceptance-sequence and immutable-recipient
+  contracts are authoritative. Callbacks and route changes never rewrite an
+  uncertain prior send.
 
-| Task | Prerequisites | PLAN | Concrete deliverable | Required failure assertion | Acceptance | Effort |
+**UI and signals:**
+
+- A fake SMS changes from queued to sending to accepted-by-provider, delivered,
+  definitively failed or unknown only as actual evidence warrants.
+- None of these observations is labelled user acknowledgement or booking consent.
+
+### Phase P2-D: native LiveKit voice and text continuity
+
+**Phase status:** all four tasks completed their selected scope. The evidence for each
+task is linked from the table.
+
+**Entry:**
+
+- The Phase P2-B routing and Phase P2-C delivery contracts exist.
+- The actual PLAN-11 conversational agent and self-hosted media path exist.
+- The existing diagnostic worker is reused as a baseline only. It is not a voice
+  conversation adapter.
+- Resolve microphone and audio-play permission before the corresponding browser
+  check. A blocked or unavailable capability remains pending and cannot count as
+  a pass.
+
+| Task | PLAN | Prerequisites | Acceptance | Estimate | Status | Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| P2-I15 | P2-I08, P2-I11; PLAN-11 conversational adapter | PLAN-15 | Completed selected native/artifact scope. Route committed browser text through P2 acceptance before dispatch to the Python agent. Integrate the installed SDK's native lk.chat path and disable the competing automatic consumption path for this adapter. Actual native, isolated artifact and final selected phase gates passed, completing this task within its selected scope. | One committed browser input yields one logical acceptance and one business-operation identity; transport retry or the default reply hook cannot create a second action. | P2-15 | 3–5h |
-| P2-I16 | P2-I15; qualified local audio fixture lane | PLAN-15 | Completed selected native/artifact scope. Add the Python adapter for committed voice utterances, native generation/interruption observations and hybrid text/audio. Raw media stays in tracks; interim transcripts remain observations. Actual native, isolated artifact and final selected phase gates passed, completing this task within its selected scope. | Text and audio together use the same application acceptance boundary; interim text or repeated transcription events cannot grant confirmation or create duplicate accepted work. | P2-15 | 3–5h |
-| P2-I17 | P2-I16; browser audio permission/control gate | PLAN-15 | Completed selected source-qualified response/generated-text/SDK/browser observation and scoped-interruption qualification: sixteen-case PostgreSQL storage, three-group actual browser/media, isolated npm/current Python94-test gates and 147 compatibility assertions passed. Results and separate shared phase closure are recorded in the [current handoff](../work-items/0037-playback-evidence-and-process-recovery.md). | Interrupt output halfway and retain partial/native interruption evidence; disconnect before playback evidence and retain unknown completion. Generated full text never becomes proof of full playback. | P2-07, P2-08 | 3–6h |
-| P2-I18 | P2-I11, P2-I14, P2-I17 | PLAN-15 | Completed selected current-grant read-only context, public P1/reference adapters, optional SDK initialization/idle refresh and source-separated UI: storage18, actual media3, Python111/nine payloads, npm seven stages/96 payloads and 166 compatibility assertions passed with cleanup in [0038](../work-items/0038-case-rehydration-and-standalone-release.md). P1 revision0 remains read-only; loads are non-atomic as-of observations and grant no command authority. | A new room/channel resumes the same verified case and current revision; stale summaries and unassociated senders cannot override or disclose authoritative facts. | P2-09, P2-12 | 3–5h |
+| P2-I15 | PLAN-15 | P2-I08, P2-I11; PLAN-11 conversational adapter | P2-15 | 3–5h | Completed (selected scope) | [0036](../work-items/0036-native-input-and-deadline-cancellation.md) |
+| P2-I16 | PLAN-15 | P2-I15; qualified local audio fixture lane | P2-15 | 3–5h | Completed (selected scope) | [0036](../work-items/0036-native-input-and-deadline-cancellation.md) |
+| P2-I17 | PLAN-15 | P2-I16; browser audio permission/control gate | P2-07, P2-08 | 3–6h | Completed (selected scope) | [0037](../work-items/0037-playback-evidence-and-process-recovery.md) |
+| P2-I18 | PLAN-15 | P2-I11, P2-I14, P2-I17 | P2-09, P2-12 | 3–5h | Completed (selected scope) | [0038](../work-items/0038-case-rehydration-and-standalone-release.md) |
 
-**Exit:** the required local browser example performs real voice interruption and
-room closure/resumption. The text/audio route has one logical acceptance path.
-A normal text test or native-SDK audio counter is insufficient to close the
-browser playback cases. Scripted speech establishes transport/evidence semantics,
-not real model quality.
+**Task details:**
 
-**Visible proof:** channel lanes share a stable case identity, while room and route
-identities change. The timeline distinguishes accepted user input, generated
-response, reported playback, carrier delivery and acknowledgement. Missing data
-shows unknown; switching a tab never fabricates a completed communication.
+- **P2-I15**
+  - Deliverable: route committed browser text through P2 acceptance before
+    dispatch to the Python agent. Integrate the installed SDK's native `lk.chat`
+    path and disable the competing automatic consumption path for this adapter.
+  - Required failure assertion: one committed browser input yields one logical
+    acceptance and one business-operation identity. A transport retry or the
+    default reply hook cannot create a second action.
+  - Status notes: native text passed the selected actual six-group native gate
+    and the isolated Python and npm artifact gates in the
+    [completed phase](../work-items/0036-native-input-and-deadline-cancellation.md).
+    The final regression and shared gates and the affected media rerun passed,
+    completing this task within its selected native and artifact scope.
+- **P2-I16**
+  - Deliverable: add the Python adapter for committed voice utterances, native
+    generation and interruption observations, and hybrid text and audio. Raw media
+    stays in tracks. Interim transcripts remain observations.
+  - Required failure assertion: text and audio together use the same application
+    acceptance boundary. Interim text or repeated transcription events cannot grant
+    confirmation or create duplicate accepted work.
+  - Status notes: committed voice passed the same selected six-group native gate,
+    isolated artifact gates, final regression and shared gates and affected media
+    rerun as P2-I15, completing this task within its selected native and artifact
+    scope.
+- **P2-I17**
+  - Deliverable: source-qualified response, generated-text, SDK and browser
+    observations and scoped-interruption qualification.
+  - Required failure assertion: interrupt output halfway and retain partial and
+    native interruption evidence. Disconnect before playback evidence and retain
+    an unknown completion. Generated full text never becomes proof of full
+    playback.
+  - Status notes: the
+    [I17 handoff](../work-items/0037-playback-evidence-and-process-recovery.md)
+    implements source-qualified generated text, SDK progress, response-scoped
+    interruption and client-reported playback through an explicit owner-only
+    inbox schema v7 upgrade. The sixteen-case PostgreSQL storage gate, the
+    three-group actual browser and media gate, the isolated public npm consumer and
+    the current eight-payload Python package with ninety-four unadapted tests
+    passed, together with 147 P2 compatibility assertions. This completes selected
+    P2-I17 qualification. The linked handoff records the results and the separate
+    final shared phase closure.
+- **P2-I18**
+  - Deliverable: a current-grant read-only context, public P1 and reference
+    adapters, optional SDK initialization and idle refresh, and a source-separated
+    UI.
+  - Required failure assertion: a new room or channel resumes the same verified
+    case and current revision. Stale summaries and unassociated senders cannot
+    override or disclose authoritative facts.
+  - Status notes: P2-I18 completed its selected verified current-case room and
+    channel rehydration gates in the
+    [handoff](../work-items/0038-case-rehydration-and-standalone-release.md).
+    Eighteen storage assertions, three actual voice, text, SMS and new-room browser
+    groups, a nine-payload Python distribution with 111 unadapted tests, a
+    96-payload installed npm consumer with seven stages and 166 compatibility
+    assertions passed with complete cleanup.
+  - Limits: native loading and source facts remain separate non-atomic as-of
+    observations that grant no command authority. Loaded P1 revision 0 stays
+    read-only under the existing positive-revision native command contract. Changing
+    that domain requires its own versioned work before integrated release.
 
-## Phase P2-E: Capacity, packaging, operability and release
+**Exit:**
 
-**Entry:** normal and failure paths of Phases P2-A through P2-D. Complete the
-standalone gates independently of a running P1/P3 deployment; integrated tests use
-the public P1 operation/authority contracts. P2-I21's isolated fake-carrier package
-proof may start earlier after its listed prerequisites; rerun it at release after
-P2-I18. This does not relax the final actual-media continuity gate.
+- The required local browser example performs real voice interruption and room
+  closure and resumption.
+- The text and audio route has one logical acceptance path.
+- A normal text test or a native-SDK audio counter is insufficient to close the
+  browser playback cases.
+- Scripted speech establishes transport and evidence semantics, not real model
+  quality.
 
-| Task | Prerequisites | PLAN | Concrete deliverable | Required failure assertion | Acceptance | Effort |
+**UI and signals:**
+
+- Channel lanes share a stable case identity, while room and route identities
+  change.
+- The timeline distinguishes accepted user input, generated response, reported
+  playback, carrier delivery and acknowledgement.
+- Missing data shows unknown. Switching a tab never fabricates a completed
+  communication.
+
+### Phase P2-E: capacity, packaging, operability and release
+
+**Phase status:** P2-I19, P2-I20 and P2-I21 completed selected qualification. P2-I22
+remains the release frontier, with its 0043 and 0044 prerequisites completed.
+
+**Entry:**
+
+- The normal and failure paths of Phases P2-A through P2-D exist.
+- Complete the standalone gates independently of a running P1/P3 deployment.
+  Integrated tests use the public P1 operation and authority contracts.
+- P2-I21's isolated fake-carrier package proof may start earlier, after its listed
+  prerequisites. Rerun it at release after P2-I18. This does not relax the final
+  actual-media continuity gate.
+
+| Task | PLAN | Prerequisites | Acceptance | Estimate | Status | Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| P2-I19 | P2-I08, P2-I14, P2-I18 | PLAN-16 | Completed selected qualification in [0039](../work-items/0039-bounded-channel-workloads-and-image-evidence.md). Seeded steady/burst/saturation and 1,000-case dormancy study, fixed premeasurement budgets, bounded ordinary observer callbacks, actual shutdown/fresh-process restart and populated restore. | Bound admitted work/queues and reject/defer explicitly before acceptance; every accepted item stays inspectable. Many dormant cases allocate no per-case room or agent. Include late replay after history pruning. | P2-13, P2-14 | 3–5h |
-| P2-I20 | P2-I14, P2-I18; existing observability contract | PLAN-16 | Completed selected qualification in [0040](../work-items/0040-operations-ui-and-fixed-policy-evidence.md): read-only GET/cursors/UI, real finite producer/metric/span integration, typed read errors and retained ownership. Actual PG/HTTP16 +browser3, npm105/seven stages and current187 compatibility assertions passed. Full charter rows remain separate. | Telemetry export failure cannot block intake or create unbounded work; identifiers do not become metric labels. Pending/unknown/error transitions follow observations, with no timed fake progress. | P2-13 support, P2-17 support | 2–4h |
-| P2-I21 | P2-I06, P2-I11, P2-I14; real text consumer boundary | PLAN-16 | Completed selected qualification in [0041](../work-items/0041-standalone-channel-and-durable-policy.md): additive public starter factory/bin, closed private configuration, explicit owner bootstrap and quiescent mutation lifecycle. Twenty isolated fake-carrier assertions and six separate installed public-P1 assertions passed. The application receipt ledger is synthetic external evidence, not workflow or supplier authority. | No repository-internal imports, sibling service deployment or undeclared dependency is needed. A missing export/adapter fails visibly. Full standalone case routing, history, fake delivery and recovery pass. | P2-16 | 3–5h |
-| P2-I22 | P2-I19, P2-I20, P2-I21; integrated P1 public-port adapter | PLAN-16/22 | [0044](../work-items/0044-origin-bound-channel-policy.md) implements the optional original-origin application prerequisite: typed P2-input/P1-work binding, schema3 facades, narrow operation client and local HTTP, with focused unit/socket checks and passing isolated package/fake-port qualification. Fourteen selected actual source assertions passed. Complete the fresh-agent handoff, API/failure-contract review, all P2 local assertions, supported-platform evidence and labelled real-model portfolio runs. Record defects and final demonstrations; integrated native handoff and video remain later gates. | A fresh agent finds contracts/checks using repository instructions alone; missing/skipped/time-out cases keep the gate incomplete. Scripted or Cloud text runs cannot substitute for required local audio evidence. | P2-17; all P2 release checks | 3–5h |
+| P2-I19 | PLAN-16 | P2-I08, P2-I14, P2-I18 | P2-13, P2-14 | 3–5h | Completed (selected scope) | [0039](../work-items/0039-bounded-channel-workloads-and-image-evidence.md) |
+| P2-I20 | PLAN-16 | P2-I14, P2-I18; existing observability contract | P2-13 support, P2-17 support | 2–4h | Completed (selected scope) | [0040](../work-items/0040-operations-ui-and-fixed-policy-evidence.md) |
+| P2-I21 | PLAN-16 | P2-I06, P2-I11, P2-I14; real text consumer boundary | P2-16 | 3–5h | Completed (selected scope) | [0041](../work-items/0041-standalone-channel-and-durable-policy.md) |
+| P2-I22 | PLAN-16/22 | P2-I19, P2-I20, P2-I21; integrated P1 public-port adapter | P2-17; all P2 release checks | 3–5h | Open; 0043 and 0044 prerequisites completed | [0043](../work-items/0043-stable-result-delivery-and-return-context.md), [0044](../work-items/0044-origin-bound-channel-policy.md) |
 
-**Local-ready exit:** all 17 P2 rows have passing executable evidence in their
-required local lanes; standalone and integrated examples, migrations/restart,
-installed consumer and bounded-load results are reviewed. Real SMS/Cloud are not
-prerequisites. **Portfolio-ready exit:** add selected real-model voice/text runs,
-checked outcomes/configuration/costs, a short success/failure demo and reviewed
-benchmark evidence. Re-estimate rather than weakening a mandatory assertion.
+**Task details:**
+
+- **P2-I19**
+  - Deliverable: a seeded steady, burst and saturation study and a 1,000-case
+    dormancy study, fixed premeasurement budgets, bounded ordinary observer
+    callbacks, actual shutdown and fresh-process restart, and populated restore.
+  - Required failure assertion: bound admitted work and queues, and reject or
+    defer explicitly before acceptance. Every accepted item stays inspectable.
+    Many dormant cases allocate no per-case room or agent. Include late replay
+    after history pruning.
+  - Status notes: the capacity and dormant-case experiments passed selected
+    qualification in the
+    [completed handoff](../work-items/0039-bounded-channel-workloads-and-image-evidence.md).
+    The workload's actual PostgreSQL, HTTP, restart and restore gates and its
+    installed package gates passed within the selected scope. They make no
+    production capacity, per-case RAM or general fairness claims.
+  - Frozen study parameters: the handoff freezes the values in the P2-I19 study
+    parameters table after these task details. Accepted rows remain inspectable.
+    Display eviction reclaims no replay capacity. `make p2-workload-plan` exposes
+    the inventory.
+- **P2-I20**
+  - Deliverable: read-only GET, cursors and UI, real finite producer, metric and
+    span integration, typed read errors and retained ownership.
+  - Required failure assertion: telemetry export failure cannot block intake or
+    create unbounded work. Identifiers do not become metric labels. Pending,
+    unknown and error transitions follow observations, with no timed fake
+    progress.
+  - Status notes: the joined operational UI and telemetry passed selected
+    qualification in
+    [0040](../work-items/0040-operations-ui-and-fixed-policy-evidence.md).
+    Sixteen actual PostgreSQL and HTTP groups plus three browser groups, an
+    isolated npm consumer with 105 payloads across seven stages and 187 current
+    compatibility assertions passed. Full charter rows remain separate.
+- **P2-I21**
+  - Deliverable: an additive public starter factory and bin, closed private
+    configuration, explicit owner bootstrap and a quiescent mutation lifecycle.
+  - Required failure assertion: no repository-internal imports, sibling service
+    deployment or undeclared dependency is needed. A missing export or adapter
+    fails visibly. Full standalone case routing, history, fake delivery and
+    recovery pass.
+  - Status notes: the explicit installed starter application and the separate
+    public-P1 consumer completed selected installed-application qualification in
+    [0041](../work-items/0041-standalone-channel-and-durable-policy.md). Twenty
+    isolated fake-carrier (standalone) assertions and six separate installed
+    public-P1 assertions passed. The application receipt ledger is synthetic
+    external evidence, not workflow or supplier authority.
+  - Application rules:
+    - Route the explicit accepted structured input while quiescent, before
+      serving.
+    - The session mutex excludes concurrent mutating commands and a live gateway
+      across processes. Reads remain available.
+    - Original send acknowledgements stay unknown when a separately sourced
+      lookup later reports provider acceptance.
+    - Ordinary unknown sends receive no automatic resend permission.
+    - The read-only operations page grants no mutation controls.
+    - The current-case contract remains non-atomic and as of its observations.
+      P1 revision 0 is readable, while integrated or native execution at revision
+      0 needs its own coherent versioned work.
+- **P2-I22**
+  - Deliverable: complete the fresh-agent handoff, the API and failure-contract
+    review, all P2 local assertions, supported-platform evidence and labelled
+    real-model portfolio runs. Record defects and final demonstrations.
+  - Required failure assertion: a fresh agent finds the contracts and checks
+    using repository instructions alone. Missing, skipped or timed-out cases keep
+    the gate incomplete. Scripted or Cloud text runs cannot substitute for required
+    local audio evidence.
+  - Completed prerequisite, stable result reads: the completed
+    [0043 handoff](../work-items/0043-stable-result-delivery-and-return-context.md)
+    qualifies P2's v8 receiver and current-channel result data reads and P3
+    backend v2 delivery. Sixteen storage and four return actual source assertions
+    passed, plus a separate twenty-five-stage offline package lane. These reads do
+    not qualify RTC media.
+  - Completed prerequisite, original-input binding: the completed
+    [0044 work item](../work-items/0044-origin-bound-channel-policy.md) implements
+    the optional original-origin application prerequisite. It provides typed
+    P2-input to P1-work binding, schema version 3 facades, a narrow operation
+    client and local application HTTP. Focused unit and socket checks and isolated
+    package and fake-port qualification passed. Its fourteen selected actual
+    source assertions passed. The adapter does not make P3 a dependency of the
+    standalone P2 package. It retains original input identities in existing
+    P1-owned work, and the raw message stays in P2.
+  - Remaining: P2-I22 remains the release frontier. Joined native voice, text and
+    SMS, the integrated native handoff, restart and discovery, applicable provider
+    runs and the video retain their later gates. Complete P2-I22 and the charter
+    release gates remain planned after the selected standalone qualification.
+
+**P2-I19 study parameters:**
+
+| Limit | Value | Applies to | Notes |
+| --- | --- | --- | --- |
+| Seed | 39 | P2-I19 workload | Frozen by the handoff |
+| Retained capacity-study inputs | 64 | Capacity study | Separate retained limit, frozen by the handoff |
+| Retained dormant-study inputs | 1,024 | Dormancy study | Separate retained limit, frozen by the handoff |
+| Dormant samples | 0/64/256/1,000 cases | Dormancy study | Frozen by the handoff |
+| Public bounded setup and read windows | 64 | Public setup and reads | Stay at this bound |
+
+**Release exits:**
+
+| Release exit | Requirement |
+| --- | --- |
+| Local-ready V1 | All 17 P2 rows have passing executable evidence in their required local lanes |
+| Local-ready V1 | The standalone and integrated examples, migrations and restart, the installed consumer and the bounded-load results are reviewed |
+| Local-ready V1 | Real SMS and Cloud are not prerequisites |
+| Portfolio-ready V1 | Add selected real-model voice and text runs, checked outcomes, configuration and costs, a short success and failure demo and reviewed benchmark evidence |
+| Portfolio-ready V1 | Re-estimate rather than weakening a mandatory assertion |
 
 ## Acceptance traceability
 
-A task references requirements it advances; the primary row below identifies the
-final proof owner. The charter remains authoritative for the complete assertion.
+A task references the requirements it advances. The primary task below identifies
+the final proof owner. The charter remains authoritative for the complete
+assertion.
 
-| Acceptance ID | Primary implementation task | Required final evidence |
+| Acceptance ID | Implementation tasks | Required final evidence |
 | --- | --- | --- |
 | P2-01 | P2-I05 | Scoped concurrent replay produces one accepted message and original receipt |
 | P2-02 | P2-I05 | Semantic conflict, metadata-only retry and distinct identical-text events |
@@ -316,13 +739,18 @@ final proof owner. The charter remains authoritative for the complete assertion.
 | P2-16 | P2-I21 | Full isolated installed-consumer standalone example, no P1/P3 services |
 | P2-17 | P2-I22 | Fresh coding-agent change and diagnosis using only documented harness/context |
 
-P2-I03's access matrix must be extended by P2-I10, P2-I13, P2-I15 and P2-I18 to
-cover the later reads, callbacks and routes. P2-12 cannot be closed permanently by
-checking an early webhook path while later paths remain untested.
+P2-I10, P2-I13, P2-I15 and P2-I18 must extend P2-I03's access matrix to cover the
+later reads, callbacks and routes. P2-12 cannot be closed permanently by checking
+an early webhook path while later paths remain untested.
 
-## Milestone demonstrations
+## Demonstrations and signals
 
-| Milestone | Normal story | Controlled failure and visible recovery |
+### Demonstration checkpoints
+
+Each checkpoint pairs a normal story with a controlled failure and its visible
+recovery.
+
+| Checkpoint | Normal story | Controlled failure and recovery |
 | --- | --- | --- |
 | P2-A receipt | Fake SMS becomes a durable accepted message | Replay concurrently; show one receipt and a changed-payload conflict |
 | P2-B case | Current linked command advances a verified case | Kill gateway/agent or send an obsolete yes; recover accepted input and preserve current authority |
@@ -330,28 +758,54 @@ checking an early webhook path while later paths remain untested.
 | P2-D continuity | Voice to chat to fake SMS resumes the same current case | Interrupt or lose playback evidence; show partial/unknown instead of fabricated completion |
 | P2-E release | Standalone installed package and integrated public-port consumer work | Saturate admission, restart containers and have a fresh agent diagnose a real failing scenario |
 
-## Required telemetry, errors and data decisions
+### Telemetry, errors and data decisions
 
-Instrument each real producer when introduced, not placeholder zero counters:
-input accepted/deduplicated/conflicted; dispatch pending/attempted/recovered;
-case revision conflict/clarification; outbound queued/attempted/unknown; callback
-applied/retained; route changed; generated/interrupted/playback/acknowledgement
-observed. Retain scoped correlation in safe logs/spans. Metric dimensions are
-finite channel/provider-kind/outcome/error-code values, never tenant, phone,
-case, room, message or response identifiers. Capture dispatch/queue lag, replay
-counts, delivery outcomes, resumption latency, active work and dormant resource use.
+Instrument each real producer when it is introduced, not with placeholder zero
+counters. Record these observations:
 
-Export typed validation, identity-conflict, association/access, revision/clarification,
-overload and unknown-outcome failures. Keep retries bounded by declared eligibility
-and deadlines; an unknown provider send cannot become definitive failure merely
-to justify retry. The standalone store and installed artifact must document schema
-upgrade/restore, retention horizons and unsupported versions. Accepted receipt,
-case intent, supplier outcome, provider delivery and user acknowledgement remain
-separate facts in both the API and UI.
+| Area | Observations to record |
+| --- | --- |
+| Input | Accepted, deduplicated or conflicted |
+| Dispatch | Pending, attempted or recovered |
+| Case revision | Conflict or clarification |
+| Outbound | Queued, attempted or unknown |
+| Callback | Applied or retained |
+| Route | Changed |
+| Response and playback | Generated, interrupted, playback and acknowledgement observed |
 
-## Existing verification commands and future runner policy
+Correlation and metric rules:
+
+- Retain scoped correlation in safe logs and spans.
+- Metric dimensions are finite channel, provider-kind, outcome and error-code
+  values. They are never tenant, phone, case, room, message or response
+  identifiers.
+- Capture dispatch and queue lag, replay counts, delivery outcomes, resumption
+  latency, active work and dormant resource use.
+
+Error and data rules:
+
+- Export typed validation, identity-conflict, association and access, revision
+  and clarification, overload and unknown-outcome failures.
+- Keep retries bounded by declared eligibility and deadlines. An unknown provider
+  send cannot become a definitive failure merely to justify a retry.
+- The standalone store and the installed artifact must document schema upgrade
+  and restore, retention horizons and unsupported versions.
+- Accepted receipt, case intent, supplier outcome, provider delivery and user
+  acknowledgement remain separate facts in both the API and the UI.
+
+## Commands and task handoff
+
+### Existing commands
 
 From the repository root, using its frozen environment, these commands exist now:
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| List the P2 catalog cases | `.venv/bin/python -m harness list --project p2` | Catalog listing |
+| Run the P2 structural checks and tests | `HARNESS_PYTHON=.venv/bin/python sh scripts/harness-check.sh --module p2` | Passing does not certify planned product behavior |
+| Run the P2 acceptance cases | `.venv/bin/python -m harness run --project p2` | Currently reports incomplete and exits with status 2 |
+
+The same commands as one sequence:
 
 ```sh
 .venv/bin/python -m harness list --project p2
@@ -359,28 +813,50 @@ HARNESS_PYTHON=.venv/bin/python sh scripts/harness-check.sh --module p2
 .venv/bin/python -m harness run --project p2
 ```
 
-The last command currently reports incomplete/exit 2. Root pnpm checks discover
-the implemented console, P2 channel package and P3 specialist package, including
-source/test typing, tests, formatting and builds. Public examples are also included
-in maintained source boundaries and format/build or executable-consumer checks.
-Each new slice extends actual discovery and its relevant runner with exact working
-directory, prerequisites, timeout, isolated state and artifact paths. Full P2
-charter runners remain pending; preserve missing P2 IDs as non-passing. Root/shared-contract changes require the full
-fast lane and affected cross-language checks, not just a focused structural pass.
+The last command currently reports incomplete and exits with status 2.
 
-## Coding-agent task packet example
+### Runner policy
 
-**Slice:** P2-I08, gateway recovery. **Inputs:** this phase, P2-I04/I07's accepted
-receipt/store/dispatch contracts and the P2-03 charter row. **Owned paths:** P2
-source and tests plus the smallest necessary harness registration. **Deferred:**
-new carrier channels, model inference, P1 supplier logic and browser playback.
+- Root pnpm checks discover the implemented console, the P2 channel package and
+  the P3 specialist package, including source and test typing, tests, formatting
+  and builds.
+- Public examples are also included in maintained source boundaries and in format,
+  build or executable-consumer checks.
+- Each new slice extends actual discovery and its relevant runner with the exact
+  working directory, prerequisites, timeout, isolated state and artifact paths.
+- Full P2 charter runners remain pending. Preserve missing P2 IDs as non-passing.
+- Root and shared-contract changes require the full fast lane and the affected
+  cross-language checks, not only a focused structural pass.
 
-Before code, record a work item with the exact after-acknowledgement/before-dispatch
-barrier, gateway/child process owners, persistent fixture store, expected original
-message/operation identities and cleanup deadline. Implement the ordinary path,
-terminate the actual process at that barrier, restart with the same state and
-assert eventual processing plus one logical operation acceptance. Retain event
-history/process exits, run the implemented scenario and full fast checks, then
-update the nearest AGENTS.md, Design.md, README.md and handoff with observed
-outcomes and unresolved IDs. Do not register placeholder commands or describe
-repeated model processing as exactly-once execution.
+### Task packet example
+
+Example packet for P2-I08:
+
+| Packet field | P2-I08 example |
+| --- | --- |
+| Slice | P2-I08, gateway recovery |
+| Inputs | This phase, the accepted receipt, store and dispatch contracts from P2-I04 and P2-I07, and the P2-03 charter row |
+| Owned paths | P2 source and tests, plus the smallest necessary harness registration |
+| Deferred | New carrier channels, model inference, P1 supplier logic and browser playback |
+
+Before writing code, record a work item with:
+
+- the exact barrier after acknowledgement and before dispatch;
+- the gateway and child process owners;
+- the persistent fixture store;
+- the expected original message and operation identities;
+- the cleanup deadline.
+
+Then:
+
+1. Implement the ordinary path.
+2. Terminate the actual process at that barrier.
+3. Restart with the same state and assert eventual processing plus one logical
+   operation acceptance.
+4. Retain the event history and process exits.
+5. Run the implemented scenario and the full fast checks.
+6. Update the nearest AGENTS.md, Design.md, README.md and the handoff with the
+   observed outcomes and unresolved IDs.
+
+Do not register placeholder commands or describe repeated model processing as
+exactly-once execution.

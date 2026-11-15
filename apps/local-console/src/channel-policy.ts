@@ -213,6 +213,7 @@ export class JoinedApplication {
   #sms: SmsCommand | null = null;
   #entryEpoch = 0;
   #voiceInputId: string | null = null;
+  #textInputId: string | null = null;
   #ackTimers = new Map<string, ReturnType<typeof setTimeout>>();
   #mode: NativeMode | null = null;
   #voiceSource: 'clip' | 'microphone' = 'clip';
@@ -262,7 +263,8 @@ export class JoinedApplication {
       const key = e as KeyboardEvent;
       if (key.key === 'Enter' && !key.shiftKey && !key.isComposing) {
         e.preventDefault();
-        this.send(false);
+        if (!key.repeat && !this.panel.element<HTMLButtonElement>('send').disabled)
+          this.send(false);
       }
     });
     on('retry-text', 'click', () => this.send(true));
@@ -508,6 +510,10 @@ export class JoinedApplication {
           try {
             if (topic === 'p2.acceptance') {
               this.model.acceptance(owned.ticket, raw);
+              const frozen = this.model
+                .snapshot()
+                .inputs.find((row) => row.inputId === this.#textInputId);
+              if (frozen?.receiptId || frozen?.status === 'rejected') this.#textInputId = null;
               for (const row of this.model.snapshot().inputs)
                 if (row.receiptId) {
                   const timer = this.#ackTimers.get(row.inputId);
@@ -622,6 +628,7 @@ export class JoinedApplication {
     for (const timer of this.#ackTimers.values()) clearTimeout(timer);
     this.#ackTimers.clear();
     this.#voiceInputId = null;
+    this.#textInputId = null;
     ++this.#entryEpoch;
     this.#notice = null;
     this.#playing = false;
@@ -702,7 +709,7 @@ export class JoinedApplication {
           ? this.model.addInput(media.ticket, old.inputId, 'web_chat', old.body)
           : this.model.addInput(
               media.ticket,
-              crypto.randomUUID(),
+              (this.#textInputId ??= crypto.randomUUID()),
               'web_chat',
               this.panel.element<HTMLTextAreaElement>('message').value,
             );

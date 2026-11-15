@@ -104,6 +104,7 @@ export class OutboxStore {
   readonly #controllers = new Map<string, Account>();
   readonly #policy: SendPolicyStore;
   readonly #calls = new Set<Promise<unknown>>();
+  #recordings = 0;
   #closing = false;
   #ending: Promise<void> | undefined;
   constructor(
@@ -228,25 +229,35 @@ export class OutboxStore {
   get actualCalls(): number {
     return this.#calls.size;
   }
-  #reserve<T>(signal: AbortSignal, action: () => Promise<T>): Promise<T> {
+  #reserve<T>(signal: AbortSignal, action: () => Promise<T>, recording = false): Promise<T> {
     try {
       checkedSignal(signal);
     } catch {
       throw new OutboxError('InvalidCommand');
     }
     if (this.#closing) return Promise.reject(new OutboxError('Closed'));
-    if (this.#calls.size >= 4) return Promise.reject(new OutboxError('Overloaded'));
+    if (recording ? this.#recordings >= 4 : this.#calls.size - this.#recordings >= 4)
+      return Promise.reject(new OutboxError('Overloaded'));
     if (isAborted(signal)) return Promise.reject(new OutboxError('Unavailable'));
+    if (recording) this.#recordings++;
     const work = Promise.resolve().then(action);
     this.#calls.add(work);
-    void work.then(
-      () => this.#calls.delete(work),
-      () => this.#calls.delete(work),
-    );
+    const settled = () => {
+      this.#calls.delete(work);
+      if (recording) this.#recordings--;
+    };
+    void work.then(settled, settled);
     return work;
   }
   #run<T>(write: boolean, signal: AbortSignal, action: (tx: Tx) => Promise<T>): Promise<T> {
     return this.#reserve(signal, () => this.#transaction(write, signal, action));
+  }
+  /** Carrier-result recording has its own four slots (the outbox task maximum), so ordinary
+   * calls cannot turn a known result into unknown.
+   */
+  #record<T>(action: (tx: Tx) => Promise<T>): Promise<T> {
+    const signal = new AbortController().signal;
+    return this.#reserve(signal, () => this.#transaction(true, signal, action), true);
   }
   async #transaction<T>(
     write: boolean,
@@ -1113,7 +1124,7 @@ export class OutboxStore {
   recordResult(request: SendRequest, input: CarrierResult): Promise<CarrierResult> {
     const expected = sendRequest(request),
       result = carrierResult(input, expected);
-    return this.#run(true, new AbortController().signal, async (tx) => {
+    return this.#record(async (tx) => {
       const rows = await tx.client.query(
         `SELECT canonical_request FROM ${this.#q('send_attempts')} WHERE attempt_id=$1 AND tenant_id=$2 AND account_id=$3 AND outbound_id=$4`,
         [
@@ -1358,7 +1369,7 @@ export class OutboxStore {
               result: carrierResult(sent.result, sendRequest(sent.request)),
             }),
       ref = recipient({ scope: op.scope, caseId: op.caseId, conversationId: op.conversationId });
-    return this.#run(true, new AbortController().signal, async (tx) => {
+    return this.#record(async (tx) => {
       if (tx.version < 5) throw new OutboxError('UpgradeRequired');
       const current = await this.#policy.command(tx.client, receipt.commandId, ref);
       if (!current || JSON.stringify(current.receipt) !== JSON.stringify(receipt))

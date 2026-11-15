@@ -377,7 +377,10 @@ export class ChannelDispatcher {
     const deadline = performance.now() + this.#options.cleanupTimeoutMs;
     const tasks = [...this.#tasks];
     for (const task of tasks) task.controller.abort();
-    void this.#close(tasks, deadline).then(resolve, reject);
+    void this.#close(tasks, deadline).then(resolve, (error: unknown) => {
+      this.#closed = undefined;
+      reject(error);
+    });
     return this.#closed;
   }
   async #close(tasks: readonly Task[], deadline: number): Promise<void> {

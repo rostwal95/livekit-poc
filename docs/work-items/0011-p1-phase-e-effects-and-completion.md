@@ -1,16 +1,29 @@
 # P1 Phase E supplier effects and durable completion
 
-Status: Completed
-Last reviewed: 9 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Completed |
+| Purpose | Record the plan, observed verification and handoff for P1 Phase E tasks P1-I15 through P1-I18 |
+| Audience | Engineers changing P1 supplier effects, cancellation or completion delivery; coding agents |
+| Scope | Exact supplier apply, mutation crash reconciliation, supplier uncertainty, idempotent cancellation and completion delivery; excludes leases and voice-interruption release claims |
+| Owns | Change plan, observed verification and handoff for P1-I15 through P1-I18 |
+| Related | [Work item 0010](0010-p1-phase-d-authority-and-waits.md) · [Work item 0012](0012-p1-phase-f-leases-and-deployment.md) · [Effects decision](../decisions/0005-effects-cancellation-and-outbox.md) · [P1 task plan](../implementation/p1-agent-continuity.md) · [Validation plan](../validation-plan.md) |
 
 ## Behavior and scope
 
-Implement P1-I15 through P1-I18 after the completed Phase D gate: apply the exact
-confirmed fake booking revision, reconcile a real mutation crash, expose honest
-uncertainty for a noncooperating supplier, record idempotent cancellation and
-commit/deliver a stable completion event. Use original task/case/intent/effect
-identities and the same durable execution owner. No leases or voice-interruption
-release claim is introduced.
+Implement P1 (Agent Continuity Lab) tasks P1-I15 through P1-I18 from the
+[granular roadmap](../implementation-plan.md) after the completed Phase D gate:
+
+- apply the exact confirmed fake booking revision
+- reconcile a real mutation crash
+- expose honest uncertainty for a noncooperating supplier
+- record idempotent cancellation
+- commit and deliver a stable completion event
+
+Use the original task, case, intent and effect identities and the same durable
+execution owner. No leases or voice-interruption release claim is introduced.
+
+### Criteria
 
 | Criterion | Given | When | Then: safety | Then: useful progress | Test/mode and evidence |
 | --- | --- | --- | --- | --- | --- |
@@ -21,32 +34,52 @@ release claim is introduced.
 | Retention | Diagnostic history pruned or delivery exhausted | Replay original event/command | Core effect, cancellation and receiver receipts remain; no identity is recreated | Existing replay remains available at capacity | Projection pruning and late replay assertions |
 | Upgrade | Existing ACTIVE PostgreSQL v2 and legacy consent JSON | Explicit owner-only v3 upgrade or interruption | Original inquiry/case/wait/intent bytes remain; v1 consent is never filled from mutable supplier state | Versioned new work progresses; legacy history/replay is readable | Actual version chain, rollback/process loss and restricted-role tests |
 
+The criteria table uses these abbreviations:
+
+| Term | Meaning |
+| --- | --- |
+| CAS | Compare-and-set |
+| PG | PostgreSQL |
+| dedup | Deduplication |
+
 ## Interfaces and ownership
 
-Quote/confirmation/intent payload v2 binds the independent case ID, workflow,
-current case revision, exact booking/date/amount/currency/expiry, supplier identity
-and expected supplier booking revision. Legacy payload v1 remains read/replay
-compatible, but cannot authorize a new mutation. Reissue a fresh proposal rather
-than inventing supplier revision or target at dispatch.
+Quote, confirmation and intent payload v2 binds:
 
-A new independent mutation supplier fixture owns current booking truth and a
-read-only inquiry view over that same authority. The old read-only fixture remains
-for compatibility evidence. Provider identity and cooperation mode are immutable.
-External calls occur outside the protected PG transaction. Persist possible
-dispatch before calling; generation is claim ownership, not a lease or generic
-row revision. A fresh no-dispatch claim is distinct from a possible prior call.
+- the independent case ID and workflow
+- the current case revision
+- the exact booking, date, amount, currency and expiry
+- the supplier identity and expected supplier booking revision
+
+Legacy payload v1 remains compatible for read and replay, but cannot authorize a
+new mutation. Reissue a fresh proposal rather than inventing a supplier revision or
+target at dispatch.
+
+| Fixture | Role |
+| --- | --- |
+| New independent mutation supplier fixture | Owns current booking truth and a read-only inquiry view over that same authority |
+| Old read-only fixture | Remains for compatibility evidence |
+
+Provider identity and cooperation mode are immutable. External calls occur
+outside the protected PostgreSQL transaction. Persist possible dispatch before
+calling. Generation is claim ownership, not a lease or generic row revision. A
+fresh no-dispatch claim is distinct from a possible prior call.
 
 Cancellation, confirmation and dispatch serialize under the shared authority
-transaction. Cancellation intent/disposition, physical supplier result, business
-outcome, event delivery and human acknowledgement remain separate. Preserve a
-known inquiry result if cancellation arrives during its read-only call.
-Terminal business outcome, immutable completion event and pending delivery commit
-atomically. Receiver identity is bound before first delivery; a configuration
-change cannot silently redirect a retry. No core receipt deletion is permitted.
+transaction. Cancellation intent and disposition, the physical supplier result,
+the business outcome, event delivery and human acknowledgement remain separate.
+Preserve a known inquiry result if cancellation arrives during its read-only call.
+The terminal business outcome, the immutable completion event and pending delivery
+commit atomically. Receiver identity is bound before first delivery. A
+configuration change cannot silently redirect a retry. No core receipt deletion is
+permitted.
 
 ## Failure cases and validation
 
-| Gate | Why applicable | Required assertions | Setup/bounds | Evidence |
+The gate names in this table are the engineering gates defined in the
+[validation plan](../validation-plan.md#engineering-gates-and-acceptance-authoring).
+
+| Gate | Applicable and why | Exact tests/assertions | Prerequisite/resource/time bound | Expected status/artifacts |
 | --- | --- | --- | --- | --- |
 | G-READY | Entire phase | Phase D passed; supplier revision/target and cancellation boundaries reviewed | Frozen dependency/image baseline | Phase D gate and this decision |
 | G-CONTRACT | New effect/cancel/delivery contracts | Strict v1/v2 payload compatibility, scope/actor/identity binding and finite safe errors | Synthetic inputs only | Unit/public service and real store tests |
@@ -56,18 +89,21 @@ change cannot silently redirect a retry. No core receipt deletion is permitted.
 | G-MEDIA | Runtime rebuild regression | Existing native RTC/M1 checks preserve identity | Existing stack/volumes | Actual smoke, not human/browser playback |
 | G-PACKAGE | Installed application | Runtime wheel imports outside source; process/container crash/replay | Owned isolated fixtures | Hashes and real installed consumer |
 
-Keep attempts, backoff, buffers, locks and shutdown finite. Positive evidence of
-no dispatch is a typed provider assertion, never an exception-text inference.
-Quote expiry is checked at commitment; a committed intent is not retroactively
-invalidated by quote expiry. Fresh dispatch still checks original business deadline
-and cancellation. Known external truth survives later timeout/cancellation.
-Required skips, missing setup, zero tests or timeouts cannot pass.
+Keep attempts, backoff, buffers, locks and shutdown finite. Positive evidence of no
+dispatch is a typed provider assertion, never an exception-text inference. Quote
+expiry is checked at commitment. A committed intent is not retroactively
+invalidated by quote expiry. Fresh dispatch still checks the original business
+deadline and cancellation. Known external truth survives later timeout or
+cancellation. Required skips, missing setup, zero tests or timeouts cannot pass.
 
 ## Results and handoff
 
 P1-I15 through P1-I18 completed. The final machine gate is
-.local/validation/p1-phase-e/phase-gate.json. Runtime/dependency versions remain
-frozen; no new direct dependency, image pin or public business API was introduced.
+`.local/validation/p1-phase-e/phase-gate.json`. Runtime and dependency versions
+remain frozen. No new direct dependency, image pin or public business API was
+introduced.
+
+### Observed gates
 
 | Observed gate | Command or mode | Result |
 | --- | --- | --- |
@@ -82,31 +118,38 @@ frozen; no new direct dependency, image pin or public business API was introduce
 | Product acceptance catalog | harness run --project all | Six registered runners pass; 49 remain not_implemented; expected exit 2 reports incomplete portfolio qualification |
 
 The Docker proof retains exactly one physical supplier mutation/apply, one logical
-receiver event, zero cancelled-task dispatches, the same completion/outcome and
-retained dedup after diagnostic pruning. It verifies both missing local
-acknowledgements before starting the next process. New labelled fixture volume,
-containers and isolated schema are cleaned before the pass artifact is written;
-normal M1 volumes remain intact. Synthetic clock values establish policy behavior,
-not production latency. The actual run uses host macOS and Linux containers with
-Python 3.14; the advertised full Python/platform matrix remains unverified.
+receiver event, zero cancelled-task dispatches, the same completion and outcome,
+and retained deduplication after diagnostic pruning. It verifies both missing local
+acknowledgements before starting the next process. The new labelled fixture
+volume, containers and isolated schema are cleaned before the pass artifact is
+written. Normal volumes for M1, the original SQLite confirmed-investigation intake,
+remain intact. Synthetic clock values establish policy behavior, not production
+latency. The actual run uses host macOS and Linux containers with Python 3.14. The
+advertised full Python and platform matrix remains unverified.
 
-Independent reviews corrected cross-effect active-attempt corruption: terminal
+### Review corrections
+
+Independent reviews corrected cross-effect active-attempt corruption. Terminal
 paths now validate intent, attempt number and guarded state before closing an
 attempt. Two real-database regressions prove failure is contained and valid work
 can progress after repair. Demo review also tightened independent cleanup,
-commit-response-loss volume ownership and bounded redacted failure artifacts;
-reporting failures cannot replace the original error. No lock/connection budget
-was relaxed and no missing requirement was skipped.
+commit-response-loss volume ownership and bounded redacted failure artifacts.
+Reporting failures cannot replace the original error. No lock or connection budget
+was relaxed, and no missing requirement was skipped.
 
-Evidence includes fast/strict/format/PG/frontend outputs, catalog/deep status,
-Mermaid parse results, runtime build, container stages, smoke and a source manifest
-under the phase directory. Earlier phase artifacts remain separate. Implemented
-and reviewed with Codex assistance; personal reproduction/explanation remains a
-learning activity, not an asserted human implementation contribution.
+### Evidence and next step
 
-Next is Phase F, P1-I19 through P1-I21: lease/epoch authority, stale external-call
-safety, bounded admission/shutdown and actual product-worker orchestration.
-Distributed leases, actual speech interruption, business UI/tools, production
-identity/transport, full platform matrix and complete portfolio release remain
-outside this completed phase. Uncertainty is immutable for automatic dispatch;
-future manual adjudication needs a separately versioned observation contract.
+Evidence includes fast, strict, format, PostgreSQL and frontend outputs, catalog
+and deep status, Mermaid parse results, runtime build, container stages, smoke and
+a source manifest under the phase directory. Earlier phase artifacts remain
+separate. The work was implemented and reviewed with Codex assistance. Personal
+reproduction and explanation remain a learning activity, not an asserted human
+implementation contribution.
+
+Next is Phase F, P1-I19 through P1-I21: lease and epoch authority, stale
+external-call safety, bounded admission and shutdown, and actual product-worker
+orchestration. Distributed leases, actual speech interruption, business UI and
+tools, production identity and transport, the full platform matrix and complete
+portfolio release remain outside this completed phase. Uncertainty is immutable for
+automatic dispatch. Future manual adjudication needs a separately versioned
+observation contract.

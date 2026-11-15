@@ -22,6 +22,7 @@ from delegation_reliability import CoordinatorError
 from delegation_reliability.contracts import ContractError, identifier
 from delegation_reliability.coordinator import CoordinatorCode
 
+from ._loopback_json import close_writer
 from .discovery import (
     PAGE_BYTES,
     PREPARED_FRAME_BYTES,
@@ -336,8 +337,7 @@ class ChannelPolicyWorkerClient:
     async def _close_writer(self, call: _Call) -> None:
         writer = call.writer
         if writer is not None:
-            writer.close()
-            await writer.wait_closed()
+            await close_writer(writer)
             call.writer = None
 
     def _route(self, page: DiscoveryPage) -> None:

@@ -91,6 +91,7 @@ class BusinessPreparationTests(unittest.TestCase):
         value = self.prepare(port)
         self.assertEqual(["inspect", "activate", 2, 3, 4, 5, "ready"], port.calls)
         self.assertTrue(value["changed"])
+        self.assertEqual("explicit_empty_bootstrap", value["schema_activation"])
         self.assertFalse(value["fixture_initialization"])
         directory = self.base / value["bootstrap_run_id"]
         for name in ("source.sqlite3", "before-cutover.sqlite3", "before-inquiry-schema.sqlite3"):
@@ -128,6 +129,7 @@ class BusinessPreparationTests(unittest.TestCase):
         )
         result = self.prepare(port)
         self.assertFalse(result["changed"])
+        self.assertEqual("read_only_ready", result["schema_activation"])
         self.assertIsNone(result["bootstrap_run_id"])
         self.assertEqual(["inspect", "ready"], port.calls)
         self.assertEqual([".prepare.lock"], [p.name for p in self.base.iterdir()])
@@ -138,6 +140,7 @@ class BusinessPreparationTests(unittest.TestCase):
         )
         result = self.prepare(port)
         self.assertEqual((result["changed"], result["schema_version"]), (True, 5))
+        self.assertEqual("owner_upgrade_v5", result["schema_activation"])
         self.assertIsNone(result["bootstrap_run_id"])
         self.assertEqual(["inspect", 5, "ready"], port.calls)
         self.assertEqual([".prepare.lock"], [p.name for p in self.base.iterdir()])
@@ -278,12 +281,19 @@ class HostActionTests(unittest.TestCase):
         interpreter.write_text("# host interpreter")
         interpreter.chmod(0o700)
 
+    def helper_output(self, activation):
+        return (
+            '{"event": "business_preparation", "stage": "preflight", "status": "running"}\n'
+            + json.dumps({"schema_activation": activation, "status": "business_ready"})
+            + "\n"
+        )
+
     def test_action_runs_only_fixed_venv_child_after_ownership_no_docker_or_fixture_actions(self):
         out = io.StringIO()
         with (
             patch.object(stack, "load_settings", return_value={}),
             patch.object(stack, "assert_owned_containers") as owned,
-            patch.object(stack, "run", return_value='{"status":"business_ready"}') as run,
+            patch.object(stack, "run", return_value=self.helper_output("read_only_ready")) as run,
             contextlib.redirect_stdout(out),
         ):
             self.assertEqual(0, stack.main(["prepare-business"], setup=self.setup))
@@ -298,6 +308,29 @@ class HostActionTests(unittest.TestCase):
         self.assertEqual(self.setup, setup)
         self.assertNotIn("docker", argv)
         self.assertFalse(json.loads(out.getvalue())["fixtureInitialization"])
+
+    def test_report_names_the_helper_schema_action_and_refuses_unrecognized_results(self):
+        for output, code, activation in (
+            (self.helper_output("explicit_empty_bootstrap"), 0, "explicit_empty_bootstrap"),
+            (self.helper_output("owner_upgrade_v5"), 0, "owner_upgrade_v5"),
+            (self.helper_output("read_only_ready"), 0, "read_only_ready"),
+            ("", 2, None),
+            (self.helper_output("private-sentinel"), 2, None),
+            ('{"status":"business_ready"}\n', 2, None),
+            ('["private-sentinel"]\n', 2, None),
+        ):
+            with self.subTest(output=output):
+                with (
+                    patch.object(stack, "load_settings", return_value={}),
+                    patch.object(stack, "assert_owned_containers"),
+                    patch.object(stack, "run", return_value=output),
+                    contextlib.redirect_stdout(io.StringIO()) as out,
+                ):
+                    self.assertEqual(code, stack.main(["prepare-business"], setup=self.setup))
+                report = json.loads(out.getvalue())
+                self.assertEqual(report.get("schemaActivation"), activation)
+                self.assertEqual(report["status"], "failed" if code else "business_prepared")
+                self.assertNotIn("private-sentinel", report.get("error", ""))
 
     def test_foreign_ownership_missing_interpreter_and_nonzero_child_are_nonpassing(self):
         for error in (stack.SetupError("Foreign checkout"), stack.SetupError("Child failed")):

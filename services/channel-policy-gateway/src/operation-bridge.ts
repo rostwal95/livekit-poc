@@ -602,6 +602,7 @@ export class ChannelPolicyOperationBridge {
       schemaVersion: 1,
       profileId: this.#c.profileId,
       endpoint: origin.endpoint,
+      callTimeoutMs: this.#timeout,
       bindings: [
         {
           alias: call.source,

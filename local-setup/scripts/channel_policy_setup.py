@@ -330,6 +330,8 @@ async def _close_clients(clients: list[_CaseOwner], journal: Callable[[str], Non
         raise asyncio.CancelledError
 
 
+# Dispatch claims outlive the joined gateways' 5,000 ms step deadline so a
+# receipt returned near that deadline still passes the claim guard.
 _NODE_PROGRAM = r"""
 import { installChannelSchema, upgradeChannelSchemaV2, upgradeChannelSchemaV3,
  upgradeChannelSchemaV4, upgradeChannelSchemaV5, upgradeChannelSchemaV6,
@@ -345,7 +347,7 @@ try {
  if(typeof password!=='string'||password.length<32||password.length>128)throw Error();
  const settings={host:'127.0.0.1',port:p.port,database:'livekit_lab',user:'continuity_migrator',password,schema:p.schema};
  const steps=[()=>installChannelSchema(settings,{maxInbox:16,maxChallenges:16,maxAssociations:16,maxSenders:16}),
- ()=>upgradeChannelSchemaV2(settings,{maxActive:2,maxAttempts:2,leaseMs:5000,retryDelayMs:100}),
+ ()=>upgradeChannelSchemaV2(settings,{maxActive:2,maxAttempts:2,leaseMs:8000,retryDelayMs:100}),
  ()=>upgradeChannelSchemaV3(settings,{maxReplies:16,maxRoutes:16,maxAttempts:2}),
  ()=>upgradeChannelSchemaV4(settings,{maxGlobal:64,maxPerAttempt:8}),
  ()=>upgradeChannelSchemaV5(settings,{maxRecoveryCommands:16,maxPerOperation:2}),

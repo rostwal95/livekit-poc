@@ -75,6 +75,9 @@ Tier = Literal["http", "current", "active", "jobs", "readers", "case"]
 SCAN_INTERVAL_S = 0.25
 IDLE_SCAN_INTERVAL_S = 1.0
 CURRENT_READ_RETRY_DELAYS_S = (0.25, 0.5)
+# Both gateways allow each origin dispatch step 5,000 ms; a shorter wait reports
+# a later committed accept as acknowledgement_unknown.
+ORIGIN_CALL_TIMEOUT_S = 5
 
 
 def next_scan_interval(previous: float, observed: object) -> float:
@@ -520,10 +523,16 @@ class ChannelPolicyApplication:
         )
         self._own(case_http, "http")
         native_http = ChannelOriginHttp(
-            router.native, operation_bearer=p.credentials.native_origin_bearer
+            router.native,
+            operation_bearer=p.credentials.native_origin_bearer,
+            call_timeout_s=ORIGIN_CALL_TIMEOUT_S,
         )
         self._own(native_http, "http")
-        sms_http = ChannelOriginHttp(router.sms, operation_bearer=p.credentials.sms_origin_bearer)
+        sms_http = ChannelOriginHttp(
+            router.sms,
+            operation_bearer=p.credentials.sms_origin_bearer,
+            call_timeout_s=ORIGIN_CALL_TIMEOUT_S,
+        )
         self._own(sms_http, "http")
         self._check_starting()
         await case_http.start(port=p.ports.case)

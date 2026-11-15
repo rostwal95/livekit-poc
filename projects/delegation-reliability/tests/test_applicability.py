@@ -240,11 +240,28 @@ class ApplicabilityTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((await self.refresh()).classification, "current")
 
     async def test_transient_feed_failure_is_safe_storage_error_and_zero_refresh(self):
-        self.owner.feed.failure = WorkError("storage_unavailable")
+        for code in ("storage_unavailable", "capacity", "closed"):
+            self.owner.feed.failure = WorkError(code)
+            with (
+                self.subTest(code=code),
+                self.assertRaisesRegex(ProjectionError, "^storage_unavailable$"),
+            ):
+                await self.refresh()
+        self.assertEqual(self.metadata.commits, 0)
+        self.owner.feed.failure = None
+        self.assertEqual((await self.refresh()).classification, "current")
+
+    async def test_transient_execution_read_is_storage_error_not_invalid_source(self):
+        original = self.owner.execution.find_issue
+
+        async def busy(*, command_id):
+            raise WorkError("capacity")
+
+        self.owner.execution.find_issue = busy
         with self.assertRaisesRegex(ProjectionError, "^storage_unavailable$"):
             await self.refresh()
         self.assertEqual(self.metadata.commits, 0)
-        self.owner.feed.failure = None
+        self.owner.execution.find_issue = original
         self.assertEqual((await self.refresh()).classification, "current")
 
     async def test_missing_or_changed_historical_result_never_commits(self):

@@ -512,6 +512,24 @@ describe('bounded loopback gateway', () => {
     });
     expect(performance.now() - started).toBeLessThan(150);
   });
+  it('backs off while re-selected eligible work makes no dispatch progress', async () => {
+    calls.eligible.mockResolvedValue([ID]);
+    calls.step.mockResolvedValue({ status: 'uncertain', receiptId: ID, operationKey: ID });
+    await gateway({ idlePollMs: 1000 }).listen();
+    await new Promise<void>((resolve) => setTimeout(resolve, 400));
+    // A constant 20 ms interval would step this input about twenty times in this window.
+    expect(calls.step.mock.calls.length).toBeLessThan(8);
+    expect(calls.step).toHaveBeenCalledWith(TOKEN, ID);
+  });
+  it('retries a failed nested close and then completes cleanup', async () => {
+    calls.dispatcherClose.mockRejectedValueOnce(new ChannelError('CleanupIncomplete'));
+    const g = gateway();
+    await g.listen();
+    await expect(g.close()).rejects.toMatchObject({ code: 'cleanup_incomplete' });
+    await g.close();
+    expect(calls.dispatcherClose).toHaveBeenCalledTimes(2);
+    expect(g.metrics()).toMatchObject({ sockets: 0, handlers: 0, driver: 0 });
+  });
   it('bounds an explicit dispatch step deadline and keeps the default when it is omitted', () => {
     for (const dispatchTimeoutMs of [19, 5001, 2500.5, '5000'])
       expect(() => gateway({ dispatchTimeoutMs })).toThrow();

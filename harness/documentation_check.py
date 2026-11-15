@@ -4,11 +4,13 @@ import argparse
 import fnmatch
 import json
 import re
-from datetime import datetime
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
+# Every document opens with one Field/Value card holding exactly these rows, in order.
+CARD_FIELDS = ("Status", "Purpose", "Audience", "Scope", "Owns", "Related")
+LEGACY_METADATA = ("Status:", "Last reviewed:")
 MANIFEST_KEYS = {
     "schemaVersion",
     "include",
@@ -207,32 +209,33 @@ def issue(relative, code, message, line=None):
     }
 
 
+def table_cells(line):
+    """Split one pipe-table row, honouring escaped pipes; indented code is not a table."""
+    if "|" not in line or line.startswith(("    ", "\t")):
+        return []
+    parts = []
+    current = ""
+    escaped = False
+    value = line.strip()
+    for char in value:
+        if char == "|" and not escaped:
+            parts.append(current.strip())
+            current = ""
+        else:
+            current += char
+        escaped = not escaped if char == "\\" else False
+    parts.append(current.strip())
+    if value.startswith("|"):
+        parts = parts[1:]
+    if value.endswith("|") and parts and not parts[-1]:
+        parts.pop()
+    return parts
+
+
 def has_data_table(lines):
     """Require a pipe header, delimiter and populated row outside fenced examples."""
-
-    def cells(line):
-        if "|" not in line or line.startswith(("    ", "\t")):
-            return []
-        parts = []
-        current = ""
-        escaped = False
-        value = line.strip()
-        for char in value:
-            if char == "|" and not escaped:
-                parts.append(current.strip())
-                current = ""
-            else:
-                current += char
-            escaped = not escaped if char == "\\" else False
-        parts.append(current.strip())
-        if value.startswith("|"):
-            parts = parts[1:]
-        if value.endswith("|") and parts and not parts[-1]:
-            parts.pop()
-        return parts
-
     for index in range(len(lines) - 2):
-        header, separator, data = (cells(lines[index + offset][1]) for offset in range(3))
+        header, separator, data = (table_cells(lines[index + offset][1]) for offset in range(3))
         if (
             len(header) >= 2
             and all(header)
@@ -316,6 +319,56 @@ def link_targets(lines):
         definition = re.match(r"^\s{0,3}\[[^\]]+\]:\s*(<[^>\n]+>|\S+)", line)
         if definition:
             yield number, definition.group(1)
+        # Embedded HTML (logos, badges, video) links files too; inline code is an example.
+        markup = re.sub(r"`[^`]*`", "", line)
+        for tag in re.finditer(r"<[A-Za-z][^>]*>", markup):
+            for attribute in re.finditer(
+                r"\b(src|href|poster|srcset)\s*=\s*(?:\"([^\"]*)\"|'([^']*)')", tag.group(0)
+            ):
+                value = attribute.group(2) if attribute.group(2) is not None else attribute.group(3)
+                candidates = value.split(",") if attribute.group(1) == "srcset" else [value]
+                for candidate in candidates:
+                    target = candidate.strip().split(" ")[0] if candidate.strip() else ""
+                    if target:
+                        yield number, target
+
+
+def check_document_card(relative, lines, statuses):
+    """Require the Field/Value card between the H1 and the first section."""
+    title = next((number for number, line in lines if re.match(r"^\s{0,3}#\s+\S", line)), None)
+    first_section = next(
+        (number for number, line in lines if re.match(r"^\s{0,3}##\s+\S", line)), None
+    )
+    rows = []
+    for number, line in lines:
+        if first_section is not None and number >= first_section:
+            break
+        if title is None or number <= title:
+            continue
+        if line.strip().startswith("|"):
+            rows.append(table_cells(line))
+        elif rows:
+            break
+    missing = issue(
+        relative,
+        "document_card",
+        "document requires a Field/Value card with Status, Purpose, Audience, Scope, Owns and"
+        " Related between its title and first section",
+    )
+    if len(rows) != len(CARD_FIELDS) + 2 or rows[0] != ["Field", "Value"]:
+        return [missing]
+    if len(rows[1]) != 2 or not all(re.fullmatch(r":?-{3,}:?", cell) for cell in rows[1]):
+        return [missing]
+    data = rows[2:]
+    if any(len(row) != 2 for row in data) or tuple(row[0] for row in data) != CARD_FIELDS:
+        return [missing]
+    if any(not row[1] for row in data):
+        return [issue(relative, "document_card", "document card values must not be empty")]
+    if data[0][1] not in statuses:
+        return [
+            issue(relative, "status_metadata", "document card requires one supported Status value")
+        ]
+    return []
 
 
 def local_link_problem(root, source, destination):
@@ -359,30 +412,17 @@ def check_file(root, relative, policy):
         problems.append(
             issue(relative, "unbalanced_fence", "fenced code block is not closed", unmatched)
         )
-    statuses = [
-        (number, line[len("Status:") :].strip())
-        for number, line in lines
-        if line.startswith("Status:")
-    ]
-    if len(statuses) != 1 or statuses[0][1] not in policy["statuses"]:
-        problems.append(
-            issue(relative, "status_metadata", "document requires one supported Status value")
-        )
-    dates = [
-        (number, line[len("Last reviewed:") :].strip())
-        for number, line in lines
-        if line.startswith("Last reviewed:")
-    ]
-    valid_date = len(dates) == 1
-    if valid_date:
-        try:
-            datetime.strptime(dates[0][1], "%d %B %Y")
-        except ValueError:
-            valid_date = False
-    if not valid_date:
-        problems.append(
-            issue(relative, "review_metadata", "document requires one valid Last reviewed date")
-        )
+    problems.extend(check_document_card(relative, lines, policy["statuses"]))
+    for number, line in lines:
+        if line.lstrip().startswith(LEGACY_METADATA):
+            problems.append(
+                issue(
+                    relative,
+                    "legacy_metadata",
+                    "status belongs in the document card and documents carry no review dates",
+                    number,
+                )
+            )
     heading_items = [
         (number, match.group(1).strip().casefold())
         for number, line in lines

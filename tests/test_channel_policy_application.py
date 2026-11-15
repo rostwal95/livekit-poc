@@ -315,12 +315,14 @@ class Composition(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(m.ApplicationError, "^closed$"):
             await app.start_sources()
 
-    async def test_real_three_source_listeners_bind_once_and_drain_all_tiers(self):
+    async def test_real_three_source_listeners_bind_once_with_dispatch_budget_and_drain(self):
         app = self.app()
         await asyncio.gather(app.start_sources(), app.start_sources())
         self.assertEqual(app.metrics()["sources_ready"], 1)
         self.assertEqual(app.metrics()["owned_resources"], 10)
         self.assertEqual(self.trace.count("new:case"), 1)
+        origins = [owner.value for owner in app._owners if type(owner.value) is m.ChannelOriginHttp]
+        self.assertEqual([origin._call_timeout for origin in origins], [5.0, 5.0])
         await app.start_sources()
         self.assertEqual(self.trace.count("new:case"), 1)
         await app.close()

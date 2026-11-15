@@ -1,18 +1,27 @@
 # Ecosystem documentation audit
 
-Status: Completed
-Last reviewed: 9 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Completed |
+| Purpose | Record the earlier documentation-only audit, its corrections and its verification |
+| Audience | Readers who want to know why the documentation has its current structure |
+| Scope | The earlier documentation-only audit; the current whole-ecosystem review and implementation corrections live in the plan audit |
+| Owns | Findings, corrections and verification of the earlier documentation-only audit |
+| Related | [Plan audit](plan-audit.md) · [Audit work item](work-items/0002-documentation-audit.md) · [Build plan](build-plan.md) · [Documentation standards](documentation-standards.md) |
 
-This records the earlier documentation-only audit. The current whole-ecosystem
-review and implementation corrections are in [plan audit](plan-audit.md).
+This document records the earlier documentation-only audit. It is for readers who
+want to know why the documentation has its current structure. The current
+whole-ecosystem review and implementation corrections are in the
+[plan audit](plan-audit.md).
 
-The audit covers ecosystem onboarding, shared specifications, project charters,
-harness guidance and work-item records. It checks structure, terminology,
-authority, commands, references, implementation status and build sequencing.
+| Audit dimension | Coverage |
+| --- | --- |
+| Documents covered | Ecosystem onboarding, shared specifications, project charters, harness guidance and work-item records |
+| Qualities checked | Structure, terminology, authority, commands, references, implementation status and build sequencing |
 
 ## Findings and corrections
 
-| Finding | Correction |
+| Finding | Resolution |
 | --- | --- |
 | Root onboarding centered on the intake starter | Replaced it with an ecosystem overview and explicit implementation-state table |
 | Repeated document roles used different sections/status/date conventions | Applied the standard README, AGENTS, Design and charter structures |
@@ -25,27 +34,35 @@ authority, commands, references, implementation status and build sequencing.
 | Documentation cleanup had no ongoing guard | Added a documentation policy, checker and negative fixtures to the fast lane |
 
 All 54 project acceptance scenarios retain their identifiers and behavior. The
-audit changes development clarity and sequencing; it does not implement those
+audit changed development clarity and sequencing. It did not implement those
 product features.
 
 ## Authoritative build plan
 
 The [build plan](build-plan.md) defines 22 ordered work packages, dependencies,
 implementation artifacts, acceptance mapping, test lanes, effort ranges and the
-next five sessions. The scope and charters own requirements; this plan owns their
-delivery order. The first inquiry-worker slice does not require a completed
-LiveKit installation or booking-mutation permission.
+next five sessions. The scope and charters own requirements, and the build plan
+owns their delivery order. The first inquiry-worker slice does not require a
+completed LiveKit installation or booking-mutation permission.
 
 ## Verification
 
-The documentation checker passed 30 documents with zero violations. Full fast
-validation passed 50 tests. Traceability checks matched all 54 requirements to
-22 defined work packages. Harness metadata remained valid; the deep gate retained
-its expected incomplete outcome for planned product scenarios. Independent review
-confirmed common section order and consistent ownership, sequencing and gates.
-Detailed outcomes are recorded in [the audit work item](work-items/0002-documentation-audit.md).
+| Check | Result |
+| --- | --- |
+| Documentation checker | Passed 30 documents with zero violations |
+| Full fast validation | Passed 50 tests |
+| Traceability | Matched all 54 requirements to 22 defined work packages |
+| Harness metadata | Remained valid; the deep gate retained its expected incomplete outcome for planned product scenarios |
+| Independent review | Confirmed common section order and consistent ownership, sequencing and gates |
 
-The corpus excludes separate career/interview materials and generated artifacts.
-External technical links are preserved as public references; local targets and
-source forms are checked. Structural review cannot prove that an external site
-will remain available or that a model-driven feature works.
+Detailed outcomes are recorded in
+[the audit work item](work-items/0002-documentation-audit.md).
+
+### Corpus and limits
+
+- The corpus excludes separate career/interview materials and generated
+  artifacts.
+- External technical links are preserved as public references. Local targets and
+  source forms are checked.
+- Structural review cannot prove that an external site will remain available or
+  that a model-driven feature works.

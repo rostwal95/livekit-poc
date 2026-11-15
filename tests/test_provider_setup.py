@@ -235,6 +235,62 @@ class ProviderSetupTests(unittest.TestCase):
             self.assertTrue(stack.PROVIDER_KEYS.isdisjoint(call.args[1]))
             self.assertNotIn("up", call.args[0])
 
+    def test_failure_after_serving_begins_runs_provider_stop_and_reports_stage(self):
+        self.write()
+        for failure, incomplete in (
+            (PrivateDependencyError("private-serving-sentinel"), False),
+            (PrivateDependencyError("private-serving-sentinel"), True),
+            (KeyboardInterrupt(), False),
+        ):
+            events = []
+
+            def run(
+                argv, values, *_args, events=events, failure=failure, incomplete=incomplete, **_
+            ):
+                events.append((argv, dict(values)))
+                if argv[-4:] == ["jaeger", "p1-worker", "conversation-agent", "control-api"]:
+                    raise failure
+                if incomplete and argv[-3:] == ["rm", "--force", "conversation-agent"]:
+                    raise PrivateDependencyError("private-cleanup-sentinel")
+                return "ok"
+
+            with self.subTest(failure=type(failure).__name__, incomplete=incomplete):
+                with (
+                    patch.object(stack, "assert_owned_containers"),
+                    patch.object(stack, "run", side_effect=run),
+                ):
+                    code, report = self.cli("start-provider")
+                self.assertEqual(2, code)
+                self.assertEqual(
+                    {
+                        "status": "failed",
+                        "code": "provider_start_failed",
+                        "stage": "serving",
+                        "cleanup_incomplete": incomplete,
+                    },
+                    report,
+                )
+                serving, stop, revert, remove = events[2:]
+                self.assertEqual(self.keys, {key: serving[1][key] for key in stack.PROVIDER_KEYS})
+                self.assertEqual(
+                    ["stop", "-t", "35", "conversation-agent", "p1-worker"], stop[0][-5:]
+                )
+                self.assertEqual("control-api", revert[0][-1])
+                self.assertEqual("0", revert[1]["P1_BUSINESS_ENABLED"])
+                self.assertEqual("scripted", revert[1]["P1_CONVERSATION_INFERENCE"])
+                self.assertEqual(["rm", "--force", "conversation-agent"], remove[0][-3:])
+                for argv, values in (stop, revert, remove):
+                    self.assertTrue(stack.PROVIDER_KEYS.isdisjoint(values))
+                    self.assertNotIn(str(self.setup / "docker-compose.providers.yaml"), argv)
+        with (
+            patch.object(stack, "assert_owned_containers"),
+            patch.object(
+                stack, "run", side_effect=["built", "ready", stack.SetupError("serving failed")]
+            ) as run,
+        ):
+            self.assertEqual(2, self.cli("start-business")[0])
+        self.assertEqual(3, run.call_count)
+
     def test_stop_does_not_read_or_change_populated_user_keys_and_removes_stopped_native(self):
         self.write()
         before = self.path.read_bytes()

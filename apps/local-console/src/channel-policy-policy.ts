@@ -392,8 +392,9 @@ export class JoinedController {
   ): FrozenNativeInput {
     if (!this.#matchesRoom(room) || this.#phase !== 'ready') throw new JoinedUiError('unavailable');
     const input = freezeNativeInput(inputId, channel, body);
+    const existing = this.#inputs.values().some((row) => row.inputId === input.inputId);
     this.#inputs.add(input);
-    if (body !== null) this.#message('user', body, undefined, false, input.inputId);
+    if (body !== null && !existing) this.#message('user', body, undefined, false, input.inputId);
     return input;
   }
   inputUnknown(room: RoomTicket, inputId: string): void {

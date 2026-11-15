@@ -776,6 +776,48 @@ class OwnedNodeTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(await self.upgrade(), self.receiver)
         self.assertEqual(len(self.processes), 5)
 
+    async def test_real_node_program_persists_dispatch_lease_beyond_joined_step_deadline(self):
+        node = shutil.which("node")
+        self.assertIsNotNone(node)
+        self.node = Path(node).resolve()
+        with tempfile.TemporaryDirectory() as name:
+            capture = Path(name) / "limits.jsonl"
+            names = ["installChannelSchema", *[f"upgradeChannelSchemaV{i}" for i in range(2, 10)]]
+            # Record only the proposed limits; settings carry the owner password.
+            module = "import { appendFileSync } from 'node:fs';\n" + "\n".join(
+                "export async function "
+                + name
+                + "(_settings,limits){appendFileSync("
+                + json.dumps(str(capture))
+                + ",JSON.stringify(["
+                + json.dumps(name)
+                + ",limits??null])+'\\n');"
+                + ("return " + json.dumps(self.receiver) + ";" if name.endswith("V8") else "")
+                + "}"
+                for name in names
+            )
+            program = m._NODE_PROGRAM.replace(
+                "@livekit-ecosystem/channel-continuity/migrations",
+                "data:text/javascript;base64," + base64.b64encode(module.encode()).decode(),
+            )
+
+            def opened(arguments, **options):
+                process = self.original_popen(arguments, **options)
+                self.processes.append(process)
+                return process
+
+            with (
+                patch.object(m, "_NODE_PROGRAM", program),
+                patch.object(m.subprocess, "Popen", side_effect=opened),
+            ):
+                self.assertEqual(await self.upgrade(), self.receiver)
+            observed = dict(json.loads(line) for line in capture.read_text().splitlines())
+        self.assertEqual(list(observed), names)
+        self.assertEqual(
+            observed["upgradeChannelSchemaV2"],
+            {"maxActive": 2, "maxAttempts": 2, "leaseMs": 8000, "retryDelayMs": 100},
+        )
+
     async def test_pending_cancel_direct_node_upgrade_starts_no_child_then_fresh_call_progresses(
         self,
     ):

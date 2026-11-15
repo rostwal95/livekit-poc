@@ -7,6 +7,8 @@ import base64
 import copy
 import hashlib
 import json
+import socket
+import struct
 import subprocess
 import sys
 import unittest
@@ -148,6 +150,7 @@ class HTTPTests(unittest.IsolatedAsyncioTestCase):
         self.requests = []
         self.tasks = set()
         self.release = None
+        self.reset = False
         self.clients = []
         self.connections = 0
         self.server = await asyncio.start_server(self.handle, "127.0.0.1", 0)
@@ -178,6 +181,12 @@ class HTTPTests(unittest.IsolatedAsyncioTestCase):
             self.requests.append((head, fields, body))
             if self.release is not None:
                 await self.release.wait()
+            if self.reset:
+                writer.get_extra_info("socket").setsockopt(
+                    socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0)
+                )
+                writer.transport.abort()
+                return
             out = (
                 f"HTTP/1.1 {self.status} Response\r\nContent-Type: application/json\r\nContent-Length: {len(self.raw)}\r\nConnection: close\r\nCache-Control: no-store\r\n\r\n".encode()
                 + self.raw
@@ -300,7 +309,7 @@ class HTTPTests(unittest.IsolatedAsyncioTestCase):
         object.__setattr__(self.binding.scope, "tenant_id", "changed_tenant")
         self.assertEqual(await self.client.read(), self.value)
 
-    async def test_shared_owner_retains_two_timed_out_callback_sockets(self):
+    async def test_shared_owner_retains_timed_out_sockets_and_releases_peer_reset_closures(self):
         self.release = asyncio.Event()
         client = self.opened(timeout_s=0.01, cleanup_timeout_s=0.01)
         for _ in range(2):
@@ -317,6 +326,16 @@ class HTTPTests(unittest.IsolatedAsyncioTestCase):
                 await asyncio.sleep(0)
         await client.close()
         self.assertEqual(len(self.requests), 2)
+        self.release, self.reset = None, True
+        client = self.opened()
+        for _ in range(2):
+            with self.assertRaisesRegex(m.WorkerCurrentResultError, "^unavailable$"):
+                await client.read()
+        self.assertEqual(client.pending_count, 0)
+        self.reset = False
+        self.assertEqual(await client.read(), self.value)
+        await client.close()
+        self.assertEqual((client.pending_count, len(self.requests)), (0, 5))
 
     async def test_raw_control_transport_keeps_status_bytes_and_closed_purpose_paths(self):
         self.status = 503
@@ -356,7 +375,7 @@ class HTTPTests(unittest.IsolatedAsyncioTestCase):
             peer = writer.get_extra_info("peername")
             if peer is not None and peer[1] == self.port:
                 events.append("close_failed")
-                raise OSError(PRIVATE)
+                raise RuntimeError(PRIVATE)
 
         def decode(status, raw):
             value = json.loads(raw)
@@ -396,7 +415,7 @@ class HTTPTests(unittest.IsolatedAsyncioTestCase):
             peer = writer.get_extra_info("peername")
             if peer is not None and peer[1] == self.port:
                 events.append("close_failed")
-                raise OSError(PRIVATE)
+                raise RuntimeError(PRIVATE)
 
         def decode(status, raw):
             events.append("invalid_ack")

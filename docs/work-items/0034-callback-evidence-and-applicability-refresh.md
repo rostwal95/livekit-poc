@@ -1,24 +1,56 @@
 # Correlated callback evidence and refreshed result applicability
 
-Status: Completed
-Last reviewed: 11 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Completed |
+| Purpose | Record the plan, observed verification and handoff for P2-I13 callback evidence and P3-I11 refreshed applicability |
+| Audience | Engineers changing P2 callbacks and evidence reduction or P3 applicability refresh; coding agents |
+| Scope | Selected P2-I13 and P3-I11 local phase gates; excludes ambiguous-send retries, broader protected-action recovery and integrated release |
+| Owns | Change plan, observed verification and handoff for P2-I13 and P3-I11 |
+| Related | [Work item 0033](0033-outbound-replies-and-completion-processing.md) · [Work item 0035](0035-send-policy-and-action-races.md) · [P2 task plan](../implementation/p2-channel-continuity.md) · [P3 task plan](../implementation/p3-delegation-reliability.md) · [Validation plan](../validation-plan.md) |
 
 ## Behavior and scope
 
-Implement the selected P2-I13 and P3-I11 behavior after the
+This work item implements the selected P2-I13 and P3-I11 behavior after the
 [completed outbound-reply/processing phase](0033-outbound-replies-and-completion-processing.md).
 The [P2 task plan](../implementation/p2-channel-continuity.md) and
 [P3 task plan](../implementation/p3-delegation-reliability.md) remain subordinate
-to their charters. This work contributes to P2-10/P2-12 and P3-05; it does not
+to their charters. This work contributes to P2-10/P2-12 and P3-05. It does not
 register a complete charter row or qualify the full P2/P3 release.
 
-P2 adds authenticated evidence about an existing immutable send attempt. P3
-adds explicit refreshed applicability and display tombstones over existing result
-references. P1 remains the case/execution/result/delivery/action authority. Its
-77 runtime payloads, schema and public interfaces remain unchanged. Keep the
-frozen dependency locks and image baseline. New providers, real carriers, paid
-inference, default UI/native/Compose composition, automatic booking-completion
-handoff, ambiguous-send retries and broader protected-action recovery are separate.
+What each project adds:
+
+| Project | Task | Behavior |
+| --- | --- | --- |
+| P2 | P2-I13 | Adds authenticated evidence about an existing immutable send attempt |
+| P3 | P3-I11 | Adds explicit refreshed applicability and display tombstones over existing result references |
+| P1 | Not applicable | Remains the case/execution/result/delivery/action authority; its 77 runtime payloads, schema and public interfaces remain unchanged |
+
+Keep the frozen dependency locks and image baseline. The following are separate
+work: new providers, real carriers, paid inference, default UI/native/Compose
+composition, automatic booking-completion handoff, ambiguous-send retries and
+broader protected-action recovery.
+
+### Terms used in this record
+
+| Term | Meaning |
+| --- | --- |
+| Implementation task IDs | Such as P2-I13; identify tasks in the project task plans |
+| Acceptance IDs | Such as P2-10; identify rows in the project charters |
+| Selected local phase gates | The gates chosen for this work item; passing them does not complete a full charter row |
+| Gate names | Such as G-READY and G-DURABLE; refer to the engineering gates in the [validation plan](../validation-plan.md) |
+| Acknowledgement (ACK) | A receiver's confirmation that it accepted a message, command or event; a lost ACK leaves the outcome unknown |
+| Compare-and-set (CAS) | A write that succeeds only when the stored revision still matches the expected revision |
+| Data definition language (DDL) | Schema-changing SQL; explicit owner upgrades run it, serving code does not |
+| Hash-based message authentication code (HMAC) | The keyed signature that authenticates callback bytes |
+| Time to live (TTL) | An automatic expiry period; this phase adds none |
+| SDK (software development kit) | Here means the P2 library, as opposed to the application that hosts it |
+| PostgreSQL (PG) | The actual database used by the durable gates |
+| M1 | The original confirmed-investigation intake data, which every phase preserves |
+| Process ID (PID) | Identifies an operating-system process; an owned PID kill terminates a process that the gate itself started |
+| Run labels | Such as first01, diagnostic03 or Normal10; name individual retained gate reports in attempt order |
+
+### Criteria
 
 | Criterion | Given | When | Then: safety | Then: useful progress | Test/mode and evidence |
 | --- | --- | --- | --- | --- | --- |
@@ -36,126 +68,194 @@ handoff, ambiguous-send retries and broader protected-action recovery are separa
 
 ### P2 provider evidence
 
+#### Callback capability
+
 Keep the existing channel-event and fake-SMS intake v1 wires unchanged. Add a
 separate server-only callback capability with a callback-specific raw-byte HMAC
-domain/key and finite authentication window. Trusted configuration supplies
-ProviderScope. The strict bounded callback body supplies only event/attempt/
-provider-operation/request-digest/message identity, state and diagnostic occurrence
-time. Account, recipient, case, conversation, address and route come exclusively
-from the persisted original attempt. Signature/retry-envelope time is excluded
-from semantic identity; a retry still authenticates before lookup.
+domain/key and a finite authentication window.
+
+- Trusted configuration supplies ProviderScope.
+- The strict bounded callback body supplies only
+  event/attempt/provider-operation/request-digest/message identity, state and
+  diagnostic occurrence time.
+- Account, recipient, case, conversation, address and route come exclusively from
+  the persisted original attempt.
+- Signature/retry-envelope time is excluded from semantic identity. A retry still
+  authenticates before lookup.
+
+#### Owner v4 upgrade and replay
 
 Use an explicit owner inbox v3-to-v4 upgrade under maintenance/quiescence. Old
-APIs and original accepted/send/dispatch bytes remain compatible; older upgrade
+APIs and original accepted/send/dispatch bytes remain compatible. Older upgrade
 functions validate the current profile without downgrading. Runtime performs no
-DDL or catalog repair. Callback records and receipts are immutable, scoped by
-provider integration and event identity. Equal replay returns the first receipt;
-changed semantics conflict. Store bounds apply before accepting new identities;
-reads and equal replay remain available at capacity.
+DDL or catalog repair.
+
+Callback records and receipts are immutable, scoped by provider integration and
+event identity. Equal replay returns the first receipt; changed semantics
+conflict. Store bounds apply before accepting new identities. Reads and equal
+replay remain available at capacity.
+
+#### Evidence independence and send veto
 
 Callback evidence is independent of send_results. A callback before the send
 response may establish a correlated provider observation without filling in or
 rewriting that response. Preserve contradictory provider-message IDs and terminal
 reports explicitly. The deterministic fake-provider reducer uses evidence rules,
 not occurrence/receipt timestamp order. A reported delivery failure is distinct
-from definitive provider nonacceptance. No callback authorizes a resend or new
-recipient. Any retained callback on a prior attempt of the reply conservatively
-vetoes another send after nominal definitive nonacceptance. Acceptance of that
-evidence and new reservation share the existing admission guard; a veto cannot
-fence an external call admitted earlier. I14 owns ambiguous-send policy.
+from definitive provider nonacceptance.
+
+No callback authorizes a resend or new recipient. Any retained callback on a
+prior attempt of the reply conservatively vetoes another send after nominal
+definitive nonacceptance. Acceptance of that evidence and a new reservation share
+the existing admission guard. A veto cannot fence an external call admitted
+earlier. P2-I14 owns ambiguous-send policy.
+
+#### Public export and wire fields
 
 The public server-only ./callbacks export provides CallbackInbox.accept,
 inspectAttempt, metrics and close, plus createFakeSmsCallbackIntegration and the
 synthetic signFakeSmsCallback producer. The exact wire fields are schemaVersion,
 eventId, attemptId, providerOperationKey, requestDigest, providerMessageId, state
-and occurredAt. Preserve the first authenticated raw bytes separately from the
-canonical semantic identity. Account reads/logs expose no key/signature. Recheck
-the signature window using database clock_timestamp after admission locks before
-lookup/commit; transaction-start time cannot qualify a delayed callback.
+and occurredAt.
 
-Owner v4 adds only callback_settings, callback_admission and callback_observations.
-Default caps are 10000 total observations and eight per attempt, with maxima
-100000 and 32. Attempt reads return at most 32 observations; existing replies
-retain at most five attempts. Runtime may insert evidence and update only its
-count column; it cannot update/delete observations or perform DDL. All growth
-first takes existing inbox admission, then callback admission. Send reservation
-retains its existing outbox guard and reads callback evidence under the already
-exclusive inbox admission; no path takes a count guard before admission.
+Preserve the first authenticated raw bytes separately from the canonical semantic
+identity. Account reads/logs expose no key/signature. Recheck the signature window
+using the database clock_timestamp after admission locks, before lookup/commit.
+Transaction-start time cannot qualify a delayed callback.
 
-The fixed fake_sms_delivery_evidence_v1 reducer is pure and order-independent.
-It preserves separate immutable send result, reported-state flags and message IDs.
+#### Storage tables, caps and guards
+
+Owner v4 adds only callback_settings, callback_admission and
+callback_observations.
+
+| Bound | Default | Maximum |
+| --- | --- | --- |
+| Total observations | 10000 | 100000 |
+| Observations per attempt | eight | 32 |
+
+Attempt reads return at most 32 observations. Existing replies retain at most five
+attempts. Runtime may insert evidence and update only its count column; it cannot
+update/delete observations or perform DDL. All growth first takes existing inbox
+admission, then callback admission. Send reservation retains its existing outbox
+guard and reads callback evidence under the already exclusive inbox admission. No
+path takes a count guard before admission.
+
+#### Evidence reducer
+
+The fixed fake_sms_delivery_evidence_v1 reducer is pure and order-independent. It
+preserves a separate immutable send result, reported-state flags and message IDs.
 The reported strength order is read_reported, delivered, failed,
-accepted_by_provider, unknown, none. Accepted then failed is a possible normal
-lifecycle; delivered/read together with failed is a terminal contradiction.
-Multiple reported message IDs or a mismatch with known send acceptance is an
-identity contradiction. Positive acceptance/delivery/read together with definitive
-nonacceptance is a send-result contradiction. Any conflict produces an explicit
-conflicted assessment; a timestamp never resolves it. These are reported provider
-states, not proof of physical delivery or human acknowledgement.
+accepted_by_provider, unknown, none.
 
-CallbackInbox retains at most four SQL calls over two existing connections;
-waiter defaults to two seconds, maximum five, and close is bounded to two seconds.
-Observers are bounded to eight. The explicit application-owned HTTP fixture has
-4096-byte raw input/header and 2048-byte response limits; it is not an SDK listener
-or default service. The SDK owns raw authentication, SQL and actual call lifetime;
-the application owns HTTP resources. No expiry or physical callback/receipt
-deletion is added. Replay remains supported for the retained profile lifetime;
-capacity does not silently discard identity.
+- Accepted then failed is a possible normal lifecycle.
+- Delivered/read together with failed is a terminal contradiction.
+- Multiple reported message IDs, or a mismatch with known send acceptance, is an
+  identity contradiction.
+- Positive acceptance/delivery/read together with definitive nonacceptance is a
+  send-result contradiction.
+
+Any conflict produces an explicit conflicted assessment; a timestamp never
+resolves it. These are reported provider states, not proof of physical delivery
+or human acknowledgement.
+
+#### Call, observer and HTTP bounds
+
+| Limit | Value | Applies to |
+| --- | --- | --- |
+| SQL calls | At most four over two existing connections | CallbackInbox |
+| Waiter | Defaults to two seconds, maximum five | CallbackInbox |
+| Close | Bounded to two seconds | CallbackInbox |
+| Observers | Bounded to eight | Callback observers |
+| Raw input/header | 4096 bytes | Explicit application-owned HTTP fixture |
+| Response | 2048 bytes | Explicit application-owned HTTP fixture |
+
+The HTTP fixture is not an SDK listener or default service. The SDK owns raw
+authentication, SQL and actual call lifetime; the application owns HTTP
+resources.
+
+No expiry or physical callback/receipt deletion is added. Replay remains supported
+for the retained profile lifetime. Capacity does not silently discard identity.
 
 ### P3 refreshed applicability and retained display
 
-Explicit owner projection v2-to-v3 upgrade preserves all five old tables, original
-projection bytes/checkpoint, fixed processing policy and terminal ACKs. Add only
-refresh control, per-event applicability heads and immutable refresh receipts.
-Heads contain a local revision/latest command and an optional stable permanent
-display tombstone. Old public projector/processor APIs remain compatible on v3.
+#### Owner v3 upgrade
 
-Default total retained refresh commands is 3000, configurable from 1 through
-30000; default per-result commands is four, configurable from one through eight.
+An explicit owner projection v2-to-v3 upgrade preserves all five old tables,
+original projection bytes/checkpoint, the fixed processing policy and terminal
+ACKs. It adds only refresh control, per-event applicability heads and immutable
+refresh receipts. Heads contain a local revision/latest command and an optional
+stable permanent display tombstone. Old public projector/processor APIs remain
+compatible on v3.
+
+#### Retention limits
+
+| Setting | Default | Configurable range |
+| --- | --- | --- |
+| Total retained refresh commands | 3000 | 1 through 30000 |
+| Commands per result | four | one through eight |
+
 One head per projected event is bounded by the existing projection limit. Each
 canonical refresh receipt is at most 4096 bytes. Hiding reclaims no protected
 capacity. The replay horizon is the retained profile lifetime, with no physical
 DELETE/TTL/cleanup scheduler or identity reuse.
 
+#### Refresh commands and observations
+
 An explicit ApplicabilityRefresher refreshes one exact work/attempt using a stable
-command UUID and expected local revision. Replay checks the complete original
-command before new external reads or caps. New observations verify current feed
-source/event and exact historical issuance/result/request/evidence. Observe the
-current work record's cancellation/current attempt and original deadline, then
-the exact current case. Reuse ExactManagedCaseAuthority through public P1 ports.
+command UUID and an expected local revision. Each refresh proceeds in this order:
+
+1. Replay checks the complete original command before new external reads or caps.
+2. New observations verify the current feed source/event and the exact historical
+   issuance/result/request/evidence.
+3. Observe the current work record's cancellation/current attempt and original
+   deadline, then the exact current case. Reuse ExactManagedCaseAuthority through
+   public P1 ports.
+
 The original issuance record is historical and cannot substitute for current
-cancellation. A stored eligible result is not invalid merely because its old
-grant lease later expired. Host deadline observations are local/as-of evidence,
-not a new P1 database-time receipt.
+cancellation. A stored eligible result is not invalid merely because its old grant
+lease later expired. Host deadline observations are local/as-of evidence, not a
+new P1 database-time receipt.
 
 Persist separate execution/case/time observations and candidate/clarification
-reasons with effective current/outdated/invalidated/unavailable/rejected state.
-Expected per-event revision CAS orders local metadata, never provider/wall-clock
-timestamps. Retain verified higher case/attempt observations and irreversible
-invalidation evidence so stale/unavailable reads cannot revive an older result.
-Unavailable alone is recoverable. No atomic source/case read or action/delivery
-permission is claimed. Existing processing ACKs and known receipts remain facts.
+reasons with an effective current/outdated/invalidated/unavailable/rejected
+state. An expected per-event revision CAS orders local metadata, never
+provider/wall-clock timestamps. Retain verified higher case/attempt observations
+and irreversible invalidation evidence so stale/unavailable reads cannot revive an
+older result. Unavailable alone is recoverable. No atomic source/case read or
+action/delivery permission is claimed. Existing processing ACKs and known receipts
+remain facts.
 
-The authenticated client reads the original refresh command or latest result
-view. Explicit hide_display returns a stable tombstone, independently of refresh
-revision; original projection/refresh/ACK inspection still works. Existing
-processing scans do not filter hidden unresolved events. Ambiguous refresh/hide
-commit performs one exact read, never another write. A stale CAS preserves
-checkpoint_conflict unless its exact original receipt is found.
+#### Reads, hiding and ambiguity
 
-The refresher owns its injected feed/execution/metadata clients; the application
-owns the shared case adapter. Active calls are bounded to at most four, configured
-waiter timeout to at most ten seconds and cleanup to at most five seconds. Actual
-I/O remains owned after waiter abandonment. Public examples start no background
-work, DDL or provider calls on import.
+The authenticated client reads the original refresh command or the latest result
+view. Explicit hide_display returns a stable tombstone, independently of the
+refresh revision. Original projection/refresh/ACK inspection still works. Existing
+processing scans do not filter hidden unresolved events. An ambiguous
+refresh/hide commit performs one exact read, never another write. A stale CAS
+preserves checkpoint_conflict unless its exact original receipt is found.
+
+#### Ownership and bounds
+
+The refresher owns its injected feed/execution/metadata clients. The application
+owns the shared case adapter.
+
+| Limit | Value | Applies to |
+| --- | --- | --- |
+| Active calls | At most four | Refresher |
+| Waiter timeout | Configured, at most ten seconds | Refresher |
+| Cleanup | At most five seconds | Refresher |
+
+Actual I/O remains owned after waiter abandonment. Public examples start no
+background work, DDL or provider calls on import.
 
 ### Engineering ownership
 
-P2 owns callback contracts/auth/reducer/store/public intake, additive v4 migration
-and send veto, project tests/actual fixture/gate and project guides. P3 owns five
-applicability modules, additive owner/store compatibility, public exports,
-tests/actual fixture/example and project guides. Shared tooling owns the P3 gate
-wrapper/root negatives, Makefile/foundation/discovery and documentation inventory.
+| Owner | Owns |
+| --- | --- |
+| P2 | Callback contracts/auth/reducer/store/public intake, the additive v4 migration and send veto, project tests/actual fixture/gate and project guides |
+| P3 | Five applicability modules, additive owner/store compatibility, public exports, tests/actual fixture/example and project guides |
+| Shared tooling | The P3 gate wrapper/root negatives, Makefile/foundation/discovery and the documentation inventory |
+
 New Python source, fixtures and examples enter strict typing and test/lint/format
 discovery immediately. No product imports private P1 storage.
 
@@ -163,7 +263,7 @@ discovery immediately. No product imports private P1 storage.
 
 | Gate | Applicable and why | Exact assertions | Prerequisite/resource/time bound | Expected evidence |
 | --- | --- | --- | --- | --- |
-| G-READY | New durable evidence/refresh boundaries | Freeze auth/identity/reducer/CAS/retention contracts, public inventory and ownership before product changes | Current source-bound phase33 baseline | This plan and machine contract record |
+| G-READY | New durable evidence/refresh boundaries | Freeze auth/identity/reducer/CAS/retention contracts, public inventory and ownership before product changes | Current source-bound phase33 (work item 0033) baseline | This plan and machine contract record |
 | G-FAST/OBS | New public data/async/persistence behavior | Normal, primitive/schema/canonical/scope/conflict/cap, timeout/cancel/late close, secret sentinels and telemetry outage with later useful progress | Offline; no provider configuration/private CA reads | Full Python/frontend, lint/types/format and narrow negative reports |
 | G-DURABLE P2 | New owner v4 and provider evidence | Nonempty upgrade/repeat/interruption and populated pg_dump/restore; concurrent replay/conflict; early/delayed/reordered callback; current-route independence; actual veto contention; postcommit process loss/fresh replay | Restricted PostgreSQL, owned loopback HTTP/fake carrier and fixed work/cleanup budgets | Named frozen cases, independent SQL/raw-provider truth and complete cleanup |
 | G-DURABLE P3 | New projection v3 metadata | Nonempty upgrade/rollback/repeat and populated refresh/tombstone restore; A-to-B plus valid B guarded progress; monotonic stale read/CAS; hidden unresolved event; pre/postcommit loss and fresh exact replay | Actual public P1 work/case/feed/delivery/receiver; fixed bounded process inventory | Named cases, original projection/ACK/receipt identity joins and complete cleanup |
@@ -172,47 +272,88 @@ discovery immediately. No product imports private P1 storage.
 | Runtime/docs | Reproducible clean local handoff | Ordinary Docker readiness/text/audio smoke, original M1 identity, standardized guides/current Mermaid syntax, old checkpoint and dependency lock preservation | No reset, providers or default product expansion | Exact measured logs, source hashes, independent review and sealed checkpoint |
 | Full release | Separate from these selected tasks | Preserve remaining charter rows, media, broader action/cancellation recovery and production capacity as pending | Their own normative gates | No new catalog registration or blanket ecosystem pass |
 
-The P2 actual gate freezes 24 named assertions: populated v3-to-v4 preservation;
-repeat/old-upgrade/limits; interrupted owner upgrade; populated v4 pg_dump/restore;
-runtime DDL/catalog/counter drift; domain/key/fresh-clock authentication; provider
-scope/original recipient; wrong attempt/operation/digest; concurrent equal replay;
-reordered JSON/fresh-signature replay; changed-event conflict; distinct events;
-weaker-report permutation; terminal/identity contradictions; callback before send
-response; immutable send result/no consent; delayed revoke/reassignment history;
-cross-account inspection; caps/replay; any-prior-attempt callback veto; reservation
-first; postcommit owned SIGKILL/fresh replay; bounded diagnostics/cleanup; and
-independent SQL/provider reconciliation. The normal delayed send response is
-released after callback; this is not I14's lost-provider-response/resend proof.
+### Frozen P2 assertions
 
-The P3 actual gate freezes 18 cases and 20 closed child modes under P3_REFRESH_.
-It owns five PID kills at upgrade_commit, refresh_before, refresh_after,
-hide_before and hide_after, plus one observed SQL refresh race. The 180-second
-total deadline reserves 15 seconds for cleanup. Bound aggregate capture to 128 KiB,
-each stream/call to 2048 bytes and final report to 32 KiB. Owner/runtime roles and
-credential fields remain separate. Its populated eight-table restore uses
-validated versioned profile rows, explicitly not pg_dump. Preserve original
-projection/ACK/receiver facts, refreshed heads/receipts and display tombstones;
-then prove a fresh public projector append still works on v3.
+The P2 actual gate freezes 24 named assertions:
 
-Freeze exact child field/mode/named-case manifests before measuring. Each failure schedule must also prove valid useful progress.
-Keep owner/runtime child environments finite and separate; no ambient provider,
-proxy, Python-path or database selectors. Precreate owned PID barriers, retain
-bounded diagnostic capture, terminate only owned active children, and fail visible
-incomplete cleanup. Preserve original failures and distinguish corrected fixture
-assumptions from product changes.
+| # | Assertion |
+| --- | --- |
+| 1 | Populated v3-to-v4 preservation |
+| 2 | Repeat/old-upgrade/limits |
+| 3 | Interrupted owner upgrade |
+| 4 | Populated v4 pg_dump/restore |
+| 5 | Runtime DDL/catalog/counter drift |
+| 6 | Domain/key/fresh-clock authentication |
+| 7 | Provider scope/original recipient |
+| 8 | Wrong attempt/operation/digest |
+| 9 | Concurrent equal replay |
+| 10 | Reordered JSON/fresh-signature replay |
+| 11 | Changed-event conflict |
+| 12 | Distinct events |
+| 13 | Weaker-report permutation |
+| 14 | Terminal/identity contradictions |
+| 15 | Callback before send response |
+| 16 | Immutable send result/no consent |
+| 17 | Delayed revoke/reassignment history |
+| 18 | Cross-account inspection |
+| 19 | Caps/replay |
+| 20 | Any-prior-attempt callback veto |
+| 21 | Reservation first |
+| 22 | Postcommit owned SIGKILL/fresh replay |
+| 23 | Bounded diagnostics/cleanup |
+| 24 | Independent SQL/provider reconciliation |
 
-Emit fixed event/outcome/error enums from real operations, bounded counters with
-explicit units and no tenant/recipient/address/work/event/body as metric labels.
-Never copy raw headers, credentials, provider exception text or result payloads
-into diagnostics. Telemetry failure cannot change persisted truth. Translate
-boundary exceptions once; cancellation propagates while actual work retains its
-slot until settlement. Timeouts do not prove that a remote call or DB thread stopped.
+The normal delayed send response is released after the callback. This is not
+P2-I14's lost-provider-response/resend proof.
+
+### Frozen P3 schedule
+
+| Item | Frozen value |
+| --- | --- |
+| Cases and child modes | 18 cases and 20 closed child modes under `P3_REFRESH_` |
+| Owned PID kills | Five, at upgrade_commit, refresh_before, refresh_after, hide_before and hide_after |
+| Observed SQL race | One refresh race |
+| Total deadline | 180 seconds, reserving 15 seconds for cleanup |
+| Aggregate capture | 128 KiB |
+| Each stream/call | 2048 bytes |
+| Final report | 32 KiB |
+
+Owner/runtime roles and credential fields remain separate. The populated
+eight-table restore uses validated versioned profile rows, explicitly not
+pg_dump. Preserve original projection/ACK/receiver facts, refreshed
+heads/receipts and display tombstones. Then prove that a fresh public projector
+append still works on v3.
+
+### Measurement and diagnostics rules
+
+- Freeze exact child field/mode/named-case manifests before measuring. Each
+  failure schedule must also prove valid useful progress.
+- Keep owner/runtime child environments finite and separate, with no ambient
+  provider, proxy, Python-path or database selectors.
+- Precreate owned PID barriers, retain bounded diagnostic capture, terminate only
+  owned active children, and fail visible incomplete cleanup.
+- Preserve original failures and distinguish corrected fixture assumptions from
+  product changes.
+- Emit fixed event/outcome/error enums from real operations and bounded counters
+  with explicit units. Never use tenant/recipient/address/work/event/body as
+  metric labels.
+- Never copy raw headers, credentials, provider exception text or result payloads
+  into diagnostics.
+- Telemetry failure cannot change persisted truth.
+- Translate boundary exceptions once. Cancellation propagates while actual work
+  retains its slot until settlement.
+- Timeouts do not prove that a remote call or DB thread stopped.
 
 ## Results and handoff
 
 P2-I13 and P3-I11 completed their selected local phase gates. P1 remains the
-case/execution/result/delivery/action authority. P2 adds provider evidence; P3 adds
-derived refresh/display metadata. No full charter row was registered.
+case/execution/result/delivery/action authority. P2 adds provider evidence, and P3
+adds derived refresh/display metadata. No full charter row was registered.
+
+The phase evidence checkpoint is
+`.local/validation/p2-callbacks-p3-applicability/4b493af39d3448f1b619cd2cb52e16b7`.
+Its eventual sealed index binds current reports, source/package hashes, original
+failures, independent review and the unchanged closed prior checkpoint.
 
 | Area | Implemented behavior | Observed proof |
 | --- | --- | --- |
@@ -227,89 +368,114 @@ derived refresh/display metadata. No full charter row was registered.
 | Local runtime | Preserve original state and ordinary transport-only setup | Ordinary Docker start/doctor/smoke passed with 8 checks, 10 actual audio frames and original M1 identity preserved without reset. |
 | Documentation | Standardized instructions, ownership, next-step rows and unchanged diagrams | 107 documents pass after final closure; 16 frozen root/project Mermaid bodies retain their syntax qualification only. Syntax parsing does not qualify diagram meaning or runtime behavior |
 
-The global Python/type results come from the same maintained make-check run;
-its explicit type excerpt is not a second execution. Python formatting was checked
-separately. Frontend formatting, types, tests and build passed separately. Correctness-gate durations are not
-production latency/capacity measurements. P2's ordinary delayed provider response
-is released after callback; this is not I14's lost-response/resend qualification.
+### How the results were measured
 
-Commands run from the maintained repository with its frozen Python/Node
-environment: make check, make frontend-check and make format-check; the explicit
-p2_callbacks_check.py and p3_applicability_check.py lanes; the prior P2/P3
-database/process lanes and harness run P3-01/P3-03/P3-11. The normal P3 qualifying
-invocation used --report .local/validation/p3-applicability/i11-qualified-10.json;
-its diagnostic reproductions used a separate --diagnostic selector and fresh
-report paths. These selectors cannot relabel diagnostic output as qualification.
+The global Python/type results come from the same maintained make-check run. Its
+explicit type excerpt is not a second execution. Python formatting was checked
+separately. Frontend formatting, types, tests and build passed separately.
+Correctness-gate durations are not production latency/capacity measurements.
+P2's ordinary delayed provider response is released after the callback; this is
+not P2-I14's lost-response/resend qualification.
 
-P1's 77 runtime payloads and existing qualified archive are reused unchanged.
-No new 327-case P1 PostgreSQL run or provider/native qualification is claimed.
+Commands ran from the maintained repository with its frozen Python/Node
+environment:
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| Shared fast gates | `make check`, `make frontend-check` and `make format-check` | None |
+| New P2/P3 lanes | The explicit `p2_callbacks_check.py` and `p3_applicability_check.py` lanes | None |
+| Regression lanes | The prior P2/P3 database/process lanes | None |
+| Registered lab rows | `harness run P3-01/P3-03/P3-11` | None |
+
+The normal P3 qualifying invocation used
+--report .local/validation/p3-applicability/i11-qualified-10.json. Its diagnostic
+reproductions used a separate --diagnostic selector and fresh report paths. These
+selectors cannot relabel diagnostic output as qualification.
+
+P1's 77 runtime payloads and existing qualified archive are reused unchanged. No
+new 327-case P1 PostgreSQL run or provider/native qualification is claimed.
 Current P2/P3 gates exercise the declared public P1 boundaries and preserve the
 historical source-bound evidence. This phase did not read provider keys or a
 private CA, call paid inference, upgrade dependencies, publish Git changes or
 require remote CI. Ordinary isolated PG/access settings are used privately by
 actual local gates and never copied into evidence.
 
-A provider callback is evidence, not physical delivery, hearing, human ACK or
-booking consent. Its occurrence timestamp cannot select a winning case revision.
-A callback admission veto cannot retract an already admitted paused external
-call, and cannot authorize a new send. I14 retains ambiguous provider response,
-capability-specific reconciliation/resend and idempotency-policy qualification.
-No automatic P1 booking-completion-to-P2 handoff or new default Compose/UI path
-is added; the P1 delegation result feed is not that booking-completion handoff.
+### Boundaries confirmed by this phase
 
-P3 retains raw execution/case/time observations as non-atomic as-of reads.
-Metadata revision orders local commits only. Higher verified revisions, different
-attempt/cancellation witnesses and observed local expiry cannot silently revive
-under stale/unavailable reads. Host expiry is local/as-of, not a P1 DB-time receipt;
-a result eligible at commit does not expire with its old grant lease. Known
-receipts and terminal ACKs remain facts. Display hiding is permanent presentation
-metadata with profile-lifetime replay: it deletes no protected identity, releases
-no retained slot and never filters hidden unresolved processing. Refresh supplies
-no action/delivery permission, source ACK or automatic accept retry.
+P2 callbacks:
+
+- A provider callback is evidence, not physical delivery, hearing, human ACK or
+  booking consent.
+- Its occurrence timestamp cannot select a winning case revision.
+- A callback admission veto cannot retract an already admitted paused external
+  call, and cannot authorize a new send.
+- P2-I14 retains ambiguous provider response, capability-specific
+  reconciliation/resend and idempotency-policy qualification.
+- No automatic P1 booking-completion-to-P2 handoff or new default Compose/UI path
+  is added. The P1 delegation result feed is not that booking-completion handoff.
+
+P3 applicability:
+
+- P3 retains raw execution/case/time observations as non-atomic as-of reads.
+  Metadata revision orders local commits only.
+- Higher verified revisions, different attempt/cancellation witnesses and observed
+  local expiry cannot silently revive under stale/unavailable reads.
+- Host expiry is local/as-of, not a P1 DB-time receipt. A result eligible at commit
+  does not expire with its old grant lease.
+- Known receipts and terminal ACKs remain facts.
+- Display hiding is permanent presentation metadata with profile-lifetime replay.
+  It deletes no protected identity, releases no retained slot and never filters
+  hidden unresolved processing.
+- Refresh supplies no action/delivery permission, source ACK or automatic accept
+  retry.
 
 ### Retained failures and diagnostic scope
 
-P2 first01 rejected a leading-v Node version fixture before seed, with cleanup.
-Second02 used an invalid-length synthetic carrier bearer; the boundary correctly
-rejected it. The fixture also lacked listener startup cleanup and reached its
-owned deadline. Corrected credentials, owned startup cleanup and a 20-second
-stage cap fixed tooling without weakening SDK validation. Corrected03 passed its
-narrower sequential-veto inventory. Final04 adds actual callback+reserve blocking
-and the post-wait freshness proof; earlier reports remain their original scope.
+P2 runs:
 
-P3 first01 retained a generic seed failure and complete cleanup, while its child
-capture was ephemeral under the original wrapper. No original stderr or precise
-first-child reason is invented. Separately retained diagnostic02/03 identify the
-fixture's 180-second work horizon versus P1's unchanged 60-second acceptance
-maximum; diagnostic03 records WorkError(expired). An early lease-expiry hypothesis
-was unconfirmed and is corrected here. A completion was moved before unrelated B
-projection/processing I/O without weakening its eligible-at-commit assertion.
-Subsequent controlled diagnostics corrected repeated writes to an exclusive
-originals file, recomputed the short-deadline logical fingerprint through its
-canonical producer, aligned exact named-case protocol output and preserved the
-canonical authoritative quote serialization with the supplied explicit consent.
-No P1 or runtime safety guard was weakened.
+| Run | Observed result | Cause or correction |
+| --- | --- | --- |
+| first01 | Rejected a leading-v Node version fixture before seed, with cleanup | None |
+| Second02 | Used an invalid-length synthetic carrier bearer, and the boundary correctly rejected it; the fixture also lacked listener startup cleanup and reached its owned deadline | Corrected credentials, owned startup cleanup and a 20-second stage cap fixed the tooling without weakening SDK validation |
+| Corrected03 | Passed its narrower sequential-veto inventory | None |
+| Final04 | Adds actual callback+reserve blocking and the post-wait freshness proof | None |
 
-Diagnostic09 executed all named assertions but deliberately remained failed with
-diagnostic_not_qualification. Normal10 is the separate qualifying 18-case report.
-The diagnostic wrapper retains only bounded sanitized allowlisted child streams;
-it cannot produce a qualification pass, and never copies environment, fixture,
-SQLite, provider or private-CA files. Original reports, corrected reproductions
-and narrow static/test iterations remain retained with honest provenance.
+Earlier reports remain their original scope.
+
+P3 runs:
+
+| Run | Observed result | Cause or correction |
+| --- | --- | --- |
+| first01 | Retained a generic seed failure and complete cleanup, while its child capture was ephemeral under the original wrapper | No original stderr or precise first-child reason is invented |
+| diagnostic02/03 (separately retained) | Identify the fixture's 180-second work horizon versus P1's unchanged 60-second acceptance maximum; diagnostic03 records WorkError(expired) | An early lease-expiry hypothesis was unconfirmed and is corrected here |
+
+- A completion was moved before unrelated B projection/processing I/O without
+  weakening its eligible-at-commit assertion.
+- Subsequent controlled diagnostics:
+  - corrected repeated writes to an exclusive originals file;
+  - recomputed the short-deadline logical fingerprint through its canonical
+    producer;
+  - aligned exact named-case protocol output;
+  - preserved the canonical authoritative quote serialization with the supplied
+    explicit consent.
+- No P1 or runtime safety guard was weakened.
+
+**Diagnostic09** executed all named assertions but deliberately remained failed
+with diagnostic_not_qualification. **Normal10** is the separate qualifying 18-case
+report. The diagnostic wrapper retains only bounded sanitized allowlisted child
+streams. It cannot produce a qualification pass, and it never copies environment,
+fixture, SQLite, provider or private-CA files. Original reports, corrected
+reproductions and narrow static/test iterations remain retained with honest
+provenance.
 
 ### Remaining scope and next phase
 
-- P2-I14 owns explicit ambiguous-send/reconciliation/resend policy; callbacks do
+- P2-I14 owns explicit ambiguous-send/reconciliation/resend policy. Callbacks do
   not establish one physical delivery or permission to repeat an unknown call.
-- P3-I12 owns broader protected action/revision schedules, followed by I13/I14
-  cancellation/deadline/recovery. The selected A/B path does not qualify every
-  later race or repair the source-incarnation/stale-backup boundary.
+- P3-I12 owns broader protected action/revision schedules, followed by
+  P3-I13/P3-I14 cancellation/deadline/recovery. The selected A/B path does not
+  qualify every later race or repair the source-incarnation/stale-backup boundary.
 - The catalog remains 24 registered of 55: all 17 P2 and remaining 14 P3 rows
   stay planned; P3-01/P3-03/P3-11 retain only their complete lab qualification.
 - Full P2/P3 release, native/media composition, production capacity and real
   provider evidence retain their own gates. GitHub/remote CI is not a prerequisite.
-
-The phase evidence checkpoint is
-`.local/validation/p2-callbacks-p3-applicability/4b493af39d3448f1b619cd2cb52e16b7`.
-Its eventual sealed index binds current reports, source/package hashes, original
-failures, independent review and the unchanged closed prior checkpoint.
