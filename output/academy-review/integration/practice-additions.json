@@ -1,0 +1,239 @@
+{
+  "status": "DESIGNED EXERCISES — NOT EXECUTED. These are proposed preparation drills, not passing tests, implemented features or new qualification evidence.",
+  "drills": [
+    {
+      "id": "academy-drill-1",
+      "title": "Interrupted retrieval keeps its original turn",
+      "prompt": "DESIGNED EXERCISE — NOT EXECUTED. A permitted retrieval for turn A stalls. The user interrupts, starts turn B and changes the request. A's lookup later returns valid historical evidence. Design the harness, ownership and assertions before implementing the adapter.",
+      "approach": [
+        "Freeze a synthetic source, trusted account binding, turn A identity and bounded retrieval budget. Use an explicit barrier to hold the source read; record its actual task or offloaded I/O owner.",
+        "Advance to turn B and a distinct generation. Exercise both cooperative cancellation and a lookup that completes after the waiter stops. Release A's barrier without changing its retained source binding.",
+        "Observe incorporation, emitted output, tool calls and resource settlement independently. Run a current turn that should succeed so rejecting stale data cannot conceal a stalled system."
+      ],
+      "assertions": [
+        "Late A output is never silently rebound into B. Any intentional reuse requires B's own permission and freshness decision; historical observations retain their original source and time.",
+        "Neither an interrupted response nor a late retrieval creates confirmation, supplier effects or another accepted user operation.",
+        "Pending/active resources stay bounded, and capacity is released only under the actual operation's settlement contract.",
+        "Authorized current work still completes, with explicit pending/no-source behavior when the chosen retrieval budget expires."
+      ],
+      "trap": "Cancelling the awaiter and immediately freeing capacity can hide live I/O; injecting into the current session can silently retarget old evidence.",
+      "related": [
+        "LK-18",
+        "LK-19",
+        "LK-04",
+        "ROLE-02"
+      ]
+    },
+    {
+      "id": "academy-drill-2",
+      "title": "Lose the RPC reply after acceptance",
+      "prompt": "DESIGNED EXERCISE — NOT EXECUTED. A browser submits a permitted command through a proposed RPC adapter. The authority commits it, then the response is lost. Design reconnection and recovery without silently issuing another business operation.",
+      "approach": [
+        "Choose a receipt-backed idempotent submit, not the revision-only CAS API. Freeze a synthetic scoped request and command identity; hold the RPC reply after committed acceptance.",
+        "Drop the response and retire the old browser lifecycle. Reconnect under a valid current grant, retaining the frozen original request rather than manufacturing a new key.",
+        "Reconcile through the authority's supported original-identity contract. Exercise exact replay, changed-body conflict, wrong-account disclosure and unavailable lookup as separate cases."
+      ],
+      "assertions": [
+        "One original accepted operation and its receipt remain; retries of the same command do not add another logical booking.",
+        "A changed body cannot reuse the identity, and unauthorized recovery cannot read the retained result.",
+        "The UI reports pending/unknown honestly until supported evidence resolves it; a missed topic/card is not proof of business failure.",
+        "No supplier mutation occurs merely because transport timed out, a room changed or an RPC handler was invoked again."
+      ],
+      "trap": "An RPC library request ID is not automatically a retained business command key. A timeout does not prove the handler never committed.",
+      "related": [
+        "LK-14",
+        "LK-15",
+        "RTC-06",
+        "ROLE-08"
+      ]
+    },
+    {
+      "id": "academy-drill-3",
+      "title": "The transfer target never answers",
+      "prompt": "DESIGNED EXERCISE — NOT EXECUTED. A caller requests a human. In a proposed warm-transfer workflow the consultation dial times out, followed by a late answer event. Design the fallback and resource ownership without placing real calls.",
+      "approach": [
+        "Model caller hold, permitted destination, consultation dial, briefing, merge and cleanup as explicit states. Use a scripted transport peer and bounded ringing/control budgets.",
+        "Hold the target answer behind a barrier, let the caller-facing wait expire, then deliver the late event. Repeat with caller hangup before answer.",
+        "Track original caller/target identities and owned tasks or remote legs. Separate a simulated state-machine check from the future real SIP/media/consultation-privacy gate."
+      ],
+      "assertions": [
+        "The caller receives a truthful alternative rather than indefinite hold or a claimed successful human handoff.",
+        "A late event cannot merge an orphaned target, the wrong caller or a retired consultation.",
+        "Private briefing content never appears on the caller's output path before the intended merge.",
+        "Cleanup retains unresolved ownership and observes supported closure; local timeout is not proof that the remote call leg stopped."
+      ],
+      "trap": "Provider answer or successful forwarding can mean voicemail or an IVR. A scripted peer cannot qualify actual SIP behavior, audio privacy or human acceptance.",
+      "related": [
+        "LK-16",
+        "LK-17",
+        "P3-13",
+        "ROLE-02"
+      ]
+    },
+    {
+      "id": "academy-drill-4",
+      "title": "The judge improves while an invariant fails",
+      "prompt": "DESIGNED EXERCISE — NOT EXECUTED. Candidate B sounds more helpful and receives a higher mean judge score than baseline A, but one scenario repeats a business effect. Design the promotion decision and retained evaluation evidence.",
+      "approach": [
+        "Freeze synthetic scenarios, prompt/model/tool versions, authorized commands, expected hard invariants, judge rubric and judge version. Include refusal, ambiguity, unknown ACK and interruption.",
+        "Compare the same scenarios and declared repetitions. Use synthetic supplier/authority records for execution truth; keep language-quality scoring and independent deterministic checks as separate outputs.",
+        "Review a held-out human-labeled sample and judge disagreements. Record candidate differences, failures and missing observations before deciding whether further investigation or redesign is needed."
+      ],
+      "assertions": [
+        "The repeated effect blocks promotion independently of average tone, relevance or judge score.",
+        "A model's claim that a tool succeeded is never the independent supplier or authority oracle.",
+        "Skipped, timed-out and unobserved required checks do not become passes or disappear from the denominator.",
+        "Any baseline/rubric update is intentional and reviewed; the old manifest and reason for change remain inspectable."
+      ],
+      "trap": "A single blended score can reward fluent false confirmations. Do not erase a hard failure by averaging it with many easy conversational successes.",
+      "related": [
+        "ROLE-13",
+        "ROLE-07",
+        "P3-11",
+        "SCALE-07"
+      ]
+    }
+  ],
+  "field_guides": [
+    {
+      "title": "Choose the abstraction by the state it owns",
+      "rows": [
+        [
+          "Abstraction",
+          "Use it for",
+          "Boundary to preserve"
+        ],
+        [
+          "Agent",
+          "Instructions, tools and active behavior",
+          "A session persona is not business consent."
+        ],
+        [
+          "Function tool",
+          "A callable typed operation",
+          "Validate scope, arguments and effects at runtime."
+        ],
+        [
+          "AgentTask",
+          "Focused conversational collection returning a value",
+          "Await the pinned task API; annotations do not validate collected data. [B08]"
+        ],
+        [
+          "SDK conversational TaskGroup (beta in 1.8.11)",
+          "Sequenced/revisitable collection steps",
+          "Revision of a collected answer cannot undo a committed external effect. [B08]"
+        ],
+        [
+          "asyncio.TaskGroup",
+          "Related Python task lifetimes and failure propagation",
+          "Process-local cancellation is not remote business cancellation. [PY]"
+        ],
+        [
+          "Graph/MCP adapter",
+          "An optional composition/tool boundary",
+          "A checkpoint or tool schema does not replace exact confirmation or original receipts. [B04]"
+        ],
+        [
+          "P1 durable work",
+          "Accepted obligations, issued execution and recovery",
+          "Keep one durable execution owner and original identities."
+        ]
+      ]
+    },
+    {
+      "title": "Choose the LiveKit data API by its evidence",
+      "rows": [
+        [
+          "Mechanism",
+          "Useful for",
+          "What it does not establish"
+        ],
+        [
+          "Room token/grants",
+          "Connecting an authorized participant",
+          "Application/business authorization still needs trusted server bindings. [B09]"
+        ],
+        [
+          "RPC",
+          "Bounded request/response or UI control",
+          "Handler timeout is not proof of noncommit; preserve the business identity. [B05]"
+        ],
+        [
+          "Participant attributes",
+          "Low-frequency state for room participants and late joiners",
+          "A mutable self-asserted value is not a permission or durable receipt. [B06]"
+        ],
+        [
+          "Text streams",
+          "Incremental text and transcript transport",
+          "Visible text is not a retained case or confirmed business effect. [L8]"
+        ],
+        [
+          "Byte streams",
+          "Files and bounded binary transfer",
+          "Read completion/failure and declared/actual bytes need checking; not an unlimited inbox. [B07]"
+        ],
+        [
+          "Low-level packets",
+          "Small realtime events",
+          "Reliable retransmission does not guarantee durable acceptance or actuator execution. [W6]"
+        ],
+        [
+          "Domain API/receipt",
+          "Authorized business acceptance and reconciliation",
+          "A transport ACK cannot substitute for its explicit retained contract."
+        ]
+      ]
+    },
+    {
+      "title": "Freeze the voice experiment before comparing stacks",
+      "rows": [
+        [
+          "Dimension",
+          "Hold or vary deliberately",
+          "Retain"
+        ],
+        [
+          "Inputs",
+          "Languages, accents, noise, pauses and interruptions",
+          "Frozen audio/scenario manifest and labels."
+        ],
+        [
+          "Model path",
+          "Pipeline, supported realtime or a named hybrid",
+          "Plugin/model versions, turn authority and fallback policy."
+        ],
+        [
+          "Experiment unit",
+          "A stable session/cohort or explicit alternative",
+          "Prompt/tool/deployment versions and baseline identity."
+        ],
+        [
+          "Timing",
+          "Speech end to first rendered audio, plus breakdowns",
+          "Clock limits, distribution, failures and sample count. [L12]"
+        ],
+        [
+          "Quality",
+          "Entity errors, turn quality and useful task completion",
+          "Hard invariants separately from calibrated judge scores. [B02]"
+        ],
+        [
+          "Cost",
+          "Actual dated billing quantities and unsuccessful work",
+          "Usage units, retries, hosting/transport and useful resolutions."
+        ],
+        [
+          "Resources",
+          "Realistic concurrency and constrained dependencies",
+          "Queue age, saturation, rejection and owned cleanup."
+        ],
+        [
+          "Claim",
+          "One measured workload and selected mode",
+          "No universal latency, production capacity or price winner."
+        ]
+      ]
+    }
+  ]
+}

@@ -69,7 +69,7 @@ planned and unregistered until every required assertion passes.
 | Installed standalone release and public-P1 assertions (P2-I21) | Qualified | [0041](../work-items/0041-standalone-channel-and-durable-policy.md) |
 | Receiver and current-channel data-read seam (P2 v8) | Qualified | [0043](../work-items/0043-stable-result-delivery-and-return-context.md) |
 | Original P2-input binding prerequisite for P2-I22 | Qualified | [0044](../work-items/0044-origin-bound-channel-policy.md) |
-| Release and joined native voice/text/SMS handoff (P2-I22) | Partial: release, joined handoff, restart/discovery, provider runs and video retain later gates | [P2 task plan](../implementation/p2-channel-continuity.md) |
+| Release and joined native voice/text/SMS handoff (P2-I22) | Partial: joined qualification and restart/release gates remain open | [P2 task plan](../implementation/p2-channel-continuity.md) · [Joined application](../work-items/0045-joined-native-channel-policy.md) |
 | All seventeen complete acceptance rows | Planned | Acceptance matrix below |
 
 ### Contracts, intake and dispatch (P2-I01 to P2-I09)
@@ -156,9 +156,9 @@ acceptance.
 
 ### Remaining work and limits
 
-- P2-I22 release, joined native voice/text/SMS handoff, broader
-  restart/discovery, applicable provider runs and the final video retain their
-  later gates.
+- P2-I22's joined qualification, restart/discovery and release gates remain open.
+  The later [provider journeys and recorded demo](../work-items/0046-joined-showcase-providers-and-demo.md)
+  have their own evidence; they do not complete those gates.
 - All seventeen complete P2 acceptance rows remain planned and unregistered. The
   catalog remains fifty-five definitions and twenty-four registered runners.
 

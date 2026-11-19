@@ -89,6 +89,27 @@ receives the provider keys.
   worker reap remain required before another room.
 - End preserves the independently running background executor and the separately
   authorized dormant SMS/read surface.
+- End first fences native ingress and drains original accepted inputs to known
+  dispatch receipts, then retires the grant and worker. It does not wait for the
+  policy result or cancel business work. An unresolved drain remains visibly
+  incomplete and blocks the next room.
+- The original End owner automatically reobserves `cleanup_incomplete` failures
+  within its configured cleanup budget (30 seconds by default). It retains actual
+  work across an observer timeout or cancellation. Once that retry window expires,
+  the room can remain Closing; an explicit retry preserves the original End
+  identity. Other failure codes receive no automatic retry.
+
+On application stop, Parent preparation keeps origin services available while
+room cleanup finishes. The launcher then quiesces gateway dispatch before closing
+the background application and Node dependencies. Retained cleanup is observed
+again automatically after a failed observation. See the
+[lifecycle record](../../docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md)
+for verification scope and remaining qualification.
+
+Library callers composing an external gateway must follow that same
+`prepare_shutdown()` → gateway dispatch quiescence → Parent `close()` order.
+Parent `close()` alone cannot prove that an independently owned gateway stopped
+dispatching. The joined launcher owns this coordination.
 
 ### Operator routes
 

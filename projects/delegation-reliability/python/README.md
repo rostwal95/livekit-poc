@@ -39,6 +39,23 @@ Terms used in this guide:
 | As-of applicability | A read-only, explicitly non-atomic observation of whether a result still fits current work and case state. It never grants permission. |
 | `cleanup_incomplete` | The close outcome while owned work has not yet settled. Retry close after actual settlement. |
 
+### Version namespaces
+
+Version numbers below belong to separate contracts. An upgrade in one namespace
+does not upgrade the others.
+
+| Namespace | Versions or selector | Meaning |
+| --- | --- | --- |
+| P1 work profile | v1 to v4 | Acceptance; issued execution/results; delivery/action; result feed, respectively |
+| P3 input and result | v1, v2, v3 | Original policy context; separate policy/fact sources; channel-origin wrapper around v2 |
+| P3 derived metadata | v1 to v3 | Projection; processing/terminal ACKs; applicability refresh/display retention, respectively |
+| HTTP envelope and routes | `schema_version=1`, `/v1/*` | Transport compatibility; independent of the input/result version |
+| P1 booking schema | See the [P1 guide](../../agent-continuity/README.md) | Case, effect and lease storage; independent of the opt-in work profile |
+
+The origin-bound runner unwraps its v3 input for the existing v2 specialist. A
+metadata-v3 profile does not make projection or guarded action support policy-v3
+payloads; the explicit facade determines the supported payload contract.
+
 Contents:
 
 - [Implementation status](#implementation-status), including the native baseline
@@ -1135,7 +1152,10 @@ facades with one supplied `AgentSession`.
    means stopped waiting, never business cancellation.
 3. Admission remains reserved until that task and the public facade pending counts
    actually settle. A timed-out wrapper alone cannot free the slot.
-4. Repeated calls inspect the original work rather than issue another command.
+4. Once acceptance may have succeeded, repeated calls inspect the original work
+   rather than issue another command. A definite initial submit-capacity rejection
+   permits a later explicit call with the same frozen request and command; it
+   schedules no automatic retry.
 
 Close preserves actual owners and may report `cleanup_incomplete` until a later
 explicit retry observes settlement.

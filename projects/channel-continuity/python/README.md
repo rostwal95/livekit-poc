@@ -11,9 +11,10 @@
 
 ## Overview
 
-The `channel-continuity` distribution (import `channel_continuity`) is a pure
-Python decoder for the versioned P2 channel boundary. The TypeScript SDK owns event
-production. This codec is separate from LiveKit SDK APIs.
+The `channel-continuity` distribution (import `channel_continuity`) provides pure
+Python decoding, canonicalization and text-event production for the versioned P2
+channel boundary. The TypeScript runtime owns durable intake and dispatch. This
+codec is separate from LiveKit SDK APIs.
 
 The optional native adapters compose the separately owned durable TypeScript
 runtime described in the [project guide](../README.md).
@@ -117,8 +118,19 @@ transcript budgets for real providers. The defaults match the scripted profile.
 - Applications separately close the runtime, intake, real-time communication (RTC)
   room, injected providers and HTTP listeners.
 - Timeout retains actual work, and incomplete cleanup fails.
+- Concurrent `aclose()` callers observe one owned close attempt. A later public
+  call may retry after that attempt definitively fails or is cancelled; pending
+  and successful attempts remain shared. SDK close events fence admission before
+  resource settlement and do not themselves establish complete cleanup.
 - SDK completion never proves physical browser playback, user consent or supplier
   effects.
+
+Trusted Node application owners separately use the
+[gateway lifecycle controls](../README.md#gateway-lifecycle-controls) to fence and
+drain original accepted input before grant revocation and worker stop. Python
+runtime closure alone cannot drain the durable P2 inbox. Expired/revoked grants,
+blocked/exhausted work, unknown outcomes or the bounded history limit can keep
+Room End in Closing; no runtime retry resets durable attempts or permissions.
 
 The [native phase handoff](../../../docs/work-items/0036-native-input-and-deadline-cancellation.md)
 records selected scripted-native qualification. The separate
@@ -148,7 +160,9 @@ public SDK large language model (LLM) and text-to-speech (TTS) stream capture an
 response-scoped playback and interrupt remote procedure calls (RPCs). The
 application owns the room, providers, client and server separately.
 
-- The existing native wire and eighteen native metrics remain compatible.
+- The existing native wire and original eighteen-field `native18` metrics subset
+  remain compatible; current runtime metrics also include lifecycle and
+  scheduled-reply observations.
   Communication has a separate eleven-field finite metrics map.
 - A cancellation-ignoring node retains capacity after SDK forced-handle completion,
   until its actual finally/close.
@@ -186,7 +200,8 @@ public `ChatContext` before SDK readiness.
 - `refresh_context()` is explicit and idle. Load and refresh accept and generate
   nothing.
 - `loaded_context` returns detached data.
-- `rehydration_metrics()` is separate from the eighteen native metrics.
+- `rehydration_metrics()` is separate from `metrics()` and its preserved
+  eighteen-field `native18` compatibility subset.
 - New input keeps the ordinary persisted dispatch owner.
 - Current and supplier facts are visibly as-of. Prepare revision equality is only a
   request-revision guard.

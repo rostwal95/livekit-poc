@@ -1,0 +1,26 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "#include <LiveKitClient.h>\n#include <pv_porcupine.h>\n#include <driver/i2s.h>\n\npv_porcupine_t* porcupine = NULL;\nLiveKitClient lk;\nbool isStreaming = false;\n\nvoid setupWakeWord() {\n  float sensitivities[] = {0.5f};\n  pv_status_t status = pv_porcupine_init(\n      \"your-picovoice-key\",\n      1,                    // Number of keywords\n      keyword_model_data,   // Embedded keyword model\n      sensitivities,        // 0.0-1.0: lower = fewer false triggers\n      &porcupine\n  );\n  if (status != PV_STATUS_SUCCESS) {\n      Serial.println(\"Porcupine init failed\");\n  }\n}\n\nvoid loop() {\n  if (!isStreaming) {\n      // Low-power mode: only wake word detection\n      int16_t pcm[512];\n      readI2SAudio(pcm, 512);\n\n      int32_t keyword_index = -1;\n      pv_porcupine_process(porcupine, pcm, &keyword_index);\n\n      if (keyword_index >= 0) {\n          Serial.println(\"Wake word detected!\");\n          startStreaming();\n      }\n  } else {\n      // Active mode: stream to LiveKit\n      lk.update();\n\n      // Return to listening after 3s silence\n      if (lk.silenceDurationMs() > 3000) {\n          stopStreaming();\n      }\n  }\n}\n\nvoid startStreaming() {\n  WiFi.begin(ssid, password);\n  while (WiFi.status() != WL_CONNECTED) delay(100);\n\n  lk.begin(lk_url, getToken());\n  lk.setAudioInput(I2S_NUM_0);\n  lk.setAudioOutput(I2S_NUM_1);\n  isStreaming = true;\n}\n\nvoid stopStreaming() {\n  lk.disconnect();\n  WiFi.disconnect();\n  isStreaming = false;\n  Serial.println(\"Returning to wake word listening\");\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "// Always-connected: stay in room, mute when idle\nvoid startStreaming() {\n  lk.unmuteAudioInput();\n  isStreaming = true;\n}\n\nvoid stopStreaming() {\n  lk.muteAudioInput();  // Stay connected, stop sending audio\n  isStreaming = false;\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "#include <esp_pm.h>\n\nvoid enterLowPowerListening() {\n  // Reduce clock to 80 MHz for wake word mode\n  setCpuFrequencyMhz(80);\n  WiFi.disconnect();\n  WiFi.mode(WIFI_OFF);\n}\n\nvoid enterActiveMode() {\n  // Full speed for streaming\n  setCpuFrequencyMhz(240);\n  WiFi.mode(WIFI_STA);\n}\n\nvoid enterDeepSleep(uint32_t timeout_sec) {\n  // GPIO 0 button press will wake the device\n  esp_sleep_enable_ext0_wakeup(GPIO_NUM_0, 0);\n  esp_sleep_enable_timer_wakeup(timeout_sec * 1000000ULL);\n  esp_deep_sleep_start();\n}"
+  }
+]

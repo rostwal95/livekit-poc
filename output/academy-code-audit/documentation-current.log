@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "status": "failed",
+  "documentsChecked": 136,
+  "violations": [
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/conversation_agent/Design.md",
+      "line": null,
+      "code": "document_card",
+      "message": "document requires a Field/Value card with Status, Purpose, Audience, Scope, Owns and Related between its title and first section"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/conversation_agent/Design.md",
+      "line": 3,
+      "code": "legacy_metadata",
+      "message": "status belongs in the document card and documents carry no review dates"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/conversation_agent/Design.md",
+      "line": 4,
+      "code": "legacy_metadata",
+      "message": "status belongs in the document card and documents carry no review dates"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/conversation_agent/Design.md",
+      "line": 484,
+      "code": "required_table",
+      "message": "populated table required: Security and privacy"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/conversation_agent/Design.md",
+      "line": 513,
+      "code": "required_table",
+      "message": "populated table required: Observability"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/Design.md",
+      "line": null,
+      "code": "document_card",
+      "message": "document requires a Field/Value card with Status, Purpose, Audience, Scope, Owns and Related between its title and first section"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/Design.md",
+      "line": 3,
+      "code": "legacy_metadata",
+      "message": "status belongs in the document card and documents carry no review dates"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/Design.md",
+      "line": 4,
+      "code": "legacy_metadata",
+      "message": "status belongs in the document card and documents carry no review dates"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/Design.md",
+      "line": 215,
+      "code": "required_table",
+      "message": "populated table required: Security and privacy"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/Design.md",
+      "line": 317,
+      "code": "required_table",
+      "message": "populated table required: Validation and acceptance gates"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/README.md",
+      "line": null,
+      "code": "document_card",
+      "message": "document requires a Field/Value card with Status, Purpose, Audience, Scope, Owns and Related between its title and first section"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/README.md",
+      "line": 3,
+      "code": "legacy_metadata",
+      "message": "status belongs in the document card and documents carry no review dates"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/README.md",
+      "line": 4,
+      "code": "legacy_metadata",
+      "message": "status belongs in the document card and documents carry no review dates"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/README.md",
+      "line": 34,
+      "code": "required_table",
+      "message": "populated table required: Documentation"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/README.md",
+      "line": 40,
+      "code": "required_table",
+      "message": "populated table required: Requirements"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/README.md",
+      "line": 47,
+      "code": "required_table",
+      "message": "populated table required: Commands"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/README.md",
+      "line": 59,
+      "code": "required_table",
+      "message": "populated table required: Validation"
+    },
+    {
+      "module": "shared",
+      "group": "docs",
+      "path": "services/rtc_agent/README.md",
+      "line": 70,
+      "code": "required_table",
+      "message": "populated table required: Next milestone"
+    }
+  ]
+}

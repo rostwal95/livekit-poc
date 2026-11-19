@@ -36,7 +36,7 @@ make p2-postgres-check
 | --- | --- | --- | --- |
 | Fast lane | `make check` | Structural and documentation checks, all implemented offline Python suites, maintained lint and service/core type checks | Passed in [0048](work-items/0048-code-audit-fixes-and-documentation-cleanup.md) |
 | Frontend lane | `make frontend-check` | TypeScript, Vitest, formatting and production builds | Passed in [0048](work-items/0048-code-audit-fixes-and-documentation-cleanup.md) |
-| P1 real database | `make postgres-check` | The P1 real-database gate | Passed in [0048](work-items/0048-code-audit-fixes-and-documentation-cleanup.md) |
+| P1 real database | `make postgres-check` | The P1 real-database gate | Full run retained five errors; the targeted 27-test rerun passed in [0048](work-items/0048-code-audit-fixes-and-documentation-cleanup.md) |
 | P2 real database | `make p2-postgres-check` | The separate P2 real-database lane | Passed in [0047](work-items/0047-open-findings-schema-upgrades-and-landing.md) |
 
 Missing setup, skipped or timed-out assertions cannot pass.

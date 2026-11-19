@@ -1,0 +1,34 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from dataclasses import dataclass, field\nfrom livekit.agents import Agent, AgentSession\n\n@dataclass\nclass SessionCosts:\n  llm_input_tokens: int = 0\n  llm_output_tokens: int = 0\n  stt_audio_seconds: float = 0.0\n  tts_characters: int = 0\n\n  @property\n  def estimated_cost_usd(self) -> float:\n      # Adjust rates to match your provider pricing\n      llm_input = self.llm_input_tokens * 0.15 / 1_000_000   # $0.15/M input\n      llm_output = self.llm_output_tokens * 0.60 / 1_000_000  # $0.60/M output\n      stt = self.stt_audio_seconds * 0.006 / 60               # $0.006/min\n      tts = self.tts_characters * 15.00 / 1_000_000           # $15/M chars\n      return llm_input + llm_output + stt + tts\n\n\nclass CostTrackedAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a helpful voice assistant.\",\n      )\n      self.costs = SessionCosts()\n\n  async def llm_node(self, chat_ctx, tools):\n      async for chunk in Agent.default.llm_node(self, chat_ctx, tools):\n          if hasattr(chunk, \"usage\"):\n              self.costs.llm_input_tokens += chunk.usage.prompt_tokens or 0\n              self.costs.llm_output_tokens += chunk.usage.completion_tokens or 0\n          yield chunk\n\n  async def on_agent_session_end(self):\n      print(f\"Session cost: ${self.costs.estimated_cost_usd:.4f}\")\n      # Send to your analytics pipeline\n      await report_cost(self.costs)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent } from \"@livekit/agents\";\n\ninterface SessionCosts {\nllmInputTokens: number;\nllmOutputTokens: number;\nsttAudioSeconds: number;\nttsCharacters: number;\n}\n\nfunction estimateCostUsd(costs: SessionCosts): number {\nconst llmInput = costs.llmInputTokens * 0.15 / 1_000_000;\nconst llmOutput = costs.llmOutputTokens * 0.60 / 1_000_000;\nconst stt = costs.sttAudioSeconds * 0.006 / 60;\nconst tts = costs.ttsCharacters * 15.0 / 1_000_000;\nreturn llmInput + llmOutput + stt + tts;\n}\n\nclass CostTrackedAgent extends Agent {\nprivate costs: SessionCosts = {\n  llmInputTokens: 0,\n  llmOutputTokens: 0,\n  sttAudioSeconds: 0,\n  ttsCharacters: 0,\n};\n\nconstructor() {\n  super({ instructions: \"You are a helpful voice assistant.\" });\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent\nfrom livekit.plugins import openai\n\nFAST_LLM = openai.LLM(model=\"gpt-4o-mini\")      # ~10x cheaper\nPOWERFUL_LLM = openai.LLM(model=\"gpt-4o\")         # Higher quality\n\n# Simple heuristic: short messages with common intents use the fast model\nSIMPLE_PATTERNS = [\n  \"yes\", \"no\", \"thanks\", \"bye\", \"hello\", \"hi\",\n  \"what are your hours\", \"where are you located\",\n  \"can i speak to someone\",\n]\n\n\nclass TieredAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a helpful voice assistant.\",\n      )\n\n  async def llm_node(self, chat_ctx, tools):\n      last_message = chat_ctx.messages[-1].text.lower().strip()\n      is_simple = (\n          len(last_message.split()) < 8\n          or any(p in last_message for p in SIMPLE_PATTERNS)\n      )\n      model = FAST_LLM if is_simple else POWERFUL_LLM\n      async for chunk in model.chat(chat_ctx=chat_ctx, tools=tools):\n          yield chunk"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import hashlib\nfrom typing import Optional\n\n# Simple in-memory TTS cache \u2014 use Redis in production\n_tts_cache: dict[str, bytes] = {}\n\n\ndef cache_key(text: str, voice_id: str) -> str:\n  return hashlib.sha256(f\"{voice_id}:{text}\".encode()).hexdigest()\n\n\ndef get_cached_audio(text: str, voice_id: str) -> Optional[bytes]:\n  return _tts_cache.get(cache_key(text, voice_id))\n\n\ndef store_cached_audio(text: str, voice_id: str, audio: bytes) -> None:\n  key = cache_key(text, voice_id)\n  _tts_cache[key] = audio"
+  }
+]

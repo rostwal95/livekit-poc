@@ -1,0 +1,35 @@
+[
+  {
+    "question": "What happens if you set agent_name on your agent server but do not include dispatch configuration in the participant's token?",
+    "options": [
+      "LiveKit throws an error and rejects the connection",
+      "The agent connects but cannot hear the participant",
+      "The participant connects to an empty room with no agent",
+      "The agent is dispatched automatically as a fallback"
+    ],
+    "correctIndex": 2,
+    "explanation": "Setting agent_name disables automatic dispatch. The agent will only join a room when explicitly dispatched \u2014 either through a token's RoomConfiguration, the AgentDispatchService API, or a SIP dispatch rule. Without any of these, the room has no agent."
+  },
+  {
+    "question": "Which dispatch method should you use for an outbound phone call where the agent needs to be in the room before the callee picks up?",
+    "options": [
+      "SIP dispatch rules only",
+      "Automatic dispatch",
+      "Token-based dispatch with RoomAgentDispatch",
+      "API dispatch via AgentDispatchService"
+    ],
+    "correctIndex": 3,
+    "explanation": "API dispatch lets you place the agent in a room before any participant connects. For outbound calls, you dispatch the agent first, then create a SIP participant to dial the phone number into the same room. Token-based dispatch requires a participant to connect first, which is too late for this use case."
+  },
+  {
+    "question": "How do you dispatch two different agents into the same room from a participant's token?",
+    "options": [
+      "Call the AgentDispatchService API twice after token creation",
+      "Create two separate tokens, one for each agent",
+      "Set the agent_name to a comma-separated list of names",
+      "Add two RoomAgentDispatch entries in the RoomConfiguration agents array"
+    ],
+    "correctIndex": 3,
+    "explanation": "The RoomConfiguration's agents field is an array. Each RoomAgentDispatch entry specifies a different agent_name, and all listed agents are dispatched when the participant connects. Each agent gets its own job and metadata."
+  }
+]

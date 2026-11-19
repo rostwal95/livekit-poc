@@ -1,0 +1,242 @@
+[
+  {
+    "path": "AGENTS.md",
+    "line": 17,
+    "target": "them",
+    "text": "grouped under topic headings to make them easier to find. Nearer AGENTS.md files"
+  },
+  {
+    "path": "apps/local-console/AGENTS.md",
+    "line": 199,
+    "target": "cached",
+    "text": "- A matching case revision does not make cached workflow or supplier outcomes current."
+  },
+  {
+    "path": "apps/local-console/AGENTS.md",
+    "line": 239,
+    "target": "cross-authority",
+    "text": "- Source time and revision do not make cross-authority reads atomic."
+  },
+  {
+    "path": "docs/build-plan.md",
+    "line": 584,
+    "target": "full",
+    "text": "Do not make full stack promotion a circular prerequisite for creating the code"
+  },
+  {
+    "path": "docs/build-plan.md",
+    "line": 647,
+    "target": "dispatch",
+    "text": "- Persist input before acknowledgement, and make dispatch recoverable after"
+  },
+  {
+    "path": "docs/build-plan.md",
+    "line": 684,
+    "target": "one",
+    "text": "  harness to make one bounded change and diagnose its result."
+  },
+  {
+    "path": "docs/case-and-continuation.md",
+    "line": 400,
+    "target": "an",
+    "text": "- Business expiry cannot make an accepted identity new."
+  },
+  {
+    "path": "docs/conversation-and-showcase.md",
+    "line": 315,
+    "target": "no",
+    "text": "- Default offline and scripted checks make no provider calls."
+  },
+  {
+    "path": "docs/decisions/0006-database-leases-and-bounded-worker.md",
+    "line": 71,
+    "target": "room",
+    "text": "without an acceptance receipt. No core record is evicted to make room."
+  },
+  {
+    "path": "docs/demo-plan.md",
+    "line": 97,
+    "target": "targets",
+    "text": "Run these make targets from the repository root. Each linked section states the"
+  },
+  {
+    "path": "docs/demo-plan.md",
+    "line": 153,
+    "target": "the",
+    "text": "participant joins. Room connectivity alone cannot make the first message safe."
+  },
+  {
+    "path": "docs/demo-plan.md",
+    "line": 302,
+    "target": "no",
+    "text": "offline and scripted checks make no provider calls."
+  },
+  {
+    "path": "docs/demo-plan.md",
+    "line": 582,
+    "target": "the",
+    "text": "evidence. It does not add a second authority or make the read-only operations"
+  },
+  {
+    "path": "docs/design-template.md",
+    "line": 22,
+    "target": "every",
+    "text": "with a short value free of pipe characters, and make every Related link relative"
+  },
+  {
+    "path": "docs/implementation/p2-channel-continuity.md",
+    "line": 624,
+    "target": "no",
+    "text": "    installed package gates passed within the selected scope. They make no"
+  },
+  {
+    "path": "docs/learning-plan.md",
+    "line": 107,
+    "target": "one",
+    "text": "3. Trace the implemented worker and persisted fake supplier, then make one"
+  },
+  {
+    "path": "docs/learning-plan.md",
+    "line": 210,
+    "target": "no",
+    "text": "- Default offline and scripted checks make no provider calls."
+  },
+  {
+    "path": "docs/local-real-inference.md",
+    "line": 550,
+    "target": "no",
+    "text": "offline and scripted checks make no provider calls."
+  },
+  {
+    "path": "docs/observability.md",
+    "line": 615,
+    "target": "no",
+    "text": "offline and scripted checks make no provider calls."
+  },
+  {
+    "path": "docs/projects/agent-continuity-scope.md",
+    "line": 199,
+    "target": "blocking",
+    "text": "with `async def` does not make blocking SQLite calls nonblocking. Use a documented"
+  },
+  {
+    "path": "docs/projects/agent-continuity-scope.md",
+    "line": 245,
+    "target": "expiry",
+    "text": "| Persisted business timers | Use wall-clock deadlines; test clocks make expiry behavior deterministic without long real sleeps |"
+  },
+  {
+    "path": "docs/projects/channel-continuity-scope.md",
+    "line": 422,
+    "target": "useful",
+    "text": "verified current association must still make useful progress."
+  },
+  {
+    "path": "docs/projects/delegation-reliability-scope.md",
+    "line": 412,
+    "target": "progress",
+    "text": "| Useful progress | Accepted useful work can make progress within declared limits | A system that rejects every result does not satisfy stale-result safety |"
+  },
+  {
+    "path": "docs/python-engineering.md",
+    "line": 124,
+    "target": "work",
+    "text": "| `shield` | Use it only for a justified narrow ownership boundary, such as observing an already-started bounded I/O operation; it does not make work durable |"
+  },
+  {
+    "path": "docs/technology-baseline.md",
+    "line": 212,
+    "target": "no",
+    "text": "- Default offline and scripted checks make no provider calls."
+  },
+  {
+    "path": "docs/validation-plan.md",
+    "line": 244,
+    "target": "an",
+    "text": "- Pruning display history or passing a business deadline cannot make an already"
+  },
+  {
+    "path": "docs/work-items/0006-design-and-engineering-gates.md",
+    "line": 17,
+    "target": "the",
+    "text": "trade-offs and acceptance gates. Add a shared Python engineering guide and make the"
+  },
+  {
+    "path": "docs/work-items/0018-p1-provider-demo.md",
+    "line": 80,
+    "target": "no",
+    "text": "| G-READY | Explicit credentials/mode/trust and installed-source ownership | Presence checks make no provider calls; missing or unsafe configuration fails |"
+  },
+  {
+    "path": "docs/work-items/0035-send-policy-and-action-races.md",
+    "line": 245,
+    "target": "the",
+    "text": "| After claim | May make the resumed old worker raise TransitionConflict; record that safe existing conflict and inspect terminal facts rather than changing the worker |"
+  },
+  {
+    "path": "docs/work-items/0044-origin-bound-channel-policy.md",
+    "line": 508,
+    "target": "the",
+    "text": "These two tooling changes and later documentation edits make the fourth run a"
+  },
+  {
+    "path": "docs/work-items/0046-joined-showcase-providers-and-demo.md",
+    "line": 19,
+    "target": "every",
+    "text": "- make every transition visible in the browser;"
+  },
+  {
+    "path": "docs/work-items/0046-joined-showcase-providers-and-demo.md",
+    "line": 233,
+    "target": "cost",
+    "text": "| Medium | P1/P2/P3 | No connection pooling; per-call validation and whole-table counts make cost grow with history | Pooled clients and incremental validation |"
+  },
+  {
+    "path": "harness/README.md",
+    "line": 810,
+    "target": "the",
+    "text": "- The retained manifest, result, capture and actual owner records make the"
+  },
+  {
+    "path": "local-setup/AGENTS.md",
+    "line": 280,
+    "target": "supplier",
+    "text": "- Revision equality alone cannot make supplier/workflow state current."
+  },
+  {
+    "path": "local-setup/AGENTS.md",
+    "line": 344,
+    "target": "its",
+    "text": "- Never chmod a prior failed observation to make its evidence pass."
+  },
+  {
+    "path": "local-setup/Design.md",
+    "line": 877,
+    "target": "retention",
+    "text": "does not make retention unbounded or alter status parsing."
+  },
+  {
+    "path": "projects/channel-continuity/WORKLOAD.md",
+    "line": 108,
+    "target": "space",
+    "text": "consume capacity, and completion does not make space for a new identity."
+  },
+  {
+    "path": "projects/delegation-reliability/AGENTS.md",
+    "line": 228,
+    "target": "it",
+    "text": "- Case-only revisions can make it stale without any feed event."
+  },
+  {
+    "path": "projects/delegation-reliability/README.md",
+    "line": 169,
+    "target": "p3",
+    "text": "| Run a selected slice gate | `make p3-execution-check` | Every `make p3-*` gate is listed under [Validation](#validation) |"
+  },
+  {
+    "path": "projects/delegation-reliability/README.md",
+    "line": 202,
+    "target": "p3",
+    "text": "The `make p3-*` gates and the other slice commands are described under"
+  }
+]

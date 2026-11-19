@@ -1,0 +1,50 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import pytest\nfrom datetime import date, time\nfrom receptionist.tools import format_appointment_time, validate_phone_number\n\ndef test_format_appointment_time():\n  result = format_appointment_time(date(2026, 3, 30), time(14, 0))\n  assert result == \"Monday, March 30 at 2:00 PM\"\n\ndef test_validate_phone_number_valid():\n  assert validate_phone_number(\"+15551234567\") is True\n\ndef test_validate_phone_number_invalid():\n  assert validate_phone_number(\"not-a-number\") is False"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { describe, test, expect } from \"vitest\";\nimport { formatAppointmentTime, validatePhoneNumber } from \"../src/tools\";\n\ndescribe(\"tool functions\", () => {\ntest(\"formats appointment time correctly\", () => {\n  const result = formatAppointmentTime(new Date(\"2026-03-30\"), \"14:00\");\n  expect(result).toBe(\"Monday, March 30 at 2:00 PM\");\n});\n\ntest(\"validates correct phone number\", () => {\n  expect(validatePhoneNumber(\"+15551234567\")).toBe(true);\n});\n\ntest(\"rejects invalid phone number\", () => {\n  expect(validatePhoneNumber(\"not-a-number\")).toBe(false);\n});\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents.testing import AgentTest\n\nasync def test_greeting():\n  test = AgentTest(DentalReceptionist())\n  response = await test.say(\"Hi, I'd like to book an appointment\")\n  assert test.judge(\n      response,\n      \"Agent should greet the caller and ask about the type of appointment\"\n  )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentTest } from \"@livekit/agents/testing\";\n\ntest(\"greeting\", async () => {\nconst agentTest = new AgentTest(new DentalReceptionist());\nconst response = await agentTest.say(\"Hi, I'd like to book an appointment\");\nexpect(\n  await agentTest.judge(response, \"Agent should greet and ask about appointment type\")\n).toBe(true);\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents.testing import AgentTest\nfrom receptionist.agent import DentalReceptionist\n\nasync def test_full_booking_flow():\n  test = AgentTest(DentalReceptionist())\n\n  # Simulate a multi-turn conversation\n  r1 = await test.say(\"Hi, I need to book a cleaning\")\n  assert test.judge(r1, \"Agent should acknowledge and ask about preferred date/time\")\n\n  r2 = await test.say(\"Next Tuesday at 2pm\")\n  assert test.judge(r2, \"Agent should check availability or confirm the time slot\")\n\n  r3 = await test.say(\"Yes, that works\")\n  assert test.judge(r3, \"Agent should confirm the booking details and provide a summary\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentTest } from \"@livekit/agents/testing\";\nimport { DentalReceptionist } from \"../src/agent\";\n\ntest(\"full booking flow\", async () => {\nconst agentTest = new AgentTest(new DentalReceptionist());\n\nconst r1 = await agentTest.say(\"Hi, I need to book a cleaning\");\nexpect(\n  await agentTest.judge(r1, \"Agent should acknowledge and ask about preferred date/time\")\n).toBe(true);\n\nconst r2 = await agentTest.say(\"Next Tuesday at 2pm\");\nexpect(\n  await agentTest.judge(r2, \"Agent should check availability or confirm the time slot\")\n).toBe(true);\n\nconst r3 = await agentTest.say(\"Yes, that works\");\nexpect(\n  await agentTest.judge(r3, \"Agent should confirm the booking details and provide a summary\")\n).toBe(true);\n});"
+  }
+]

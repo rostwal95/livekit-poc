@@ -1,0 +1,203 @@
+1Production telephony patterns overview
+
+2Warm transfers
+
+3Cold transfers
+
+4Call recording & compliance
+
+5Building the outbound system
+
+6Queue management
+
+7Error handling & retries
+
+8Monitoring & analytics
+
+9Load testing
+
+Queue management
+
+Call queue management
+
+When call volume exceeds your capacity, callers need somewhere to wait. A bare hold with no information is a terrible experience — callers hang up, call back, and create more load. This chapter shows you how to build a call queue with priority levels, wait time estimation, and a callback option that lets callers hang up without losing their place.
+
+What you'll learn
+
+How to implement a call queue with priority levels for VIP callers
+
+How to estimate wait times based on historical handle times
+
+How to offer callbacks when wait times are long
+
+How to connect queued callers to agents when capacity becomes available
+
+Queue architecture
+
+A call queue sits between your inbound SIP trunk and your AI agents. When all agents are busy, new callers enter the queue instead of getting a busy signal or being dropped. The queue maintains order, plays hold messages, and dispatches callers to agents as they become free.
+
+A new call comes in through your SIP trunk. Your system checks for available agents. If none are free, the caller enters the queue.
+
+The caller is placed in the queue based on priority. VIP callers go to the front. Regular callers join the back. The caller hears a position announcement and estimated wait time.
+
+While waiting, the caller hears hold music with periodic updates: "You are currently number 3 in the queue. Estimated wait time is 4 minutes."
+
+When an agent finishes a call, the queue dispatches the next caller. The caller is moved from the queue room into the agent's room.
+
+Implementing a priority queue
+
+import asyncio
+import heapq
+import time
+from dataclasses import dataclass, field
+
+@dataclass(order=True)
+class QueuedCall:
+  priority: int
+  enqueue_time: float = field(compare=False)
+  caller_id: str = field(compare=False)
+  room_name: str = field(compare=False)
+  phone_number: str = field(compare=False)
+  callback_requested: bool = field(default=False, compare=False)
+
+class CallQueue:
+  PRIORITY_VIP = 0
+  PRIORITY_NORMAL = 5
+  PRIORITY_LOW = 10
+
+  def __init__(self):
+      self._queue: list[QueuedCall] = []
+      self._available_agents: asyncio.Queue[str] = asyncio.Queue()
+      self._recent_handle_times: list[float] = []
+
+  def enqueue(self, caller_id: str, room_name: str, phone_number: str, priority: int = 5):
+      call = QueuedCall(
+          priority=priority,
+          enqueue_time=time.time(),
+          caller_id=caller_id,
+          room_name=room_name,
+          phone_number=phone_number,
+      )
+      heapq.heappush(self._queue, call)
+      return self.get_position(caller_id)
+
+  def get_position(self, caller_id: str) -> int:
+      sorted_queue = sorted(self._queue)
+      for i, call in enumerate(sorted_queue):
+          if call.caller_id == caller_id:
+              return i + 1
+      return -1
+
+  def estimate_wait_time(self, position: int) -> float:
+      if not self._recent_handle_times:
+          return position * 300.0  # Default 5 min per call
+      avg_handle_time = sum(self._recent_handle_times) / len(self._recent_handle_times)
+      return position * avg_handle_time
+
+  def record_handle_time(self, seconds: float):
+      self._recent_handle_times.append(seconds)
+      # Keep last 100 handle times for rolling average
+      if len(self._recent_handle_times) > 100:
+          self._recent_handle_times = self._recent_handle_times[-100:]
+
+  async def dispatch_loop(self):
+      while True:
+          if not self._queue:
+              await asyncio.sleep(1)
+              continue
+
+          agent_room = await self._available_agents.get()
+          call = heapq.heappop(self._queue)
+
+          if call.callback_requested:
+              await self._initiate_callback(call, agent_room)
+          else:
+              await self._connect_caller(call, agent_room)
+
+  async def _connect_caller(self, call: QueuedCall, agent_room: str):
+      # Transfer the caller from their holding room to the agent room
+      pass  # Implementation depends on your room management strategy
+
+  async def _initiate_callback(self, call: QueuedCall, agent_room: str):
+      # Place an outbound call to the caller's number
+      pass  # Use CreateSIPParticipant to call back
+
+The priority queue uses Python's heapq module, which implements a min-heap. Lower priority numbers are dequeued first, so VIP callers (priority 0) are always served before normal callers (priority 5). The enqueue_time field ensures FIFO ordering within the same priority level because heapq uses natural comparison, and dataclass fields are compared in declaration order.
+
+Wait time estimation
+
+Accurate wait time estimates set caller expectations and reduce abandonment. The simplest approach is a rolling average of recent handle times multiplied by the caller's queue position.
+
+def format_wait_time(seconds: float) -> str:
+  minutes = int(seconds / 60)
+  if minutes < 1:
+      return "less than a minute"
+  elif minutes == 1:
+      return "about 1 minute"
+  elif minutes < 5:
+      return f"about {minutes} minutes"
+  elif minutes < 10:
+      return "5 to 10 minutes"
+  else:
+      return "more than 10 minutes"
+
+# Usage in hold message
+position = queue.get_position(caller_id)
+wait_seconds = queue.estimate_wait_time(position)
+message = (
+  f"You are currently number {position} in the queue. "
+  f"Estimated wait time is {format_wait_time(wait_seconds)}."
+)
+
+Round up, never down
+
+Always round wait time estimates up. Telling a caller "about 3 minutes" when the real wait is 4 minutes feels dishonest. Telling them "about 5 minutes" when the real wait is 4 minutes feels like a pleasant surprise. Under-promising and over-delivering keeps callers calmer.
+
+Offering callbacks
+
+When wait times exceed a threshold — say, 5 minutes — offer callers the option to receive a callback instead of waiting on hold. This improves caller satisfaction and reduces your concurrent connection count.
+
+CALLBACK_THRESHOLD_SECONDS = 300  # 5 minutes
+
+async def check_callback_eligibility(queue: CallQueue, caller_id: str) -> str | None:
+  position = queue.get_position(caller_id)
+  wait_seconds = queue.estimate_wait_time(position)
+
+  if wait_seconds >= CALLBACK_THRESHOLD_SECONDS:
+      return (
+          f"Your estimated wait time is {format_wait_time(wait_seconds)}. "
+          "Would you like us to call you back when an agent is available? "
+          "You will not lose your place in line."
+      )
+  return None
+
+async def request_callback(queue: CallQueue, caller_id: str):
+  for call in queue._queue:
+      if call.caller_id == caller_id:
+          call.callback_requested = True
+          break
+  # Caller can now hang up — their position is preserved
+
+Callback queue persistence
+
+If your system restarts, in-memory queues are lost. For production, back the queue with Redis or a database so that callback requests survive process crashes. Callers who were promised a callback must actually receive one.
+
+Test your knowledge
+
+Question 1 of 2
+
+How does the priority queue ensure VIP callers are served before regular callers while maintaining FIFO order within the same priority level?
+
+What you learned
+
+Call queues prevent callers from getting busy signals when all agents are occupied.
+
+Priority queues ensure VIP callers are served first using a min-heap data structure.
+
+Wait time estimation uses a rolling average of recent handle times multiplied by queue position.
+
+Callbacks let callers hang up without losing their queue position, improving satisfaction and reducing concurrent connections.
+
+Next up
+
+In the next chapter, you will learn how to handle SIP errors, implement retry logic, and configure fallback routing for when things go wrong.

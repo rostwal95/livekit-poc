@@ -1,0 +1,321 @@
+1Production telephony patterns overview
+
+2Warm transfers
+
+3Cold transfers
+
+4Call recording & compliance
+
+5Building the outbound system
+
+6Queue management
+
+7Error handling & retries
+
+8Monitoring & analytics
+
+9Load testing
+
+Warm transfers
+
+Warm transfers
+
+A warm transfer is the difference between "please hold while I transfer you" followed by the caller repeating their entire story, and a seamless handoff where the receiving agent already knows everything. In production telephony, warm transfers are the gold standard for customer experience during escalation. This chapter shows you how to implement them with LiveKit's WarmTransferTask.
+
+What you'll learn
+
+How warm transfers differ from cold transfers and why they matter for caller satisfaction
+
+The step-by-step protocol of a warm transfer in SIP telephony
+
+How to implement warm transfers using LiveKit's WarmTransferTask prebuilt
+
+How to play hold music while the transfer is in progress
+
+How to handle transfer failures gracefully
+
+The warm transfer protocol
+
+A warm transfer follows a specific sequence that keeps the caller informed and gives the receiving party full context:
+
+The AI agent determines — through conversation or tool call — that the caller needs to speak with a human. The agent announces: "Let me connect you with a specialist who can help with your billing question."
+
+The agent places the caller on hold. The caller hears hold music or a comfort message while they wait. The caller's audio is muted from the agent's perspective, but the system keeps the connection alive.
+
+The system places an outbound call to the human agent or department. This is a separate SIP call initiated by your LiveKit infrastructure.
+
+When the human agent picks up, the AI agent provides a summary: "I have a caller on the line who needs help with a duplicate charge on their November statement. Their name is Sarah, account number 4821." The human agent now has full context.
+
+The AI agent bridges the caller and the human agent, then drops off the call. The caller and human agent are now in a direct conversation. From the caller's perspective, the transition is seamless.
+
+The key insight is that the AI agent acts as a bridge during the transfer. It maintains two simultaneous connections — one to the caller and one to the human agent — and orchestrates the handoff. This is fundamentally different from a cold transfer where the system simply redirects the SIP session.
+
+Implementing warm transfers in Python
+
+LiveKit provides WarmTransferTask as a prebuilt task that handles the entire warm transfer flow. You provide the target number and instructions for how the agent should brief the receiving party.
+
+from livekit.agents import AgentSession, function_tool
+from livekit.agents.prebuilt.tasks import WarmTransferTask
+
+
+@function_tool()
+async def transfer_to_billing(self, context: AgentSession):
+  """Transfer the caller to the billing department."""
+
+  # Announce the transfer to the caller
+  await context.say("Let me connect you with our billing team. One moment please.")
+
+  # Create and run the warm transfer
+  transfer = WarmTransferTask(
+      transfer_to="+15559876543",
+      instructions=(
+          "Brief the receiving agent about the caller's issue before connecting. "
+          "Include the caller's name and the specific billing concern they described."
+      ),
+  )
+  await transfer.run(context)
+
+import { AgentSession, functionTool } from "@livekit/agents";
+import { WarmTransferTask } from "@livekit/agents/prebuilt/tasks";
+
+const transferToBilling = functionTool({
+name: "transfer_to_billing",
+description: "Transfer the caller to the billing department.",
+handler: async (params, context: AgentSession) => {
+  // Announce the transfer to the caller
+  await context.say("Let me connect you with our billing team. One moment please.");
+
+  // Create and run the warm transfer
+  const transfer = new WarmTransferTask({
+    transferTo: "+15559876543",
+    instructions:
+      "Brief the receiving agent about the caller's issue before connecting. " +
+      "Include the caller's name and the specific billing concern they described.",
+  });
+  await transfer.run(context);
+},
+});
+
+Transfer target must be reachable
+
+The transfer_to number must be routable through your outbound SIP trunk. If you are transferring to an internal extension, ensure your PBX or SIP infrastructure can route the call. Transfer failures are covered later in this chapter.
+
+Adding hold music
+
+While the AI agent is briefing the human agent, the caller is waiting. Silence is unacceptable — callers will assume the call dropped. Hold music or a comfort message keeps them informed.
+
+from livekit.agents import AgentSession, function_tool
+from livekit.agents.prebuilt.tasks import WarmTransferTask
+
+
+@function_tool()
+async def transfer_to_support(self, context: AgentSession):
+  """Transfer the caller to a support specialist."""
+
+  await context.say(
+      "I'm going to connect you with a specialist who can help. "
+      "You'll hear some music while I brief them on your situation."
+  )
+
+  transfer = WarmTransferTask(
+      transfer_to="+15551234567",
+      instructions=(
+          "Summarize the caller's issue concisely. Include their name, "
+          "account number if provided, and the specific problem they described."
+      ),
+      hold_music_url="https://cdn.example.com/hold-music.wav",
+  )
+  await transfer.run(context)
+
+import { AgentSession, functionTool } from "@livekit/agents";
+import { WarmTransferTask } from "@livekit/agents/prebuilt/tasks";
+
+const transferToSupport = functionTool({
+name: "transfer_to_support",
+description: "Transfer the caller to a support specialist.",
+handler: async (params, context: AgentSession) => {
+  await context.say(
+    "I'm going to connect you with a specialist who can help. " +
+    "You'll hear some music while I brief them on your situation."
+  );
+
+  const transfer = new WarmTransferTask({
+    transferTo: "+15551234567",
+    instructions:
+      "Summarize the caller's issue concisely. Include their name, " +
+      "account number if provided, and the specific problem they described.",
+    holdMusicUrl: "https://cdn.example.com/hold-music.wav",
+  });
+  await transfer.run(context);
+},
+});
+
+The hold music URL should point to a WAV or MP3 file hosted on a CDN or your own infrastructure. Keep hold music files short and looped — a 30 to 60 second track works well. Avoid files that are too large, as they need to be fetched and buffered when the transfer begins.
+
+Dynamic transfer targets
+
+In production, the transfer target is rarely hardcoded. You might route to different departments based on the caller's issue, or look up the best available agent from your workforce management system.
+
+from livekit.agents import AgentSession, function_tool
+from livekit.agents.prebuilt.tasks import WarmTransferTask
+
+DEPARTMENT_NUMBERS = {
+  "billing": "+15559876543",
+  "technical": "+15559876544",
+  "sales": "+15559876545",
+  "retention": "+15559876546",
+}
+
+
+@function_tool()
+async def transfer_to_department(
+  self,
+  context: AgentSession,
+  department: str,
+  summary: str,
+):
+  """Transfer the caller to a specific department.
+
+  Args:
+      department: The department to transfer to (billing, technical, sales, retention).
+      summary: A brief summary of the caller's issue.
+  """
+  target = DEPARTMENT_NUMBERS.get(department)
+  if not target:
+      await context.say(
+          f"I'm sorry, I don't have a transfer number for {department}. "
+          "Let me try to help you directly."
+      )
+      return
+
+  await context.say(
+      f"I'll connect you with our {department} team now. One moment please."
+  )
+
+  transfer = WarmTransferTask(
+      transfer_to=target,
+      instructions=f"The caller needs help with: {summary}",
+  )
+  await transfer.run(context)
+
+import { AgentSession, functionTool } from "@livekit/agents";
+import { WarmTransferTask } from "@livekit/agents/prebuilt/tasks";
+import { z } from "zod";
+
+const DEPARTMENT_NUMBERS: Record<string, string> = {
+billing: "+15559876543",
+technical: "+15559876544",
+sales: "+15559876545",
+retention: "+15559876546",
+};
+
+const transferToDepartment = functionTool({
+name: "transfer_to_department",
+description: "Transfer the caller to a specific department.",
+parameters: z.object({
+  department: z.string().describe("The department to transfer to"),
+  summary: z.string().describe("A brief summary of the caller's issue"),
+}),
+handler: async ({ department, summary }, context: AgentSession) => {
+  const target = DEPARTMENT_NUMBERS[department];
+  if (!target) {
+    await context.say(
+      `I'm sorry, I don't have a transfer number for ${department}. ` +
+      "Let me try to help you directly."
+    );
+    return;
+  }
+
+  await context.say(
+    `I'll connect you with our ${department} team now. One moment please.`
+  );
+
+  const transfer = new WarmTransferTask({
+    transferTo: target,
+    instructions: `The caller needs help with: ${summary}`,
+  });
+  await transfer.run(context);
+},
+});
+
+Handling transfer failures
+
+Transfers fail. The human agent might not answer. The SIP trunk might be down. The target number might be invalid. Your system must handle these cases gracefully instead of leaving the caller in silence.
+
+from livekit.agents import AgentSession, function_tool
+from livekit.agents.prebuilt.tasks import WarmTransferTask
+
+
+@function_tool()
+async def transfer_with_fallback(self, context: AgentSession):
+  """Transfer with fallback handling."""
+
+  await context.say("Let me connect you with a specialist. One moment please.")
+
+  transfer = WarmTransferTask(
+      transfer_to="+15559876543",
+      instructions="Brief the agent on the caller's billing question.",
+  )
+
+  try:
+      await transfer.run(context)
+  except Exception as e:
+      # Transfer failed — inform the caller and offer alternatives
+      await context.say(
+          "I wasn't able to connect you with a specialist right now. "
+          "I can take down your information and have someone call you back, "
+          "or I can try to help you directly. What would you prefer?"
+      )
+
+import { AgentSession, functionTool } from "@livekit/agents";
+import { WarmTransferTask } from "@livekit/agents/prebuilt/tasks";
+
+const transferWithFallback = functionTool({
+name: "transfer_with_fallback",
+description: "Transfer with fallback handling.",
+handler: async (params, context: AgentSession) => {
+  await context.say("Let me connect you with a specialist. One moment please.");
+
+  const transfer = new WarmTransferTask({
+    transferTo: "+15559876543",
+    instructions: "Brief the agent on the caller's billing question.",
+  });
+
+  try {
+    await transfer.run(context);
+  } catch (error) {
+    // Transfer failed — inform the caller and offer alternatives
+    await context.say(
+      "I wasn't able to connect you with a specialist right now. " +
+      "I can take down your information and have someone call you back, " +
+      "or I can try to help you directly. What would you prefer?"
+    );
+  }
+},
+});
+
+Always have a fallback plan
+
+Never leave a caller stranded after a failed transfer. The three most common fallback strategies are: (1) offer a callback, (2) retry the transfer to a different number, or (3) continue the conversation with the AI agent. Your choice depends on the caller's issue and your available infrastructure.
+
+Test your knowledge
+
+Question 1 of 3
+
+What distinguishes a warm transfer from a cold transfer at the protocol level?
+
+What you learned
+
+Warm transfers maintain caller context by having the AI agent brief the receiving party before connecting them.
+
+WarmTransferTask handles the full transfer flow: hold, dial, brief, and connect.
+
+Hold music keeps callers informed during the transfer process.
+
+Transfer targets should be dynamic in production, routed based on department or issue type.
+
+Transfer failures must be caught and handled with fallback strategies.
+
+Next up
+
+In the next chapter, you will implement cold transfers — a faster but less context-rich alternative that uses SIP REFER to redirect calls directly.

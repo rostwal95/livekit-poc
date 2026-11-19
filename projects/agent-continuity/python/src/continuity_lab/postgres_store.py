@@ -61,11 +61,14 @@ def _canonical(request: BookingChange) -> str:
 
 
 def _event(event: str, code: str = "ok") -> None:
-    LOGGER.log(
-        logging.ERROR if event == "storage_failed" else logging.INFO,
-        event,
-        extra={"event": event, "code": code},
-    )
+    try:
+        LOGGER.log(
+            logging.ERROR if event == "storage_failed" else logging.INFO,
+            event,
+            extra={"event": event, "code": code},
+        )
+    except Exception:  # noqa: BLE001 - telemetry cannot alter committed state or failures
+        return
 
 
 class PostgresExecutionStore:

@@ -1,7 +1,13 @@
 # Local transport diagnostic agent design
 
-Status: Active
-Last reviewed: 15 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Active |
+| Purpose | Explain the diagnostic worker's transport behavior, limits and failure handling |
+| Audience | Engineers changing the diagnostic worker or relying on its evidence |
+| Scope | Native text and audio transport diagnostics; excludes inference and product workflow authority |
+| Owns | Diagnostic worker components, interfaces, resource bounds and evidence boundaries |
+| Related | [README](README.md) · [Agent instructions](AGENTS.md) · [Shared design](../../Design.md) · [Transport fixtures](../../contracts/README.md) · [Validation plan](../../docs/validation-plan.md) |
 
 ## Overview
 
@@ -214,16 +220,14 @@ bound. This is a one-server lab, not multi-server media scale evidence.
 
 ## Security and privacy
 
-- Use local-setup managed credentials and allowlisted synthetic identities.
-  Identity prefixes reduce accidental lab traffic. They do not replace verified
-  token grants or production principal authorization.
-- Echo is sent only to the original text sender.
-- Frame observations contain no audio sample data. Clients validate the SDK
-  agent kind, schema and expected microphone track SID before presentation.
-- Do not log transcript chunks, room secrets, raw audio, token material or
-  provider messages.
-- Treat inbound text as inert data, not as instructions to invoke tools.
-- The worker has no booking-mutation, SMS or specialist capability.
+| Boundary | Control and limit |
+| --- | --- |
+| Credentials and identities | Use local-setup managed credentials and allowlisted synthetic identities. Identity prefixes reduce accidental lab traffic. They do not replace verified token grants or production principal authorization |
+| Text echo | Sent only to the original text sender |
+| Frame observations | Contain no audio sample data. Clients validate the SDK agent kind, schema and expected microphone track SID before presentation |
+| Logging | Do not log transcript chunks, room secrets, raw audio, token material or provider messages |
+| Inbound content | Treat inbound text as inert data, not as instructions to invoke tools |
+| Product authority | The worker has no booking-mutation, SMS or specialist capability |
 
 ## Observability
 
@@ -316,27 +320,9 @@ as a completed live-model turn.
 
 ## Validation and acceptance gates
 
-1. **Unit and fast validation.** Run the service command in [README.md](README.md),
-   then full fast validation.
-   - Require normal echo, sender-only destination, multi-byte oversize,
-     rejection, stream closure, cap enforcement, cancellation and
-     fresh-interpreter callback serialization assertions.
-   - Logging tests additionally exercise real BoundedTasks failure and
-     cancellation, actual admission/session callbacks, explicit setup,
-     one-handler idempotence, logger/context isolation, finite schema/counts and
-     secret-sentinel exceptions whose `str`/`repr` must never be read.
-   - Ordinary failures, cancellation and fatal BaseException paths must preserve
-     propagation and cleanup.
-2. **Actual local smoke.** The [local smoke](../../local-setup/README.md) must
-   dispatch this worker, receive native text, publish a real synthetic track and
-   match diagnostics to that track and SDK agent. The recorded native smoke also
-   passed the exact 16,384-byte UTF-8 request and the 16,390-byte prefixed reply.
-   Test children and resources must be cleaned up.
-3. **Separate media gates.** Browser microphone publication, denial/mute,
-   cleanup, playback and network-loss recovery remain separate media gates. A
-   native client or frame count cannot pass them. Actual browser input/playback
-   evidence remains pending where unobserved.
-4. **Product scenarios.** Conversational AgentSession, product tools and model
-   scenarios arrive through explicit implementation tasks. Missing, timed-out or
-   skipped requirements remain non-passing, and deterministic diagnostics cannot
-   pass a live lane.
+| Gate | Required evidence | Limits and prerequisites |
+| --- | --- | --- |
+| Unit and fast validation | Run the service command in [README.md](README.md), then full fast validation. Require normal echo, sender-only destination, multi-byte oversize, rejection, stream closure, cap enforcement, cancellation and fresh-interpreter callback serialization assertions | Logging tests additionally exercise real BoundedTasks failure and cancellation, actual admission/session callbacks, explicit setup, one-handler idempotence, logger/context isolation, finite schema/counts and secret-sentinel exceptions whose `str`/`repr` must never be read. Ordinary failures, cancellation and fatal BaseException paths must preserve propagation and cleanup |
+| Actual local smoke | The [local smoke](../../local-setup/README.md) must dispatch this worker, receive native text, publish a real synthetic track and match diagnostics to that track and SDK agent. The recorded native smoke also passed the exact 16,384-byte UTF-8 request and the 16,390-byte prefixed reply | Test children and resources must be cleaned up |
+| Separate media gates | Browser microphone publication, denial/mute, cleanup, playback and network-loss recovery remain separate media gates | A native client or frame count cannot pass them. Actual browser input/playback evidence remains pending where unobserved |
+| Product scenarios | Conversational AgentSession, product tools and model scenarios arrive through explicit implementation tasks | Missing, timed-out or skipped requirements remain non-passing, and deterministic diagnostics cannot pass a live lane |

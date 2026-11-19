@@ -1,0 +1,58 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Estimate session cost based on modality configuration\ndef estimate_session_cost(\n  duration_minutes: int = 30,\n  turns_per_minute: float = 2.0,\n  frames_in_context: int = 3,\n  tokens_per_frame: int = 1000,\n  system_tokens: int = 500,\n  avg_history_tokens: int = 3000,\n  input_cost_per_million: float = 2.50,   # GPT-4o input pricing\n  output_cost_per_million: float = 10.00,  # GPT-4o output pricing\n  avg_output_tokens: int = 150,\n):\n  total_turns = int(duration_minutes * turns_per_minute)\n  visual_tokens = frames_in_context * tokens_per_frame\n  input_per_turn = system_tokens + avg_history_tokens + visual_tokens\n  total_input = input_per_turn * total_turns\n  total_output = avg_output_tokens * total_turns\n\n  input_cost = (total_input / 1_000_000) * input_cost_per_million\n  output_cost = (total_output / 1_000_000) * output_cost_per_million\n\n  return {\n      \"total_turns\": total_turns,\n      \"total_input_tokens\": total_input,\n      \"total_output_tokens\": total_output,\n      \"input_cost_usd\": round(input_cost, 4),\n      \"output_cost_usd\": round(output_cost, 4),\n      \"total_cost_usd\": round(input_cost + output_cost, 4),\n      \"visual_token_share\": f\"{(visual_tokens / input_per_turn) * 100:.0f}%\",\n  }"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "function estimateSessionCost({\ndurationMinutes = 30,\nturnsPerMinute = 2.0,\nframesInContext = 3,\ntokensPerFrame = 1000,\nsystemTokens = 500,\navgHistoryTokens = 3000,\ninputCostPerMillion = 2.50,\noutputCostPerMillion = 10.00,\navgOutputTokens = 150,\n} = {}) {\nconst totalTurns = Math.floor(durationMinutes * turnsPerMinute);\nconst visualTokens = framesInContext * tokensPerFrame;\nconst inputPerTurn = systemTokens + avgHistoryTokens + visualTokens;\nconst totalInput = inputPerTurn * totalTurns;\nconst totalOutput = avgOutputTokens * totalTurns;\n\nconst inputCost = (totalInput / 1_000_000) * inputCostPerMillion;\nconst outputCost = (totalOutput / 1_000_000) * outputCostPerMillion;\n\nreturn {\n  totalTurns,\n  totalInputTokens: totalInput,\n  totalOutputTokens: totalOutput,\n  inputCostUsd: +inputCost.toFixed(4),\n  outputCostUsd: +outputCost.toFixed(4),\n  totalCostUsd: +(inputCost + outputCost).toFixed(4),\n  visualTokenShare: `${((visualTokens / inputPerTurn) * 100).toFixed(0)}%`,\n};\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import RoomInputOptions, VideoFrameOptions\n\nroom_input_options = RoomInputOptions(\n  video_enabled=True,\n  video_frame_options=VideoFrameOptions(\n      capture_interval=3.0,\n      max_frames_in_context=3,  # Only keep 3 most recent frames\n      max_width=1024,\n      max_height=768,\n  ),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "const roomInputOptions = {\nvideoEnabled: true,\nvideoFrameOptions: {\n  captureInterval: 3.0,\n  maxFramesInContext: 3,\n  maxWidth: 1024,\n  maxHeight: 768,\n},\n};"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent\n\nclass SmartCaptureAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are a study partner with camera access. You only analyze\n          visual content when the user asks you to look at something. Do not describe\n          what you see unprompted \u2014 wait for the user to ask.\"\"\",\n      )\n\n  async def on_user_turn_completed(self, turn_ctx):\n      # Frames are only captured when the user speaks,\n      # so silent periods produce zero image tokens\n      await Agent.default.on_user_turn_completed(self, turn_ctx)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, function_tool\n\nclass ContextEfficientAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are a study partner. When you have analyzed a visual\n          element (a page, diagram, or screen), create a concise text summary of\n          what you saw. After summarizing, you no longer need the original image\n          in context \u2014 your summary preserves the key information.\"\"\",\n      )\n      self._visual_summaries = []\n\n  @function_tool\n  async def summarize_visual(self, context, summary: str):\n      \"\"\"Store a text summary of something you just saw visually.\n      Use this after analyzing an image to preserve the information\n      without keeping the expensive image in context.\"\"\"\n      self._visual_summaries.append(summary)\n      return f\"Summary stored. You now have {len(self._visual_summaries)} visual summaries.\"\n\n  @function_tool\n  async def recall_summaries(self, context):\n      \"\"\"Retrieve all stored visual summaries from this session.\"\"\"\n      if not self._visual_summaries:\n          return \"No visual summaries stored yet.\"\n      return \"\n\n\".join(f\"[{i+1}] {s}\" for i, s in enumerate(self._visual_summaries))"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, functionTool } from \"@livekit/agents\";\n\nclass ContextEfficientAgent extends Agent {\nprivate visualSummaries: string[] = [];\n\nconstructor() {\n  super({\n    instructions: `You are a study partner. When you have analyzed a visual\n      element (a page, diagram, or screen), create a concise text summary of\n      what you saw. After summarizing, you no longer need the original image\n      in context \u2014 your summary preserves the key information.`,\n  });\n}\n\n@functionTool({\n  description: \"Store a text summary of something you just saw visually.\",\n})\nasync summarizeVisual(context, { summary }) {\n  this.visualSummaries.push(summary);\n  return `Summary stored. You now have ${this.visualSummaries.length} visual summaries.`;\n}\n\n@functionTool({\n  description: \"Retrieve all stored visual summaries from this session.\",\n})\nasync recallSummaries(context) {\n  if (this.visualSummaries.length === 0) return \"No visual summaries stored yet.\";\n  return this.visualSummaries.map((s, i) => `[${i + 1}] ${s}`).join(\"\n\n\");\n}\n}"
+  }
+]

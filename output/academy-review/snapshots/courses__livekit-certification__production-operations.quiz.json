@@ -1,0 +1,57 @@
+[
+  {
+    "question": "A client asks how to test their voice agent before deploying to production. What testing strategy do you recommend?",
+    "options": [
+      "A layered approach: (1) Unit tests for individual tools and functions, (2) Integration tests that verify the agent calls the right tools for given inputs, (3) Conversation-level evaluation with scripted scenarios measuring task completion rate, (4) Load testing to verify concurrent call capacity. Automated evaluation is essential because voice agents are non-deterministic \u2014 you need statistical confidence, not single-pass verification.",
+      "Focus on end-to-end conversation testing with LLM-as-judge evaluation. Record 50-100 representative conversations, then use a separate LLM to score each conversation on task completion, tone, and accuracy. Unit testing tools is unnecessary because the LLM handles tool selection \u2014 if the conversation passes, the tools are working correctly.",
+      "Use A/B testing in production with a shadow agent. Deploy the new agent alongside the existing one, route 10% of traffic to the new agent, and compare metrics. This is more realistic than synthetic tests because it uses real caller behavior. Roll back automatically if task completion rate drops below the baseline by more than 5%.",
+      "Build a comprehensive test suite using recorded audio files from real calls. Replay each recording through the full pipeline (STT -> LLM -> TTS) and use speech recognition on the agent's audio output to verify correctness. This audio-in/audio-out testing captures the complete pipeline including STT accuracy and TTS quality."
+    ],
+    "correctIndex": 0,
+    "explanation": "Voice agents require layered testing because they are non-deterministic. Unit tests verify tools work correctly (the LLM choosing wrong tools is a real failure mode). Integration tests verify tool selection. Conversation evaluations measure task completion. Load testing verifies concurrency. A/B testing in production is valuable but not a replacement for pre-deployment testing."
+  },
+  {
+    "question": "What are the key metrics to monitor for a production voice agent?",
+    "options": [
+      "Token usage per conversation (input and output tokens for the LLM), API cost per call, STT word error rate, TTS audio quality score (MOS), and provider uptime. Cost is the most critical metric \u2014 an expensive agent that gives correct answers will bankrupt the business faster than a cheap one with occasional errors.",
+      "Latency metrics (time-to-first-byte for each pipeline stage: STT, LLM, TTS), task completion rate, escalation rate, conversation duration, error rate, concurrent session count, and user satisfaction (CSAT if measured). Latency is the most critical \u2014 a slow agent feels broken even if it gives correct answers.",
+      "Call volume, peak concurrent sessions, average conversation duration, drop rate (calls that disconnect unexpectedly), and infrastructure metrics (CPU, memory, network bandwidth). These operational metrics tell you whether the system is healthy and whether you need to scale. Application-level metrics like task completion are tracked separately in the CRM.",
+      "STT confidence scores per utterance, LLM perplexity per response, TTS naturalness ratings from automated quality checks, and VAD false positive/negative rates. These model-quality metrics identify degradation at the component level before it manifests as user-visible issues. Monitor each model's output quality independently."
+    ],
+    "correctIndex": 1,
+    "explanation": "Latency is king for voice agents \u2014 users expect sub-2-second responses. Monitor each pipeline stage separately (STT, LLM, TTS) to identify bottlenecks. Task completion rate measures whether the agent actually helps. Escalation rate shows where the AI hits its limits. These metrics together paint a complete picture of agent quality. Cost and infrastructure metrics matter but are secondary to user experience."
+  },
+  {
+    "question": "How do LiveKit voice agents scale horizontally, and what determines maximum concurrent sessions?",
+    "options": [
+      "LiveKit agents run as worker processes that connect to LiveKit Cloud. Scaling means running more worker instances \u2014 each picks up new sessions from the dispatch queue. Maximum concurrency is determined by per-worker resource limits (CPU for audio processing, memory for conversation state, LLM API rate limits). LiveKit Cloud's SFU scales independently of agents.",
+      "LiveKit agents scale through the SFU's built-in load balancer. When a room is created, the SFU assigns it to the least-loaded agent worker. Scaling means adding more SFU nodes, which automatically distributes the agent workload. Maximum concurrency is determined by the total SFU cluster capacity \u2014 agents inherit the SFU's scalability.",
+      "LiveKit agents scale using a sharded architecture. Each agent worker is assigned a range of room name prefixes (e.g., worker-1 handles rooms starting with a-m, worker-2 handles n-z). Scaling means adding workers with new prefix ranges. This consistent hashing approach ensures each session is always handled by the same worker for state consistency.",
+      "LiveKit Cloud manages agent scaling automatically through its serverless agent platform. You upload your agent code and set a maximum concurrency limit. LiveKit Cloud provisions and scales agent instances on demand, handling cold starts in under 200ms. No container orchestration or worker management is needed."
+    ],
+    "correctIndex": 0,
+    "explanation": "Agent workers are stateless processes that connect to LiveKit Cloud and pick up sessions from a dispatch queue. Horizontal scaling means running more workers \u2014 behind a container orchestrator like Kubernetes. Each worker has resource limits: CPU, memory, and external API rate limits. The SFU and agents scale independently. There is no prefix-based sharding or automatic serverless scaling."
+  },
+  {
+    "question": "A client wants to self-host LiveKit instead of using LiveKit Cloud. What are the key considerations you would advise?",
+    "options": [
+      "Self-hosting is straightforward for teams with Kubernetes experience. Deploy the LiveKit Helm chart, which includes the SFU, TURN server, and monitoring stack. The main consideration is geographic distribution \u2014 if callers are worldwide, you need SFU nodes in multiple regions with GeoDNS routing. LiveKit Cloud's primary advantage is its global edge network.",
+      "Self-hosting requires running the LiveKit server (SFU), TURN/STUN servers for NAT traversal, TLS termination, and all operational infrastructure (monitoring, upgrades, scaling). It makes sense for strict data residency requirements or air-gapped environments. For most use cases, LiveKit Cloud is simpler \u2014 it handles SFU scaling, geographic distribution, and infrastructure operations, letting you focus on agent logic.",
+      "Self-hosting is only viable for organizations that need to run custom SFU plugins (like custom codecs or proprietary audio processing). The open-source SFU supports a plugin API that LiveKit Cloud does not expose. If the client does not need custom SFU-level functionality, LiveKit Cloud is always the better choice.",
+      "Self-hosting provides significant cost savings at scale \u2014 beyond 1,000 concurrent sessions, the infrastructure cost of self-hosting is typically 60-70% lower than LiveKit Cloud. The operational complexity is manageable with modern IaC tools (Terraform, Pulumi). Recommend self-hosting for any client expecting high volume."
+    ],
+    "correctIndex": 1,
+    "explanation": "Self-hosting gives full control but adds significant operational burden: SFU servers, TURN/STUN, TLS, monitoring, upgrades, and geographic distribution. It's justified for data residency requirements or air-gapped environments. The decision is not primarily about cost savings or custom plugins \u2014 it's about control and compliance requirements."
+  },
+  {
+    "question": "How do you load test a voice agent to determine its capacity under realistic conditions?",
+    "options": [
+      "Simulate concurrent callers by creating multiple rooms with test participants that stream pre-recorded audio. Measure end-to-end latency (audio in -> audio out), error rates, and resource utilization as you ramp up concurrent sessions. Test with realistic conversation patterns, not just connection tests. The bottleneck is usually LLM API rate limits or TTS concurrent request limits, not LiveKit infrastructure.",
+      "Use the LLM provider's benchmarking tools to measure maximum tokens per second at your expected concurrency. Multiply by average conversation length to get maximum concurrent sessions. Then verify STT and TTS providers can handle the same concurrency. The true capacity is the minimum of all three providers' limits \u2014 no need to test the full pipeline.",
+      "Deploy the agent to a staging environment and use a SIP load testing tool (like SIPp) to simulate phone calls at increasing concurrency. SIPp generates realistic SIP traffic including codec negotiation, DTMF tones, and call hold/transfer scenarios. Measure SIP-level metrics: call setup time, RTP jitter, and packet loss.",
+      "Create a load test harness that sends text directly to the LLM (bypassing STT) and measures response latency and throughput. Audio processing adds minimal overhead compared to LLM inference, so LLM performance under load is the only metric that matters. Test at 2x your expected peak concurrency to ensure headroom."
+    ],
+    "correctIndex": 0,
+    "explanation": "Realistic load testing means simulating actual conversations \u2014 streaming audio, waiting for agent responses, and measuring end-to-end latency under load. Benchmarking individual providers in isolation misses the interaction effects. The bottleneck is usually LLM or TTS rate limits, not LiveKit infrastructure, but you need end-to-end tests to discover this."
+  }
+]

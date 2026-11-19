@@ -17,7 +17,7 @@ anyone who prepares, presents or reviews a demonstration. It covers the console
 that runs today, each project's implemented and planned demonstrations, and the
 integrated walkthrough and recording.
 
-A complete two-minute demo video, recorded in `provider_real` mode, is at
+A two-minute demo video, recorded in `provider_real` mode, is at
 [docs/media/ecosystem-demo.mp4](media/ecosystem-demo.mp4). See
 [Recorded ecosystem demo video](#recorded-ecosystem-demo-video).
 
@@ -166,10 +166,15 @@ planned V1 proof.
 
 ### Default and opt-in views
 
-The default diagnostic UI shows the M1 intake and transport. The separate opt-in
-P1 business workspace shows current persisted case and work state, exact human
-approval, and native scripted or explicitly selected provider voice under its
-recorded qualification. The default product view remains the P1 workspace.
+The ordinary console presents P1 business and native-voice panels, with independent
+M1 intake and diagnostic panels below them. The business backend requires explicit
+startup; a visible panel does not prove that its runtime is ready. The separate
+joined build has a landing page and a dedicated channel-policy showcase entry.
+The [console guide](../apps/local-console/README.md) identifies the builds and
+routes.
+
+The P1 workspace exposes persisted case/work state, exact human approval and
+scripted or explicitly selected provider voice within its recorded qualification.
 
 An isolated P2 native input page passed its selected actual native gate and
 installed-artifact checks. Final selected phase gates and the affected media
@@ -303,12 +308,12 @@ offline and scripted checks make no provider calls.
 
 ## P2 Channel Continuity Kit demonstrations
 
-The implemented P2 demonstrations are command-line interface (CLI) and API
-proofs, backend rehearsals and browser demonstrations on the optional native
-and operations pages. The normal Docker console does not yet present or animate
-these backend paths; joined browser and media presentation has its own later
-implementation and actual gates. Selected native, playback and rehydration media
-passed their later scoped gates.
+The implemented P2 demonstrations include command-line interface (CLI) and API
+proofs, backend rehearsals and the optional native and operations pages. The
+ordinary console keeps its P1/M1 views. The separate joined showcase composes
+channel input and results under [0045](work-items/0045-joined-native-channel-policy.md),
+with provider journeys recorded in [0046](work-items/0046-joined-showcase-providers-and-demo.md).
+Selected native, playback and rehydration gates retain their narrower scope.
 
 ### P2 charter demonstration (planned)
 
@@ -584,12 +589,12 @@ page a controller.
 
 ## P3 Delegation Reliability Kit demonstrations
 
-The implemented P3 demonstrations are CLI proofs, backend rehearsals and
-installed-artifact gates. These backend proofs introduce no automatic UI
-animation. The normal Docker console does not yet present or animate these
-backend paths; joined browser and media presentation has its own later
-implementation and actual gates. Selected standalone image extraction passed its
-later scoped gate.
+The implemented P3 demonstrations include CLI/backend proofs, installed-artifact
+gates and the selected native RTC-text application with its compact view in
+[0042](work-items/0042-responsive-native-policy-and-compact-demo.md). The separate
+[joined showcase](work-items/0045-joined-native-channel-policy.md) is partially
+implemented and keeps its complete qualification gates open. Standalone image
+extraction remains a separately qualified capability.
 
 ### P3 charter demonstration (planned)
 
@@ -810,9 +815,12 @@ v1-only. The selected P3-I18A prerequisite in
 [0041](work-items/0041-standalone-channel-and-durable-policy.md) now has explicit
 v2 durable coordinator and runner consumption over opaque public P1 work
 records. Twelve source and twelve installed assertions, a separate set of eight
-offline assertions and four HTTP regressions passed. The v1 defaults and the
-v1-only delivery, projection and action adapters remain unchanged. No native
-background conversation or new UI follows from that durable prerequisite.
+offline assertions and four HTTP regressions passed at that checkpoint. It
+preserved the v1 defaults and adapters. Later [0042](work-items/0042-responsive-native-policy-and-compact-demo.md)
+qualified the separate native RTC-text application and compact view, and
+[0043](work-items/0043-stable-result-delivery-and-return-context.md) added explicit
+v2 delivery. Projection and guarded action remain limited to their supported v1
+payloads.
 
 ## Integrated presentation and recording
 
@@ -841,7 +849,7 @@ product cases.
 
 ### Recorded ecosystem demo video
 
-A complete two-minute demo video, recorded in `provider_real` mode, is at
+A two-minute demo video, recorded in `provider_real` mode, is at
 [docs/media/ecosystem-demo.mp4](media/ecosystem-demo.mp4).
 
 | Property | Value |
@@ -855,19 +863,23 @@ The remaining gates and the rules for the final recording follow.
 
 ### Remaining integrated work
 
-The broader delivery goal continues through the selected 0041 checkpoint.
+The retained checkpoints include selected native RTC text and its compact view
+(0042), result delivery (0043), original-input binding (0044), partial joined
+composition (0045), and provider journeys and a recorded demo (0046/0047).
+These contributions do not close complete joined or charter qualification.
 
 | Area | Remaining work | Current state |
 | --- | --- | --- |
-| P2 qualification | Coherent integrated and native revision-0 execution, fresh-agent and supported-platform review, full charter registrations and final demo recording | Gated; complete P2 qualification remains pending (see [Installed starter journey](#installed-starter-journey)) |
-| P3 conversation and UI | Full responsive native and background conversation and the compact UI | Planned; the versioned durable policy prerequisite is qualified within its selected scope |
-| Shared quality and M1 | Final retained results for shared quality and original M1 observations | Still needed before phase closure |
-| P2 and P3 demonstrations | Full browser, modality and integrated demonstrations | Planned under their charters; current backend proofs are described above |
+| P2 qualification | Coherent native revision-0 execution, fresh-agent/platform review and full charter registrations | Partial; selected native, standalone and receiver gates passed, while full release remains open |
+| P3 conversation and UI | Complete joined handoff, voice/modality and recovery qualification | Selected I18B RTC text and compact UI qualified; joined composition remains partial |
+| Shared quality and M1 | Rerun affected checks for each subsequent source change | [0049](work-items/0049-sdk-compatibility-and-code-review.md) records offline checks; later changes need their own fresh evidence |
+| P2 and P3 demonstrations | Complete charter browser, modality and integrated demonstrations | Selected media/provider journeys and the video exist; they do not pass every charter requirement |
 | Charter rows and release | All seventeen P2 and the remaining fourteen P3 complete rows, broader integrated media and full release | Pending |
 
-For P3, use the existing native session and durable authority for the next
-integration, then complete the remaining handoff, restart, media and release
-requirements. All 146 selected P3 compatibility assertions passed with cleanup.
+For P3, preserve the existing native session and durable authority while completing
+the remaining handoff, restart, media and release requirements. The 146 selected
+compatibility assertions reported at the 0041 checkpoint remain historical
+evidence for that source, rather than fresh qualification of later composition.
 
 ### Final recording rules
 

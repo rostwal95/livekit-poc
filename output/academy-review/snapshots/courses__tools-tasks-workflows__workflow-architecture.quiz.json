@@ -1,0 +1,35 @@
+[
+  {
+    "question": "When should you use an AgentTask instead of a tool?",
+    "options": [
+      "When you need to log an analytics event",
+      "When you need to fetch data from an API",
+      "When you need to change the agent's personality",
+      "When you need to collect structured data from the user through conversation"
+    ],
+    "correctIndex": 3,
+    "explanation": "An AgentTask runs its own conversational loop to collect typed, structured data (like an order item with name, quantity, and modifications) and returns it to the parent agent. Tools are for quick lookups and side effects, while agent handoffs are for changing personality or role."
+  },
+  {
+    "question": "What is the role of session.userdata in a multi-agent workflow?",
+    "options": [
+      "It stores the agent's instructions",
+      "It configures the STT and TTS models",
+      "It tracks which tools are available to the current agent",
+      "It provides persistent shared state that survives agent handoffs"
+    ],
+    "correctIndex": 3,
+    "explanation": "session.userdata is a persistent object attached to the session that survives all agent handoffs. Any agent in the chain can read from and write to it, making it the mechanism for sharing state like the customer's name, order items, and feedback across different agents."
+  },
+  {
+    "question": "In the restaurant ordering system, why are Greeter, Order Taker, and Feedback Collector implemented as separate agents rather than phases of a single agent?",
+    "options": [
+      "Because each needs fundamentally different instructions, personality, and tools",
+      "Because LiveKit requires at least three agents per session",
+      "Because shared state only works with multiple agents",
+      "Because tasks cannot be used within a single agent"
+    ],
+    "correctIndex": 0,
+    "explanation": "Each agent represents a distinct conversational role with its own personality, instructions, and tools. The Greeter is warm and brief, the Order Taker is methodical and precise, and the Feedback Collector is empathetic. These are different roles, not different steps in a form, which is exactly when you should use separate agents."
+  }
+]

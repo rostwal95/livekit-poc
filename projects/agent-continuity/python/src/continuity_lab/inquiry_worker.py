@@ -62,9 +62,12 @@ def _error_code(error: Exception) -> str:
     if isinstance(error, SourceAdmissionClosed):
         return "source_quiesced"
     if isinstance(error, (ExecutionError, MigrationError)):
-        candidate = error.code
-        if isinstance(candidate, str) and candidate in _FAILURE_CODES:
-            return candidate
+        try:
+            candidate = error.code
+            if type(candidate) is str and candidate in _FAILURE_CODES:
+                return candidate
+        except Exception:  # noqa: BLE001 - diagnostic metadata cannot replace an original failure
+            return "execution_error"
         return "execution_error"
     if isinstance(error, ValueError):
         return "invalid_input"
@@ -78,7 +81,10 @@ def _event(event: str, code: str = "ok") -> None:
         level = logging.WARNING if code == "capacity_exhausted" else logging.ERROR
     elif code == "inquiry_rejected":
         level = logging.WARNING
-    LOGGER.log(level, event, extra={"event": event, "code": code})
+    try:
+        LOGGER.log(level, event, extra={"event": event, "code": code})
+    except Exception:  # noqa: BLE001 - telemetry cannot alter inquiry truth or failures
+        return
 
 
 class InquiryWorker:

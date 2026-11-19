@@ -1,0 +1,33 @@
+Connect to the Phone Network
+
+Give your agent a real phone number
+
+Give your dental receptionist a real phone number. Patients call from any phone, and your agent answers. SIP trunking, dispatch rules, DTMF, recording consent, and outbound calls.
+
+What You Build
+
+The dental receptionist with SIP telephony. Patients call from any phone, and your agent handles the call with recording consent, DTMF input, and HD voice.
+
+Prerequisites
+
+->Course 1.1
+
+SIP protocol deep dive, how phone callers become room participants, the telephony architecture, and how to debug SIP issues with pcaps and Wireshark.
+
+Acquire a phone number and configure an inbound SIP trunk with your provider.
+
+Route incoming calls to the right agent using dispatch rules and room naming conventions.
+
+Build a CollectConsent task that handles recording consent before the main agent takes over.
+
+Handle DTMF tones for keypad-based input using the GetDtmfTask prebuilt task.
+
+Configure HD voice with Opus, secure your trunks with TLS/SRTP, and pin to regions.
+
+Configure an outbound trunk and make calls programmatically with CreateSIPParticipant.
+
+Call your agent from your actual phone, verify the experience, and review in Cloud Insights.
+
+What You Walk Away With
+
+A phone-connected voice agent with inbound/outbound calling, recording consent workflows, DTMF handling, HD voice, and a deep understanding of LiveKit's telephony architecture.

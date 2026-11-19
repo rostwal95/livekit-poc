@@ -1,0 +1,62 @@
+{
+  "status": "PASS",
+  "pdf": "/Users/rostwal/Downloads/livekit-poc/output/pdf/LiveKit-Agents-Expanded-Study-Edition.pdf",
+  "pdf_sha256": "1a4eb79ee8134243b9d69775c21a569dfdb1b2680b8c097e85217d9aa91a389d",
+  "pages": 423,
+  "questions": 235,
+  "answered_followups": 531,
+  "new_questions": 15,
+  "expanded_existing_questions": 10,
+  "new_vector_figures": 5,
+  "total_vector_figures": 24,
+  "comparison_guides": 3,
+  "new_designed_failure_exercises": 4,
+  "code_reviews_preserved": 60,
+  "original_question_ids_preserved": 220,
+  "content_checks_passed": 2423,
+  "all_pages_visually_reviewed": true,
+  "page_layout_coverage": {
+    "p1": [
+      1,
+      144
+    ],
+    "p2": [
+      145,
+      278
+    ],
+    "p3": [
+      279,
+      423
+    ]
+  },
+  "full_page_samples": 77,
+  "final_three_guides_root_reviewed": [
+    289,
+    297,
+    326
+  ],
+  "navigation_checks": {
+    "pdf_sha256": "1a4eb79ee8134243b9d69775c21a569dfdb1b2680b8c097e85217d9aa91a389d",
+    "internal_pdf_links_checked": 331,
+    "external_pdf_links_checked": 241,
+    "question_index_entries_verified": 235,
+    "source_urls_verified": 70,
+    "html_question_previews": 15,
+    "all_link_destinations_valid": true,
+    "errors": []
+  },
+  "baseline_pdf_preserved": true,
+  "book_body_font_pt": 10.5,
+  "print": {
+    "size": "A4",
+    "duplex": "long edge",
+    "scale": "100% / actual size",
+    "inner_margin_pt": 68,
+    "outer_margin_pt": 46,
+    "sheets": 212,
+    "final_reverse": "blank"
+  },
+  "open_document_findings": [],
+  "scope": "Book content, source/API inspection, PDF layout and navigation. No application, provider, new media or designed-exercise qualification.",
+  "preview_evidence": "Representative final renders retained in ../previews/. Full-page intermediates were removed after QA; exact review coverage remains in visual-qa-p1/p2/p3.json."
+}

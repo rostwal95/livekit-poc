@@ -1,0 +1,11 @@
+{
+  "new_pdf_sha256": "1a4eb79ee8134243b9d69775c21a569dfdb1b2680b8c097e85217d9aa91a389d",
+  "previous_pdf_sha256": "8165a30e9dfd6db05b25671479b8578656ce7e67c180bfaab117df4ed3c86a3c",
+  "changed_page_streams": [
+    289,
+    297,
+    326
+  ],
+  "all_other_420_page_streams_byte_identical": true,
+  "reason": "Resolve deduplicated primary-source keys inside comparison tables."
+}

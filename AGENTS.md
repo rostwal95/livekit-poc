@@ -110,7 +110,8 @@ Abbreviations:
     [stable receiver and result ownership (0043)](#stable-receiver-and-original-result-ownership-0043),
     [original channel-input binding (0044)](#original-channel-input-binding-0044),
     [joined showcase provider mode and pacing (0046)](#joined-showcase-provider-mode-and-pacing-0046)
-    and [schema upgrades and review fixes (0047)](#schema-upgrades-and-review-fixes-0047).
+    [schema upgrades and review fixes (0047)](#schema-upgrades-and-review-fixes-0047)
+    and [joined lifecycle drains (0050)](#joined-lifecycle-drains-0050).
 - [Verification](#verification): the command table,
   [bootstrap and standard commands](#bootstrap-and-standard-commands),
   [real-profile and provider runs](#real-profile-and-provider-runs),
@@ -804,6 +805,20 @@ These rules belong to the
 - The console proxy resolves `control-api` per request.
 - Showcase Join defers only behind side-effect-free reads.
 
+### Joined lifecycle drains (0050)
+
+- Follow the [lifecycle handoff](docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md).
+- Room End fences new native input and observes original accepted-input dispatch
+  before grant revocation and worker teardown. Unknown work remains owned.
+- Parent preparation drains its operator, room and SMS owners while background
+  application origins remain available.
+- The launcher then quiesces both gateway dispatchers before closing the Parent
+  application. Keep gateway room-control/read resources until Parent cleanup succeeds.
+- Timeout and cancellation abandon an observer, not actual I/O. Reobserve the
+  original cleanup without requiring another stop signal or creating new work keys.
+- Keep runtime observer budgets distinct from frozen business and gate deadlines.
+- Do not claim fresh store/process/media qualification from controlled-port tests.
+
 ## Verification
 
 Every command uses paths relative to the repository root. The subsections below
@@ -819,7 +834,7 @@ gate status.
 | Catalog metadata and registration counts | `.venv/bin/python -m harness validate` | Standard set, after setup |
 | Baseline case (M1 intake tests) | `.venv/bin/python -m harness run BASE-01` | Standard set, after setup |
 | Full fast validation | `HARNESS_PYTHON=.venv/bin/python sh scripts/harness-check.sh` | Before handoff; required for shared policy, contract or harness changes |
-| Focused P1 boundary and contract groups | `HARNESS_PYTHON=.venv/bin/python sh scripts/harness-check.sh --module p1 --groups boundary,contract` | Standard set; a narrow P1 structural check |
+| Focused P1 boundary and contract groups | `HARNESS_PYTHON=.venv/bin/python sh scripts/harness-check.sh --module p1 --groups boundary,contract` | Selected P1 groups with offline test execution; the wrapper always enables tests |
 | P1 deep gate; P1-20 keeps default local_real, which remains unqualified | `HARNESS_PYTHON=.venv/bin/python sh scripts/harness-deep.sh --module p1` | Standard set; needs explicit real PostgreSQL and browser/inference setup |
 | Qualified P1 real-profile run | `P1_ACCEPTANCE_REAL_PROFILE=provider_real HARNESS_PYTHON=.venv/bin/python sh scripts/harness-deep.sh --module p1` | Only with explicit provider opt-in and all three privately configured provider keys |
 | PostgreSQL lane | `make postgres-check` | PostgreSQL changes, after the documented restricted-role setup |

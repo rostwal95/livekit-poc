@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "status": "completed_selected_corrective_scope",
+  "baseCommit": "6cec82f6718cf5f9319976196d2cfd449c2b0048",
+  "localUncommitted": true,
+  "rename": {
+    "current": "docs/work-items/0049-sdk-compatibility-and-code-review.md",
+    "oldPathAbsent": true,
+    "maintainedReferencesUpdated": true,
+    "originalMachineEvidenceRetained": "output/academy-code-audit"
+  },
+  "workItem": "docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md",
+  "fixed": [
+    "Gateway quiesces actual dispatch before Parent origins close",
+    "Original native accept is fenced/drained before grant/worker retirement",
+    "In-flight same-room preparation preserves the original claim",
+    "Retained cleanup reobserves incomplete closure automatically within original retry-admission bounds",
+    "Unready owned child is reaped rather than awaited indefinitely"
+  ],
+  "documentation": {
+    "maintainedDocuments": 137,
+    "coverage": {
+      "full": 67,
+      "targeted": 18,
+      "historical_retention": 44,
+      "prior_full_current_contract_review": 8
+    },
+    "ledger": "documentation-ledger.json",
+    "syntaxDiagrams": 53,
+    "syntaxFiles": 17,
+    "hashesFinalized": true,
+    "finalChecker": "documentation-final-check.json"
+  },
+  "verification": {
+    "python": 3816,
+    "typescript": 2072,
+    "requiredSkips": 0,
+    "installedApplicationFakePortTests": 772,
+    "installedP3Tests": 61,
+    "installedProcessGroupsSettled": 42,
+    "postgresAndNativeGates": {
+      "standalone": 2,
+      "dispatch": 5,
+      "gateway": 3,
+      "agent": 1,
+      "native": 6,
+      "channelOrigin": 14
+    },
+    "typesLintFormattingBuilds": "passed",
+    "selectedJoinedJourney": "Eleven stages observed and one-signal children closed; browser controller final result interrupted by desktop update. Independent durable reconciliation passed."
+  },
+  "evidenceFiles": {
+    "changed-source-snapshot.json": "b571f3a24bfb2ccddde18394d8ef4058c305cdc6124d0c8f9f47967564a28991",
+    "final-validation.json": "a62d3c0aafe103e66cf6dab49a3fe9246308a91821f7ba427374eb05655e30f6",
+    "final-integration-validation.json": "a37f876929e0132713f30e5ac2d0bcfecc973343ceb8fb3500ce6ae99ce184ed",
+    "installed-package-review.json": "77ded046807810bb09b24d339cc84f7fb3e8d4761b2f02c8c708b7514d5edb59",
+    "pg-native-end-result.json": "733c065ee45af2609edee5551a9ea3c4a492469faad4ebc2b2f1e83d3c7cab65",
+    "final-documentation-check.json": "0f6b34c2ddb55a75caf3795d7d73d2226d9f9eec42513339be988c23ac459e7f",
+    "joined-attempt-2/joined-interruption-reconciliation.json": "67edfda5f6f6388d97a96ef2593d871dcd62007f46c763fa053e43fe22841da1",
+    "documentation-ledger.json": "e9ed30ce27bbbc086ebdb4d7eb7b0d73515ffa091d7287eba907bb78a58e8a69",
+    "documentation-ledger-merge-validation.json": "0c7ae8f721205c7b46de6a803c6742f8bae71389a89e22fe15e0e9e321190845",
+    "documentation-final-inventory.json": "f25a0624af5ff373c6f739911c4d4c70b3f3a4ec8909685d8feeae3731951839",
+    "documentation-final-check.json": "0f6b34c2ddb55a75caf3795d7d73d2226d9f9eec42513339be988c23ac459e7f",
+    "mermaid-syntax.json": "e7827dd63bdf6ed578ea3f4c28e558dae102feeb412ba9960192f7a6776cd7a2"
+  },
+  "limits": [
+    "Full joined45B/45C/45D and remaining charter release gates remain open.",
+    "Expired/revoked/blocked/exhausted accepted channel inputs can remain Closing; observers cannot grant eligibility.",
+    "Provider and model quality were not rerun; no provider credentials read or calls made.",
+    "Installed public probe verifies types/exports with fake ports, not Node gateway application runtime from an isolated package.",
+    "Book PDFs retain their existing snapshot and were not regenerated."
+  ]
+}

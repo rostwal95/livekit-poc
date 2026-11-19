@@ -27,7 +27,8 @@ current case.
 - The page has no resend, revision, confirmation, dispatch or playback controls.
 - Investigation consent and exact mutation confirmation remain separate
   authorities.
-- The complete standalone I21 starter and I22 release remain separate.
+- The [I21 standalone starter](STARTER.md) passed its selected gate separately;
+  I22 release remains open.
 
 ## Reader composition
 
@@ -223,7 +224,8 @@ owns its isolated schemas, explicit producer commands, browser and cleanup.
 - Its fake operation/carrier ports and synthetic communication publications do not
   qualify real providers or SDK media.
 - The installed operations factory is qualified within this selected scope. The
-  later complete I21 standalone starter keeps its own gate.
+  complete [I21 standalone starter](STARTER.md) has its own passed gate; neither
+  gate completes I22 release.
 
 ### Shutdown order
 

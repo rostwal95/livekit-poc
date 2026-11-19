@@ -1,0 +1,26 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "#include <LiveKitClient.h>\n#include <ArduinoJson.h>\n#include <DHT.h>\n\n#define LED_PIN 2\n#define SERVO_PIN 4\n#define DHT_PIN 13\n#define RELAY_PIN 12\n\nDHT dht(DHT_PIN, DHT22);\nLiveKitClient lk;\n\nvoid onDataReceived(const char* data, size_t len) {\n  StaticJsonDocument<256> doc;\n  deserializeJson(doc, data, len);\n\n  const char* action = doc[\"action\"];\n\n  if (strcmp(action, \"set_led\") == 0) {\n      int value = doc[\"value\"];\n      digitalWrite(LED_PIN, value ? HIGH : LOW);\n      sendResponse(\"led\", value ? \"on\" : \"off\");\n  }\n  else if (strcmp(action, \"set_relay\") == 0) {\n      int value = doc[\"value\"];\n      digitalWrite(RELAY_PIN, value ? HIGH : LOW);\n      sendResponse(\"relay\", value ? \"on\" : \"off\");\n  }\n  else if (strcmp(action, \"read_temperature\") == 0) {\n      float temp = dht.readTemperature();\n      char buf[64];\n      snprintf(buf, sizeof(buf),\n          \"{\\\"sensor\\\":\\\"temperature\\\",\\\"value\\\":%.1f}\", temp);\n      lk.sendData(buf);\n  }\n  else if (strcmp(action, \"set_servo\") == 0) {\n      int angle = doc[\"angle\"];\n      setServoAngle(SERVO_PIN, angle);\n      sendResponse(\"servo\", String(angle).c_str());\n  }\n}\n\nvoid sendResponse(const char* device, const char* state) {\n  char buf[128];\n  snprintf(buf, sizeof(buf),\n      \"{\\\"device\\\":\\\"%s\\\",\\\"state\\\":\\\"%s\\\"}\", device, state);\n  lk.sendData(buf);\n}\n\nvoid setup() {\n  pinMode(LED_PIN, OUTPUT);\n  pinMode(RELAY_PIN, OUTPUT);\n  dht.begin();\n\n  lk.onData(onDataReceived);\n  // ... WiFi and LiveKit connection setup\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, Agent, function_tool, RunContext\nfrom livekit import rtc\nimport json\n\n\nclass HardwareAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You control a smart home device. You can:\n          - Turn lights on and off\n          - Read the current temperature\n          - Control a servo motor (0-180 degrees)\n          - Toggle a relay for appliances\n          Confirm each action after executing it.\"\"\",\n      )\n\n  @function_tool()\n  async def turn_light_on(self, context: RunContext):\n      \"\"\"Turn on the LED light.\"\"\"\n      await self._send_command(context, {\"action\": \"set_led\", \"value\": 1})\n      return \"Light turned on.\"\n\n  @function_tool()\n  async def turn_light_off(self, context: RunContext):\n      \"\"\"Turn off the LED light.\"\"\"\n      await self._send_command(context, {\"action\": \"set_led\", \"value\": 0})\n      return \"Light turned off.\"\n\n  @function_tool()\n  async def read_temperature(self, context: RunContext):\n      \"\"\"Read the current temperature from the sensor.\"\"\"\n      await self._send_command(context, {\"action\": \"read_temperature\"})\n      return \"Temperature reading requested.\"\n\n  @function_tool()\n  async def set_servo(self, context: RunContext, angle: int):\n      \"\"\"Set the servo motor to a specific angle (0-180 degrees).\"\"\"\n      angle = max(0, min(180, angle))\n      await self._send_command(\n          context, {\"action\": \"set_servo\", \"angle\": angle}\n      )\n      return f\"Servo set to {angle} degrees.\"\n\n  async def _send_command(self, context: RunContext, command: dict):\n      payload = json.dumps(command).encode()\n      await context.room.local_participant.publish_data(\n          payload, reliable=True\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "unsigned long lastSensorRead = 0;\nconst unsigned long SENSOR_INTERVAL = 30000;  // 30 seconds\n\nvoid loop() {\n  lk.update();\n\n  if (millis() - lastSensorRead > SENSOR_INTERVAL) {\n      float temp = dht.readTemperature();\n      float humidity = dht.readHumidity();\n\n      char buf[128];\n      snprintf(buf, sizeof(buf),\n          \"{\\\"type\\\":\\\"telemetry\\\",\\\"temp\\\":%.1f,\\\"humidity\\\":%.1f}\",\n          temp, humidity);\n      lk.sendData(buf);\n      lastSensorRead = millis();\n  }\n}"
+  }
+]

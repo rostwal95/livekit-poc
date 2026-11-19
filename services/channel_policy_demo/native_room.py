@@ -383,7 +383,7 @@ class NativeRoomOwner:
         python_executable: Path,
         base_environment: Mapping[str, str],
         startup_timeout_s: float = 15,
-        cleanup_timeout_s: float = 2,
+        cleanup_timeout_s: float = 30,
         ports: NativeRoomPorts | None = None,
         provider_environment: Mapping[str, str] | None = None,
     ) -> None:
@@ -436,7 +436,7 @@ class NativeRoomOwner:
             self._provider: dict[str, str] = (
                 {} if provider_environment is None else provider_keys(provider_environment)
             )
-            for value, maximum in ((startup_timeout_s, 15), (cleanup_timeout_s, 15)):
+            for value, maximum in ((startup_timeout_s, 15), (cleanup_timeout_s, 30)):
                 _need(
                     type(value) in (int, float)
                     and 0.02 <= value <= maximum
@@ -885,11 +885,33 @@ class NativeRoomOwner:
             and (record.ending.cancelled() or record.ending.exception() is not None)
         ):
             try:
-                record.ending = _task(self._finish_end(record), cleanup=True)
+                record.ending = _task(self._drain_end(record), cleanup=True)
             except Exception:  # noqa: BLE001 - finite application boundary; preserve actual owners and private errors
                 # Actual resources remain on record; explicit close/End retries
                 # task allocation without dropping an owner or emitting secrets.
                 self._count("cleanupIncomplete")
+
+    async def _drain_end(self, record: _Activation) -> None:
+        # A close observer can fail before its actual resource finishes closing.
+        # Reobserve this same activation without another End click or stop signal.
+        # The deadline limits NEW attempts, never cancels an already owned one.
+        loop = self._bind()
+        deadline = loop.time() + self._cleanup_budget
+        pause = 0.02
+        while True:
+            try:
+                await self._finish_end(record)
+                return
+            except NativeRoomError as error:
+                if error.code != "cleanup_incomplete":
+                    raise
+                remaining = deadline - loop.time()
+                if remaining <= 0:
+                    raise
+                await asyncio.sleep(min(pause, remaining))
+                if loop.time() >= deadline:
+                    raise
+                pause = min(pause * 2, 0.25)
 
     async def _front_owner(
         self, record: _Activation, name: str, action: Callable[[], Coroutine[Any, Any, None]]
@@ -954,20 +976,31 @@ class NativeRoomOwner:
             return
         assert record.control is not None
         command = record.node_open.command()
-        if not record.close_attempted:
-            # Observe the original identity first, especially after an unknown
-            # open acknowledgement. A conflicting/absent original stays unknown;
-            # it never causes a fresh open or unrelated version to be adopted.
-            value = await record.control.observe(command, binding=record.node_open.binding)
-            self._accept_node(record, value)
-            if value.state != "closed":
-                record.close_attempted = True
-                value = await record.control.close_room(command, binding=record.node_open.binding)
-        else:
-            value = await record.control.observe(command, binding=record.node_open.binding)
-        self._accept_node(record, value)
-        _need(value.state == "closed", "cleanup_incomplete")
-        record.g_closed = True
+        deadline = self._bind().time() + self._cleanup_budget
+        while True:
+            try:
+                # Observe the original identity first, especially after an
+                # unknown open/close acknowledgement. Never create another room
+                # or adopt an unrelated version to resolve uncertainty.
+                value = await record.control.observe(command, binding=record.node_open.binding)
+                self._accept_node(record, value)
+                if value.state != "closed":
+                    record.close_attempted = True
+                    # Exact close replay shares Node's retained pending drain or
+                    # retries a failed one. It cannot mint another operation.
+                    value = await record.control.close_room(
+                        command, binding=record.node_open.binding
+                    )
+                    self._accept_node(record, value)
+                if value.state == "closed":
+                    record.g_closed = True
+                    return
+            except NativeRoomError as error:
+                if error.code not in {"cleanup_incomplete", "outcome_unknown", "unavailable"}:
+                    raise
+            remaining = deadline - self._bind().time()
+            _need(remaining > 0, "cleanup_incomplete")
+            await asyncio.sleep(min(0.1, remaining))
 
     async def _close_sfu(self, record: _Activation) -> None:
         if record.sfu_absent or not record.create_attempted:
@@ -1006,12 +1039,16 @@ class NativeRoomOwner:
         try:
             if record.startup is not None:
                 await asyncio.gather(asyncio.shield(record.startup), return_exceptions=True)
+            # The gateway fences new native intake and drains already accepted
+            # original inputs while its grant and application origins remain
+            # usable. Stopping the worker or revoking the binding first can
+            # strand an input which has not reached durable P1 acceptance yet.
+            await self._close_g(record)
             await self._front_drain(record)
             if record.view is not None and not record.view_closed:
                 await record.view.close()
                 _need(record.view.pending_count == 0, "cleanup_incomplete")
                 record.view_closed = True
-            await self._close_g(record)
             await self._close_sfu(record)
             final: list[tuple[str, Callable[[], Coroutine[Any, Any, None]]]] = []
             if record.control is not None and not record.control_closed:

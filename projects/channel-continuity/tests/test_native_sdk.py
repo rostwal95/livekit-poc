@@ -579,8 +579,46 @@ class NativeSdkTests(unittest.IsolatedAsyncioTestCase):
             self.assertFalse(r.sdk_closed)
         self.assertEqual(r.metrics()["activeIntakes"], 0)
         self.assertEqual(r.metrics()["observerPending"], 0)
-        # Fixture-only repair closes the still-owned actual SDK session after its injected failure.
-        r._close_task = None
+        failed_close = r._close_task
+        sdk_close = r.session.aclose
+        retry_entered, retry_release = asyncio.Event(), asyncio.Event()
+        retry_calls = 0
+
+        async def recovered_close():
+            nonlocal retry_calls
+            retry_calls += 1
+            retry_entered.set()
+            await retry_release.wait()
+            await sdk_close()
+
+        with patch.object(r.session, "aclose", new=recovered_close):
+            first_retry = asyncio.create_task(r.aclose())
+            try:
+                async with asyncio.timeout(1):
+                    await retry_entered.wait()
+                second_retry = asyncio.create_task(r.aclose())
+                await asyncio.sleep(0)
+                self.assertIsNot(r._close_task, failed_close)
+                self.assertEqual(retry_calls, 1)
+                self.assertFalse(r._close_task.done())
+                self.assertTrue(r._closed)
+                self.assertFalse(r._ready)
+                with self.assertRaises(rtc.RpcError):
+                    await r.start_turn(rpc(str(uuid4())))
+                with self.assertRaises(NativeError):
+                    await r.prepare(context(r.binding, str(uuid4())))
+                first_retry.cancel()
+                with self.assertRaises(asyncio.CancelledError):
+                    await first_retry
+                self.assertFalse(r._close_task.done())
+                self.assertFalse(second_retry.done())
+            finally:
+                retry_release.set()
+                await asyncio.gather(first_retry, return_exceptions=True)
+            await second_retry
+            await r.aclose()
+        self.assertEqual(retry_calls, 1)
+        self.assertTrue(r.sdk_closed)
 
     async def test_two_actual_reader_slots_hold_until_settlement_and_reject_third(self):
         r, p, _stt, model, *_ = await self.make()

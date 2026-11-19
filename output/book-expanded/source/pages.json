@@ -1,0 +1,3807 @@
+[
+  {
+    "kind": "cover",
+    "title": "",
+    "page": 1,
+    "chapter_number": 0,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "Reading and printing this edition",
+    "kicker": "A4 DUPLEX / SOURCE REVIEWED CODE",
+    "key": "print-guide",
+    "page": 2,
+    "chapter_number": 0,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "What the content audit changed",
+    "kicker": "EVERY QUESTION / EVERY FOLLOW-UP",
+    "key": "content-audit",
+    "page": 3,
+    "chapter_number": 0,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "New depth from the curriculum audit",
+    "kicker": "19 NOVEMBER 2026 / INTEGRATED AND SOURCE CHECKED",
+    "key": "academy-expansion",
+    "page": 4,
+    "chapter_number": 0,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "contents",
+    "title": "Contents",
+    "kicker": "CHAPTERS",
+    "key": "contents",
+    "page": 5,
+    "chapter_number": 0,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "figure-index",
+    "title": "Figures and practice",
+    "kicker": "VISUAL READING MAP",
+    "key": "figure-index",
+    "page": 6,
+    "chapter_number": 0,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "The role and your evidence",
+    "kicker": "SOFTWARE ENGINEER AGENTS",
+    "key": "role-map",
+    "page": 7,
+    "chapter_number": 0,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "The snapshot you can defend",
+    "kicker": "IMPLEMENTATION AND QUALIFICATION",
+    "key": "snapshot",
+    "page": 8,
+    "chapter_number": 0,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "Version namespaces and proof boundaries",
+    "kicker": "KEEP THE AXES SEPARATE",
+    "key": "versions",
+    "page": 9,
+    "chapter_number": 0,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "figure",
+    "title": "Who owns each fact",
+    "figure": "authority",
+    "kicker": "FIGURE F01",
+    "key": "fig-F01",
+    "page": 10,
+    "chapter_number": 0,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "chapter",
+    "title": "Defending the complete system",
+    "kicker": "CHAPTER 01",
+    "key": "chapter-1",
+    "page": 11,
+    "chapter_number": 1,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "The project in two minutes",
+    "section": "Defending the complete system",
+    "key": "q-SYS-01",
+    "page": 12,
+    "chapter_number": 1,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Draw the authority map",
+    "section": "Defending the complete system",
+    "key": "q-SYS-02",
+    "page": 13,
+    "chapter_number": 1,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Trace one input end to end",
+    "section": "Defending the complete system",
+    "key": "q-SYS-03",
+    "page": 14,
+    "chapter_number": 1,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "The hardest boundary",
+    "section": "Defending the complete system",
+    "key": "q-SYS-04",
+    "page": 15,
+    "chapter_number": 1,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Prove the demo",
+    "section": "Defending the complete system",
+    "key": "q-SYS-05",
+    "page": 16,
+    "chapter_number": 1,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Discuss the current gaps",
+    "section": "Defending the complete system",
+    "key": "q-SYS-06",
+    "page": 17,
+    "chapter_number": 1,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Why these tools",
+    "section": "Defending the complete system",
+    "key": "q-SYS-07",
+    "page": 18,
+    "chapter_number": 1,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Adversarial data and authority",
+    "section": "Defending the complete system",
+    "key": "q-SYS-08",
+    "page": 19,
+    "chapter_number": 1,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "blank",
+    "title": "Chapter opening",
+    "page": 20,
+    "chapter_number": 1,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "chapter",
+    "title": "P1 Agent continuity and durable execution",
+    "kicker": "CHAPTER 02",
+    "key": "chapter-2",
+    "page": 21,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "text",
+    "title": "Walk the P1 boundary",
+    "kicker": "IMPLEMENTATION WALKTHROUGH",
+    "key": null,
+    "page": 22,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "text",
+    "title": "What this project does not establish",
+    "kicker": "LIMITS TO STATE CLEARLY",
+    "key": null,
+    "page": 23,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "figure",
+    "title": "The two orders of revision and intent",
+    "figure": "commit",
+    "kicker": "FIGURE F02",
+    "key": "fig-F02",
+    "page": 24,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "figure",
+    "title": "A possible external effect stays possible",
+    "figure": "effect",
+    "kicker": "FIGURE F03",
+    "key": "fig-F03",
+    "page": 25,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "figure",
+    "title": "A lease check after the lock wait",
+    "figure": "lease",
+    "kicker": "FIGURE F04",
+    "key": "fig-F04",
+    "page": 26,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "The boundary that survives the call",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-01",
+    "page": 27,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Acceptance and acknowledgement loss",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-02",
+    "page": 28,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Canonical content and identity conflicts",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-03",
+    "page": 29,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Keep identities separate",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-04",
+    "page": 30,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Investigation is not mutation consent",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-05",
+    "page": 31,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "One atomic commitment point",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-06",
+    "page": 32,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Revision and confirmation races",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-07",
+    "page": 33,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Legacy consent and proposal evolution",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-08",
+    "page": 34,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Persisted waits and early signals",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-09",
+    "page": 35,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Supplier success before the crash",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-10",
+    "page": 36,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "An honest unknown outcome",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-11",
+    "page": 37,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Cancellation across three boundaries",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-12",
+    "page": 38,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Atomic completion and the outbox",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-13",
+    "page": 39,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Database leases and stale writers",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-14",
+    "page": 40,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Worker lifetime and owned children",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-15",
+    "page": 41,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Responsive async boundaries",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-16",
+    "page": 42,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Admission and useful progress at capacity",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-17",
+    "page": 43,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Persisted retry pacing and its limit",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-18",
+    "page": 44,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Safe migration without runtime repair",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-19",
+    "page": 45,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "The separate accepted-work profile",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-20",
+    "page": 46,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Issue once and reconcile the original grant",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-21",
+    "page": 47,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Result truth and eligibility",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-22",
+    "page": 48,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Receiver binding and possible delivery",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-23",
+    "page": 49,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Guarded action across work and case state",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-24",
+    "page": 50,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "A feed cursor that cannot skip a commit",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-25",
+    "page": 51,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Trusted scope and safe diagnostics",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-26",
+    "page": 52,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "A package a real consumer can install",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-27",
+    "page": 53,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Evidence you can defend",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-28",
+    "page": 54,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Why this architecture instead of a workflow platform",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-29",
+    "page": 55,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "question",
+    "title": "Review the external-call transaction boundary",
+    "section": "P1 Agent continuity and durable execution",
+    "key": "q-P1-30",
+    "page": 56,
+    "chapter_number": 2,
+    "accent": "#178061"
+  },
+  {
+    "kind": "chapter",
+    "title": "P1 Code decisions under the transaction boundary",
+    "kicker": "CHAPTER 03",
+    "key": "chapter-3",
+    "page": 57,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "figure",
+    "title": "Feed sequence follows visible commit order",
+    "figure": "feedcommit",
+    "kicker": "FIGURE F05",
+    "key": "fig-F05",
+    "page": 58,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "blank",
+    "title": "Facing review spread",
+    "page": 59,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Read the clock after waiting for authority",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-01",
+    "page": 60,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Read the clock after waiting for authority",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-01",
+    "page": 61,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Check scope before revealing coordination state",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-02",
+    "page": 62,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Check scope before revealing coordination state",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-02",
+    "page": 63,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Reject hostile equality before comparing values",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-03",
+    "page": 64,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Reject hostile equality before comparing values",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-03",
+    "page": 65,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Bound the iteration rather than trusting len",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-04",
+    "page": 66,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Bound the iteration rather than trusting len",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-04",
+    "page": 67,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Treat a conditional write as an assertion",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-05",
+    "page": 68,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Treat a conditional write as an assertion",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-05",
+    "page": 69,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "A committed read validates its original evidence",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-06",
+    "page": 70,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "A committed read validates its original evidence",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-06",
+    "page": 71,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Replay has precedence over new admission",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-07",
+    "page": 72,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Replay has precedence over new admission",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-07",
+    "page": 73,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Mark possible commit before leaving the transaction",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-08",
+    "page": 74,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Mark possible commit before leaving the transaction",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-08",
+    "page": 75,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Release the slot when actual I O ends",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-09",
+    "page": 76,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Release the slot when actual I O ends",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-09",
+    "page": 77,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Preserve the primary failure during cleanup",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-10",
+    "page": 78,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Preserve the primary failure during cleanup",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-10",
+    "page": 79,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Persist a deadline capped due time",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-11",
+    "page": 80,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Persist a deadline capped due time",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-11",
+    "page": 81,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "A lookup miss cannot erase a prior reservation",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-12",
+    "page": 82,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "A lookup miss cannot erase a prior reservation",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-12",
+    "page": 83,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Store late bytes and choose one disposition",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-13",
+    "page": 84,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Store late bytes and choose one disposition",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-13",
+    "page": 85,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Allocate cursor order inside the result transaction",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-14",
+    "page": 86,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Allocate cursor order inside the result transaction",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-14",
+    "page": 87,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Refuse the upgrade before creating leased tables",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-15",
+    "page": 88,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Refuse the upgrade before creating leased tables",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-15",
+    "page": 89,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "code",
+    "title": "Validate metadata before selecting from it",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "q-D1-16",
+    "page": 90,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "defense",
+    "title": "Validate metadata before selecting from it",
+    "section": "P1 Code decisions under the transaction boundary",
+    "key": "defense-D1-16",
+    "page": 91,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "blank",
+    "title": "Chapter opening",
+    "page": 92,
+    "chapter_number": 3,
+    "accent": "#178061"
+  },
+  {
+    "kind": "chapter",
+    "title": "P2 One conversation across channels",
+    "kicker": "CHAPTER 04",
+    "key": "chapter-4",
+    "page": 93,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "text",
+    "title": "Walk the P2 boundary",
+    "kicker": "IMPLEMENTATION WALKTHROUGH",
+    "key": null,
+    "page": 94,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "text",
+    "title": "What this project does not establish",
+    "kicker": "LIMITS TO STATE CLEARLY",
+    "key": null,
+    "page": 95,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "figure",
+    "title": "Durable input before dispatched generation",
+    "figure": "intake",
+    "kicker": "FIGURE F06",
+    "key": "fig-F06",
+    "page": 96,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "figure",
+    "title": "Rehydrate without inventing an atomic snapshot",
+    "figure": "context",
+    "kicker": "FIGURE F07",
+    "key": "fig-F07",
+    "page": 97,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "figure",
+    "title": "Reserve permission before carrier I O",
+    "figure": "outbound",
+    "kicker": "FIGURE F08",
+    "key": "fig-F08",
+    "page": 98,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "One case across several channels",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-01",
+    "page": 99,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Authenticate the bytes before interpreting them",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-02",
+    "page": 100,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Sender association has a lifecycle",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-03",
+    "page": 101,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "A language-neutral event contract",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-04",
+    "page": 102,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Commit before acknowledging input",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-05",
+    "page": 103,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Capacity cannot erase replay protection",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-06",
+    "page": 104,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Freeze the preparation before external acceptance",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-07",
+    "page": 105,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Claims fence writes without fencing remote calls",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-08",
+    "page": 106,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "A gateway polls durable eligibility",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-09",
+    "page": 107,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Timeout means the waiter stopped waiting",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-10",
+    "page": 108,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Native grants bind the original participant",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-11",
+    "page": 109,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Final recognition belongs to one source turn",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-12",
+    "page": 110,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Durable intake must precede generation",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-13",
+    "page": 111,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Generation scheduling and completion are different",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-14",
+    "page": 112,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Prove what was generated and what was played",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-15",
+    "page": 113,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Interrupt the intended response",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-16",
+    "page": 114,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Rehydration is an explicitly timed read",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-17",
+    "page": 115,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Revision routing needs one authority",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-18",
+    "page": 116,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "An exact quote needs linked confirmation",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-19",
+    "page": 117,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Reserve the send before carrier I O",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-20",
+    "page": 118,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Retry the provider operation under its real contract",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-21",
+    "page": 119,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Later evidence cannot rewrite admitted history",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-22",
+    "page": 120,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Callbacks add evidence without granting permission",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-23",
+    "page": 121,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "A stable receiver accepts the original result",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-24",
+    "page": 122,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Disclose an old result through a current grant",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-25",
+    "page": 123,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Schema changes belong to the owner",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-26",
+    "page": 124,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Original input provenance survives the bridge",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-27",
+    "page": 125,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Operations pages are bounded readers",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-28",
+    "page": 126,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "A workload is evidence within a declared envelope",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-29",
+    "page": 127,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "A clean SDK includes honest release boundaries",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-30",
+    "page": 128,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Defend the unresolved lifecycle findings",
+    "section": "P2 One conversation across channels",
+    "key": "q-P2-31",
+    "page": 129,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "blank",
+    "title": "Chapter opening",
+    "page": 130,
+    "chapter_number": 4,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "chapter",
+    "title": "P2 Code decisions across channels and awaits",
+    "kicker": "CHAPTER 05",
+    "key": "chapter-5",
+    "page": 131,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "figure",
+    "title": "Authenticate twice for two different questions",
+    "figure": "auth",
+    "kicker": "FIGURE F09",
+    "key": "fig-F09",
+    "page": 132,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "blank",
+    "title": "Facing review spread",
+    "page": 133,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "A cheap authentication pass before SQL",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-01",
+    "page": 134,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "A cheap authentication pass before SQL",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-01",
+    "page": 135,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "Reject complete byte overflow before parsing",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-02",
+    "page": 136,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "Reject complete byte overflow before parsing",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-02",
+    "page": 137,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "Validate time as one canonical representation",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-03",
+    "page": 138,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "Validate time as one canonical representation",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-03",
+    "page": 139,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "A rolled back connection is not necessarily broken",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-04",
+    "page": 140,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "A rolled back connection is not necessarily broken",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-04",
+    "page": 141,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "Carry quote JSON without reparsing it",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-05",
+    "page": 142,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "Carry quote JSON without reparsing it",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-05",
+    "page": 143,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "Reuse the stored preparation before consulting a new world",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-06",
+    "page": 144,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "Reuse the stored preparation before consulting a new world",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-06",
+    "page": 145,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "Freeze final recognition before the first asynchronous boundary",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-07",
+    "page": 146,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "Freeze final recognition before the first asynchronous boundary",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-07",
+    "page": 147,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "Stop the default SDK path after custom intake",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-08",
+    "page": 148,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "Stop the default SDK path after custom intake",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-08",
+    "page": 149,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "Read the authority clock after waiting for the binding",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-09",
+    "page": 150,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "Read the authority clock after waiting for the binding",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-09",
+    "page": 151,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "Recheck disclosure after the public case read",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-10",
+    "page": 152,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "Recheck disclosure after the public case read",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-10",
+    "page": 153,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "Retain the evidence that admitted a new provider operation",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-11",
+    "page": 154,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "Retain the evidence that admitted a new provider operation",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-11",
+    "page": 155,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "A callback must win admission to veto a new reservation",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-12",
+    "page": 156,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "A callback must win admission to veto a new reservation",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-12",
+    "page": 157,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "Idle polling should respond to progress rather than activity",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-13",
+    "page": 158,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "Idle polling should respond to progress rather than activity",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-13",
+    "page": 159,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "Reserve capacity to record facts already learned",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-14",
+    "page": 160,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "Reserve capacity to record facts already learned",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-14",
+    "page": 161,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "An index migration still needs protected ownership",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-15",
+    "page": 162,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "An index migration still needs protected ownership",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-15",
+    "page": 163,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "code",
+    "title": "Do not derive the external receipt from source UUIDs",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "q-D2-16",
+    "page": 164,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "defense",
+    "title": "Do not derive the external receipt from source UUIDs",
+    "section": "P2 Code decisions across channels and awaits",
+    "key": "defense-D2-16",
+    "page": 165,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "blank",
+    "title": "Chapter opening",
+    "page": 166,
+    "chapter_number": 5,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "chapter",
+    "title": "P3 Delegation with explicit result authority",
+    "kicker": "CHAPTER 06",
+    "key": "chapter-6",
+    "page": 167,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "text",
+    "title": "Walk the P3 boundary",
+    "kicker": "IMPLEMENTATION WALKTHROUGH",
+    "key": null,
+    "page": 168,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "text",
+    "title": "What this project does not establish",
+    "kicker": "LIMITS TO STATE CLEARLY",
+    "key": null,
+    "page": 169,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "figure",
+    "title": "Acceptance issuance result and action",
+    "figure": "delegation",
+    "kicker": "FIGURE F10",
+    "key": "fig-F10",
+    "page": 170,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "figure",
+    "title": "Scan progress is not the terminal watermark",
+    "figure": "feed",
+    "kicker": "FIGURE F11",
+    "key": "fig-F11",
+    "page": 171,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Choose a delegation boundary",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-01",
+    "page": 172,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Keep one execution authority",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-02",
+    "page": 173,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Design a cross-language contract",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-03",
+    "page": 174,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Authenticate service scope",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-04",
+    "page": 175,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Persist before acknowledging delegation",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-05",
+    "page": 176,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Separate acceptance from invocation",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-06",
+    "page": 177,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Bound the entire HTTP lifecycle",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-07",
+    "page": 178,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Cancellation stops a waiter first",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-08",
+    "page": 179,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Separate the clocks and deadlines",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-09",
+    "page": 180,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Truth and applicability are different",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-10",
+    "page": 181,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Verify facts after parsing",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-11",
+    "page": 182,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Keep uncertainty useful",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-12",
+    "page": 183,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Do not retarget a result",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-13",
+    "page": 184,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Explain a permanently unknown send",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-14",
+    "page": 185,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Commit an action atomically",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-15",
+    "page": 186,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Defend both action race outcomes",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-16",
+    "page": 187,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Project references without cloning authority",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-17",
+    "page": 188,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Scan around unresolved work",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-18",
+    "page": 189,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Keep transient errors from blocking progress",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-19",
+    "page": 190,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Refresh without rewriting history",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-20",
+    "page": 191,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Hide display without deleting protection",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-21",
+    "page": 192,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Bind work to the original channel input",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-22",
+    "page": 193,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Preserve the first accepted origin winner",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-23",
+    "page": 194,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Keep the conversation responsive",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-24",
+    "page": 195,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Treat images as untrusted evidence",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-25",
+    "page": 196,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Keep image execution outside policy authority",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-26",
+    "page": 197,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Recover through explicit original identities",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-27",
+    "page": 198,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Close resources in dependency order",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-28",
+    "page": 199,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Deliver a package developers can consume",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-29",
+    "page": 200,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Turn observations into safe diagnostics",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-30",
+    "page": 201,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Defend the remaining limits",
+    "section": "P3 Delegation with explicit result authority",
+    "key": "q-P3-31",
+    "page": 202,
+    "chapter_number": 6,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "chapter",
+    "title": "P3 Code decisions at the specialist boundary",
+    "kicker": "CHAPTER 07",
+    "key": "chapter-7",
+    "page": 203,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "figure",
+    "title": "Valid bytes can still be unsupported facts",
+    "figure": "facts",
+    "kicker": "FIGURE F12",
+    "key": "fig-F12",
+    "page": 204,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "blank",
+    "title": "Facing review spread",
+    "page": 205,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Reject ambiguous JSON before making a typed value",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-01",
+    "page": 206,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Reject ambiguous JSON before making a typed value",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-01",
+    "page": 207,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Keep logical identity stable across transport attempts",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-02",
+    "page": 208,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Keep logical identity stable across transport attempts",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-02",
+    "page": 209,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Validate factual support before returning expired",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-03",
+    "page": 210,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Validate factual support before returning expired",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-03",
+    "page": 211,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Treat issuance as a one-call capability",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-04",
+    "page": 212,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Treat issuance as a one-call capability",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-04",
+    "page": 213,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Release only the permit that was minted",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-05",
+    "page": 214,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Release only the permit that was minted",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-05",
+    "page": 215,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Observe worker exit before trusting its message",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-06",
+    "page": 216,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Observe worker exit before trusting its message",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-06",
+    "page": 217,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Record validated results even after cancellation",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-07",
+    "page": 218,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Record validated results even after cancellation",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-07",
+    "page": 219,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Make close respect the write boundary",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-08",
+    "page": 220,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Make close respect the write boundary",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-08",
+    "page": 221,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Leave transiently unavailable rows unacknowledged",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-09",
+    "page": 222,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Leave transiently unavailable rows unacknowledged",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-09",
+    "page": 223,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Spend one shared budget across cursor wrap",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-10",
+    "page": 224,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Spend one shared budget across cursor wrap",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-10",
+    "page": 225,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Replay a refresh before consulting the world again",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-11",
+    "page": 226,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Replay a refresh before consulting the world again",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-11",
+    "page": 227,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Hide a card without freeing its protected identity",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-12",
+    "page": 228,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Hide a card without freeing its protected identity",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-12",
+    "page": 229,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Allocate feed order inside the result transaction",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-13",
+    "page": 230,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Allocate feed order inside the result transaction",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-13",
+    "page": 231,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Bound image cost before copying and decompression",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-14",
+    "page": 232,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Bound image cost before copying and decompression",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-14",
+    "page": 233,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Select a closed codec through an explicit facade",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-15",
+    "page": 234,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Select a closed codec through an explicit facade",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-15",
+    "page": 235,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "code",
+    "title": "Require complete equality when the port claims creation",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "q-D3-16",
+    "page": 236,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "defense",
+    "title": "Require complete equality when the port claims creation",
+    "section": "P3 Code decisions at the specialist boundary",
+    "key": "defense-D3-16",
+    "page": 237,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "blank",
+    "title": "Chapter opening",
+    "page": 238,
+    "chapter_number": 7,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "chapter",
+    "title": "Code decisions in the joined application",
+    "kicker": "CHAPTER 08",
+    "key": "chapter-8",
+    "page": 239,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "figure",
+    "title": "Shared scan and independent observers",
+    "figure": "singleflight",
+    "kicker": "FIGURE F13",
+    "key": "fig-F13",
+    "page": 240,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "blank",
+    "title": "Facing review spread",
+    "page": 241,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "code",
+    "title": "Publish ownership before starting the task",
+    "section": "Code decisions in the joined application",
+    "key": "q-D4-01",
+    "page": 242,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "defense",
+    "title": "Publish ownership before starting the task",
+    "section": "Code decisions in the joined application",
+    "key": "defense-D4-01",
+    "page": 243,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "code",
+    "title": "Abandon the scan only after the last waiter leaves",
+    "section": "Code decisions in the joined application",
+    "key": "q-D4-02",
+    "page": 244,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "defense",
+    "title": "Abandon the scan only after the last waiter leaves",
+    "section": "Code decisions in the joined application",
+    "key": "defense-D4-02",
+    "page": 245,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "code",
+    "title": "Expiry after a successful read",
+    "section": "Code decisions in the joined application",
+    "key": "q-D4-03",
+    "page": 246,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "defense",
+    "title": "Expiry after a successful read",
+    "section": "Code decisions in the joined application",
+    "key": "defense-D4-03",
+    "page": 247,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "code",
+    "title": "Pacing without a shadow queue",
+    "section": "Code decisions in the joined application",
+    "key": "q-D4-04",
+    "page": 248,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "defense",
+    "title": "Pacing without a shadow queue",
+    "section": "Code decisions in the joined application",
+    "key": "defense-D4-04",
+    "page": 249,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "code",
+    "title": "Preserve a decoded acknowledgment",
+    "section": "Code decisions in the joined application",
+    "key": "q-D4-05",
+    "page": 250,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "defense",
+    "title": "Preserve a decoded acknowledgment",
+    "section": "Code decisions in the joined application",
+    "key": "defense-D4-05",
+    "page": 251,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "code",
+    "title": "Recognize a reset as observed closure",
+    "section": "Code decisions in the joined application",
+    "key": "q-D4-06",
+    "page": 252,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "defense",
+    "title": "Recognize a reset as observed closure",
+    "section": "Code decisions in the joined application",
+    "key": "defense-D4-06",
+    "page": 253,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "code",
+    "title": "One user intention through double click",
+    "section": "Code decisions in the joined application",
+    "key": "q-D4-07",
+    "page": 254,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "defense",
+    "title": "One user intention through double click",
+    "section": "Code decisions in the joined application",
+    "key": "defense-D4-07",
+    "page": 255,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "code",
+    "title": "Do not fall back to an older green answer",
+    "section": "Code decisions in the joined application",
+    "key": "q-D4-08",
+    "page": 256,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "defense",
+    "title": "Do not fall back to an older green answer",
+    "section": "Code decisions in the joined application",
+    "key": "defense-D4-08",
+    "page": 257,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "code",
+    "title": "Own media before publication awaits",
+    "section": "Code decisions in the joined application",
+    "key": "q-D4-09",
+    "page": 258,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "defense",
+    "title": "Own media before publication awaits",
+    "section": "Code decisions in the joined application",
+    "key": "defense-D4-09",
+    "page": 259,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "code",
+    "title": "Propagate the actual call budget",
+    "section": "Code decisions in the joined application",
+    "key": "q-D4-10",
+    "page": 260,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "defense",
+    "title": "Propagate the actual call budget",
+    "section": "Code decisions in the joined application",
+    "key": "defense-D4-10",
+    "page": 261,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "code",
+    "title": "Two handles for one logical recognizer",
+    "section": "Code decisions in the joined application",
+    "key": "q-D4-11",
+    "page": 262,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "defense",
+    "title": "Two handles for one logical recognizer",
+    "section": "Code decisions in the joined application",
+    "key": "defense-D4-11",
+    "page": 263,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "code",
+    "title": "Recheck at response admission",
+    "section": "Code decisions in the joined application",
+    "key": "q-D4-12",
+    "page": 264,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "defense",
+    "title": "Recheck at response admission",
+    "section": "Code decisions in the joined application",
+    "key": "defense-D4-12",
+    "page": 265,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "blank",
+    "title": "Chapter opening",
+    "page": 266,
+    "chapter_number": 8,
+    "accent": "#BF5B3F"
+  },
+  {
+    "kind": "chapter",
+    "title": "WebRTC from first principles",
+    "kicker": "CHAPTER 09",
+    "key": "chapter-9",
+    "page": 267,
+    "chapter_number": 9,
+    "accent": "#047D98"
+  },
+  {
+    "kind": "figure",
+    "title": "Signaling and media use different paths",
+    "figure": "webrtc",
+    "kicker": "FIGURE F14",
+    "key": "fig-F14",
+    "page": 268,
+    "chapter_number": 9,
+    "accent": "#047D98"
+  },
+  {
+    "kind": "question",
+    "title": "The complete stack",
+    "section": "WebRTC from first principles",
+    "key": "q-RTC-01",
+    "page": 269,
+    "chapter_number": 9,
+    "accent": "#047D98"
+  },
+  {
+    "kind": "question",
+    "title": "Offer answer and candidates",
+    "section": "WebRTC from first principles",
+    "key": "q-RTC-02",
+    "page": 270,
+    "chapter_number": 9,
+    "accent": "#047D98"
+  },
+  {
+    "kind": "question",
+    "title": "STUN TURN and restrictive networks",
+    "section": "WebRTC from first principles",
+    "key": "q-RTC-03",
+    "page": 271,
+    "chapter_number": 9,
+    "accent": "#047D98"
+  },
+  {
+    "kind": "question",
+    "title": "Transport encryption and endpoint trust",
+    "section": "WebRTC from first principles",
+    "key": "q-RTC-04",
+    "page": 272,
+    "chapter_number": 9,
+    "accent": "#047D98"
+  },
+  {
+    "kind": "question",
+    "title": "Packets time and intelligibility",
+    "section": "WebRTC from first principles",
+    "key": "q-RTC-05",
+    "page": 273,
+    "chapter_number": 9,
+    "accent": "#047D98"
+  },
+  {
+    "kind": "question",
+    "title": "Data channels and durable messages",
+    "section": "WebRTC from first principles",
+    "key": "q-RTC-06",
+    "page": 274,
+    "chapter_number": 9,
+    "accent": "#047D98"
+  },
+  {
+    "kind": "question",
+    "title": "Mesh SFU and MCU",
+    "section": "WebRTC from first principles",
+    "key": "q-RTC-07",
+    "page": 275,
+    "chapter_number": 9,
+    "accent": "#047D98"
+  },
+  {
+    "kind": "question",
+    "title": "Diagnose with getStats",
+    "section": "WebRTC from first principles",
+    "key": "q-RTC-08",
+    "page": 276,
+    "chapter_number": 9,
+    "accent": "#047D98"
+  },
+  {
+    "kind": "chapter",
+    "title": "Inside a LiveKit agent session",
+    "kicker": "CHAPTER 10",
+    "key": "chapter-10",
+    "page": 277,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "figure",
+    "title": "Where a voice answer can pause",
+    "figure": "pipeline",
+    "kicker": "FIGURE F15",
+    "key": "fig-F15",
+    "page": 278,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Core runtime objects",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-01",
+    "page": 279,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Dispatch and process isolation",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-02",
+    "page": 280,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Trace the voice pipeline",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-03",
+    "page": 281,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Turn taking and durable intake",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-04",
+    "page": 282,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Interruption without losing truth",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-05",
+    "page": 283,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Text is a full modality",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-06",
+    "page": 284,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Reconnect and rehydrate",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-07",
+    "page": 285,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Provider modes and observability",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-08",
+    "page": 286,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Conversational tasks and durable work",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-09",
+    "page": 287,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "figure",
+    "title": "Choose the owner of the work",
+    "figure": "sdk_work",
+    "kicker": "FIGURE F20",
+    "key": "fig-F20",
+    "page": 288,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "text",
+    "title": "Choose the abstraction by the state it owns",
+    "kicker": "COMPARE / CHOOSE / DEFEND",
+    "key": "academy-guide-1",
+    "page": 289,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Signals that end a turn",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-10",
+    "page": 290,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Preserve the hook and node contract",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-11",
+    "page": 291,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Release only approved output",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-12",
+    "page": 292,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Configure a real hybrid pipeline",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-13",
+    "page": 293,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Authorize the token issuer",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-14",
+    "page": 294,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Realtime APIs and durable commands",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-15",
+    "page": 295,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "figure",
+    "title": "Name the frontend acknowledgment",
+    "figure": "frontend_authority",
+    "kicker": "FIGURE F21",
+    "key": "fig-F21",
+    "page": 296,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "text",
+    "title": "Choose the LiveKit data API by its evidence",
+    "kicker": "COMPARE / CHOOSE / DEFEND",
+    "key": "academy-guide-2",
+    "page": 297,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Separate the two dispatch decisions",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-16",
+    "page": 298,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Transfer without inventing acceptance",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-17",
+    "page": 299,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "figure",
+    "title": "Route the call before transferring it",
+    "figure": "sip_transfer",
+    "kicker": "FIGURE F22",
+    "key": "fig-F22",
+    "page": 300,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Bind retrieval to the original turn",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-18",
+    "page": 301,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "Cache sources within their permitted scope",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-19",
+    "page": 302,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "figure",
+    "title": "Admit evidence before releasing speech",
+    "figure": "rag_output",
+    "kicker": "FIGURE F23",
+    "key": "fig-F23",
+    "page": 303,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "question",
+    "title": "One authority across graphs and tools",
+    "section": "Inside a LiveKit agent session",
+    "key": "q-LK-20",
+    "page": 304,
+    "chapter_number": 10,
+    "accent": "#4560C2"
+  },
+  {
+    "kind": "chapter",
+    "title": "Failure diagnosis and production recovery",
+    "kicker": "CHAPTER 11",
+    "key": "chapter-11",
+    "page": 305,
+    "chapter_number": 11,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "figure",
+    "title": "Start with the missing observation",
+    "figure": "triage",
+    "kicker": "FIGURE F16",
+    "key": "fig-F16",
+    "page": 306,
+    "chapter_number": 11,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "question",
+    "title": "Connected but silent",
+    "section": "Failure diagnosis and production recovery",
+    "key": "q-FAIL-01",
+    "page": 307,
+    "chapter_number": 11,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "question",
+    "title": "Latency climbed overnight",
+    "section": "Failure diagnosis and production recovery",
+    "key": "q-FAIL-02",
+    "page": 308,
+    "chapter_number": 11,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "question",
+    "title": "A dependency times out",
+    "section": "Failure diagnosis and production recovery",
+    "key": "q-FAIL-03",
+    "page": 309,
+    "chapter_number": 11,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "question",
+    "title": "Crash after a possible effect",
+    "section": "Failure diagnosis and production recovery",
+    "key": "q-FAIL-04",
+    "page": 310,
+    "chapter_number": 11,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "question",
+    "title": "Duplicate SMS and contradictory callbacks",
+    "section": "Failure diagnosis and production recovery",
+    "key": "q-FAIL-05",
+    "page": 311,
+    "chapter_number": 11,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "question",
+    "title": "An old result appears current",
+    "section": "Failure diagnosis and production recovery",
+    "key": "q-FAIL-06",
+    "page": 312,
+    "chapter_number": 11,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "question",
+    "title": "Shutdown consumes the final input",
+    "section": "Failure diagnosis and production recovery",
+    "key": "q-FAIL-07",
+    "page": 313,
+    "chapter_number": 11,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "question",
+    "title": "Provider outage and reconnect storm",
+    "section": "Failure diagnosis and production recovery",
+    "key": "q-FAIL-08",
+    "page": 314,
+    "chapter_number": 11,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "chapter",
+    "title": "Designing for scale and durable progress",
+    "kicker": "CHAPTER 12",
+    "key": "chapter-12",
+    "page": 315,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "figure",
+    "title": "One timeout and three remaining lifetimes",
+    "figure": "lifetime",
+    "kicker": "FIGURE F17",
+    "key": "fig-F17",
+    "page": 316,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "question",
+    "title": "Scale the right subsystem",
+    "section": "Designing for scale and durable progress",
+    "key": "q-SCALE-01",
+    "page": 317,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "question",
+    "title": "Capacity arithmetic",
+    "section": "Designing for scale and durable progress",
+    "key": "q-SCALE-02",
+    "page": 318,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "question",
+    "title": "Backpressure that reaches admission",
+    "section": "Designing for scale and durable progress",
+    "key": "q-SCALE-03",
+    "page": 319,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "question",
+    "title": "High availability without lost truth",
+    "section": "Designing for scale and durable progress",
+    "key": "q-SCALE-04",
+    "page": 320,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "question",
+    "title": "Fairness and useful progress",
+    "section": "Designing for scale and durable progress",
+    "key": "q-SCALE-05",
+    "page": 321,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "question",
+    "title": "Deploy while sessions are active",
+    "section": "Designing for scale and durable progress",
+    "key": "q-SCALE-06",
+    "page": 322,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "question",
+    "title": "SLOs for a voice and work system",
+    "section": "Designing for scale and durable progress",
+    "key": "q-SCALE-07",
+    "page": 323,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "question",
+    "title": "Multi region and a single owner",
+    "section": "Designing for scale and durable progress",
+    "key": "q-SCALE-08",
+    "page": 324,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "question",
+    "title": "Choose providers with a repeatable experiment",
+    "section": "Designing for scale and durable progress",
+    "key": "q-SCALE-09",
+    "page": 325,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "text",
+    "title": "Freeze the voice experiment before comparing stacks",
+    "kicker": "COMPARE / CHOOSE / DEFEND",
+    "key": "academy-guide-3",
+    "page": 326,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "question",
+    "title": "Restore each class of state",
+    "section": "Designing for scale and durable progress",
+    "key": "q-SCALE-10",
+    "page": 327,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "blank",
+    "title": "Chapter opening",
+    "page": 328,
+    "chapter_number": 12,
+    "accent": "#0B846E"
+  },
+  {
+    "kind": "chapter",
+    "title": "NATS from subjects to durable consumers",
+    "kicker": "CHAPTER 13",
+    "key": "chapter-13",
+    "page": 329,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "text",
+    "title": "Trace the message boundary",
+    "kicker": "HYPOTHETICAL DESIGN WALKTHROUGH",
+    "key": null,
+    "page": 330,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "text",
+    "title": "Limits of these examples",
+    "kicker": "LIMITS TO STATE CLEARLY",
+    "key": null,
+    "page": 331,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "figure",
+    "title": "Three acknowledgments with different meanings",
+    "figure": "nats",
+    "kicker": "FIGURE F18",
+    "key": "fig-F18",
+    "page": 332,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Messaging without endpoint addresses",
+    "section": "NATS from subjects to durable consumers",
+    "key": "q-NATS-01",
+    "page": 333,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Design a subject space",
+    "section": "NATS from subjects to durable consumers",
+    "key": "q-NATS-02",
+    "page": 334,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Broadcast and worker selection",
+    "section": "NATS from subjects to durable consumers",
+    "key": "q-NATS-03",
+    "page": 335,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Request reply does not remove ambiguity",
+    "section": "NATS from subjects to durable consumers",
+    "key": "q-NATS-04",
+    "page": 336,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "The crash gap around consumer acknowledgment",
+    "section": "NATS from subjects to durable consumers",
+    "key": "q-NATS-05",
+    "page": 337,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Bound exactly once to the right boundary",
+    "section": "NATS from subjects to durable consumers",
+    "key": "q-NATS-06",
+    "page": 338,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Ordering has several meanings",
+    "section": "NATS from subjects to durable consumers",
+    "key": "q-NATS-07",
+    "page": 339,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Backpressure must bound actual work",
+    "section": "NATS from subjects to durable consumers",
+    "key": "q-NATS-08",
+    "page": 340,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Replication needs a stated fault model",
+    "section": "NATS from subjects to durable consumers",
+    "key": "q-NATS-09",
+    "page": 341,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "question",
+    "title": "Authenticate principals and restrict subjects",
+    "section": "NATS from subjects to durable consumers",
+    "key": "q-NATS-10",
+    "page": 342,
+    "chapter_number": 13,
+    "accent": "#7950B8"
+  },
+  {
+    "kind": "chapter",
+    "title": "NATS in the LiveKit ecosystem",
+    "kicker": "CHAPTER 14",
+    "key": "chapter-14",
+    "page": 343,
+    "chapter_number": 14,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "text",
+    "title": "Trace the message boundary",
+    "kicker": "HYPOTHETICAL DESIGN WALKTHROUGH",
+    "key": null,
+    "page": 344,
+    "chapter_number": 14,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "text",
+    "title": "Limits of these examples",
+    "kicker": "LIMITS TO STATE CLEARLY",
+    "key": null,
+    "page": 345,
+    "chapter_number": 14,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "figure",
+    "title": "LiveKit transport bus and application authority",
+    "figure": "planes",
+    "kicker": "FIGURE F19",
+    "key": "fig-F19",
+    "page": 346,
+    "chapter_number": 14,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "What the self hosting guide actually says",
+    "section": "NATS in the LiveKit ecosystem",
+    "key": "q-BUS-01",
+    "page": 347,
+    "chapter_number": 14,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "PSRPC is an abstraction over a bus",
+    "section": "NATS in the LiveKit ecosystem",
+    "key": "q-BUS-02",
+    "page": 348,
+    "chapter_number": 14,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Follow the construction path",
+    "section": "NATS in the LiveKit ecosystem",
+    "key": "q-BUS-03",
+    "page": 349,
+    "chapter_number": 14,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "What this repository runs",
+    "section": "NATS in the LiveKit ecosystem",
+    "key": "q-BUS-04",
+    "page": 350,
+    "chapter_number": 14,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Add wake up hints without a second owner",
+    "section": "NATS in the LiveKit ecosystem",
+    "key": "q-BUS-05",
+    "page": 351,
+    "chapter_number": 14,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "question",
+    "title": "Design the interview failure experiment",
+    "section": "NATS in the LiveKit ecosystem",
+    "key": "q-BUS-06",
+    "page": 352,
+    "chapter_number": 14,
+    "accent": "#176FAC"
+  },
+  {
+    "kind": "chapter",
+    "title": "Questions behind the Agents role",
+    "kicker": "CHAPTER 15",
+    "key": "chapter-15",
+    "page": 353,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Async is not automatic parallelism",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-01",
+    "page": 354,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Choose structured concurrency deliberately",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-02",
+    "page": 355,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Immutable inputs and typed ports",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-03",
+    "page": 356,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Design a result API callers can use",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-04",
+    "page": 357,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "TypeScript at a trust boundary",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-05",
+    "page": 358,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Timeouts in JavaScript",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-06",
+    "page": 359,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Tests that establish a contract",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-07",
+    "page": 360,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Design the minimal public SDK",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-08",
+    "page": 361,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Compatibility as a behavior contract",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-09",
+    "page": 362,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Product and community judgment",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-10",
+    "page": 363,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Your contribution and AI assistance",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-11",
+    "page": 364,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Choose the next coherent slice",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-12",
+    "page": 365,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "question",
+    "title": "Evaluate language and correctness separately",
+    "section": "Questions behind the Agents role",
+    "key": "q-ROLE-13",
+    "page": 366,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "figure",
+    "title": "Match each claim to its evidence",
+    "figure": "evidence_layers",
+    "kicker": "FIGURE F24",
+    "key": "fig-F24",
+    "page": 367,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "blank",
+    "title": "Chapter opening",
+    "page": 368,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "challenge",
+    "title": "Connectivity and conversation",
+    "kicker": "COMMON CHALLENGE LOOKUP",
+    "key": "challenges",
+    "page": 369,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "challenge",
+    "title": "Connectivity and conversation continued",
+    "kicker": "COMMON CHALLENGE LOOKUP",
+    "key": null,
+    "page": 370,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "challenge",
+    "title": "Durable work and authority",
+    "kicker": "COMMON CHALLENGE LOOKUP",
+    "key": null,
+    "page": 371,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "challenge",
+    "title": "Durable work and authority continued",
+    "kicker": "COMMON CHALLENGE LOOKUP",
+    "key": null,
+    "page": 372,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "challenge",
+    "title": "Resources and integration",
+    "kicker": "COMMON CHALLENGE LOOKUP",
+    "key": null,
+    "page": 373,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "challenge",
+    "title": "Resources and integration continued",
+    "kicker": "COMMON CHALLENGE LOOKUP",
+    "key": null,
+    "page": 374,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "text",
+    "title": "Bounded async ownership",
+    "kicker": "CODING DRILL 01",
+    "key": "drill-1",
+    "page": 375,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "text",
+    "title": "Atomic idempotent intake",
+    "kicker": "CODING DRILL 02",
+    "key": "drill-2",
+    "page": 376,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "text",
+    "title": "Exhaustive TypeScript outcomes",
+    "kicker": "CODING DRILL 03",
+    "key": "drill-3",
+    "page": 377,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "text",
+    "title": "Conditional lease transition",
+    "kicker": "CODING DRILL 04",
+    "key": "drill-4",
+    "page": 378,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "text",
+    "title": "A truthful feed consumer",
+    "kicker": "CODING DRILL 05",
+    "key": "drill-5",
+    "page": 379,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "text",
+    "title": "One original browser input",
+    "kicker": "CODING DRILL 06",
+    "key": "drill-6",
+    "page": 380,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "text",
+    "title": "Interrupted retrieval keeps its original turn",
+    "kicker": "FAILURE EXERCISE 01 / DESIGN AND VERIFY",
+    "key": "academy-drill-1",
+    "page": 381,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "Lose the RPC reply after acceptance",
+    "kicker": "FAILURE EXERCISE 02 / DESIGN AND VERIFY",
+    "key": "academy-drill-2",
+    "page": 382,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "The transfer target never answers",
+    "kicker": "FAILURE EXERCISE 03 / DESIGN AND VERIFY",
+    "key": "academy-drill-3",
+    "page": 383,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "The judge improves while an invariant fails",
+    "kicker": "FAILURE EXERCISE 04 / DESIGN AND VERIFY",
+    "key": "academy-drill-4",
+    "page": 384,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "A preparation route you can rehearse",
+    "kicker": "FROM THE QUESTION TO THE CODE",
+    "key": "route",
+    "page": 385,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": "practice",
+    "page": 386,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 387,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 388,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 389,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 390,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 391,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 392,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 393,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 394,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 395,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 396,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 397,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 398,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 399,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 400,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 401,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 402,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 403,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 404,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "practice",
+    "title": "Questions only",
+    "kicker": "ACTIVE RECALL INDEX",
+    "key": null,
+    "page": 405,
+    "chapter_number": 15,
+    "accent": "#B7650B"
+  },
+  {
+    "kind": "text",
+    "title": "Primary references",
+    "kicker": "SOURCE LIBRARY",
+    "key": "sources",
+    "page": 406,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "Primary references",
+    "kicker": "SOURCE LIBRARY",
+    "key": null,
+    "page": 407,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "Primary references",
+    "kicker": "SOURCE LIBRARY",
+    "key": null,
+    "page": 408,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "Primary references",
+    "kicker": "SOURCE LIBRARY",
+    "key": null,
+    "page": 409,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "Primary references",
+    "kicker": "SOURCE LIBRARY",
+    "key": null,
+    "page": 410,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "Primary references",
+    "kicker": "SOURCE LIBRARY",
+    "key": null,
+    "page": 411,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "Primary references",
+    "kicker": "SOURCE LIBRARY",
+    "key": null,
+    "page": 412,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "P1 source reading map",
+    "kicker": "CODE REVIEW SCOPE",
+    "key": "source-map",
+    "page": 413,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "P1 source reading map",
+    "kicker": "CODE REVIEW SCOPE",
+    "key": null,
+    "page": 414,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "P2 source reading map",
+    "kicker": "CODE REVIEW SCOPE",
+    "key": null,
+    "page": 415,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "P2 source reading map",
+    "kicker": "CODE REVIEW SCOPE",
+    "key": null,
+    "page": 416,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "P2 source reading map",
+    "kicker": "CODE REVIEW SCOPE",
+    "key": null,
+    "page": 417,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "P3 source reading map",
+    "kicker": "CODE REVIEW SCOPE",
+    "key": null,
+    "page": 418,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "P3 source reading map",
+    "kicker": "CODE REVIEW SCOPE",
+    "key": null,
+    "page": 419,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "P3 source reading map",
+    "kicker": "CODE REVIEW SCOPE",
+    "key": null,
+    "page": 420,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "P3 source reading map",
+    "kicker": "CODE REVIEW SCOPE",
+    "key": null,
+    "page": 421,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "Application source reading map",
+    "kicker": "CODE REVIEW SCOPE",
+    "key": null,
+    "page": 422,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  },
+  {
+    "kind": "text",
+    "title": "Keep these boundaries clear",
+    "kicker": "FINAL REHEARSAL SHEET",
+    "key": "last-sheet",
+    "page": 423,
+    "chapter_number": 15,
+    "accent": "#2D46D7"
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "question": "What does setting modalities=['text'] on a realtime model change about its behavior?",
+    "options": [
+      "It disables the model entirely",
+      "The model stops accepting audio input",
+      "The model still processes audio input but produces text output instead of audio, allowing a separate TTS to handle speech synthesis",
+      "It switches to a pipeline architecture automatically"
+    ],
+    "correctIndex": 2,
+    "explanation": "Setting modalities to text-only changes the realtime model's output mode. It still receives and processes raw audio input \u2014 preserving its ability to understand tone, emotion, and context. But instead of generating audio, it outputs text, which is then routed to a dedicated TTS for speech synthesis."
+  },
+  {
+    "question": "A company wants to use Gemini Live for its vision capabilities (seeing the user's camera) but requires a specific cloned voice from ElevenLabs. Which architecture should they use?",
+    "options": [
+      "Pure realtime with Gemini Live",
+      "Full pipeline with a vision model bolted on",
+      "Half-cascade: Gemini Live with text-only output paired with ElevenLabs TTS",
+      "Hybrid with agent handoff between Gemini and a pipeline agent"
+    ],
+    "correctIndex": 2,
+    "explanation": "Half-cascade with Gemini Live is the ideal solution. Gemini processes audio and video input natively (no separate vision pipeline needed), reasons about both, and outputs text. ElevenLabs TTS converts that text to speech using the cloned voice. This gives the company multimodal input, strong reasoning, and the exact voice they need."
+  },
+  {
+    "question": "Why is half-cascade especially useful when loading conversation history with OpenAI's Realtime API?",
+    "options": [
+      "It loads history faster than other architectures",
+      "OpenAI Realtime can become text-only after loading extensive history, so having a separate TTS already configured avoids the failure mode of the model suddenly not producing audio",
+      "It compresses history more efficiently",
+      "It skips loading history entirely"
+    ],
+    "correctIndex": 1,
+    "explanation": "The OpenAI Realtime API is known to become more likely to respond in text only after loading extensive conversation history. If you rely on the model's built-in audio output, this can break your agent mid-conversation. With half-cascade, the TTS is always a separate component, so the model producing text is the expected behavior \u2014 not a failure mode."
+  }
+]

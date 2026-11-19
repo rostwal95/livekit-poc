@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "documents": 137,
+  "local_fragment_candidates": [],
+  "personal_path_hits": [],
+  "obsolete_0049_reference_hits": [],
+  "documentation_check_exit": 0,
+  "repository_dependency_diff_empty": true,
+  "limits": "Fragment scan uses a conservative GFM heading-slug approximation; passing is not external-link availability, rendered layout, or product qualification."
+}

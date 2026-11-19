@@ -90,7 +90,7 @@ gate. A qualified signal is still a diagnostic observation, not business truth.
 | [Outbox and fake SMS carrier](#outbox-and-fake-sms-carrier) | `ChannelOutbox` and `FakeSmsSendClient` | Fixed `channel_outbox` events; control and send counters | Qualified (selected 0033 gates) |
 | [Send recovery counters](#send-recovery-counters) | `ChannelOutbox` recovery path | Recovery, retry, lookup and veto counters | Qualified (selected 0035 gates) |
 | [Callback inbox](#callback-inbox) | `CallbackInbox` | Fixed `channel_callbacks` events; `CallbackError` codes | Qualified (selected 0034 gates) |
-| [Native input](#native-input) | Native runtime, SDK log sanitizer and browser | Eighteen native metrics; six-key `p2.generation` observations | Qualified (selected 0036 gates) |
+| [Native input](#native-input) | Native runtime, SDK log sanitizer and browser | Original eighteen fields, later lifetime counters and six-key `p2.generation` observations | Original fields qualified in selected 0036 gates; later fields keep their own evidence |
 | [Response and playback evidence](#response-and-playback-evidence) | Communication store, gateway, Python capture and browser | Fixed cumulative counters; eight-key `p2.response` wire | Qualified (selected 0037 gates) |
 | [Read-only context rehydration](#read-only-context-rehydration) | P2 facade, context listener, Python client, SDK profile and browser | Numeric outcome and ownership fields | Qualified (selected 0038 gates) |
 | [Ordinary inbox observers and workload study](#ordinary-inbox-observers-and-workload-study) | Ordinary inbox and the P2 study | `observerPending`, `observerDropped` and `observerFailures`; process maxima | Qualified (selected 0039 gates) |
@@ -764,8 +764,8 @@ acknowledgement and no execution permission.
 
 #### Shared rules for delivery and action
 
-The v3 delivery, result receiver and guarded action values start no metrics
-endpoint or exporter and reset with their owning process. Identifiers never
+These clients' process-local metrics start no endpoint or exporter and reset
+with their owning process; persisted intents and receipts do not reset. Identifiers never
 become metric dimensions. A timeout after writing can be
 `acknowledgement_unknown`. Reconcile original identities instead of inventing a
 new send or action. Known byte acceptance, exact intent commitment and observed
@@ -917,7 +917,8 @@ process-local values are:
 | Ownership observations | active, intakes, sockets, handlers, driver, observerPending |
 
 These values describe actual local ownership, not fleet totals or an exporter.
-A successful HTTP response is separate from committed acceptance. A restart
+Transport success alone does not prove acceptance; the validated receipt identifies
+the committed input. A restart
 after acknowledgement inspects persisted processing truth under the original
 receipt and key.
 
@@ -1141,7 +1142,10 @@ are not a new Prometheus exporter or an inspected OTLP trace pipeline.
 | `activeReaders`, `activePrepare`, `activeIntakes`, `activeVoiceWork` | Current actual occupancy, retained until owned work settles. Never replace missing observations with zero. |
 | `observerPending`, `observerFailures`, `observerDropped` | Current bounded notice occupancy, cumulative callback and log-delivery failures, and cap-driven drops. Eight notices at most. A synchronous, asynchronous or log outage does not change accepted truth. |
 
-These groups contain exactly eighteen native metrics. The runtime's fixed
+These groups are the eighteen native fields introduced in 0036, not the complete
+current metrics map. Later lifetime support adds `activeReplyObservers`,
+`sdkSessionClosed` and `sdkCloseAllocationFailed`; those observations do not
+retroactively expand the 0036 gate. The runtime's fixed
 `native_state` event carries finite `native_event` and `native_code` fields.
 The application's explicit SDK log sanitizer emits at most 128 records using
 only allowlisted event, code and level values. It omits messages, transcript
@@ -1630,8 +1634,9 @@ composes P1, P2 and P3 through their public APIs. It adds finite executor scan,
 job and close events and aggregate source-read and HTTP lifetime counts. These
 are process observations with no raw body, key or per-ID metric dimension. A
 failed or abandoned waiter does not release an actual runner, read or socket
-slot. The joined UI and a fleet exporter remain separate integration work; a
-metrics method alone does not establish either.
+slot. The joined UI has the separate partial qualification recorded in that
+work item. A metrics method alone establishes neither browser/media behavior nor
+a fleet exporter.
 
 ## Planned product instrumentation
 
@@ -1708,7 +1713,9 @@ observations do not establish production security or complete release tracing.
 
 ### Final provider run trace evidence
 
-The final provider run's retained API query is bounded to 100 traces. It
+The P1 release provider run recorded in
+[0019](work-items/0019-p1-phase-h-release-qualification.md) has a retained API
+query bounded to 100 traces. It
 includes one failed `continuity.get` span whose precise cause is unresolved.
 Retained native and worker queries contain no error spans. Required progression,
 privacy, authority and cleanup passed, but complete API history and global
@@ -1733,3 +1740,7 @@ retained projections.
 
 Physical microphone and live-model quality need their own evidence. Hosted CI
 and publication are outside the local POC scope.
+
+The [current P1 qualification summary](build-plan.md#p1-qualification) distinguishes
+the retained provider-real release from the later booking-v5 rerun and its open
+fresh P1-20 result.

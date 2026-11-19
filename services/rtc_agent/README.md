@@ -1,7 +1,13 @@
 # Local transport diagnostic agent
 
-Status: Active
-Last reviewed: 15 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Active |
+| Purpose | Explain how to run and validate the local transport diagnostic worker |
+| Audience | Engineers running or changing the diagnostic worker |
+| Scope | Worker setup, commands and diagnostic evidence; excludes model inference and product workflows |
+| Owns | Diagnostic worker onboarding, implementation status and validation commands |
+| Related | [Agent instructions](AGENTS.md) · [Design](Design.md) · [Shared design](../../Design.md) · [Local setup](../../local-setup/README.md) |
 
 ## Overview
 
@@ -33,24 +39,29 @@ Native SDK logs remain a separate boundary.
 
 ## Documentation
 
-- [AGENTS.md](AGENTS.md) for coding rules and [Design.md](Design.md) for the design.
-- The [shared design](../../Design.md) for ecosystem data flow and authority.
-- The [local setup guide](../../local-setup/README.md) for the stack lifecycle and smoke checks.
+| Document | Purpose |
+| --- | --- |
+| [AGENTS.md](AGENTS.md) | Coding rules |
+| [Design.md](Design.md) | Worker design |
+| [Shared design](../../Design.md) | Ecosystem data flow and authority |
+| [Local setup guide](../../local-setup/README.md) | Stack lifecycle and smoke checks |
 
 ## Requirements
 
-- Install the root `agent` extra plus the local settings dependencies.
-- Set `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` through the local setup.
-- The health endpoint listens on container port 8081.
-- Model preloading is disabled because this worker performs no inference.
+| Requirement | Configuration or limit |
+| --- | --- |
+| Dependencies | Install the root `agent` extra plus the local settings dependencies |
+| Credentials | Set `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` through the local setup |
+| Health endpoint | Container port 8081 |
+| Model preloading | Disabled because this worker performs no inference |
 
 ## Commands
 
-Use the local setup lifecycle for the composed stack. The container process entry is:
+Use the local setup lifecycle for the composed stack.
 
-```sh
-python -m services.rtc_agent start
-```
+| Command | Purpose |
+| --- | --- |
+| `python -m services.rtc_agent start` | Container process entry |
 
 Run it from the repository root in the installed environment with the required
 configuration. The local setup supplies those values. Do not source untrusted
@@ -58,16 +69,13 @@ shell configuration.
 
 ## Validation
 
-From the repository root:
-
-```sh
-.venv/bin/python -m unittest discover -s tests -p 'test_rtc*.py' -v
-```
-
-Unit tests use synthetic local adapters. Actual infrastructure and media evidence
-is recorded separately through the local setup smoke checks.
+| Check | Command and evidence |
+| --- | --- |
+| Unit tests | From the repository root: `.venv/bin/python -m unittest discover -s tests -p 'test_rtc*.py' -v`. Tests use synthetic local adapters |
+| Infrastructure and media | Recorded separately through the local setup smoke checks |
 
 ## Next milestone
 
-Add scripted AgentSession and real-model scenarios through explicit product
-checkpoints, preserving the distinction between transport and AI behavior.
+| Planned milestone | Evidence boundary |
+| --- | --- |
+| Maintain transport diagnostics as a separate regression while product conversation evolves in the [conversation agent](../conversation_agent/README.md) | Product AgentSession and selected provider scenarios have their own checkpoints; diagnostic success does not qualify them |

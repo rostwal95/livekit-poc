@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "runs": [
+    {
+      "schemaVersion": 1,
+      "runId": "d6ddb40286b04be9b5422cfa00c52549",
+      "caseId": "BASE-01",
+      "project": "p1",
+      "status": "passed",
+      "exitCode": 0,
+      "runnerExitCode": 0,
+      "testCount": 14,
+      "skippedCount": 0,
+      "startedAt": "2026-11-19T10:55:28.025181+00:00",
+      "durationSeconds": 0.357647,
+      "command": [
+        "/Users/rostwal/Downloads/livekit-poc/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/Users/rostwal/Downloads/livekit-poc/tests",
+        "-p",
+        "test_intake.py",
+        "-v"
+      ],
+      "artifacts": {
+        "report": ".local/harness/d6ddb40286b04be9b5422cfa00c52549/report.json",
+        "stdout": ".local/harness/d6ddb40286b04be9b5422cfa00c52549/stdout.txt",
+        "stderr": ".local/harness/d6ddb40286b04be9b5422cfa00c52549/stderr.txt"
+      }
+    }
+  ]
+}

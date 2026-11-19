@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why is CPU utilization a poor scaling signal for voice AI agent workers?",
+    "options": [
+      "Voice agents use GPU instead of CPU for processing",
+      "CPU utilization changes too slowly to trigger scaling in time",
+      "An agent waiting for an LLM response uses almost no CPU but is fully occupied \u2014 CPU does not reflect actual capacity consumption",
+      "CPU metrics are not available in Kubernetes"
+    ],
+    "correctIndex": 2,
+    "explanation": "Voice agents spend most of their time waiting for external services (LLM inference, STT, TTS). During this waiting, CPU usage is near zero even though the worker cannot take additional sessions. Active session count directly reflects how many conversations a worker is handling, making it the correct scaling signal."
+  },
+  {
+    "question": "Why is scale_down_delay (e.g., 5 minutes) critical for voice workloads?",
+    "options": [
+      "It gives monitoring systems time to detect scaling events",
+      "It absorbs typical traffic fluctuations \u2014 scaling down too aggressively means paying the cold-start penalty again when the next burst of calls arrives shortly after",
+      "It ensures active calls have time to complete before workers are removed",
+      "It prevents Kubernetes from deleting pods too quickly"
+    ],
+    "correctIndex": 1,
+    "explanation": "Voice traffic is bursty. Without a scale-down delay, workers would be removed during brief lulls and then need to be re-created minutes later when the next wave of calls hits. The cold-start penalty (new worker startup time) directly impacts callers. A 5-minute delay absorbs normal fluctuations without keeping idle workers running for hours."
+  },
+  {
+    "question": "Why should you maintain at least 20% idle capacity in your node pool when using auto-scaling?",
+    "options": [
+      "To reduce network latency between pods",
+      "To ensure Prometheus has enough resources to scrape metrics",
+      "Because new pods cannot start if there are no nodes to schedule them on, and node provisioning takes 2-4 minutes \u2014 too long for callers waiting to connect",
+      "To meet cloud provider requirements for production workloads"
+    ],
+    "correctIndex": 2,
+    "explanation": "Auto-scaling adds pods, but pods need nodes to run on. If the cluster has no spare capacity, a new node must be provisioned first (2-4 minutes). During that time, callers cannot be served. Maintaining 20% idle capacity ensures pods can be scheduled immediately on existing nodes while new nodes provision in the background."
+  }
+]

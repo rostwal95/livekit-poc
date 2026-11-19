@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why does the @function_tool decorator read the function's docstring and type hints?",
+    "options": [
+      "To validate that the function runs correctly at startup",
+      "To automatically generate a JSON schema that tells the LLM what the tool does, what parameters it expects, and when to use it",
+      "To optimize the function's execution speed",
+      "To create documentation pages for the developer"
+    ],
+    "correctIndex": 1,
+    "explanation": "The framework converts type hints (like date: str) into JSON schema fields and uses the docstring as the tool description. This schema is sent to the LLM with every request, allowing it to understand when to call the tool and what arguments to provide -- without you writing any schema by hand."
+  },
+  {
+    "question": "The caller never hears the tool's return value directly. What actually happens to it?",
+    "options": [
+      "It is sent back to the LLM as context, which then formulates a natural spoken response based on the data",
+      "It is logged to the console and discarded",
+      "It is displayed in the frontend as a text notification",
+      "It is cached for future tool calls in the same session"
+    ],
+    "correctIndex": 0,
+    "explanation": "The return string goes back to the LLM as a tool result message in the conversation. The LLM reads the raw data and crafts a conversational, natural-sounding response for the caller. The caller hears the LLM's interpretation, not the raw return value."
+  },
+  {
+    "question": "What role does RunContext play when the LLM calls a tool function?",
+    "options": [
+      "It gives the tool access to the live session, agent, and runtime state -- the LLM never sees or provides it",
+      "It handles the TTS synthesis of the tool's response",
+      "It contains the JSON schema for the tool's parameters",
+      "It provides the caller's audio stream for processing"
+    ],
+    "correctIndex": 0,
+    "explanation": "RunContext is automatically injected by the framework as the first parameter. It provides access to the session, agent, and tool call metadata. The LLM is unaware of RunContext -- it only provides the declared parameters like 'date'. RunContext is the tool's window into the live conversation environment."
+  }
+]

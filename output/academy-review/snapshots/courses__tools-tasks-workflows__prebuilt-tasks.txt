@@ -1,0 +1,323 @@
+1Workflow architecture
+
+2Building the greeter agent
+
+3Complex tool definitions
+
+4AgentTask: structured data collection
+
+5TaskGroup: multi-step flows
+
+6Prebuilt tasks
+
+7Agent handoffs & context
+
+8State with userdata
+
+9Dynamic tool management
+
+10Testing the workflow
+
+Prebuilt tasks
+
+Prebuilt tasks
+
+Collecting an email address through voice is surprisingly hard. The customer says "john at gmail dot com," the LLM needs to confirm spelling, handle corrections, and return a validated string. You could build this yourself, but LiveKit provides prebuilt tasks for the most common data collection patterns. They handle edge cases, confirmation flows, and validation out of the box.
+
+What you'll learn
+
+How to use GetEmailTask to collect and validate email addresses
+
+How to use GetAddressTask for delivery addresses
+
+How GetDtmfTask handles phone keypad input
+
+How WarmTransferTask manages warm transfers to human agents
+
+How to customize prebuilt tasks with your own instructions
+
+GetEmailTask: collecting email addresses
+
+Voice-to-email is one of the most error-prone interactions in voice AI. Letters like "m" and "n" sound similar, domain names get misheard, and customers say "dot" when they mean "." but sometimes also when they mean the word "dot." The GetEmailTask handles all of this with built-in spelling confirmation.
+
+from livekit.agents import Agent, function_tool, RunContext
+from livekit.agents.prebuilt.tasks import GetEmailTask
+
+
+class FeedbackAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are the feedback collector at Bella Vista.
+          Thank the customer for their order and ask about their experience.
+          When they are done with feedback, offer to send a receipt to their email.""",
+      )
+
+  @function_tool
+  async def collect_email_for_receipt(self, context: RunContext) -> str:
+      """Collect the customer's email address to send a receipt."""
+      email_task = GetEmailTask(
+          instructions="Ask the customer for their email address so we can send them a receipt."
+      )
+      result = await email_task.run(self.session)
+
+      if result is None:
+          return "Customer declined to provide email."
+
+      return f"Receipt will be sent to {result.email}"
+
+import { Agent, functionTool, RunContext } from "@livekit/agents";
+import { GetEmailTask } from "@livekit/agents/prebuilt/tasks";
+
+class FeedbackAgent extends Agent {
+constructor() {
+  super({
+    instructions: `You are the feedback collector at Bella Vista.
+      Thank the customer for their order and ask about their experience.
+      When they are done with feedback, offer to send a receipt to their email.`,
+  });
+}
+
+@functionTool({ description: "Collect the customer's email address to send a receipt." })
+async collectEmailForReceipt(context: RunContext): Promise<string> {
+  const emailTask = new GetEmailTask({
+    instructions: "Ask the customer for their email address so we can send them a receipt.",
+  });
+  const result = await emailTask.run(this.session);
+
+  if (result === null) {
+    return "Customer declined to provide email.";
+  }
+
+  return `Receipt will be sent to ${result.email}`;
+}
+}
+
+GetEmailTask runs a conversational loop specifically designed for email collection. It handles letter-by-letter spelling confirmation ("Was that J-O-H-N at gmail dot com?"), common mishearings, and validates the email format before completing. The instructions parameter lets you customize the context — why the email is needed — while the task handles the mechanics of collecting and confirming it.
+
+Prebuilt tasks handle the hard parts
+
+The email task internally spells back the address for confirmation, asks about ambiguous characters ("Was that M as in Mary or N as in Nancy?"), and retries if the customer says "no, that's wrong." Building this yourself would take dozens of lines of carefully tuned prompting. The prebuilt task encapsulates all of it.
+
+GetAddressTask: collecting delivery addresses
+
+For a restaurant that delivers, you need a complete street address. GetAddressTask collects street, city, state, and zip code through natural conversation.
+
+from livekit.agents import Agent, function_tool, RunContext
+from livekit.agents.prebuilt.tasks import GetAddressTask
+
+
+class OrderTakerAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are the order taker at Bella Vista.
+          If the customer wants delivery, collect their address.""",
+      )
+
+  @function_tool
+  async def collect_delivery_address(self, context: RunContext) -> str:
+      """Collect the delivery address from the customer."""
+      address_task = GetAddressTask(
+          instructions="Ask the customer for their delivery address. We deliver within 5 miles of downtown."
+      )
+      result = await address_task.run(self.session)
+
+      if result is None:
+          return "Customer cancelled address collection."
+
+      return (
+          f"Delivery to: {result.street}, {result.city}, "
+          f"{result.state} {result.zip_code}"
+      )
+
+import { Agent, functionTool, RunContext } from "@livekit/agents";
+import { GetAddressTask } from "@livekit/agents/prebuilt/tasks";
+
+class OrderTakerAgent extends Agent {
+constructor() {
+  super({
+    instructions: `You are the order taker at Bella Vista.
+      If the customer wants delivery, collect their address.`,
+  });
+}
+
+@functionTool({ description: "Collect the delivery address from the customer." })
+async collectDeliveryAddress(context: RunContext): Promise<string> {
+  const addressTask = new GetAddressTask({
+    instructions: "Ask the customer for their delivery address. We deliver within 5 miles of downtown.",
+  });
+  const result = await addressTask.run(this.session);
+
+  if (result === null) {
+    return "Customer cancelled address collection.";
+  }
+
+  return `Delivery to: ${result.street}, ${result.city}, ${result.state} ${result.zipCode}`;
+}
+}
+
+The GetAddressTask result contains structured fields: street, city, state, and zip_code. Each is validated and confirmed with the customer before the task completes.
+
+GetDtmfTask: phone keypad input
+
+For telephony-based ordering systems, customers sometimes need to enter numbers via the phone keypad — a credit card number, a loyalty program code, or a PIN. GetDtmfTask listens for DTMF tones (the beeps when you press phone buttons) and returns the digits as a string.
+
+from livekit.agents import Agent, function_tool, RunContext
+from livekit.agents.prebuilt.tasks import GetDtmfTask
+
+
+class PaymentAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="Collect payment information from the customer.",
+      )
+
+  @function_tool
+  async def collect_loyalty_code(self, context: RunContext) -> str:
+      """Ask the customer to enter their loyalty code via phone keypad."""
+      dtmf_task = GetDtmfTask(
+          instructions="Ask the customer to enter their 6-digit loyalty code using their phone keypad.",
+          expected_length=6,
+      )
+      result = await dtmf_task.run(self.session)
+
+      if result is None:
+          return "No loyalty code entered."
+
+      return f"Loyalty code received: {result.digits}"
+
+import { Agent, functionTool, RunContext } from "@livekit/agents";
+import { GetDtmfTask } from "@livekit/agents/prebuilt/tasks";
+
+class PaymentAgent extends Agent {
+constructor() {
+  super({
+    instructions: "Collect payment information from the customer.",
+  });
+}
+
+@functionTool({ description: "Ask the customer to enter their loyalty code via phone keypad." })
+async collectLoyaltyCode(context: RunContext): Promise<string> {
+  const dtmfTask = new GetDtmfTask({
+    instructions: "Ask the customer to enter their 6-digit loyalty code using their phone keypad.",
+    expectedLength: 6,
+  });
+  const result = await dtmfTask.run(this.session);
+
+  if (result === null) {
+    return "No loyalty code entered.";
+  }
+
+  return `Loyalty code received: ${result.digits}`;
+}
+}
+
+DTMF only works over telephony
+
+GetDtmfTask requires a telephony connection (SIP trunk). It will not work in the browser playground or WebRTC-only sessions. If your application supports both web and phone, check the connection type before offering keypad input.
+
+WarmTransferTask: handing off to humans
+
+Sometimes the AI cannot resolve a situation and needs to transfer the customer to a human agent. WarmTransferTask handles the warm transfer flow — it keeps the customer engaged while connecting to the human, briefs the human on the conversation context, and manages the three-way handoff.
+
+from livekit.agents import Agent, function_tool, RunContext
+from livekit.agents.prebuilt.tasks import WarmTransferTask
+
+
+class OrderTakerAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are the order taker at Bella Vista.
+          If the customer has a complaint or special dietary need you cannot
+          handle, transfer them to a human manager.""",
+      )
+
+  @function_tool
+  async def transfer_to_manager(self, context: RunContext) -> str:
+      """Transfer the customer to a human manager."""
+      transfer_task = WarmTransferTask(
+          instructions="Let the customer know you are connecting them with a manager who can help.",
+          transfer_to="sip:manager@restaurant.example.com",
+      )
+      result = await transfer_task.run(self.session)
+      return "Customer has been transferred to the manager."
+
+import { Agent, functionTool, RunContext } from "@livekit/agents";
+import { WarmTransferTask } from "@livekit/agents/prebuilt/tasks";
+
+class OrderTakerAgent extends Agent {
+constructor() {
+  super({
+    instructions: `You are the order taker at Bella Vista.
+      If the customer has a complaint or special dietary need you cannot
+      handle, transfer them to a human manager.`,
+  });
+}
+
+@functionTool({ description: "Transfer the customer to a human manager." })
+async transferToManager(context: RunContext): Promise<string> {
+  const transferTask = new WarmTransferTask({
+    instructions: "Let the customer know you are connecting them with a manager who can help.",
+    transferTo: "sip:manager@restaurant.example.com",
+  });
+  const result = await transferTask.run(this.session);
+  return "Customer has been transferred to the manager.";
+}
+}
+
+Customizing prebuilt tasks
+
+Prebuilt tasks accept custom instructions that wrap around their built-in behavior. You can adjust the tone, add context, or change what the task says — without reimplementing the core collection logic.
+
+from livekit.agents.prebuilt.tasks import GetEmailTask
+
+# Casual tone for a hip restaurant
+casual_email = GetEmailTask(
+  instructions="""Ask for their email in a casual, friendly way.
+  Something like 'Want us to shoot you a receipt? What's your email?'
+  Keep it relaxed — this is a casual dining spot, not a bank.""",
+)
+
+# Formal tone for fine dining
+formal_email = GetEmailTask(
+  instructions="""Politely request the guest's email address for their receipt.
+  Use formal language appropriate for a fine dining establishment.
+  'May I have your email address so we can send you a detailed receipt?'""",
+)
+
+import { GetEmailTask } from "@livekit/agents/prebuilt/tasks";
+
+const casualEmail = new GetEmailTask({
+instructions: `Ask for their email in a casual, friendly way.
+  Something like 'Want us to shoot you a receipt? What's your email?'
+  Keep it relaxed — this is a casual dining spot, not a bank.`,
+});
+
+const formalEmail = new GetEmailTask({
+instructions: `Politely request the guest's email address for their receipt.
+  Use formal language appropriate for a fine dining establishment.
+  'May I have your email address so we can send you a detailed receipt?'`,
+});
+
+The custom instructions you pass to a prebuilt task are layered on top of its built-in instructions. The task still handles spelling confirmation, validation, and error recovery — your instructions just change the conversational tone and context. This means you get the reliability of a well-tested task with the personality of your specific application.
+
+What you learned
+
+GetEmailTask handles voice-to-email with built-in spelling confirmation and validation
+
+GetAddressTask collects structured street addresses through natural conversation
+
+GetDtmfTask captures phone keypad input for PINs, codes, and numbers
+
+WarmTransferTask manages the warm transfer flow to human agents
+
+All prebuilt tasks accept custom instructions for tone and context customization
+
+Test your knowledge
+
+Question 1 of 2
+
+What built-in capability does GetEmailTask provide that would be difficult to build from scratch?
+
+Next up
+
+You have built agents and tasks, but so far each agent lives in isolation. In the next chapter, you will learn how to hand off between agents while preserving context — using on_exit(), AgentConfigUpdate, and context passing to create seamless transitions.

@@ -78,6 +78,8 @@ describe('current room genuine native prepare client', () => {
           native: async () => {
             throw new Error('UNEXPECTED_NATIVE');
           },
+          fenceInput: async () => {},
+          drainInput: async () => {},
           ready: () => false,
         },
         { ...f.configuration, rehydrationPort: f.ready.endpoint.port },
@@ -297,7 +299,9 @@ describe('current room genuine native prepare client', () => {
     ).rejects.toMatchObject({ code: 'Overloaded' });
     const closing = f.manager.closeRoom(command(a)).catch((e) => e);
     work.resolve();
-    expect(await first).toMatchObject({ code: 'DispatchUnavailable' });
+    // The retired worker's late reply cannot become a prepared SDK decision.
+    // Returning null keeps deterministic preparation in this original claim.
+    expect(await first).toBeNull();
     expect(await closing).toMatchObject({ code: 'cleanup_incomplete' });
     expect(f.manager.metrics()).toMatchObject({ roomOwners: 1, nativeAgentOwners: 1 });
     const b = opening(f.ready.nodeEpoch, '1', 'b');
@@ -341,6 +345,49 @@ describe('current room genuine native prepare client', () => {
     expect(await pending).toMatchObject({ code: 'DispatchUnavailable' });
     await f.manager.closeRoom(command(a));
     expect(f.manager.metrics().nativeAgentOwners).toBe(0);
+  });
+  it('uses the same-claim background path when End retires a prepare that later fails', async () => {
+    const f = await setup(),
+      a = opening(f.ready.nodeEpoch),
+      held = deferred();
+    releases.push(held.resolve);
+    await f.manager.open(a);
+    await f.manager.attachAgent(attach(a));
+    f.w.state.hold = held.promise;
+    f.w.state.wrongDigest = true;
+    const value = input(a.binding.bindingId),
+      pending = f.manager.prepareNative(value, new AbortController().signal, provider),
+      observed = pending.catch((error) => error);
+    await until(() => f.w.state.requests.length === 1);
+    const closing = f.manager.closeRoom(command(a));
+    held.resolve();
+    expect(await observed).toBeNull();
+    await closing;
+    expect(f.w.state.requests).toHaveLength(1);
+    expect(f.w.state.requests[0]!.value.context.operationKey).toBe(value.message.operationKey);
+    expect(f.manager.metrics().nativeAgentClientActive).toBe(0);
+    expect(f.revoked).toEqual([a.binding.bindingId]);
+  });
+  it('does not convert an aborted original prepare into a retirement fallback', async () => {
+    const f = await setup(),
+      a = opening(f.ready.nodeEpoch),
+      held = deferred(),
+      abort = new AbortController();
+    releases.push(held.resolve);
+    await f.manager.open(a);
+    await f.manager.attachAgent(attach(a));
+    f.w.state.hold = held.promise;
+    const pending = f.manager
+      .prepareNative(input(a.binding.bindingId), abort.signal, provider)
+      .catch((error) => error);
+    await until(() => f.w.state.requests.length === 1);
+    abort.abort();
+    const closing = f.manager.closeRoom(command(a));
+    held.resolve();
+    expect(await pending).toMatchObject({ code: 'DispatchUnavailable' });
+    await closing;
+    expect(f.w.state.requests).toHaveLength(1);
+    expect(f.manager.metrics().nativeAgentClientActive).toBe(0);
   });
   it('the direct public client owner preserves pre-I/O denial and a closed owner cannot create a fresh call', async () => {
     const f = await setup(),

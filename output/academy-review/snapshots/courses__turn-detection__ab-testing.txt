@@ -1,0 +1,189 @@
+1Turn detection fundamentals
+
+2VAD configuration
+
+3Multilingual turn detection
+
+4Endpointing configuration
+
+5Adaptive interruption handling
+
+6Backchanneling & natural flow
+
+7A/B testing & quality metrics
+
+A/B testing & quality metrics
+
+A/B testing & quality metrics
+
+You have learned how to configure VAD, endpointing, and interruption handling. But how do you know which configuration is actually better? Intuition is not enough — you need data. This chapter shows you how to A/B test turn detection configurations and measure conversation quality with concrete metrics.
+
+What you'll learn
+
+Key metrics for measuring turn detection quality
+
+How to set up A/B tests for different configurations
+
+How to analyze results and pick the winning configuration
+
+A simple comparison framework you can run in CI
+
+Defining quality metrics
+
+Before you can compare configurations, you need to define what "better" means. Here are the metrics that matter most for turn detection:
+
+Metric | What it measures | How to compute
+Interruption rate | How often the agent gets cut off mid-sentence | Agent speech events that stop before completion / total agent speech events
+False interruption rate | How often the agent stops for non-meaningful input | Agent stops where user input was < 3 words / total agent stops
+Response latency | Time from user finishing to agent starting | Timestamp of first agent audio - timestamp of VAD end-of-speech
+Turn overlap | How much user and agent speech overlap | Duration of simultaneous audio / total conversation duration
+Completion rate | How often the agent finishes its full response | Completed responses / total responses started
+
+No single metric tells the full story. A low interruption rate is good, but not if it comes with high response latency (the agent waits too long to speak). The goal is to find the configuration that optimizes across all metrics — low interruptions, low latency, minimal overlap, high completion.
+
+Setting up an A/B test
+
+The simplest approach is to create two agent configurations and randomly assign sessions to each:
+
+import random
+from livekit.agents import AgentSession, TurnDetectionOptions
+
+# Configuration A: conservative (fewer interruptions, higher latency)
+CONFIG_A = TurnDetectionOptions(
+  min_endpointing_delay=0.7,
+  max_endpointing_delay=1.5,
+  false_interruption_timeout=0.5,
+  interruption_mode="adaptive",
+)
+
+# Configuration B: responsive (more interruptions, lower latency)
+CONFIG_B = TurnDetectionOptions(
+  min_endpointing_delay=0.3,
+  max_endpointing_delay=0.8,
+  false_interruption_timeout=0.2,
+  interruption_mode="adaptive",
+)
+
+def create_session() -> AgentSession:
+  config = random.choice([CONFIG_A, CONFIG_B])
+  variant = "A" if config is CONFIG_A else "B"
+
+  session = AgentSession(
+      turn_detection=config,
+  )
+  # Tag the session for later analysis
+  session.userdata["ab_variant"] = variant
+  return session
+
+import { AgentSession } from "@livekit/agents";
+
+const CONFIG_A = {
+minEndpointingDelay: 0.7,
+maxEndpointingDelay: 1.5,
+falseInterruptionTimeout: 0.5,
+interruptionMode: "adaptive" as const,
+};
+
+const CONFIG_B = {
+minEndpointingDelay: 0.3,
+maxEndpointingDelay: 0.8,
+falseInterruptionTimeout: 0.2,
+interruptionMode: "adaptive" as const,
+};
+
+function createSession(): AgentSession {
+const config = Math.random() > 0.5 ? CONFIG_A : CONFIG_B;
+const variant = config === CONFIG_A ? "A" : "B";
+
+const session = new AgentSession({
+  turnDetection: config,
+});
+session.userdata.abVariant = variant;
+return session;
+}
+
+Collecting metrics
+
+Log metrics during each conversation so you can compare variants after the test:
+
+import time
+import json
+
+class TurnMetrics:
+  def __init__(self, variant: str):
+      self.variant = variant
+      self.interruptions = 0
+      self.false_interruptions = 0
+      self.response_latencies: list[float] = []
+      self.responses_started = 0
+      self.responses_completed = 0
+
+  def record_interruption(self, user_words: int):
+      self.interruptions += 1
+      if user_words < 3:
+          self.false_interruptions += 1
+
+  def record_response(self, latency: float, completed: bool):
+      self.response_latencies.append(latency)
+      self.responses_started += 1
+      if completed:
+          self.responses_completed += 1
+
+  def summary(self) -> dict:
+      return {
+          "variant": self.variant,
+          "interruption_rate": self.interruptions / max(self.responses_started, 1),
+          "false_interruption_rate": self.false_interruptions / max(self.interruptions, 1),
+          "avg_response_latency": sum(self.response_latencies) / max(len(self.response_latencies), 1),
+          "completion_rate": self.responses_completed / max(self.responses_started, 1),
+      }
+
+Analyzing results
+
+After running enough sessions (aim for at least 100 per variant), compare the metrics:
+
+Metric | Config A (conservative) | Config B (responsive) | Better
+Interruption rate | 5% | 18% | A
+False interruption rate | 2% | 12% | A
+Avg response latency | 850ms | 420ms | B
+Completion rate | 95% | 78% | A
+
+Pick based on your use case
+
+If your agent gives long, detailed answers (like explaining medical procedures), Config A is better — fewer interruptions means the user hears the full answer. If your agent handles quick, transactional queries (like checking order status), Config B is better — the faster response time matters more than completion rate.
+
+Course summary
+
+Over this course, you have built a deep understanding of how turn detection shapes conversation quality:
+
+VAD detects when speech starts and stops, with tunable sensitivity and padding
+
+Endpointing determines when a turn is truly over, balancing responsiveness against patience
+
+Adaptive interruption handling uses the LLM to distinguish real interruptions from noise and backchannels
+
+Backchanneling keeps conversations flowing naturally through acknowledgments
+
+A/B testing gives you data to make informed configuration decisions
+
+The default settings work well for most applications, but the difference between a good voice agent and a great one often comes down to these details. Use the metrics and testing framework from this chapter to find the configuration that makes your agent feel most natural to your specific users.
+
+Reference
+
+See the Turn detection docs for the complete API reference and default values for all parameters.
+
+Test your knowledge
+
+Question 1 of 2
+
+Why is it insufficient to optimize for a single metric like interruption rate when evaluating turn detection configurations?
+
+What you learned
+
+Five key metrics for measuring turn detection quality: interruption rate, false interruption rate, response latency, turn overlap, and completion rate
+
+How to set up A/B tests by randomly assigning sessions to different configurations
+
+How to collect and compare metrics across variants
+
+Configuration choice depends on your use case — optimize for the metrics that matter most to your users

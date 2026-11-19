@@ -1,0 +1,24 @@
+[
+  {
+    "question": "What is the key difference between default DTLS/SRTP encryption and end-to-end encryption (E2EE) in LiveKit?",
+    "options": [
+      "DTLS/SRTP requires more CPU than E2EE",
+      "With default encryption the SFU can access media content, while with E2EE the SFU forwards encrypted packets it cannot decrypt",
+      "DTLS/SRTP is weaker encryption that can be broken by attackers, while E2EE cannot",
+      "E2EE only encrypts audio while DTLS/SRTP encrypts both audio and video"
+    ],
+    "correctIndex": 1,
+    "explanation": "With default DTLS/SRTP, media is encrypted between each client and the SFU, but the SFU decrypts and re-encrypts as it forwards. The SFU operator can theoretically access media content. With E2EE, media is encrypted on the sender's device and decrypted only on the receiver's device. The SFU forwards encrypted bytes it cannot read, making it a zero-knowledge forwarder. The trade-off is that server-side features like egress and transcription may be limited with E2EE."
+  },
+  {
+    "question": "Why are LiveKit access tokens short-lived by design?",
+    "options": [
+      "To force users to re-authenticate frequently for better user experience",
+      "To minimize exposure if a token is leaked \u2014 a token valid for 10 minutes limits the window of misuse",
+      "Because JWTs cannot be configured with long expiration times",
+      "Because the SFU cannot store tokens for longer than a few minutes"
+    ],
+    "correctIndex": 1,
+    "explanation": "Short-lived tokens (typically 10 minutes) minimize risk if a token is compromised. The token is only checked at connection time \u2014 once connected, the participant maintains their session regardless of token expiration. This follows the principle that security credentials should have the smallest practical scope and duration. A leaked token with a 10-minute window is far less dangerous than one valid for hours or days."
+  }
+]

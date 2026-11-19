@@ -61,7 +61,10 @@ def _version(value: int) -> int:
 def _event(event: str, code: str = "ok") -> None:
     # Fields are fixed producer literals, never exception/request values.
     level = logging.ERROR if event == "storage_failed" else logging.INFO
-    LOGGER.log(level, event, extra={"event": event, "code": code})
+    try:
+        LOGGER.log(level, event, extra={"event": event, "code": code})
+    except Exception:  # noqa: BLE001 - telemetry cannot alter committed state or failures
+        return
 
 
 class ExecutionStore:

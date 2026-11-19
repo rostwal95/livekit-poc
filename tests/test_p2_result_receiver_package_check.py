@@ -539,6 +539,7 @@ class RootApplicationMode(unittest.TestCase):
         self.assertEqual(app["mode"], "offline_root_application_package_bridge")
         self.assertTrue(app["channel_origin"])
         self.assertTrue(app["root_application"])
+        self.assertTrue(app["p2_lifecycle_public_signature_probe"])
         self.assertEqual(app["expected_process_groups"], 32)
         self.assertEqual(len(package.outer_roles(root_application=True)), 15)
         self.assertEqual(
@@ -584,17 +585,17 @@ class RootApplicationMode(unittest.TestCase):
                 "test_channel_policy_current_result_http.py": 20,
                 "test_channel_policy_native_worker_config.py": 26,
                 "test_channel_policy_native_worker.py": 27,
-                "test_channel_policy_native_room.py": 21,
+                "test_channel_policy_native_room.py": 25,
                 "test_channel_policy_native_room_admin.py": 12,
                 "test_channel_policy_native_room_state.py": 14,
                 "test_channel_policy_native_worker_process.py": 13,
                 "test_channel_policy_operator_contract.py": 12,
                 "test_channel_policy_operator_sms.py": 14,
                 "test_channel_policy_operator_http.py": 12,
-                "test_channel_policy_parent.py": 19,
+                "test_channel_policy_parent.py": 23,
             },
         )
-        self.assertEqual(app["root_application_installed_fake_port_tests"], 764)
+        self.assertEqual(app["root_application_installed_fake_port_tests"], 772)
         self.assertEqual((app["root_application_payloads"], app["p2_python_payloads"]), (86, 9))
         self.assertEqual(len(package.input_names(root_application=True)), 54)
         for key in (
@@ -622,6 +623,38 @@ class RootApplicationMode(unittest.TestCase):
             self.assertEqual(package.main(["--root-application", "--plan"]), 0)
         self.assertEqual(json.loads(output.getvalue()), app)
 
+    def test_root_lifecycle_probe_uses_public_installed_types_and_inert_runtime_exports(
+        self,
+    ) -> None:
+        probe = package.p2_consumer(channel_origin=True, lifecycle=True)
+        for name in (
+            "ChannelGateway",
+            "ChannelDispatcher",
+            "gateway.fenceNativeInput(bearer)",
+            "gateway.drainNativeInput(account,binding,bearer)",
+            "gateway.quiesceDispatch()",
+            "dispatcher.quiesce()",
+            "lifecycle_public_signatures:true",
+            "ChannelGateway.prototype[method]",
+            "ChannelDispatcher.prototype.quiesce",
+        ):
+            self.assertIn(name, probe)
+        self.assertLess(
+            probe.index("Socket.prototype.connect=denied"),
+            probe.index("const gatewayApi=await import("),
+        )
+        self.assertLess(
+            probe.index("ChannelDispatcher.prototype.quiesce"),
+            probe.index("finally{Socket.prototype.connect=connect"),
+        )
+        self.assertIn("realpathSync(fileURLToPath(import.meta.resolve(name)))", probe)
+        self.assertNotIn("new gatewayApi.ChannelGateway", probe)
+        self.assertNotIn("new dispatchApi.ChannelDispatcher", probe)
+        self.assertNotIn("lifecycle_public_signatures", package.p2_consumer(channel_origin=True))
+        for invalid in (None, 1, "true"):
+            with self.subTest(invalid=invalid), self.assertRaises(package.PackageError):
+                package.p2_consumer(lifecycle=invalid)
+
     def test_selected_current_app_suite_counts_match_raw_source_and_frozen_runtime_inventory(
         self,
     ) -> None:
@@ -636,7 +669,7 @@ class RootApplicationMode(unittest.TestCase):
             )
             self.assertEqual(count, expected, name)
             observed[name] = count
-        self.assertEqual((len(observed), sum(observed.values())), (36, 764))
+        self.assertEqual((len(observed), sum(observed.values())), (36, 772))
         payloads = package.application_payload(root)
         self.assertEqual(len(payloads), 86)
         for name in (
@@ -1029,7 +1062,7 @@ class RootApplicationMode(unittest.TestCase):
                 report["source_actual_assertions"],
                 report["installed_actual_assertions"],
             ),
-            (764, 0, 0),
+            (772, 0, 0),
         )
         with self.assertRaises(package.PackageError):
             package.selected_report(
@@ -1692,7 +1725,7 @@ class NativeApplicationFixtures(unittest.TestCase):
         execution = package.application_execution()
         self.assertGreater(
             execution.index('native_fixture["node_client_exit_and_reap_assertions_passed"]=True'),
-            execution.index("assert sum(counts.values())==764"),
+            execution.index("assert sum(counts.values())==772"),
         )
 
 

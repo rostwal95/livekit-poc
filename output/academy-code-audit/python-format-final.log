@@ -1,0 +1,2 @@
+.venv/bin/ruff format --check projects/agent-continuity/python/src/continuity_lab projects/channel-continuity/python/src/channel_continuity projects/delegation-reliability/python/src/delegation_reliability services harness local-setup tests projects/agent-continuity/tests projects/agent-continuity/examples projects/channel-continuity/tests projects/channel-continuity/examples projects/delegation-reliability/tests projects/delegation-reliability/examples
+568 files already formatted

@@ -1,0 +1,95 @@
+test_cancelled_end_observer_keeps_original_cleanup_reobservation (test_channel_policy_native_room.NativeRoomOwnerTests.test_cancelled_end_observer_keeps_original_cleanup_reobservation) ... ERROR
+test_cancelled_start_retains_worker_and_drains_before_next_activation (test_channel_policy_native_room.NativeRoomOwnerTests.test_cancelled_start_retains_worker_and_drains_before_next_activation) ... ok
+test_changed_tuple_foreign_epoch_and_wrong_end_cannot_select_current_room (test_channel_policy_native_room.NativeRoomOwnerTests.test_changed_tuple_foreign_epoch_and_wrong_end_cannot_select_current_room) ... ok
+test_current_read_uses_exact_activation_while_waiting_browser (test_channel_policy_native_room.NativeRoomOwnerTests.test_current_read_uses_exact_activation_while_waiting_browser) ... ok
+test_end_drains_gateway_then_front_concurrently_then_view_sfu (test_channel_policy_native_room.NativeRoomOwnerTests.test_end_drains_gateway_then_front_concurrently_then_view_sfu) ... ok
+test_expiry_fences_original_grant_and_ends_without_renewing_jwt (test_channel_policy_native_room.NativeRoomOwnerTests.test_expiry_fences_original_grant_and_ends_without_renewing_jwt) ... ok
+test_foreign_room_recreation_is_never_deleted_and_blocks_b (test_channel_policy_native_room.NativeRoomOwnerTests.test_foreign_room_recreation_is_never_deleted_and_blocks_b) ... ok
+test_last_accepted_input_reaches_original_operation_before_worker_stops (test_channel_policy_native_room.NativeRoomOwnerTests.test_last_accepted_input_reaches_original_operation_before_worker_stops)
+Explicit stateful control fake; actual PostgreSQL qualification is separate. ... ok
+test_late_current_read_a_is_denied_after_end_and_room_b (test_channel_policy_native_room.NativeRoomOwnerTests.test_late_current_read_a_is_denied_after_end_and_room_b) ... ok
+test_observed_sdk_close_fences_status_and_current_before_monitor_runs (test_channel_policy_native_room.NativeRoomOwnerTests.test_observed_sdk_close_fences_status_and_current_before_monitor_runs) ... ok
+test_old_descriptor_fail_closed_and_is_not_reset_on_new_parent_start (test_channel_policy_native_room.NativeRoomOwnerTests.test_old_descriptor_fail_closed_and_is_not_reset_on_new_parent_start) ... ok
+test_one_failed_final_close_does_not_prevent_other_owned_adapter_close (test_channel_policy_native_room.NativeRoomOwnerTests.test_one_failed_final_close_does_not_prevent_other_owned_adapter_close) ... ERROR
+test_original_ready_grant_retry_does_not_reapply_expired_startup_budget (test_channel_policy_native_room.NativeRoomOwnerTests.test_original_ready_grant_retry_does_not_reapply_expired_startup_budget) ... ok
+test_original_start_returns_before_sdk_ready_and_exact_retry_reuses_grant (test_channel_policy_native_room.NativeRoomOwnerTests.test_original_start_returns_before_sdk_ready_and_exact_retry_reuses_grant) ... ok
+test_persistent_cleanup_failure_stops_automatic_retry_admission (test_channel_policy_native_room.NativeRoomOwnerTests.test_persistent_cleanup_failure_stops_automatic_retry_admission) ... FAIL
+test_queued_start_cancel_has_no_reservation_or_new_effect (test_channel_policy_native_room.NativeRoomOwnerTests.test_queued_start_cancel_has_no_reservation_or_new_effect) ... ok
+test_start_and_end_physical_cas_prevents_delayed_a_retry_from_creating_b (test_channel_policy_native_room.NativeRoomOwnerTests.test_start_and_end_physical_cas_prevents_delayed_a_retry_from_creating_b) ... ok
+test_start_reserves_before_held_setup_and_end_blocks_late_publication (test_channel_policy_native_room.NativeRoomOwnerTests.test_start_reserves_before_held_setup_and_end_blocks_late_publication) ... ok
+test_task_allocation_failure_keeps_reserved_generation_and_allows_owned_close (test_channel_policy_native_room.NativeRoomOwnerTests.test_task_allocation_failure_keeps_reserved_generation_and_allows_owned_close) ... ok
+test_trusted_admin_port_propagates_to_private_worker_and_browser_grant (test_channel_policy_native_room.NativeRoomOwnerTests.test_trusted_admin_port_propagates_to_private_worker_and_browser_grant) ... ok
+test_unexpected_worker_exit_synchronously_fences_room_and_starts_end (test_channel_policy_native_room.NativeRoomOwnerTests.test_unexpected_worker_exit_synchronously_fences_room_and_starts_end) ... ok
+test_unknown_create_adopts_only_same_metadata_and_deletes_original_once (test_channel_policy_native_room.NativeRoomOwnerTests.test_unknown_create_adopts_only_same_metadata_and_deletes_original_once) ... ok
+test_unknown_create_plus_absence_is_not_treated_as_no_late_room (test_channel_policy_native_room.NativeRoomOwnerTests.test_unknown_create_plus_absence_is_not_treated_as_no_late_room) ... ok
+test_unknown_g_close_reconciles_original_observation_without_mutation_retry (test_channel_policy_native_room.NativeRoomOwnerTests.test_unknown_g_close_reconciles_original_observation_without_mutation_retry) ... ok
+test_unresolved_gateway_drain_retains_worker_then_exact_end_retry_progresses (test_channel_policy_native_room.NativeRoomOwnerTests.test_unresolved_gateway_drain_retains_worker_then_exact_end_retry_progresses) ... ok
+
+======================================================================
+ERROR: test_cancelled_end_observer_keeps_original_cleanup_reobservation (test_channel_policy_native_room.NativeRoomOwnerTests.test_cancelled_end_observer_keeps_original_cleanup_reobservation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/rostwal/Downloads/livekit-poc/tests/test_channel_policy_native_room.py", line 814, in test_cancelled_end_observer_keeps_original_cleanup_reobservation
+    await retry.wait()
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/locks.py", line 213, in wait
+    await fut
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/rostwal/Downloads/livekit-poc/tests/test_channel_policy_native_room.py", line 813, in test_cancelled_end_observer_keeps_original_cleanup_reobservation
+    async with asyncio.timeout(1):
+               ~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/timeouts.py", line 115, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError
+
+======================================================================
+ERROR: test_one_failed_final_close_does_not_prevent_other_owned_adapter_close (test_channel_policy_native_room.NativeRoomOwnerTests.test_one_failed_final_close_does_not_prevent_other_owned_adapter_close)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/rostwal/Downloads/livekit-poc/tests/test_channel_policy_native_room.py", line 780, in test_one_failed_final_close_does_not_prevent_other_owned_adapter_close
+    self.assertEqual((await self.end()).stage, "closed")
+                      ^^^^^^^^^^^^^^^^
+  File "/Users/rostwal/Downloads/livekit-poc/tests/test_channel_policy_native_room.py", line 417, in end
+    return await self.owner.end(EndCommand(uid(1), generation, uid(command)))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rostwal/Downloads/livekit-poc/services/channel_policy_demo/native_room.py", line 1114, in end
+    return await self._observe_end(cast(_Activation, record))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rostwal/Downloads/livekit-poc/services/channel_policy_demo/native_room.py", line 1095, in _observe_end
+    raise _finite(error, "cleanup_incomplete") from None
+services.channel_policy_demo.native_room_state.NativeRoomError: cleanup_incomplete
+
+======================================================================
+FAIL: test_persistent_cleanup_failure_stops_automatic_retry_admission (test_channel_policy_native_room.NativeRoomOwnerTests.test_persistent_cleanup_failure_stops_automatic_retry_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/rostwal/Downloads/livekit-poc/tests/test_channel_policy_native_room.py", line 841, in test_persistent_cleanup_failure_stops_automatic_retry_admission
+    self.assertGreaterEqual(calls, 2)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+AssertionError: 1 not greater than or equal to 2
+
+----------------------------------------------------------------------
+Ran 25 tests in 1.808s
+
+FAILED (failures=1, errors=2)

@@ -1,0 +1,66 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from pydantic import BaseModel\n\n\nclass OrderItem(BaseModel):\n  name: str\n  quantity: int\n  modifications: list[str] = []\n  unit_price: float = 0.0"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { z } from \"zod\";\n\nconst OrderItemSchema = z.object({\nname: z.string(),\nquantity: z.number().int().min(1),\nmodifications: z.array(z.string()).default([]),\nunitPrice: z.number().default(0),\n});\n\ntype OrderItem = z.infer<typeof OrderItemSchema>;"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentTask, function_tool, RunContext\nfrom models import OrderItem\n\n\nclass CollectOrderItem(AgentTask[OrderItem]):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"Collect one menu item from the customer.\n          You need to get:\n          1. The item name (must be from our menu)\n          2. The quantity\n          3. Any modifications (e.g., no onions, extra cheese)\n\n          Ask for each piece of information conversationally.\n          Confirm the complete item before submitting.\n          Keep responses brief \u2014 one to two sentences.\"\"\",\n          output_type=OrderItem,\n      )\n\n  @function_tool\n  async def check_menu(self, context: RunContext, category: str) -> str:\n      \"\"\"Check available menu items and prices for a category.\"\"\"\n      menu = {\n          \"appetizers\": [(\"Bruschetta\", 12.0), (\"Caesar Salad\", 10.0)],\n          \"mains\": [(\"Grilled Salmon\", 28.0), (\"Ribeye Steak\", 35.0), (\"Pasta Primavera\", 18.0)],\n          \"desserts\": [(\"Tiramisu\", 10.0), (\"Cheesecake\", 9.0)],\n      }\n      items = menu.get(category, [])\n      if not items:\n          return f\"No category '{category}' found. Available: appetizers, mains, desserts.\"\n      return \"\\n\".join(f\"{name}: ${price:.2f}\" for name, price in items)\n\n  @function_tool\n  async def confirm_item(\n      self,\n      context: RunContext,\n      name: str,\n      quantity: int,\n      unit_price: float,\n      modifications: list[str] = [],\n  ) -> None:\n      \"\"\"Confirm and submit the order item after the customer agrees.\"\"\"\n      self.complete(\n          OrderItem(\n              name=name,\n              quantity=quantity,\n              modifications=modifications,\n              unit_price=unit_price,\n          )\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentTask, functionTool, RunContext } from \"@livekit/agents\";\nimport { z } from \"zod\";\n\nconst OrderItemSchema = z.object({\nname: z.string(),\nquantity: z.number().int().min(1),\nmodifications: z.array(z.string()).default([]),\nunitPrice: z.number().default(0),\n});\n\ntype OrderItem = z.infer<typeof OrderItemSchema>;\n\nclass CollectOrderItem extends AgentTask<OrderItem> {\nconstructor() {\n  super({\n    instructions: `Collect one menu item from the customer.\n      You need to get:\n      1. The item name (must be from our menu)\n      2. The quantity\n      3. Any modifications (e.g., no onions, extra cheese)\n\n      Ask for each piece of information conversationally.\n      Confirm the complete item before submitting.\n      Keep responses brief \u2014 one to two sentences.`,\n    outputType: OrderItemSchema,\n  });\n}\n\n@functionTool({ description: \"Check available menu items and prices for a category.\" })\nasync checkMenu(context: RunContext, category: string): Promise<string> {\n  const menu: Record<string, [string, number][]> = {\n    appetizers: [[\"Bruschetta\", 12.0], [\"Caesar Salad\", 10.0]],\n    mains: [[\"Grilled Salmon\", 28.0], [\"Ribeye Steak\", 35.0], [\"Pasta Primavera\", 18.0]],\n    desserts: [[\"Tiramisu\", 10.0], [\"Cheesecake\", 9.0]],\n  };\n  const items = menu[category];\n  if (!items) return `No category '${category}' found. Available: appetizers, mains, desserts.`;\n  return items.map(([name, price]) => `${name}: $${price.toFixed(2)}`).join(\"\\n\");\n}\n\n@functionTool({ description: \"Confirm and submit the order item after the customer agrees.\" })\nasync confirmItem(\n  context: RunContext,\n  name: string,\n  quantity: number,\n  unitPrice: number,\n  modifications: string[] = []\n): Promise<void> {\n  this.complete({ name, quantity, modifications, unitPrice });\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, function_tool, RunContext\nfrom collect_order_item import CollectOrderItem\n\n\nclass OrderTakerAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are the order taker at Bella Vista.\n          Help customers build their order one item at a time.\n          After each item, ask if they want to add anything else.\"\"\",\n      )\n      self.order_items = []\n\n  async def on_enter(self):\n      self.session.generate_reply(\n          instructions=\"Welcome the guest and ask what they would like to order.\"\n      )\n\n  @function_tool\n  async def add_item(self, context: RunContext) -> str:\n      \"\"\"Start collecting a new order item from the customer.\"\"\"\n      task = CollectOrderItem()\n      result = await task.run(self.session)\n\n      self.order_items.append(result)\n      total = sum(item.unit_price * item.quantity for item in self.order_items)\n\n      return (\n          f\"Added: {result.quantity}x {result.name}\"\n          f\"{' (' + ', '.join(result.modifications) + ')' if result.modifications else ''}\"\n          f\". Running total: ${total:.2f}\"\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, functionTool, RunContext } from \"@livekit/agents\";\nimport { CollectOrderItem, OrderItem } from \"./collectOrderItem\";\n\nclass OrderTakerAgent extends Agent {\nprivate orderItems: OrderItem[] = [];\n\nconstructor() {\n  super({\n    instructions: `You are the order taker at Bella Vista.\n      Help customers build their order one item at a time.\n      After each item, ask if they want to add anything else.`,\n  });\n}\n\nasync onEnter() {\n  this.session.generateReply({\n    instructions: \"Welcome the guest and ask what they would like to order.\",\n  });\n}\n\n@functionTool({ description: \"Start collecting a new order item from the customer.\" })\nasync addItem(context: RunContext): Promise<string> {\n  const task = new CollectOrderItem();\n  const result = await task.run(this.session);\n\n  this.orderItems.push(result);\n  const total = this.orderItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);\n\n  const mods = result.modifications.length > 0\n    ? ` (${result.modifications.join(\", \")})`\n    : \"\";\n  return `Added: ${result.quantity}x ${result.name}${mods}. Running total: $${total.toFixed(2)}`;\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "class CollectOrderItem(AgentTask[OrderItem]):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"Collect one menu item from the customer.\n          If the customer says they changed their mind or want to cancel,\n          use the cancel_item tool.\"\"\",\n          output_type=OrderItem,\n      )\n\n  @function_tool\n  async def cancel_item(self, context: RunContext) -> None:\n      \"\"\"Cancel this item if the customer changed their mind.\"\"\"\n      self.complete(None)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "class CollectOrderItem extends AgentTask<OrderItem> {\nconstructor() {\n  super({\n    instructions: `Collect one menu item from the customer.\n      If the customer says they changed their mind or want to cancel,\n      use the cancel_item tool.`,\n    outputType: OrderItemSchema,\n  });\n}\n\n@functionTool({ description: \"Cancel this item if the customer changed their mind.\" })\nasync cancelItem(context: RunContext): Promise<void> {\n  this.complete(null);\n}\n}"
+  }
+]

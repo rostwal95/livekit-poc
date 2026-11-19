@@ -40,11 +40,22 @@ class InquiryNotDispatched(SupplierUnavailable):
 
 
 def _event(event: str, code: str = "ok") -> None:
-    LOGGER.log(
-        logging.ERROR if event == "managed_worker_failed" else logging.INFO,
-        event,
-        extra={"event": event, "code": code},
-    )
+    try:
+        LOGGER.log(
+            logging.ERROR if event == "managed_worker_failed" else logging.INFO,
+            event,
+            extra={"event": event, "code": code},
+        )
+    except Exception:  # noqa: BLE001 - telemetry cannot alter inquiry truth or failures
+        return
+
+
+def _code(error: Exception) -> str:
+    try:
+        candidate = getattr(error, "code", "unexpected_error")
+        return candidate if type(candidate) is str and candidate in _CODES else "unexpected_error"
+    except Exception:  # noqa: BLE001 - diagnostic metadata cannot replace an original failure
+        return "unexpected_error"
 
 
 class ManagedInquiryWorker:
@@ -124,11 +135,5 @@ class ManagedInquiryWorker:
                 _event("managed_worker_completed")
                 return value
         except Exception as error:
-            candidate = getattr(error, "code", "unexpected_error")
-            code = (
-                candidate
-                if isinstance(candidate, str) and candidate in _CODES
-                else "unexpected_error"
-            )
-            _event("managed_worker_failed", code)
+            _event("managed_worker_failed", _code(error))
             raise

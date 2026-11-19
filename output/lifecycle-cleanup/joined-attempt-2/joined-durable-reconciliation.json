@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "readOnlyRepeatableSnapshot": true,
+  "originalInputs": 3,
+  "firstAttemptDispatches": 3,
+  "originalP1WorkResultsAndDeliveries": 3,
+  "revokedNativeBindings": 2,
+  "supplierMutations": 0,
+  "profileStateRetained": true,
+  "data": {
+    "processing": [
+      {
+        "receipt_id": "2a844f1e-4be8-482a-849a-f85ad3e3c682",
+        "operation_key": "925e1706-84d7-4e15-9af1-4953e62cf0a0",
+        "state": "dispatched",
+        "attempt_count": 1,
+        "possible_external": true,
+        "external_receipt_id": "5f6ead54-bdf2-4bec-871d-7ac6bb26f2de",
+        "last_code": "accepted"
+      },
+      {
+        "receipt_id": "ccbc5c8a-52ef-4ee3-b73d-5115961c8f84",
+        "operation_key": "fc0786e7-a82b-4b94-a8a1-fe9d0f519608",
+        "state": "dispatched",
+        "attempt_count": 1,
+        "possible_external": true,
+        "external_receipt_id": "d340155d-741c-4356-9957-04a29b75085f",
+        "last_code": "accepted"
+      },
+      {
+        "receipt_id": "56633155-b655-44db-8c88-934adf3bb9f3",
+        "operation_key": "d6b158aa-03ec-4420-8aef-511ce83a1c9d",
+        "state": "dispatched",
+        "attempt_count": 1,
+        "possible_external": true,
+        "external_receipt_id": "52691900-e412-45dd-b203-0aaa952ddfe7",
+        "last_code": "accepted"
+      }
+    ],
+    "dispatchAttempts": [
+      {
+        "receipt_id": "2a844f1e-4be8-482a-849a-f85ad3e3c682",
+        "epoch": 1,
+        "disposition": "accepted"
+      },
+      {
+        "receipt_id": "ccbc5c8a-52ef-4ee3-b73d-5115961c8f84",
+        "epoch": 1,
+        "disposition": "accepted"
+      },
+      {
+        "receipt_id": "56633155-b655-44db-8c88-934adf3bb9f3",
+        "epoch": 1,
+        "disposition": "accepted"
+      }
+    ],
+    "plans": [
+      {
+        "receipt_id": "2a844f1e-4be8-482a-849a-f85ad3e3c682",
+        "operation_key": "925e1706-84d7-4e15-9af1-4953e62cf0a0",
+        "payload_digest": "e0a944c0ee9c576c19bf5d07dff347ff15760f490b887a02815814c4b0418610"
+      },
+      {
+        "receipt_id": "ccbc5c8a-52ef-4ee3-b73d-5115961c8f84",
+        "operation_key": "fc0786e7-a82b-4b94-a8a1-fe9d0f519608",
+        "payload_digest": "999281397a6738d9f3e4bfe05143e55bcf591fa26f6074ccd284762e60b528d1"
+      },
+      {
+        "receipt_id": "56633155-b655-44db-8c88-934adf3bb9f3",
+        "operation_key": "d6b158aa-03ec-4420-8aef-511ce83a1c9d",
+        "payload_digest": "57824b8acc5975e3eb39d21d24c1eb7281e8de8f788c91b27d1b209ce8276442"
+      }
+    ],
+    "acceptedWork": [
+      {
+        "work_id": "5f6ead54-bdf2-4bec-871d-7ac6bb26f2de",
+        "idempotency_key": "p2_925e170684d74e159af14953e62cf0a0",
+        "sha256": "fc328ea25828be2ce7235ded64e2cee6cdb0cea8092b712d0d6922735466b849",
+        "operation": "booking.evaluate_policy"
+      },
+      {
+        "work_id": "d340155d-741c-4356-9957-04a29b75085f",
+        "idempotency_key": "p2_fc0786e7a82b4b94a8a1fe9d0f519608",
+        "sha256": "8cd94ae1149ee56a8532b99c05ff4b4dfb459e17ac3decf0b964f58acf5dce13",
+        "operation": "booking.evaluate_policy"
+      },
+      {
+        "work_id": "52691900-e412-45dd-b203-0aaa952ddfe7",
+        "idempotency_key": "p2_d6b158aa03ec44208aef511ce83a1c9d",
+        "sha256": "63567f61b289409a3f304a5c4d76d04a82504edd68f6cb7a7b6905b39c3c2f75",
+        "operation": "booking.evaluate_policy"
+      }
+    ],
+    "results": [
+      {
+        "work_id": "5f6ead54-bdf2-4bec-871d-7ac6bb26f2de",
+        "attempt_id": "83d4c5b4-ffc0-429d-b50c-19888203d44a",
+        "sha256": "deae3bf037606ad39ef98a8dd4a1bd167b8f817935a676eaa1d6d90751c62fea",
+        "disposition": "eligible_at_commit"
+      },
+      {
+        "work_id": "d340155d-741c-4356-9957-04a29b75085f",
+        "attempt_id": "1de09fb3-c627-4da6-aad9-592d1d9748cd",
+        "sha256": "1022142f2aa8a4acfec013e96d7158114326e8f590a354e06f8b343852f18a12",
+        "disposition": "eligible_at_commit"
+      },
+      {
+        "work_id": "52691900-e412-45dd-b203-0aaa952ddfe7",
+        "attempt_id": "6693a241-df7d-446d-92f9-f0101c504e3f",
+        "sha256": "18811d20716fb2531fad890ea9a12084915b169c989fecb25ea1cb6e9a3d8f7d",
+        "disposition": "eligible_at_commit"
+      }
+    ],
+    "deliveryReceipts": [
+      {
+        "delivery_id": "66349686-38ca-4254-8a7e-ba2f12500945",
+        "receipt_id": "33127802-de91-40b8-9640-93f22dfe02bb",
+        "receiver_id": "6b5d7bf6-2c3c-4283-b18f-78e41cfcca46",
+        "recipient_id": "recipient_demo",
+        "result_sha256": "deae3bf037606ad39ef98a8dd4a1bd167b8f817935a676eaa1d6d90751c62fea"
+      },
+      {
+        "delivery_id": "4e0c5734-1598-4dd9-98d5-a55aa15d059a",
+        "receipt_id": "9400335f-c2b4-4b7e-94e4-30fd0670b0e6",
+        "receiver_id": "6b5d7bf6-2c3c-4283-b18f-78e41cfcca46",
+        "recipient_id": "recipient_demo",
+        "result_sha256": "1022142f2aa8a4acfec013e96d7158114326e8f590a354e06f8b343852f18a12"
+      },
+      {
+        "delivery_id": "24e494e6-b29a-4202-8005-5745f574ccfd",
+        "receipt_id": "2dfed7ba-8cc5-47c7-87d5-64018facbda2",
+        "receiver_id": "6b5d7bf6-2c3c-4283-b18f-78e41cfcca46",
+        "recipient_id": "recipient_demo",
+        "result_sha256": "18811d20716fb2531fad890ea9a12084915b169c989fecb25ea1cb6e9a3d8f7d"
+      }
+    ],
+    "deliveryIntents": [
+      {
+        "delivery_id": "66349686-38ca-4254-8a7e-ba2f12500945",
+        "work_id": "5f6ead54-bdf2-4bec-871d-7ac6bb26f2de",
+        "attempt_id": "83d4c5b4-ffc0-429d-b50c-19888203d44a",
+        "result_sha256": "deae3bf037606ad39ef98a8dd4a1bd167b8f817935a676eaa1d6d90751c62fea",
+        "receiver_id": "6b5d7bf6-2c3c-4283-b18f-78e41cfcca46",
+        "recipient_id": "recipient_demo"
+      },
+      {
+        "delivery_id": "4e0c5734-1598-4dd9-98d5-a55aa15d059a",
+        "work_id": "d340155d-741c-4356-9957-04a29b75085f",
+        "attempt_id": "1de09fb3-c627-4da6-aad9-592d1d9748cd",
+        "result_sha256": "1022142f2aa8a4acfec013e96d7158114326e8f590a354e06f8b343852f18a12",
+        "receiver_id": "6b5d7bf6-2c3c-4283-b18f-78e41cfcca46",
+        "recipient_id": "recipient_demo"
+      },
+      {
+        "delivery_id": "24e494e6-b29a-4202-8005-5745f574ccfd",
+        "work_id": "52691900-e412-45dd-b203-0aaa952ddfe7",
+        "attempt_id": "6693a241-df7d-446d-92f9-f0101c504e3f",
+        "result_sha256": "18811d20716fb2531fad890ea9a12084915b169c989fecb25ea1cb6e9a3d8f7d",
+        "receiver_id": "6b5d7bf6-2c3c-4283-b18f-78e41cfcca46",
+        "recipient_id": "recipient_demo"
+      }
+    ],
+    "bindings": [
+      {
+        "binding_id": "a0e61136-a826-446f-9be4-c01c24d4c33b",
+        "revoked_at": "2026-11-19 10:50:55.270000+00:00"
+      },
+      {
+        "binding_id": "a5d464a8-8c4b-4535-87b4-3548e6af2adc",
+        "revoked_at": "2026-11-19 10:51:58.001000+00:00"
+      }
+    ],
+    "caseIntents": [],
+    "caseConfirmations": [],
+    "supplierEffects": []
+  },
+  "limits": "Independent durable reconciliation of the selected scripted joined journey; no provider, forced browser fault, full45B/C/D, sourceACK or business-action qualification."
+}

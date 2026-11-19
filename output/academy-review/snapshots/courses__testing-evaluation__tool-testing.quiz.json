@@ -1,0 +1,35 @@
+[
+  {
+    "question": "When using mock_tools(), what does the agent still control versus what you control?",
+    "options": [
+      "The agent controls everything; mock_tools() only logs the calls",
+      "The agent still decides when to call tools and what arguments to pass; you control what the tools return",
+      "You control both the arguments and return values; the agent controls the timing",
+      "You control when tools are called; the agent controls the return values"
+    ],
+    "correctIndex": 1,
+    "explanation": "mock_tools() replaces only the tool implementations (return values). The agent still uses its LLM reasoning to decide which tools to call, when to call them, and what arguments to pass based on the conversation. This lets you test the agent's decision-making while controlling external dependencies."
+  },
+  {
+    "question": "Why is it important to test both the tool-was-called assertion AND a judge() assertion on the agent's response in a complete workflow test?",
+    "options": [
+      "Because tool assertions run on the server while judge assertions run on the client",
+      "Because the testing framework requires both types of assertions per test",
+      "Because judge() assertions are unreliable without tool assertions",
+      "Because tool assertions verify what the agent did (called the right tools with right arguments) while judge() verifies what the agent said (communicated correctly to the user) \u2014 both matter"
+    ],
+    "correctIndex": 3,
+    "explanation": "An agent might call the right tools but communicate poorly ('Your appointment is booked' without mentioning the date or confirmation number), or it might say the right things without actually calling the tools. Testing both the tool calls and the response ensures the agent both acts correctly and communicates correctly."
+  },
+  {
+    "question": "When testing a tool that raises an exception (e.g., ConnectionError), what should the agent's response ideally include?",
+    "options": [
+      "A request for the user to check their internet connection",
+      "A redirect to a different agent that handles errors",
+      "The full stack trace so the user can report it to support",
+      "An apology for the technical difficulty and an offer to try again, without exposing technical error details to the caller"
+    ],
+    "correctIndex": 3,
+    "explanation": "When a tool fails, the agent should handle it gracefully for the caller: acknowledge the issue, apologize, and suggest next steps (try again or call back). It should never expose technical details like 'Calendar service unavailable' because that breaks the conversational experience and may confuse the caller."
+  }
+]

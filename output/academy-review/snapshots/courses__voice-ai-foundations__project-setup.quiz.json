@@ -1,0 +1,24 @@
+[
+  {
+    "question": "What does the `lk agent init` command do?",
+    "options": [
+      "It generates access tokens for connecting to a LiveKit room",
+      "It starts a running agent process and connects to LiveKit Cloud",
+      "It creates a complete agent project with boilerplate code, dependencies, and configuration files",
+      "It deploys your agent to production on LiveKit Cloud"
+    ],
+    "correctIndex": 2,
+    "explanation": "The `lk agent init` command scaffolds a new agent project, creating a directory with agent.py (the main agent logic), requirements.txt (Python dependencies), .env.example (API key template), and a Dockerfile (for deployment). It handles all the boilerplate so you can focus on the agent's behavior. Running the agent is done separately with `python agent.py dev`."
+  },
+  {
+    "question": "What does dev mode (`python agent.py dev`) provide that production mode does not?",
+    "options": [
+      "It uses more powerful AI models for better responses",
+      "It connects to a local LiveKit server instead of LiveKit Cloud",
+      "It runs without needing API keys for model providers",
+      "It auto-reloads when you edit agent.py and registers with the Playground for immediate testing"
+    ],
+    "correctIndex": 3,
+    "explanation": "Dev mode provides two key development conveniences: it auto-reloads your agent when you edit the code (so you do not need to restart manually), and it registers the agent with the LiveKit Playground so you can test it immediately by connecting in your browser. Both dev and production modes connect to LiveKit Cloud and require the same API keys."
+  }
+]

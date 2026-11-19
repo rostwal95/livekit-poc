@@ -1,0 +1,74 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, AgentSession\n\nclass RAGAgent(Agent):\n  def __init__(self, vector_store):\n      super().__init__(\n          instructions=(\n              \"You are a knowledge assistant. Answer questions using the \"\n              \"context provided. If the context does not contain the answer, \"\n              \"say you do not have that information.\"\n          ),\n      )\n      self.vector_store = vector_store\n\n  async def on_user_turn_completed(self, turn_ctx):\n      query = turn_ctx.user_message\n      results = await self.vector_store.search(query, top_k=3)\n      context = \"\\n\".join([r.text for r in results])\n      turn_ctx.add_system_message(f\"Relevant context:\\n{context}\")\n      await Agent.default.on_user_turn_completed(self, turn_ctx)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, type AgentSession, type TurnContext } from \"@livekit/agents\";\n\nclass RAGAgent extends Agent {\nprivate vectorStore: VectorStore;\n\nconstructor(vectorStore: VectorStore) {\n  super({\n    instructions:\n      \"You are a knowledge assistant. Answer questions using the \" +\n      \"context provided. If the context does not contain the answer, \" +\n      \"say you do not have that information.\",\n  });\n  this.vectorStore = vectorStore;\n}\n\nasync onUserTurnCompleted(turnCtx: TurnContext): Promise<void> {\n  const query = turnCtx.userMessage;\n  const results = await this.vectorStore.search(query, 3);\n  const context = results.map((r) => r.text).join(\"\\n\");\n  turnCtx.addSystemMessage(`Relevant context:\\n${context}`);\n  await super.onUserTurnCompleted(turnCtx);\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from dataclasses import dataclass\nfrom abc import ABC, abstractmethod\nfrom openai import AsyncOpenAI\n\n@dataclass\nclass SearchResult:\n  text: str\n  source: str\n  score: float\n\nclass VectorStore(ABC):\n  @abstractmethod\n  async def search(self, query: str, top_k: int = 3) -> list[SearchResult]:\n      ...\n\nclass PgVectorStore(VectorStore):\n  def __init__(self, conn, openai_client: AsyncOpenAI):\n      self.conn = conn\n      self.openai = openai_client\n\n  async def _embed(self, text: str) -> list[float]:\n      response = await self.openai.embeddings.create(\n          model=\"text-embedding-3-small\",\n          input=text,\n      )\n      return response.data[0].embedding\n\n  async def search(self, query: str, top_k: int = 3) -> list[SearchResult]:\n      embedding = await self._embed(query)\n      cur = self.conn.cursor()\n      cur.execute(\n          \"SELECT content, source, 1 - (embedding <=> %s) AS score \"\n          \"FROM documents ORDER BY embedding <=> %s LIMIT %s\",\n          (embedding, embedding, top_k),\n      )\n      return [\n          SearchResult(text=row[0], source=row[1], score=row[2])\n          for row in cur.fetchall()\n      ]"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import OpenAI from \"openai\";\n\ninterface SearchResult {\ntext: string;\nsource: string;\nscore: number;\n}\n\ninterface VectorStore {\nsearch(query: string, topK?: number): Promise<SearchResult[]>;\n}\n\nclass PineconeVectorStore implements VectorStore {\nprivate openai: OpenAI;\nprivate index: any;\n\nconstructor(openai: OpenAI, index: any) {\n  this.openai = openai;\n  this.index = index;\n}\n\nprivate async embed(text: string): Promise<number[]> {\n  const response = await this.openai.embeddings.create({\n    model: \"text-embedding-3-small\",\n    input: text,\n  });\n  return response.data[0].embedding;\n}\n\nasync search(query: string, topK = 3): Promise<SearchResult[]> {\n  const embedding = await this.embed(query);\n  const results = await this.index.query({\n    vector: embedding,\n    topK,\n    includeMetadata: true,\n  });\n  return results.matches.map((m: any) => ({\n    text: m.metadata.content,\n    source: m.metadata.source,\n    score: m.score,\n  }));\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "class FilteredRAGAgent(Agent):\n  def __init__(self, vector_store, min_score: float = 0.7):\n      super().__init__(\n          instructions=\"You are a knowledge assistant. Use provided context to answer questions.\",\n      )\n      self.vector_store = vector_store\n      self.min_score = min_score\n\n  async def on_user_turn_completed(self, turn_ctx):\n      query = turn_ctx.user_message\n      results = await self.vector_store.search(query, top_k=5)\n\n      # Filter out low-relevance results\n      relevant = [r for r in results if r.score >= self.min_score]\n\n      if relevant:\n          context = \"\\n---\\n\".join(\n              [f\"[Source: {r.source}]\\n{r.text}\" for r in relevant]\n          )\n          turn_ctx.add_system_message(f\"Relevant context:\\n{context}\")\n      else:\n          turn_ctx.add_system_message(\n              \"No relevant documents found. Answer based on general knowledge \"\n              \"and let the user know you could not find a specific source.\"\n          )\n\n      await Agent.default.on_user_turn_completed(self, turn_ctx)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "class FilteredRAGAgent extends Agent {\nprivate vectorStore: VectorStore;\nprivate minScore: number;\n\nconstructor(vectorStore: VectorStore, minScore = 0.7) {\n  super({\n    instructions:\n      \"You are a knowledge assistant. Use provided context to answer questions.\",\n  });\n  this.vectorStore = vectorStore;\n  this.minScore = minScore;\n}\n\nasync onUserTurnCompleted(turnCtx: TurnContext): Promise<void> {\n  const query = turnCtx.userMessage;\n  const results = await this.vectorStore.search(query, 5);\n\n  const relevant = results.filter((r) => r.score >= this.minScore);\n\n  if (relevant.length > 0) {\n    const context = relevant\n      .map((r) => `[Source: ${r.source}]\\n${r.text}`)\n      .join(\"\\n---\\n\");\n    turnCtx.addSystemMessage(`Relevant context:\\n${context}`);\n  } else {\n    turnCtx.addSystemMessage(\n      \"No relevant documents found. Answer based on general knowledge \" +\n      \"and let the user know you could not find a specific source.\"\n    );\n  }\n\n  await super.onUserTurnCompleted(turnCtx);\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from rank_bm25 import BM25Okapi\nimport re\n\nclass HybridVectorStore(VectorStore):\n  def __init__(self, conn, openai_client, documents: list[dict]):\n      self.conn = conn\n      self.openai = openai_client\n      tokenized = [re.findall(r\"\\w+\", doc[\"content\"].lower()) for doc in documents]\n      self.bm25 = BM25Okapi(tokenized)\n      self.documents = documents\n\n  async def search(self, query: str, top_k: int = 3) -> list[SearchResult]:\n      # Semantic search\n      embedding = await self._embed(query)\n      cur = self.conn.cursor()\n      cur.execute(\n          \"SELECT id, content, source, 1 - (embedding <=> %s) AS score \"\n          \"FROM documents ORDER BY embedding <=> %s LIMIT %s\",\n          (embedding, embedding, top_k * 3),\n      )\n      semantic_results = [\n          {\"id\": row[0], \"content\": row[1], \"source\": row[2]}\n          for row in cur.fetchall()\n      ]\n\n      # Keyword search\n      tokens = re.findall(r\"\\w+\", query.lower())\n      bm25_scores = self.bm25.get_scores(tokens)\n      top_indices = bm25_scores.argsort()[-top_k * 3:][::-1]\n      keyword_results = [\n          {**self.documents[i], \"id\": str(i)}\n          for i in top_indices if bm25_scores[i] > 0\n      ]\n\n      # Reciprocal rank fusion\n      fused = self._rrf([semantic_results, keyword_results])\n      return [\n          SearchResult(text=r[\"content\"], source=r[\"source\"], score=r[\"rrf_score\"])\n          for r in fused[:top_k]\n      ]\n\n  def _rrf(self, result_lists, k=60):\n      scores, docs = {}, {}\n      for results in result_lists:\n          for rank, doc in enumerate(results):\n              doc_id = doc[\"id\"]\n              scores[doc_id] = scores.get(doc_id, 0) + 1 / (k + rank + 1)\n              docs[doc_id] = doc\n      sorted_ids = sorted(scores, key=lambda x: scores[x], reverse=True)\n      return [{**docs[did], \"rrf_score\": scores[did]} for did in sorted_ids]"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, RoomInputOptions, Agent\nfrom livekit.plugins import deepgram, openai as oai\nfrom openai import AsyncOpenAI\n\nclass VoiceRAGAgent(Agent):\n  def __init__(self, vector_store, min_score: float = 0.72):\n      super().__init__(\n          instructions=(\n              \"You are a knowledge assistant. Answer questions using the \"\n              \"context provided. If the context does not contain the answer, \"\n              \"say you do not have that information. Cite your sources naturally \u2014 \"\n              \"'According to our return policy...' not '[Source 1]'.\"\n          ),\n      )\n      self.vector_store = vector_store\n      self.min_score = min_score\n\n  async def on_user_turn_completed(self, turn_ctx):\n      query = turn_ctx.user_message\n      results = await self.vector_store.search(query, top_k=5)\n      relevant = [r for r in results if r.score >= self.min_score]\n\n      if relevant:\n          context = \"\\n---\\n\".join(\n              [f\"[Source: {r.source}]\\n{r.text}\" for r in relevant]\n          )\n          turn_ctx.add_system_message(f\"Relevant context:\\n{context}\")\n      else:\n          turn_ctx.add_system_message(\n              \"No relevant documents found for this query. \"\n              \"Tell the user you do not have specific information on that topic.\"\n          )\n\n      await Agent.default.on_user_turn_completed(self, turn_ctx)\n\nasync def entrypoint(ctx):\n  # Pre-warm connections before the first call\n  openai_client = AsyncOpenAI()\n  vector_store = PgVectorStore(conn=db_connection, openai_client=openai_client)\n\n  agent = VoiceRAGAgent(vector_store=vector_store, min_score=0.72)\n\n  session = AgentSession(\n      stt=deepgram.STT(),\n      llm=oai.LLM(model=\"gpt-4o\"),\n      tts=oai.TTS(),\n  )\n\n  await session.start(\n      agent=agent,\n      room=ctx.room,\n      room_input_options=RoomInputOptions(),\n  )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession, RoomInputOptions, Agent, type TurnContext } from \"@livekit/agents\";\nimport { DeepgramSTT } from \"@livekit/agents-plugin-deepgram\";\nimport { OpenAILLM, OpenAITTS } from \"@livekit/agents-plugin-openai\";\nimport OpenAI from \"openai\";\n\nclass VoiceRAGAgent extends Agent {\nprivate vectorStore: VectorStore;\nprivate minScore: number;\n\nconstructor(vectorStore: VectorStore, minScore = 0.72) {\n  super({\n    instructions:\n      \"You are a knowledge assistant. Answer questions using the \" +\n      \"context provided. If the context does not contain the answer, \" +\n      \"say you do not have that information. Cite your sources naturally \u2014 \" +\n      \"'According to our return policy...' not '[Source 1]'.\",\n  });\n  this.vectorStore = vectorStore;\n  this.minScore = minScore;\n}\n\nasync onUserTurnCompleted(turnCtx: TurnContext): Promise<void> {\n  const query = turnCtx.userMessage;\n  const results = await this.vectorStore.search(query, 5);\n  const relevant = results.filter((r) => r.score >= this.minScore);\n\n  if (relevant.length > 0) {\n    const context = relevant\n      .map((r) => `[Source: ${r.source}]\\n${r.text}`)\n      .join(\"\\n---\\n\");\n    turnCtx.addSystemMessage(`Relevant context:\\n${context}`);\n  } else {\n    turnCtx.addSystemMessage(\n      \"No relevant documents found for this query. \" +\n      \"Tell the user you do not have specific information on that topic.\"\n    );\n  }\n\n  await super.onUserTurnCompleted(turnCtx);\n}\n}\n\nasync function entrypoint(ctx: any) {\nconst openai = new OpenAI();\nconst vectorStore = new PineconeVectorStore(openai, pineconeIndex);\n\nconst agent = new VoiceRAGAgent(vectorStore, 0.72);\n\nconst session = new AgentSession({\n  stt: new DeepgramSTT(),\n  llm: new OpenAILLM({ model: \"gpt-4o\" }),\n  tts: new OpenAITTS(),\n});\n\nawait session.start({\n  agent,\n  room: ctx.room,\n  roomInputOptions: new RoomInputOptions(),\n});\n}"
+  }
+]

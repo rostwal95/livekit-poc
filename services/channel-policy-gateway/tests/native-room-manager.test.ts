@@ -27,6 +27,49 @@ afterEach(async () => {
   for (const f of fixtures.splice(0)) await f.cleanup();
 });
 describe('one retained G room owner', () => {
+  it('fences native intake and retains the grant until the original accepted-input drain settles', async () => {
+    const f = await setup(),
+      a = opening(f.ready.nodeEpoch),
+      held = deferred();
+    release.push(held.resolve);
+    await f.manager.open(a);
+    f.state.drainHold = held.promise;
+    vi.useFakeTimers();
+    const ending = f.manager.closeRoom(command(a)).catch((e) => e);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(f.manager.observe(command(a)).state).toBe('closing');
+    expect(f.state.fenced).toEqual([a.binding.bindingId]);
+    expect(f.state.drained).toEqual([a.binding.bindingId]);
+    expect(f.state.revoked).toEqual([]);
+    await vi.advanceTimersByTimeAsync(1001);
+    expect(await ending).toMatchObject({ code: 'cleanup_incomplete' });
+    expect(f.state.revoked).toEqual([]);
+    held.resolve();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(f.manager.observe(command(a)).state).toBe('closed');
+    expect(f.state.revoked).toEqual([a.binding.bindingId]);
+    expect(f.state.published).toHaveLength(1);
+  });
+  it('keeps failed unknown or exhausted input drains closing and retries only the original room', async () => {
+    const f = await setup(),
+      a = opening(f.ready.nodeEpoch);
+    await f.manager.open(a);
+    f.state.drainError = new ChannelError('DispatchUnavailable');
+    await expect(f.manager.closeRoom(command(a))).rejects.toMatchObject({
+      code: 'cleanup_incomplete',
+    });
+    expect(f.manager.observe(command(a)).state).toBe('closing');
+    expect(f.state.revoked).toEqual([]);
+    await expect(f.manager.open(opening(f.ready.nodeEpoch, '1', 'b'))).rejects.toMatchObject({
+      code: 'conflict',
+    });
+    f.state.drainError = undefined;
+    expect((await f.manager.closeRoom(command(a))).state).toBe('closed');
+    expect(f.state.fenced).toEqual([a.binding.bindingId]);
+    expect(f.state.drained).toEqual([a.binding.bindingId, a.binding.bindingId]);
+    expect(f.state.revoked).toEqual([a.binding.bindingId]);
+    expect(f.state.published).toHaveLength(1);
+  });
   it('reserves one generation before concurrent opens and replays original publication without new grant calls', async () => {
     const f = await setup(),
       hold = deferred();
@@ -303,6 +346,8 @@ describe('one retained G room owner', () => {
           calls++;
           return null;
         },
+        fenceInput: async () => {},
+        drainInput: async () => {},
         ready: () => true,
       },
     );
@@ -330,6 +375,8 @@ describe('one retained G room owner', () => {
         throw new Error('unexpected');
       },
       native: async () => null,
+      fenceInput: async () => {},
+      drainInput: async () => {},
       ready: () => true,
     };
     Object.defineProperty(ports, 'publish', { get: getter, enumerable: true });

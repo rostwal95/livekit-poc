@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "report_sha256": "2165bf34f53edf56f9e104d8073bb14755add21970e4820bad48a0d055e5f5a0",
+  "patch_sha256": "ee23491d5186a8cfaa1ce615c6a7fc66e99d5e0dfb47aff5d06f75b8c7b02fcf",
+  "work_item_sha256": "5c26117908b858ed20a2a9047d31497f65de40f6af2a7facb8794803b5973533",
+  "courses": 20,
+  "chapters": 133,
+  "fixed_findings": 4,
+  "priority_findings_remaining": 4,
+  "python_tests": 3797,
+  "typescript_tests": 2056,
+  "required_skips": 0,
+  "documentation_violations": 0,
+  "source_digests_match": true,
+  "scope": "Current offline/source/SDK checks. Fresh PostgreSQL/browser/media/provider qualification is not claimed."
+}

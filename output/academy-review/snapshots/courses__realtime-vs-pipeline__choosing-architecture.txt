@@ -1,0 +1,154 @@
+1Architecture comparison
+
+2Pipeline implementation
+
+3OpenAI Realtime
+
+4Gemini Live
+
+5Custom TTS with realtime models
+
+6Hybrid approaches
+
+7Latency & quality comparison
+
+8Choosing your architecture
+
+Choosing your architecture
+
+Choosing your architecture
+
+You have built pipeline agents, OpenAI Realtime agents, Gemini Live agents, half-cascade agents, and hybrid agents. You have benchmarked their latency, compared their audio quality, and estimated their cost. Now it is time to pull it all together into a decision framework that you can apply to any voice AI project. This final chapter gives you a structured way to choose the right architecture for your specific requirements.
+
+What you'll learn
+
+A repeatable decision framework for choosing between pipeline, realtime, and hybrid
+
+Which architecture fits which use case
+
+How to weigh cost, latency, quality, and control against your priorities
+
+A decision tree you can use for future projects
+
+The decision framework
+
+Architecture decisions should be driven by requirements, not hype. Work through these five questions in order:
+
+If your users expect sub-500ms TTFB (gaming, live translation, interactive characters), realtime is likely required. If 800-1200ms is acceptable (customer support, scheduling, information lookup), pipeline is viable. If you are unsure, test with real users — perceived latency tolerance varies by use case.
+
+If you need a specific brand voice, voice cloning, fine-grained emotion control, or a particular accent, you need a dedicated TTS provider. You have two options: a full pipeline, or the half-cascade pattern (realtime model with text-only output paired with a custom TTS). Half-cascade gives you voice control with lower latency than a full pipeline. If one of the built-in realtime voices works for your application, this constraint disappears.
+
+Simple tools (single lookups, short API calls) work well in both architectures. Complex tool chains (multi-step workflows, conditional branching, retries, database transactions) are more reliable in pipeline mode where text-based LLMs have mature function-calling patterns. If your agent is tool-heavy, lean toward pipeline or hybrid.
+
+If your agent needs to process video or images during live conversation, Gemini Live handles this natively. Pipeline requires bolting on a separate vision model. OpenAI Realtime is audio-only. This single requirement can drive the entire decision.
+
+Pipeline with a small LLM (GPT-4o-mini) is the cheapest per conversation. Gemini Live is competitive. OpenAI Realtime is the most expensive. If you are building for high volume (thousands of concurrent conversations), cost differences compound quickly.
+
+Decision tree
+
+Use this tree as a starting point. Enter at the top and follow the branches based on your answers:
+
+Architecture decision tree
+
+Start
+
+Evaluate your requirements
+
+Need sub-500ms TTFB?
+
+If yes, lean toward realtime
+
+Yes: Need multimodal vision?
+
+If yes: Gemini Live. If no: check tool use.
+
+Heavy tool use?
+
+If yes: Hybrid (Realtime + Pipeline fallback). If no: OpenAI Realtime or Gemini Live.
+
+No: Need specific voice/TTS?
+
+If yes: Pipeline
+
+Heavy tool use?
+
+If yes: Pipeline
+
+Cost sensitive?
+
+If yes: Pipeline with small LLM. If no: Realtime or Hybrid.
+
+This decision tree is a simplification. Real projects often have competing requirements — you might need low latency AND a specific voice. In those cases, the half-cascade pattern (realtime model with text-only output paired with a dedicated TTS) bridges the gap perfectly — you get audio-native speech comprehension with any voice you want. Use the tree as a starting point, not a final answer.
+
+Use case recommendations
+
+Here are concrete recommendations for common voice AI use cases:
+
+Use case | Recommended architecture | Why
+Customer support hotline | Pipeline | Needs transcript logging, reliable tool use for order lookup, and specific brand voice
+Interactive game character | Realtime (OpenAI or Gemini) | Latency is critical, natural conversation dynamics matter, tool use is minimal
+Healthcare triage | Pipeline | Regulatory requirement for accurate transcripts, complex decision trees, audit trail
+Language tutor | Realtime (Gemini Live) | Benefits from hearing pronunciation nuance, video can show written text or gestures
+Virtual receptionist | Hybrid | Fast greetings and simple routing via realtime, switch to pipeline for appointment scheduling with calendar tools
+Technical support with screen sharing | Gemini Live | Vision capability lets the agent see the user's screen and guide them visually
+High-volume outbound calls | Pipeline (small LLM) | Cost optimization at scale, 800ms TTFB is acceptable for outbound, needs telephony integration
+Real-time translation | Realtime | Lowest possible latency is essential, audio-native processing preserves tone
+
+Recommendations evolve with the models
+
+These recommendations reflect the state of realtime models as of early 2026. Both OpenAI and Google are rapidly improving their realtime offerings — adding more voices, better tool support, and lower prices. Revisit your architecture decision every 6-12 months as the landscape shifts.
+
+Cost analysis at scale
+
+Cost differences that seem small per conversation become significant at scale. Here is what the monthly bill looks like at different volumes:
+
+Daily conversations | Pipeline (GPT-4o-mini) | OpenAI Realtime | Gemini Live
+100 | $300 - $450 | $900 - $1,800 | $300 - $750
+1,000 | $3,000 - $4,500 | $9,000 - $18,000 | $3,000 - $7,500
+10,000 | $30,000 - $45,000 | $90,000 - $180,000 | $30,000 - $75,000
+
+These are estimates based on 10-minute average conversations
+
+Actual costs depend on conversation length, response verbosity, tool call frequency, and current provider pricing. Use these numbers for order-of-magnitude planning, not budgeting. Run your own cost analysis with realistic conversation samples before committing to a production architecture.
+
+At 10,000 daily conversations, the difference between pipeline and OpenAI Realtime can be $50,000-$130,000 per month. That is enough to fund a dedicated engineering team to optimize your pipeline. Cost analysis should not be an afterthought — for high-volume applications, it is often the deciding factor.
+
+Making the final decision
+
+After working through the framework, you should have a clear primary architecture and a fallback plan:
+
+Implement your agent with the architecture the decision tree suggests. Use your actual prompts, tools, and conversation flows — not toy examples.
+
+Run the benchmarking harness from Chapter 7 with your actual use case. Measure TTFB, E2E latency, and audio quality with your target user population if possible.
+
+Build a second implementation with your fallback architecture. You do not need to polish it — just prove it works so you have a backup if your primary choice hits a wall.
+
+Ship the primary architecture. Monitor latency, quality, cost, and user satisfaction in production. Be prepared to switch architectures if the data tells you to — the code changes are minimal thanks to LiveKit's consistent API surface.
+
+Test your knowledge
+
+Question 1 of 2
+
+A company is building a high-volume outbound calling system handling 10,000 daily conversations. Which architecture consideration should dominate their decision?
+
+What you learned
+
+A five-question decision framework covers latency, voice control, tool complexity, multimodal needs, and cost
+
+The half-cascade pattern (realtime model + custom TTS) bridges the gap when you need both low latency and voice control
+
+The decision tree provides a structured starting point for architecture selection
+
+Use case recommendations map common scenarios to their best-fit architectures
+
+Cost differences compound at scale — pipeline with a small LLM is 3-6x cheaper than OpenAI Realtime
+
+The best approach is to prototype, benchmark, and iterate rather than committing to an architecture based on theory alone
+
+Course summary
+
+Over eight chapters, you have gone from understanding the fundamental difference between pipeline and realtime architectures to building production-ready agents with every approach. You implemented a pipeline agent with optimized model selection, built realtime agents with both OpenAI and Gemini Live, learned the half-cascade pattern for pairing realtime models with custom TTS, designed hybrid architectures that combine the strengths of each, and measured their performance with real benchmarks. You now have the knowledge and the code to choose the right architecture for any voice AI project — and the framework to revisit that decision as the technology evolves.
+
+Keep experimenting
+
+The voice AI landscape is moving fast. New realtime models, new TTS providers, and new hybrid patterns emerge regularly. The architectures you learned in this course give you a stable foundation — but the specific model choices and provider recommendations will change. Stay curious, keep benchmarking, and let the data guide your decisions.

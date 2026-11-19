@@ -83,7 +83,7 @@ These application contracts are separate from LiveKit SDK interfaces.
 | Phase E | PostgreSQL v3 mutation, provider and revision binding, cancellation, immutable business completion and bounded delivery to an independent cooperating receiver |
 | Phase F | PostgreSQL v4 server-time leases and epochs, guarded worker writes, persisted admission limits and a bounded product-worker process |
 | Phase G | An explicit profile with atomic managed intake, current-case UI, exact UI approval, native scripted conversation and bounded filtered trace export |
-| Booking v5 | A persisted retry due time for dependency-unavailable mutation effects |
+| Booking v5 | A persisted retry due time for dependency-unavailable mutation effects before any dispatch reservation |
 | Work profile v1 to v4 | Read-only accepted work, issued execution, delivery and guarded-action receipts, and a result feed |
 
 Notes on these stages:
@@ -643,6 +643,10 @@ Runtime does no DDL. Each upgrade is an explicit owner-only command:
 - On v5, a pre-dispatch `dependency_unavailable` holds the pending effect until its
   due time: 1 s, doubling to 30 s, never past the deadline. Cancellation is not
   held, and v4 keeps immediate retry. Existing effects keep a NULL due time.
+- Outages after a possible dispatch do not yet receive that persisted pacing.
+  Recovery preserves uncertainty and the finite attempt budget; P1-A2 in
+  [0048](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md)
+  remains a separate reconciliation-pacing design task.
 - All prior rows, payloads and import receipts survive. Existing v1 mutation
   consent is history and replay only, and is excluded from automatic mutation
   selection.
@@ -804,7 +808,9 @@ context-managed resources.
 - A cancelled thread offload retains capacity until the actual work ends.
 - Unexpected defects preserve dispatch evidence and propagate through a sanitized
   public boundary.
-- Only producer telemetry exceptions are intentionally contained.
+- Ordinary producer telemetry exceptions are contained so they cannot replace a
+  committed result or primary failure. Cancellation and fatal control flow still
+  propagate.
 
 The [Python engineering guide](../../docs/python-engineering.md) owns the wider
 policy.
@@ -1128,7 +1134,7 @@ evidence.
 
 | Check | Command | What it proves | Status |
 | --- | --- | --- | --- |
-| Real PostgreSQL lane | `make postgres-check` | The v4 and v5 migrations, server-time coordination, stale-worker schedules and the existing mutation, cancellation, supplier and receiver recovery | Qualified; passed after v5 in [0047](../../docs/work-items/0047-open-findings-schema-upgrades-and-landing.md) |
+| Real PostgreSQL lane | `make postgres-check` | The v4 and v5 migrations, server-time coordination, stale-worker schedules and the existing mutation, cancellation, supplier and receiver recovery | Passed after v5 in [0047](../../docs/work-items/0047-open-findings-schema-upgrades-and-landing.md); the later full run in [0048](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md) was not clean |
 | Phase E demo | `make phase-e-demo` | Preserves Phase E's installed crash proof | Qualified in the [Phase E work item](../../docs/work-items/0011-p1-phase-e-effects-and-completion.md) |
 | Phase F demo | `make phase-f-demo` | Adds leased worker, restart and shutdown evidence without resetting retained state | Qualified: the [Phase F work item](../../docs/work-items/0012-p1-phase-f-leases-and-deployment.md) records the passed final combined gate |
 
@@ -1187,3 +1193,7 @@ open P1-20 rerun.
   `P1_PROVIDER_CA_BUNDLE` pointing at the approved bundle.
 - Production capacity remains unclaimed. The harness catalog owns current complete
   runner registrations.
+- The later [0048 review](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md)
+  records five errors in its last full PostgreSQL run under host load and a
+  subsequent 27-test targeted pass. Source inspection or an offline diagnostic
+  regression does not replace that missing full current-source result.

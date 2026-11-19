@@ -1,0 +1,249 @@
+1Pipeline selection & latency budgets
+
+2STT, LLM & TTS provider comparison
+
+3Cost analysis & use case recommendations
+
+Cost analysis & use case recommendations
+
+Cost analysis and use case recommendations
+
+You know the providers and their tradeoffs. Now it is time to put numbers to decisions. This chapter models the real cost of voice AI conversations across different stacks, then gives you concrete recommendations for four common use cases — each with exact LiveKit configurations you can copy into your project. All examples use LiveKit Inference where possible for the simplest setup, with plugin alternatives noted.
+
+What you will learn
+
+How costs break down across STT, LLM, and TTS for a typical 5-minute conversation
+
+How to compare total cost across four stack profiles: Budget, Balanced, Premium, and Enterprise
+
+When realtime mode is cheaper or more expensive than pipeline mode
+
+Specific stack recommendations with LiveKit plugin code for common use cases
+
+Cost optimization strategies that do not sacrifice quality
+
+Anatomy of a voice AI conversation cost
+
+Here is a typical 5-minute customer service conversation broken into billable units:
+
+Metric | Typical value | Notes
+User speaking time | ~2 minutes | Questions, clarifications
+Agent speaking time | ~3 minutes | Responses, confirmations
+LLM input tokens | ~2,000 tokens | System prompt + conversation history
+LLM output tokens | ~600 tokens | Agent responses across all turns
+TTS characters | ~2,500 chars | Agent response text
+
+These numbers represent a typical conversation. Your volumes will vary based on user talkativeness, agent verbosity, and system prompt length. Use these as a starting point and adjust based on real data from your application.
+
+Four stack profiles
+
+Budget: Deepgram + GPT-4.1 mini + Cartesia
+
+The lowest-cost pipeline that still delivers a good experience. Ideal for high-volume, straightforward interactions. All three models are available via LiveKit Inference.
+
+Component | Unit cost | Volume | Cost
+STT (Deepgram) | $0.006/min | 2 min | $0.012
+LLM input (GPT-4.1 mini) | $0.15/1M tokens | 2,000 tokens | $0.0003
+LLM output (GPT-4.1 mini) | $0.60/1M tokens | 600 tokens | $0.0004
+TTS (Cartesia) | $0.007/1K chars | 2,500 chars | $0.018
+Total |  |  | ~$0.03
+
+from livekit.agents import AgentSession, Agent, RoomInputOptions, inference
+
+# Via LiveKit Inference — no per-provider API keys needed
+session = AgentSession(
+  stt=inference.STT(model="deepgram/nova-3", language="en"),
+  llm=inference.LLM(model="openai/gpt-4.1-mini"),
+  tts=inference.TTS(model="cartesia/sonic-3", voice="9626c31c-bec5-4cca-baa8-f8ba9e84c8bc"),
+)
+
+await session.start(
+  agent=Agent(instructions="You are a helpful customer service agent. Be concise."),
+  room=ctx.room,
+  room_input_options=RoomInputOptions(),
+)
+
+Balanced: Deepgram + GPT-4.1 + Cartesia
+
+Strong reasoning with the fastest TTS. Good for agents that need reliable function calling and tool use. All available via LiveKit Inference.
+
+Component | Unit cost | Volume | Cost
+STT (Deepgram) | $0.006/min | 2 min | $0.012
+LLM input (GPT-4.1) | $2.50/1M tokens | 2,000 tokens | $0.005
+LLM output (GPT-4.1) | $10.00/1M tokens | 600 tokens | $0.006
+TTS (Cartesia) | $0.007/1K chars | 2,500 chars | $0.018
+Total |  |  | ~$0.04
+
+Premium: Deepgram + Claude Sonnet + ElevenLabs
+
+Best reasoning with the highest voice quality. Ideal for sensitive domains and brand-critical experiences. STT and TTS are available via Inference; Claude requires the Anthropic plugin.
+
+Component | Unit cost | Volume | Cost
+STT (Deepgram) | $0.006/min | 2 min | $0.012
+LLM input (Claude Sonnet) | $3.00/1M tokens | 2,000 tokens | $0.006
+LLM output (Claude Sonnet) | $15.00/1M tokens | 600 tokens | $0.009
+TTS (ElevenLabs) | $0.018/1K chars | 2,500 chars | $0.045
+Total |  |  | ~$0.07
+
+from livekit.agents import AgentSession, Agent, RoomInputOptions, inference
+from livekit.plugins import anthropic
+
+# Mix Inference (STT, TTS) with plugin (LLM) as needed
+session = AgentSession(
+  stt=inference.STT(model="deepgram/nova-3", language="en"),
+  llm=anthropic.LLM(model="claude-sonnet-4-20250514"),
+  tts=inference.TTS(model="elevenlabs/eleven_flash_v2_5", voice="your-voice-id"),
+)
+
+await session.start(
+  agent=Agent(instructions="You are a medical office assistant. Never provide medical advice."),
+  room=ctx.room,
+  room_input_options=RoomInputOptions(),
+)
+
+Enterprise: Azure STT + GPT-4.1 + Azure TTS
+
+Compliance-first stack for regulated industries. HIPAA, SOC 2, and GDPR certifications across STT and TTS. Azure STT/TTS require the Azure plugin for private endpoints and compliance features; the LLM can use Inference.
+
+Component | Unit cost | Volume | Cost
+STT (Azure) | $0.006-0.017/min | 2 min | $0.012-0.034
+LLM input (GPT-4.1) | $2.50/1M tokens | 2,000 tokens | $0.005
+LLM output (GPT-4.1) | $10.00/1M tokens | 600 tokens | $0.006
+TTS (Azure) | $0.004-0.016/1K chars | 2,500 chars | $0.010-0.040
+Total |  |  | ~$0.03-0.09
+
+from livekit.agents import AgentSession, Agent, RoomInputOptions, inference
+from livekit.plugins import azure
+
+# Azure plugin for compliance; Inference for LLM
+session = AgentSession(
+  stt=azure.STT(speech_key="your-key", speech_region="eastus", language="en-US"),
+  llm=inference.LLM(model="openai/gpt-4.1"),
+  tts=azure.TTS(speech_key="your-key", speech_region="eastus", voice="en-US-JennyNeural"),
+)
+
+await session.start(
+  agent=Agent(instructions="You are a compliant enterprise assistant."),
+  room=ctx.room,
+  room_input_options=RoomInputOptions(),
+)
+
+Cost per minute summary
+
+Stack | Cost per 5-min call | Cost per minute | Monthly cost (1K calls/day)
+Budget (GPT-4.1 mini + Cartesia) | ~$0.03 | ~$0.006 | ~$900
+Balanced (GPT-4.1 + Cartesia) | ~$0.04 | ~$0.008 | ~$1,200
+Premium (Claude + ElevenLabs) | ~$0.07 | ~$0.014 | ~$2,100
+Enterprise (Azure + GPT-4.1 + Azure) | ~$0.03-0.09 | ~$0.006-0.018 | ~$900-2,700
+
+LLM is not always the biggest cost
+
+A common misconception is that the LLM dominates voice AI costs. For short conversations with compact prompts, STT and TTS costs are often comparable to or greater than LLM costs. The LLM becomes dominant only with long conversations or verbose system prompts.
+
+Pipeline vs realtime: cost comparison
+
+Realtime models (OpenAI Realtime API, Gemini Live) charge per minute of audio rather than per token. Here is how they compare:
+
+Mode | Cost model | 5-min call cost | Notes
+Pipeline (Budget) | STT + LLM tokens + TTS | ~$0.03 | Cheapest option
+Pipeline (Premium) | STT + LLM tokens + TTS | ~$0.07 | Most flexible
+OpenAI Realtime | ~$0.06/min audio + tokens | ~$0.30-0.50 | Significantly more expensive
+Gemini Live | Per-minute audio pricing | ~$0.05-0.15 | More competitive pricing
+
+Realtime mode costs more
+
+OpenAI's Realtime API is significantly more expensive than an equivalent pipeline setup — often 5-10x more per conversation. The lower latency comes at a steep price premium. Gemini Live is more competitive but still typically costs more than a well-tuned pipeline. Factor this into your decision.
+
+Cost optimization strategies
+
+Your system prompt is sent with every LLM turn. A 2,000-token prompt costs the same as the entire conversation history. Cut it to 500 tokens and your LLM input costs drop across every turn.
+
+Route simple queries (greetings, FAQs, straightforward tool calls) to GPT-4.1 mini and only escalate complex queries to GPT-4.1 or Claude. With LiveKit Inference, switching models is as simple as changing the model string. This can cut LLM costs by 50-70%.
+
+Instruct your agent to respond in 2-3 sentences. A 50-word response costs 66% less in TTS than a 150-word response and is a better voice experience.
+
+Track STT, LLM, and TTS costs separately per conversation. You cannot optimize what you do not measure. Look at cost per resolution, not just cost per minute.
+
+Use case recommendations
+
+Customer service
+
+High volume, straightforward interactions. Latency and reliability matter most. Fully available via LiveKit Inference.
+
+Component | Choice | Why
+STT | Deepgram Nova-3 (Inference) | Fastest streaming, best endpointing
+LLM | GPT-4.1 mini (Inference), GPT-4.1 for complex | Fast and cheap with escalation path
+TTS | Cartesia Sonic 3 (Inference) | Lowest latency, cost-effective
+
+Expected: 300-500ms latency, ~$0.03 per 5-min call.
+
+Healthcare
+
+Sensitive information, accuracy and safety paramount, compliance required.
+
+Component | Choice | Why
+STT | Deepgram Nova-3 (Inference) or Azure Speech (plugin) | High accuracy; Azure for HIPAA
+LLM | Claude Sonnet (Anthropic plugin) | Best safety, excellent instruction following
+TTS | ElevenLabs (Inference) or Azure Neural TTS (plugin) | Natural trust-building voice; Azure for compliance
+
+Expected: 400-700ms latency, ~$0.07 per 5-min call.
+
+Education
+
+Patient tutoring, clear explanations, engaging voice, long sessions.
+
+Component | Choice | Why
+STT | Deepgram Nova-3 (Inference) | Fast, good with diverse accents
+LLM | GPT-4.1 (Inference) | Strong reasoning for explanations
+TTS | ElevenLabs (Inference) | Natural, engaging voice for learning
+
+Expected: 400-700ms latency, ~$0.07 per 5-min session.
+
+Entertainment
+
+Character voices, personality, emotional range, immersion.
+
+Component | Choice | Why
+STT | Deepgram Nova-3 (Inference) | Fast, reliable
+LLM | GPT-4.1 (Inference) | Creative, good at staying in character
+TTS | ElevenLabs (plugin) or Inworld (Inference) | Best voice quality/cloning; Inworld for gaming characters
+
+Expected: 400-700ms latency, ~$0.07 per 5-min session.
+
+Quick reference: all stacks
+
+Use case | STT | LLM | TTS | Latency | Cost/5min
+Budget | Deepgram Nova-3 | GPT-4.1 mini | Cartesia Sonic 3 | 300-500ms | ~$0.03
+Balanced | Deepgram Nova-3 | GPT-4.1 | Cartesia Sonic 3 | 350-600ms | ~$0.04
+Premium | Deepgram Nova-3 | Claude Sonnet | ElevenLabs | 400-700ms | ~$0.07
+Enterprise | Azure Speech | GPT-4.1 | Azure Neural TTS | 400-700ms | ~$0.06
+Multilingual | ElevenLabs Scribe | Gemini 2.5 Flash | Cartesia Sonic 3 | 400-700ms | ~$0.05
+Lowest cost | Deepgram Nova-3 | Gemini 2.5 Flash | Deepgram Aura 2 | 350-600ms | ~$0.02
+
+When in doubt, start here
+
+If you are not sure which stack to choose, go with Deepgram Nova-3 + GPT-4.1 mini + Cartesia Sonic 3 via LiveKit Inference. It is the fastest, cheapest, and most forgiving combination — and requires zero per-provider API keys. You can upgrade any single component later by changing one model string.
+
+Test your knowledge
+
+Question 1 of 3
+
+Which component typically dominates voice AI costs for short conversations with compact system prompts?
+
+What you learned
+
+A typical 5-minute voice AI call costs $0.02-0.07 depending on your stack
+
+The Budget stack (Deepgram + GPT-4.1 mini + Cartesia via LiveKit Inference) delivers the best cost-to-quality ratio for most use cases
+
+LiveKit Inference simplifies cost management with a single billing relationship across all providers
+
+Realtime mode (OpenAI Realtime API) costs 5-10x more than pipeline mode
+
+System prompt length, model tiering, and response conciseness are the biggest cost levers
+
+Choose your stack based on your top priority: cost, quality, compliance, or latency
+
+What to explore next
+
+Now that you understand the AI stack, consider exploring: Voice AI Foundations to build your first agent, Pipeline Nodes to customize STT/LLM/TTS behavior at a deeper level, or Realtime vs Pipeline for an in-depth comparison of speech-to-speech models.

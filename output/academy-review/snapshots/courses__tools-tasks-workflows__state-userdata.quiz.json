@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Why is a typed state object (like a dataclass) preferred over raw dictionary keys for session.userdata?",
+    "options": [
+      "Because dictionaries cannot store complex data types",
+      "Because a typed object catches typos at development time and provides autocomplete, while raw keys only fail at runtime",
+      "Because dictionaries are slower to access than dataclass fields",
+      "Because session.userdata only accepts typed objects"
+    ],
+    "correctIndex": 1,
+    "explanation": "A typed state object like a dataclass provides autocomplete and type checking throughout your codebase. A typo in a dictionary key (like 'cutomer_name' instead of 'customer_name') becomes a silent bug that only surfaces at runtime if you are lucky enough to hit that code path. Typed fields catch these mistakes during development."
+  },
+  {
+    "question": "Why should order totals and item counts be computed properties rather than stored values on the state object?",
+    "options": [
+      "Because stored values cannot be accessed by other agents",
+      "Because computed properties use less memory",
+      "Because computed properties eliminate the risk of stale derived values when source data changes",
+      "Because LiveKit requires all state values to be computed"
+    ],
+    "correctIndex": 2,
+    "explanation": "When derived values like order totals are stored rather than computed, you risk forgetting to update them when the source data changes. If you add an item but forget to recalculate the total, the data is silently wrong. Computed properties always derive from the current state, eliminating this entire class of bugs."
+  }
+]

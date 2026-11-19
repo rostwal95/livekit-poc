@@ -1,0 +1,57 @@
+[
+  {
+    "question": "Walk through the complete voice pipeline from user speech to agent response. What are the stages and where does latency accumulate?",
+    "options": [
+      "User audio -> STT (speech-to-text, 200-500ms) -> LLM (generates text response, 500-2000ms) -> TTS (text-to-speech, 200-500ms) -> Agent audio. Total latency is the sum of all three stages, typically 1-3 seconds. Streaming at each stage (partial STT results, token-by-token LLM output, incremental TTS) is critical to reduce perceived latency.",
+      "User audio -> VAD (detects speech boundaries, 50ms) -> STT (full transcript, 200-500ms) -> LLM (complete response, 500-2000ms) -> TTS (full audio synthesis, 200-500ms) -> Agent audio. Latency accumulates at each stage, but VAD is the critical bottleneck since it must wait for silence before passing audio to STT. Total latency is typically 2-4 seconds.",
+      "User audio -> STT + LLM run in parallel (STT feeds partial transcripts to the LLM in real-time, so the LLM begins generating before the user finishes speaking) -> TTS (200-500ms) -> Agent audio. The parallel processing of STT and LLM is what makes voice agents feel responsive, reducing total latency to under 500ms.",
+      "User audio -> STT (200-500ms) -> Intent classifier (routes to correct tool or response template, 50ms) -> LLM (only invoked for complex queries, 500-2000ms) -> TTS (200-500ms) -> Agent audio. The intent classifier skips the LLM for common queries, reducing average latency significantly."
+    ],
+    "correctIndex": 0,
+    "explanation": "The pipeline has three stages, each adding latency. The key optimization is streaming: STT sends partial transcripts as speech arrives, the LLM streams tokens as they're generated, and TTS begins synthesizing from the first tokens without waiting for the complete response. STT and LLM do not run in parallel \u2014 STT must finish before the LLM sees the full user turn."
+  },
+  {
+    "question": "What is the difference between 'pipeline' and 'realtime' (multimodal) agent architectures in LiveKit?",
+    "options": [
+      "Pipeline architecture processes audio through a message queue (STT -> queue -> LLM -> queue -> TTS), allowing each node to scale independently. Realtime architecture eliminates queues by running all three models in a single process with shared memory. Pipeline is more scalable; realtime is faster but harder to deploy.",
+      "Pipeline uses separate STT -> LLM -> TTS nodes where each component is independently chosen and configured. Realtime (multimodal) uses a single model (like GPT-4o Realtime) that processes audio directly and outputs audio, bypassing STT and TTS entirely. Pipeline gives you more control and provider choice; realtime gives lower latency but fewer configuration options.",
+      "Pipeline is the standard architecture that processes one utterance at a time through STT -> LLM -> TTS. Realtime architecture enables duplex communication \u2014 the agent can listen while speaking, process multiple utterances concurrently, and handle interruptions natively. Pipeline agents must implement interruption handling manually.",
+      "Pipeline and realtime refer to the same architecture but with different streaming configurations. In pipeline mode, each stage waits for the previous stage to complete. In realtime mode, streaming is enabled between stages so they overlap. All agents should use realtime mode for production."
+    ],
+    "correctIndex": 1,
+    "explanation": "Pipeline architecture composes independent STT, LLM, and TTS nodes \u2014 you choose the best provider for each. Realtime architecture uses a single multimodal model that processes audio natively. Pipeline gives you control (e.g., Deepgram STT + Anthropic LLM + Cartesia TTS). Realtime gives lower latency but locks you into one provider's capabilities. Both support interruption handling."
+  },
+  {
+    "question": "A client reports that their agent frequently talks over users. What is the most likely issue and how do you fix it?",
+    "options": [
+      "The STT model is producing false positives \u2014 partial transcripts are being treated as complete user turns. Switch to a more accurate STT provider or enable the 'final transcript only' mode so the LLM only processes confirmed complete utterances rather than intermediate results.",
+      "Turn detection is misconfigured. The agent is not waiting long enough for the user to finish speaking before generating a response. Adjust the VAD (Voice Activity Detection) silence threshold \u2014 increase the padding or endpointing delay so the agent waits for a clear pause before treating the turn as complete. Also check if end-of-turn detection sensitivity is too aggressive.",
+      "The echo cancellation is failing, causing the agent's own TTS output to be picked up by the microphone and interpreted as user speech. Enable the Krisp noise cancellation plugin and ensure the client SDK's echo cancellation is active. This is the most common cause of agents talking over users.",
+      "The LLM is generating responses before the user finishes because the system prompt instructs the agent to be 'responsive and quick.' Remove urgency-related instructions, add 'wait for the user to finish speaking before responding,' and increase the LLM temperature to slow down token generation."
+    ],
+    "correctIndex": 1,
+    "explanation": "Talking over users is a turn detection problem. VAD (Voice Activity Detection) determines when the user has stopped speaking. If the silence threshold is too short, the agent jumps in during natural pauses. Increasing the endpointing delay (e.g., from 300ms to 500ms) gives users more time to continue. LLM temperature does not affect response timing."
+  },
+  {
+    "question": "Why must TTS streaming be enabled in a voice agent pipeline, and what happens if it is not?",
+    "options": [
+      "Without TTS streaming, the engine waits for the complete LLM response before synthesizing any audio. The user hears silence for the entire LLM generation time (potentially seconds). With streaming, TTS begins synthesizing from the first LLM tokens, so the user hears the agent start speaking within hundreds of milliseconds of the first token.",
+      "TTS streaming enables the SFU to forward audio packets incrementally as they are synthesized, which is required by WebRTC's real-time delivery model. Without streaming, the TTS generates a complete WAV file that must be uploaded to the SFU and then converted to WebRTC packets \u2014 adding 2-3 seconds of file I/O overhead.",
+      "Without TTS streaming, the TTS engine buffers the entire audio response and sends it as a single large packet. WebRTC's MTU (Maximum Transmission Unit) limit of 1200 bytes means large packets get fragmented, causing audio artifacts and dropped frames. Streaming keeps packets small and within the MTU limit.",
+      "TTS streaming allows the pipeline to detect and handle interruptions mid-utterance. Without streaming, the TTS produces a single atomic audio blob \u2014 if the user interrupts, the entire blob must finish playing before the agent can respond. Streaming is therefore required for interruption support but optional if interruptions are disabled."
+    ],
+    "correctIndex": 0,
+    "explanation": "Streaming TTS is the single most important latency optimization. Without it, the user waits for the full LLM response before hearing anything. With it, TTS synthesizes audio incrementally as tokens arrive from the LLM. The user hears the beginning of the response while the LLM is still generating the rest. Interruption handling works separately from streaming."
+  },
+  {
+    "question": "How does interruption handling work in a LiveKit voice agent, and why is it important?",
+    "options": [
+      "When the user starts speaking while the agent is talking, the VAD detects voice activity and triggers an interruption. The agent stops TTS playback, discards any buffered audio, and transitions back to listening state. The user's new speech is processed normally. This is critical for natural conversation \u2014 users should be able to interrupt just like they would a human.",
+      "When the user starts speaking, the SFU detects overlapping audio streams and mutes the agent's track server-side. The agent continues generating and buffering its response in the background. When the user stops speaking, the SFU unmutes the agent and the buffered audio resumes from where it was paused.",
+      "The LLM monitors the STT stream in parallel with its own generation. When new user speech is detected, the LLM cancels its current generation, incorporates the new input into its context, and begins a fresh response. The TTS automatically switches to the new response stream without explicit interruption handling.",
+      "Interruption handling uses a priority queue in the SFU. User audio is always assigned higher priority than agent audio. When both streams are active, the SFU suppresses the lower-priority agent stream and only forwards user audio. Once the user stops, the agent stream is restored from the SFU's buffer."
+    ],
+    "correctIndex": 0,
+    "explanation": "Natural conversation requires interruption support. When VAD detects user speech during agent playback, the pipeline cancels the current TTS output, clears audio buffers, and returns to listening. The SFU does not handle interruption logic \u2014 it is managed by the agent pipeline. The agent does not resume its previous response after an interruption."
+  }
+]

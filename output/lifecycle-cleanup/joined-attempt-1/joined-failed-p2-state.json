@@ -1,0 +1,32 @@
+{
+  "processing_columns": [
+    "receipt_id",
+    "operation_key",
+    "state",
+    "claim_epoch",
+    "claim_owner",
+    "claim_until",
+    "claim_kind",
+    "attempt_count",
+    "next_attempt_at",
+    "possible_external",
+    "external_receipt_id",
+    "last_code"
+  ],
+  "processing": [
+    {
+      "receipt_id": "50ad4a24-5157-47aa-8fea-2f27013efb97",
+      "operation_key": "0eca0062-2568-4ac7-85b8-ee7ad2aefd5b",
+      "state": "dispatched",
+      "claim_epoch": 2,
+      "claim_owner": null,
+      "claim_until": null,
+      "claim_kind": null,
+      "attempt_count": 2,
+      "next_attempt_at": null,
+      "possible_external": true,
+      "external_receipt_id": "a42dc85d-c57b-4e7c-af86-929aa9e50a92",
+      "last_code": "accepted"
+    }
+  ]
+}

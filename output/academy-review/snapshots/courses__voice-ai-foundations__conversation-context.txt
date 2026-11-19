@@ -1,0 +1,261 @@
+1What is voice AI? Why WebRTC matters
+
+2Project setup & your first agent
+
+3Understanding AgentSession
+
+4Writing great agent instructions
+
+5Adding your first tool: check availability
+
+6RunContext, state & the booking tool
+
+7Noise cancellation & room configuration
+
+8Testing your agent
+
+9Turn detection deep dive
+
+10Conversation context & multi-turn state
+
+11Beyond audio: the data plane
+
+12Deploy to LiveKit Cloud
+
+13Polish & production readiness
+
+Conversation context & multi-turn state
+
+Conversation context & multi-turn state
+
+Your dental receptionist can handle turn detection gracefully, but every response it generates is shaped by the conversation history the LLM receives. In this chapter, you will learn how LiveKit Agents manages that history through ChatContext, how to read and inject messages programmatically, and how to trim context when conversations run long. By the end, your receptionist will greet returning patients by name and maintain coherent multi-turn conversations.
+
+What is ChatContext?
+
+Every LLM call includes a list of messages — the system prompt, previous user messages, assistant responses, and tool call results. In LiveKit Agents, this message list is managed by a ChatContext object. The framework maintains it automatically: when the user speaks, a user message is appended. When the agent responds, an assistant message is appended. When a tool returns a result, a tool message is appended.
+
+You can access the current context at any time through self.chat_ctx on your Agent instance. This gives you a read-only view of every message in the conversation so far.
+
+Reading the conversation context
+
+Here is how to inspect the current state of the conversation inside your agent:
+
+from livekit.agents import Agent
+
+class DentalReceptionist(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="You are a friendly receptionist at Bright Smile Dental clinic.",
+      )
+
+  async def on_enter(self):
+      # Access the current conversation history
+      for msg in self.chat_ctx.messages:
+          print(f"[{msg.role}]: {msg.content}")
+
+      await self.session.generate_reply(
+          instructions="Greet the caller warmly."
+      )
+
+Each message in self.chat_ctx.messages has a role (system, user, assistant, or tool) and content (the text of that message). When your agent first enters, the only message is the system prompt from your instructions. As the conversation progresses, the list grows with each exchange.
+
+Think of ChatContext as the agent's short-term memory. Every time the LLM generates a response, it reads the entire context to understand what has been said. If a patient said their name three turns ago, the LLM can still reference it because that message is in the context. If you need the agent to know something it was never told, you must inject it into the context explicitly.
+
+Injecting context with update_chat_ctx()
+
+The most powerful use of ChatContext is injecting information before the LLM responds. This is how you give the agent knowledge it did not learn from the conversation itself — like returning patient records, clinic-specific notes, or data from an external system.
+
+The pattern is: copy the context, add your message, then update the agent with the modified copy.
+
+from livekit.agents import Agent, TurnHandlingOptions, MultilingualModel
+
+class DentalReceptionist(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are a friendly receptionist at Bright Smile Dental clinic.
+          Keep responses brief and conversational. Never use markdown or emojis.
+          If you know the patient's name, welcome them back warmly.""",
+          turn_handling=TurnHandlingOptions(
+              turn_detection=MultilingualModel(),
+              min_endpointing_delay=0.5,
+              max_endpointing_delay=1.5,
+              interruption_mode="adaptive",
+              false_interruption_timeout=0.6,
+              resume_false_interruption=True,
+          ),
+      )
+
+  async def on_enter(self):
+      # Check if we have returning patient info (set by your backend)
+      patient_info = self.session.userdata.get("patient_info")
+      if patient_info:
+          ctx = self.chat_ctx.copy()
+          ctx.add_message(
+              role="system",
+              content=f"Returning patient: {patient_info['name']}, "
+                      f"last visit: {patient_info['last_visit']}, "
+                      f"next cleaning due: {patient_info['next_cleaning']}",
+          )
+          await self.update_chat_ctx(ctx)
+
+      await self.session.generate_reply(
+          instructions="Greet the caller. If they're a returning patient, welcome them back by name."
+      )
+
+Always call self.chat_ctx.copy() before modifying. This creates a new ChatContext instance so you are not mutating the live context directly.
+
+Use ctx.add_message(role="system", content="...") to inject information. The system role tells the LLM this is authoritative context, not something the user said. You can also use user or assistant roles to simulate prior conversation turns.
+
+Call await self.update_chat_ctx(ctx) to replace the agent's context with your modified version. From this point forward, the LLM sees your injected message in every request.
+
+Always copy before modifying
+
+Never modify self.chat_ctx directly. The framework uses the context object internally, and direct mutation can cause race conditions. Always work with a copy and apply it through update_chat_ctx().
+
+Where does userdata come from?
+
+In the example above, self.session.userdata contains patient information. This dictionary is set when the session starts — typically by your backend when generating a connection token for the caller. Here is how it fits into the entrypoint:
+
+from livekit.agents import AgentServer, AgentSession
+
+server = AgentServer()
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  # userdata is set by your backend when creating the room/token
+  # For example, your backend might look up the caller's phone number
+  # and attach their patient record before the agent connects
+  await session.start(
+      agent=DentalReceptionist(),
+      room=session.room,
+  )
+
+if __name__ == "__main__":
+  server.run()
+
+In production, your backend would look up the caller (by phone number, login, or other identifier) and pass patient data through the token's metadata. The agent receives it as session.userdata. For local testing, you can set this manually in your entrypoint or through Playground metadata.
+
+Tracking context changes with events
+
+The conversation_item_added event fires every time a new message is added to the conversation — whether from the user, the assistant, or a tool. This is useful for logging, analytics, or triggering side effects.
+
+from livekit.agents import Agent
+
+class DentalReceptionist(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="You are a friendly receptionist at Bright Smile Dental clinic.",
+      )
+
+  async def on_enter(self):
+      @self.session.on("conversation_item_added")
+      def on_item_added(item):
+          print(f"New conversation item: [{item.role}] {item.content[:80]}...")
+
+      await self.session.generate_reply(
+          instructions="Greet the caller warmly."
+      )
+
+This is invaluable for debugging. When you are trying to understand why the agent said something unexpected, the conversation item log shows you exactly what the LLM saw at every step.
+
+Context trimming for long conversations
+
+LLMs have finite context windows. A GPT-4o-mini call has a token limit, and every message in your ChatContext counts against it. For a short appointment booking call, this is rarely a problem. But for longer conversations — a patient with multiple questions, a complex scheduling scenario — the context can grow beyond what the model accepts.
+
+There are two strategies for managing context length:
+
+Truncation removes the oldest messages when the context exceeds a threshold. This is simple but lossy — the agent loses memory of the early conversation.
+
+Summarization replaces a block of older messages with a single summary message. This preserves key information while reducing token count.
+
+from livekit.agents import Agent
+
+class DentalReceptionist(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="You are a friendly receptionist at Bright Smile Dental clinic.",
+      )
+
+  async def trim_context_if_needed(self):
+      """Remove oldest non-system messages if context grows too large."""
+      ctx = self.chat_ctx.copy()
+      messages = ctx.messages
+
+      # Keep system messages and the most recent 20 conversation messages
+      system_msgs = [m for m in messages if m.role == "system"]
+      conversation_msgs = [m for m in messages if m.role != "system"]
+
+      if len(conversation_msgs) > 20:
+          trimmed = system_msgs + conversation_msgs[-20:]
+          ctx.messages = trimmed
+          await self.update_chat_ctx(ctx)
+
+Trim proactively, not reactively
+
+Do not wait for the LLM to throw a token limit error. Check context length periodically — for example, after every 10 turns — and trim before you hit the limit. The conversation_item_added event is a good trigger point for this check.
+
+Putting it together: context-aware dental receptionist
+
+Here is the complete pattern combining patient info injection, event tracking, and context management:
+
+from livekit.agents import Agent, TurnHandlingOptions, MultilingualModel
+
+class DentalReceptionist(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are a friendly receptionist at Bright Smile Dental clinic.
+          Keep responses brief and conversational. Never use markdown or emojis.
+          If you know the patient's name, welcome them back warmly.
+          Help callers with appointment inquiries and booking.""",
+          turn_handling=TurnHandlingOptions(
+              turn_detection=MultilingualModel(),
+              min_endpointing_delay=0.5,
+              max_endpointing_delay=1.5,
+              interruption_mode="adaptive",
+              false_interruption_timeout=0.6,
+              resume_false_interruption=True,
+          ),
+      )
+      self._turn_count = 0
+
+  async def on_enter(self):
+      # Inject returning patient info if available
+      patient_info = self.session.userdata.get("patient_info")
+      if patient_info:
+          ctx = self.chat_ctx.copy()
+          ctx.add_message(
+              role="system",
+              content=f"Returning patient: {patient_info['name']}, "
+                      f"last visit: {patient_info['last_visit']}",
+          )
+          await self.update_chat_ctx(ctx)
+
+      # Track conversation items
+      @self.session.on("conversation_item_added")
+      def on_item_added(item):
+          if item.role == "user":
+              self._turn_count += 1
+
+      await self.session.generate_reply(
+          instructions="Greet the caller. If they're a returning patient, welcome them back by name."
+      )
+
+Test it
+
+Run your agent with lk agent dev and open Playground.
+
+Test multi-turn context. Say "Hi, I'd like to book an appointment." Then say "My name is Sarah." Then ask "What name did I give you?" The agent should remember "Sarah" because it is in the context.
+
+Test context injection. If you can set userdata through your entrypoint (hardcode a test patient for now), verify the agent greets the returning patient by name on the very first message — before the caller has said anything.
+
+Test a long conversation. Have a 10-turn conversation covering multiple topics — hours, location, insurance, availability, booking. Verify the agent maintains coherence throughout and does not contradict earlier statements.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why must you call self.chat_ctx.copy() before modifying the conversation context?
+
+Looking ahead
+
+The conversation context carries everything the agent knows. But sometimes you need to send information beyond the conversation — booking confirmations to a frontend, state updates visible to your UI. In the next chapter, you will learn how LiveKit's data plane lets you stream text, bytes, and metadata alongside the audio.

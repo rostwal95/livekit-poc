@@ -1,0 +1,26 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import random\nfrom livekit.agents import AgentSession, TurnDetectionOptions\n\n# Configuration A: conservative (fewer interruptions, higher latency)\nCONFIG_A = TurnDetectionOptions(\n  min_endpointing_delay=0.7,\n  max_endpointing_delay=1.5,\n  false_interruption_timeout=0.5,\n  interruption_mode=\"adaptive\",\n)\n\n# Configuration B: responsive (more interruptions, lower latency)\nCONFIG_B = TurnDetectionOptions(\n  min_endpointing_delay=0.3,\n  max_endpointing_delay=0.8,\n  false_interruption_timeout=0.2,\n  interruption_mode=\"adaptive\",\n)\n\ndef create_session() -> AgentSession:\n  config = random.choice([CONFIG_A, CONFIG_B])\n  variant = \"A\" if config is CONFIG_A else \"B\"\n\n  session = AgentSession(\n      turn_detection=config,\n  )\n  # Tag the session for later analysis\n  session.userdata[\"ab_variant\"] = variant\n  return session"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession } from \"@livekit/agents\";\n\nconst CONFIG_A = {\nminEndpointingDelay: 0.7,\nmaxEndpointingDelay: 1.5,\nfalseInterruptionTimeout: 0.5,\ninterruptionMode: \"adaptive\" as const,\n};\n\nconst CONFIG_B = {\nminEndpointingDelay: 0.3,\nmaxEndpointingDelay: 0.8,\nfalseInterruptionTimeout: 0.2,\ninterruptionMode: \"adaptive\" as const,\n};\n\nfunction createSession(): AgentSession {\nconst config = Math.random() > 0.5 ? CONFIG_A : CONFIG_B;\nconst variant = config === CONFIG_A ? \"A\" : \"B\";\n\nconst session = new AgentSession({\n  turnDetection: config,\n});\nsession.userdata.abVariant = variant;\nreturn session;\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import time\nimport json\n\nclass TurnMetrics:\n  def __init__(self, variant: str):\n      self.variant = variant\n      self.interruptions = 0\n      self.false_interruptions = 0\n      self.response_latencies: list[float] = []\n      self.responses_started = 0\n      self.responses_completed = 0\n\n  def record_interruption(self, user_words: int):\n      self.interruptions += 1\n      if user_words < 3:\n          self.false_interruptions += 1\n\n  def record_response(self, latency: float, completed: bool):\n      self.response_latencies.append(latency)\n      self.responses_started += 1\n      if completed:\n          self.responses_completed += 1\n\n  def summary(self) -> dict:\n      return {\n          \"variant\": self.variant,\n          \"interruption_rate\": self.interruptions / max(self.responses_started, 1),\n          \"false_interruption_rate\": self.false_interruptions / max(self.interruptions, 1),\n          \"avg_response_latency\": sum(self.response_latencies) / max(len(self.response_latencies), 1),\n          \"completion_rate\": self.responses_completed / max(self.responses_started, 1),\n      }"
+  }
+]

@@ -1,0 +1,346 @@
+1The voice pipeline architecture
+
+2stt_node: audio preprocessing
+
+3llm_node: structured output
+
+4tts_node: emotional speech
+
+5on_user_turn_completed: RAG injection
+
+6Content filtering
+
+7Realtime model nodes
+
+8Full assembly
+
+llm_node: structured output
+
+llm_node: structured output
+
+The llm_node is where your agent thinks. By default, it sends the conversation to the LLM and streams back plain text. In this chapter, you will override it to produce structured JSON output — a chain-of-thought agent that separates its reasoning from its spoken response and tags each response with an emotion.
+
+What you'll learn
+
+How to override llm_node to control LLM processing
+
+How to define a structured output schema with ResponseEmotion
+
+How to use response_format to force JSON output from the LLM
+
+How to parse structured JSON from a streaming response
+
+The llm_node signature
+
+The llm_node receives a ChatContext — the full conversation history including system prompts, user messages, and assistant responses — and yields ChatChunk objects as the LLM generates tokens.
+
+from livekit.agents import Agent, llm
+import typing
+
+
+class MyAgent(Agent):
+  async def llm_node(
+      self, chat_ctx: llm.ChatContext
+  ) -> typing.AsyncGenerator[llm.ChatChunk, None]:
+      async for chunk in Agent.default.llm_node(self, chat_ctx):
+          yield chunk
+
+import { Agent, llm } from "@livekit/agents";
+
+class MyAgent extends Agent {
+async *llmNode(
+  chatCtx: llm.ChatContext
+): AsyncGenerator<llm.ChatChunk> {
+  for await (const chunk of Agent.default.llmNode(this, chatCtx)) {
+    yield chunk;
+  }
+}
+}
+
+Each ChatChunk contains a delta — a small piece of the response, usually one or a few tokens. The downstream tts_node collects these chunks into sentences and begins synthesizing audio before the LLM finishes generating.
+
+Defining the ResponseEmotion schema
+
+For chain-of-thought reasoning, you want the LLM to return structured JSON with three fields: its internal thinking, the response to speak aloud, and an emotion tag that will drive the TTS voice.
+
+from typing import TypedDict, Literal
+
+
+class ResponseEmotion(TypedDict):
+  thinking: str       # Internal reasoning — never spoken aloud
+  response: str       # The text to speak to the user
+  emotion: Literal[   # Drives TTS voice parameters
+      "neutral",
+      "excited",
+      "empathetic",
+      "concerned",
+      "cheerful",
+      "serious"
+  ]
+
+export interface ResponseEmotion {
+thinking: string;       // Internal reasoning — never spoken aloud
+response: string;       // The text to speak to the user
+emotion:                // Drives TTS voice parameters
+  | "neutral"
+  | "excited"
+  | "empathetic"
+  | "concerned"
+  | "cheerful"
+  | "serious";
+}
+
+The thinking field serves the same purpose as chain-of-thought prompting: it gives the LLM space to reason before committing to a response. The difference is that you capture it as structured data, which means you can log it, analyze it, and use it for debugging — without the user ever hearing it.
+
+Using response_format for structured output
+
+To force the LLM to return valid JSON matching your schema, you use response_format when configuring the LLM. This tells the model to constrain its output to the specified structure.
+
+from livekit.agents import Agent, AgentSession, llm
+from livekit.plugins import openai
+import json
+
+
+class ChainOfThoughtAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are a thoughtful assistant that reasons step by step.
+
+You MUST respond with valid JSON in this exact format:
+{
+  "thinking": "your internal reasoning process",
+  "response": "what you say to the user",
+  "emotion": "one of: neutral, excited, empathetic, concerned, cheerful, serious"
+}
+
+The "thinking" field is private — reason through the problem here.
+The "response" field is what the user will hear spoken aloud.
+The "emotion" field determines the tone of voice used.""",
+          llm=openai.LLM(
+              model="gpt-4o",
+              response_format={"type": "json_object"}
+          ),
+      )
+
+import { Agent, llm } from "@livekit/agents";
+import { openai } from "@livekit/plugins-openai";
+
+class ChainOfThoughtAgent extends Agent {
+constructor() {
+  super({
+    instructions: `You are a thoughtful assistant that reasons step by step.
+
+You MUST respond with valid JSON in this exact format:
+{
+  "thinking": "your internal reasoning process",
+  "response": "what you say to the user",
+  "emotion": "one of: neutral, excited, empathetic, concerned, cheerful, serious"
+}
+
+The "thinking" field is private — reason through the problem here.
+The "response" field is what the user will hear spoken aloud.
+The "emotion" field determines the tone of voice used.`,
+    llm: new openai.LLM({
+      model: "gpt-4o",
+      responseFormat: { type: "json_object" },
+    }),
+  });
+}
+}
+
+JSON mode requires explicit instructions
+
+Setting response_format to json_object tells the model to output valid JSON, but the model still needs instructions describing the schema. Without the schema in the system prompt, the model will produce valid JSON but with unpredictable field names and structure.
+
+Parsing structured JSON from streaming output
+
+Here is the challenge: the LLM streams tokens one at a time, but you need the complete response field to send to TTS and the emotion field to configure the voice. You need to accumulate the streaming JSON, parse it when complete, and yield only the spoken response.
+
+from livekit.agents import Agent, llm, tts
+import typing
+import json
+import logging
+
+logger = logging.getLogger("chain-of-thought")
+
+
+class ChainOfThoughtAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are a thoughtful assistant that reasons step by step.
+
+You MUST respond with valid JSON in this exact format:
+{
+  "thinking": "your internal reasoning process",
+  "response": "what you say to the user",
+  "emotion": "one of: neutral, excited, empathetic, concerned, cheerful, serious"
+}
+
+The "thinking" field is private — reason through the problem here.
+The "response" field is what the user will hear spoken aloud.
+The "emotion" field determines the tone of voice used.""",
+      )
+      self.last_emotion = "neutral"
+
+  async def llm_node(
+      self, chat_ctx: llm.ChatContext
+  ) -> typing.AsyncGenerator[llm.ChatChunk, None]:
+      """Accumulate streaming JSON, parse it, and yield only the response."""
+      accumulated = ""
+
+      async for chunk in Agent.default.llm_node(self, chat_ctx):
+          # Collect the raw token text
+          if chunk.delta:
+              accumulated += chunk.delta
+
+          # Try to parse the accumulated JSON
+          try:
+              parsed = json.loads(accumulated)
+          except json.JSONDecodeError:
+              # JSON is incomplete — keep accumulating
+              continue
+
+          # JSON is complete — extract the fields
+          thinking = parsed.get("thinking", "")
+          response = parsed.get("response", "")
+          emotion = parsed.get("emotion", "neutral")
+
+          logger.info(f"Thinking: {thinking}")
+          logger.info(f"Emotion: {emotion}")
+
+          # Store emotion for the tts_node to use
+          self.last_emotion = emotion
+
+          # Yield a chunk containing only the spoken response
+          yield llm.ChatChunk(delta=response)
+          return  # We have the complete response, stop iterating
+
+import { Agent, llm } from "@livekit/agents";
+
+class ChainOfThoughtAgent extends Agent {
+private lastEmotion = "neutral";
+
+async *llmNode(
+  chatCtx: llm.ChatContext
+): AsyncGenerator<llm.ChatChunk> {
+  let accumulated = "";
+
+  for await (const chunk of Agent.default.llmNode(this, chatCtx)) {
+    if (chunk.delta) {
+      accumulated += chunk.delta;
+    }
+
+    try {
+      const parsed = JSON.parse(accumulated);
+      const thinking = parsed.thinking ?? "";
+      const response = parsed.response ?? "";
+      const emotion = parsed.emotion ?? "neutral";
+
+      console.log(`Thinking: ${thinking}`);
+      console.log(`Emotion: ${emotion}`);
+
+      this.lastEmotion = emotion;
+
+      yield { delta: response } as llm.ChatChunk;
+      return;
+    } catch {
+      // JSON incomplete — keep accumulating
+      continue;
+    }
+  }
+}
+}
+
+Each ChatChunk contains a small piece of the response. You concatenate them into a buffer as they arrive.
+
+After every new token, try to parse the accumulated string as JSON. While the response is still streaming, json.loads will throw a JSONDecodeError — this is expected. Use continue to keep collecting tokens.
+
+Once parsing succeeds, you have the complete structured response. Extract the thinking (for logging), response (for TTS), and emotion (for voice configuration).
+
+Create a new ChatChunk with only the response text and yield it. The thinking field stays internal — the user never hears the agent's reasoning process.
+
+Accumulate-then-parse adds latency
+
+This approach waits for the entire JSON object before yielding any text to TTS, which means TTS cannot start until the LLM finishes. For shorter responses this is acceptable. For longer responses, consider a streaming JSON parser that extracts the response field incrementally as tokens arrive. Libraries like ijson (Python) or custom parsers can extract field values from partial JSON.
+
+Incremental streaming with field extraction
+
+For lower latency on longer responses, you can build a simple parser that detects when the response field is being streamed and yields tokens immediately:
+
+class StreamingChainOfThoughtAgent(Agent):
+  """Lower-latency version that streams the response field incrementally."""
+
+  def __init__(self):
+      super().__init__(
+          instructions="""You are a thoughtful assistant. Respond with JSON:
+{"thinking": "...", "response": "...", "emotion": "..."}
+Always put the thinking field first, response second, emotion last.""",
+      )
+      self.last_emotion = "neutral"
+
+  async def llm_node(self, chat_ctx):
+      accumulated = ""
+      in_response_field = False
+      response_buffer = ""
+      brace_depth = 0
+
+      async for chunk in Agent.default.llm_node(self, chat_ctx):
+          if not chunk.delta:
+              continue
+
+          accumulated += chunk.delta
+
+          for char in chunk.delta:
+              if char == "{":
+                  brace_depth += 1
+              elif char == "}":
+                  brace_depth -= 1
+
+              if in_response_field:
+                  if char == '"' and not response_buffer.endswith("\\"):
+                      # End of the response string value
+                      in_response_field = False
+                  else:
+                      response_buffer += char
+                      # Yield response tokens as they arrive
+                      yield llm.ChatChunk(delta=char)
+
+              # Detect the start of the "response" field value
+              if '"response"' in accumulated and not in_response_field:
+                  # Look for the opening quote of the value
+                  idx = accumulated.rfind('"response"')
+                  after = accumulated[idx + 10:].lstrip(": ")
+                  if after.startswith('"'):
+                      in_response_field = True
+                      accumulated = ""  # Reset to avoid re-detecting
+
+      # Parse the emotion from the complete response
+      try:
+          full = json.loads(accumulated)
+          self.last_emotion = full.get("emotion", "neutral")
+      except json.JSONDecodeError:
+          self.last_emotion = "neutral"
+
+This incremental approach trades code complexity for latency. TTS can begin synthesizing as soon as the first character of the response field appears, rather than waiting for the entire JSON object. The instruction to put thinking first and emotion last ensures the model streams its reasoning before the spoken response, giving it time to think without delaying the user-facing output.
+
+Test your knowledge
+
+Question 1 of 2
+
+What is the main latency tradeoff of the accumulate-then-parse approach to structured JSON output in llm_node?
+
+What you learned
+
+The llm_node receives a ChatContext and yields ChatChunk objects containing token deltas
+
+response_format with json_object constrains the LLM to produce valid JSON
+
+You can accumulate streaming chunks and parse complete JSON to extract structured fields
+
+The thinking field enables chain-of-thought reasoning that stays internal
+
+The emotion field will drive TTS voice parameters in the next chapter
+
+Next up
+
+In the next chapter, you will override tts_node to use the emotion tag from the structured output. You will dynamically configure TTS instructions, pronunciation, and volume to make the agent's voice match its emotional state.

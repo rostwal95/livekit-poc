@@ -73,8 +73,8 @@ These remain outside the qualified scope:
 
 ## Current role alignment
 
-The [target posting](https://jobs.ashbyhq.com/livekit/1757f49e-7e19-4c45-85f7-e4637dff66fb)
-was rechecked on 13 November. It emphasizes realtime voice/text, channels such as
+The reviewed [target posting](https://jobs.ashbyhq.com/livekit/1757f49e-7e19-4c45-85f7-e4637dff66fb)
+emphasizes realtime voice/text, channels such as
 SMS, durable state across interactions, delegation, approachable developer APIs,
 Python/TypeScript and clear examples/documentation. The mapping below is our
 engineering interpretation. It is not employer endorsement or an upstream

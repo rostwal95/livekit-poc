@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why does the Dockerfile copy requirements.txt and install dependencies before copying the rest of the application code?",
+    "options": [
+      "Requirements must be in a separate layer for security scanning",
+      "The COPY command can only be used twice per Dockerfile",
+      "Docker layer caching means unchanged dependencies are not reinstalled on subsequent builds, making rebuilds faster",
+      "Python requires dependencies to be installed before any code is present"
+    ],
+    "correctIndex": 2,
+    "explanation": "Docker caches each layer. By installing dependencies in an earlier layer, Docker reuses that cached layer when only your application code changes. This means rebuilds after code-only changes skip the slow pip install step entirely."
+  },
+  {
+    "question": "Why should you NOT set LIVEKIT_URL or LIVEKIT_API_KEY as secrets when deploying to LiveKit Cloud?",
+    "options": [
+      "LiveKit Cloud injects these automatically when running your agent container",
+      "They are not needed in production",
+      "These values change too frequently to store as secrets",
+      "Secrets cannot hold URL-formatted values"
+    ],
+    "correctIndex": 0,
+    "explanation": "LiveKit Cloud automatically injects its own connection credentials (LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET) as environment variables in your container. You only need to set secrets for third-party service keys like OpenAI, Deepgram, and Cartesia."
+  },
+  {
+    "question": "What is the primary advantage of reviewing Cloud Insights traces rather than just reading conversation transcripts?",
+    "options": [
+      "Traces are required to access the agent logs",
+      "Traces include the raw audio while transcripts do not",
+      "Traces show detailed timing breakdowns for each pipeline stage (STT, LLM, TTS), revealing performance bottlenecks that transcripts cannot",
+      "Traces are available sooner than transcripts"
+    ],
+    "correctIndex": 2,
+    "explanation": "Traces break down latency by pipeline stage -- how long STT, LLM, and TTS each took per turn. A transcript tells you what was said, but a trace tells you why a response felt slow, letting you identify whether the bottleneck is transcription, generation, or synthesis."
+  }
+]

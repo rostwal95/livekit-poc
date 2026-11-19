@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Why is the voice pipeline able to achieve sub-second response times despite having three separate models (STT, LLM, TTS) in sequence?",
+    "options": [
+      "The pipeline uses caching to avoid calling the models",
+      "The models are very small and run in milliseconds",
+      "Each node is an async generator that streams data to the next node as it becomes available, so all three stages run concurrently",
+      "The models run on the same GPU and share memory"
+    ],
+    "correctIndex": 2,
+    "explanation": "The pipeline uses async generators that yield data incrementally. STT produces partial transcripts while the user is still speaking. The LLM starts generating tokens from the first transcript. TTS begins synthesizing audio from the first few LLM tokens. This concurrent streaming means the user hears the first syllable while the LLM is still generating."
+  },
+  {
+    "question": "What are the three options Agent.default gives you when overriding a pipeline node?",
+    "options": [
+      "Filter, Transform, Buffer",
+      "Start, Stop, Pause",
+      "Create, Read, Delete",
+      "Wrap the default behavior, replace it entirely, or conditionally delegate based on input"
+    ],
+    "correctIndex": 3,
+    "explanation": "Agent.default provides three override strategies: wrap (call the default and add logic before/after each yielded item \u2014 most common), replace (skip the default and implement from scratch), or conditionally delegate (call the default for some inputs and handle others yourself)."
+  }
+]

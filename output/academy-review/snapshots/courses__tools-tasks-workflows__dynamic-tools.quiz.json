@@ -1,0 +1,35 @@
+[
+  {
+    "question": "What does update_tools([]) do to an agent's tool set?",
+    "options": [
+      "It removes all tools including those defined on the agent class",
+      "It adds an empty toolset to the existing tools",
+      "It removes all dynamically added tools, but tools defined as decorated methods on the class are not affected",
+      "It resets the tools to the original set from the constructor"
+    ],
+    "correctIndex": 2,
+    "explanation": "update_tools() replaces the dynamic tool list. Passing an empty list removes all dynamically added tools. However, tools defined as decorated methods on the agent class are not affected by update_tools() and remain available."
+  },
+  {
+    "question": "When should you use dynamic tools instead of an agent handoff?",
+    "options": [
+      "When the conversation needs a fundamentally different personality",
+      "When the agent's tone and role stay the same but its available actions change",
+      "When the user explicitly asks to speak to a different agent",
+      "When you need to reinitialize state and reset conversation context"
+    ],
+    "correctIndex": 1,
+    "explanation": "Dynamic tools are best when the agent's personality stays the same but its capabilities change, like moving from an ordering phase to a payment phase within the same Order Taker agent. Agent handoffs are better when the conversation needs a fundamentally different tone or role. The restaurant system uses both: handoffs between agents and dynamic tools within the Order Taker."
+  },
+  {
+    "question": "Why does update_instructions() replace the entire system prompt rather than appending to it?",
+    "options": [
+      "Because appending would cause the prompt to grow unboundedly",
+      "Because the LLM can only process one system message at a time",
+      "Because a complete replacement is predictable and easy to debug, since each phase has a self-contained instruction set",
+      "Because LiveKit does not support incremental prompt updates"
+    ],
+    "correctIndex": 2,
+    "explanation": "Replacing the entire prompt makes behavior predictable and debuggable. Each phase has a complete, self-contained instruction set that you can read independently. Incremental patching would create complex interactions between old and new instructions, making bugs harder to track down."
+  }
+]

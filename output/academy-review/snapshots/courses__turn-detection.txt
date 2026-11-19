@@ -1,0 +1,31 @@
+Turn Detection & Conversation Quality
+
+Master the art of natural conversation
+
+Deep dive into turn detection: VAD, endpointing, adaptive interruptions, and conversation quality tuning.
+
+What You Build
+
+Tuning workbench that A/B tests turn detection settings and measures conversation quality metrics.
+
+Prerequisites
+
+->Course 1.1
+
+How machines detect when humans stop talking — VAD, endpointing, and the challenge of natural conversation.
+
+Configure Silero VAD: sensitivity thresholds, padding, prefix buffer, and silence detection.
+
+Use the multilingual turn detector for natural conversations across languages.
+
+Tune endpointing delays to balance responsiveness with interruption avoidance.
+
+Configure adaptive interruption handling that recovers gracefully from false interruptions.
+
+Enable backchanneling for natural acknowledgments without triggering turn switches.
+
+Build a tuning workbench to A/B test settings and measure conversation quality.
+
+What You Walk Away With
+
+Ability to tune turn detection for any use case, from fast-paced customer service to patient medical intake.

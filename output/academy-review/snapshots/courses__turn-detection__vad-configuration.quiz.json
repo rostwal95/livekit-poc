@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Your STT transcripts are consistently missing the first word or syllable of user speech. Which VAD parameter should you adjust?",
+    "options": [
+      "max_buffered_speech \u2014 increase it",
+      "min_speaking_duration \u2014 decrease it",
+      "prefix_padding_duration \u2014 increase it to capture more audio before the speech trigger",
+      "padding_duration \u2014 increase it"
+    ],
+    "correctIndex": 2,
+    "explanation": "prefix_padding_duration controls how much audio before the speech start is included in the captured segment. Increasing it ensures the STT engine receives the full onset of speech, including plosive consonants and quiet beginnings that precede the VAD trigger."
+  },
+  {
+    "question": "What is the relationship between VAD's padding_duration and the endpointing delay in TurnDetectionOptions?",
+    "options": [
+      "They are separate timers that stack \u2014 total silence before agent response is padding_duration plus endpointing delay",
+      "The endpointing delay runs first, then padding_duration applies",
+      "They are the same parameter with different names",
+      "padding_duration replaces the endpointing delay"
+    ],
+    "correctIndex": 0,
+    "explanation": "VAD padding and endpointing delay are separate, sequential timers. VAD padding runs first, determining when VAD declares speech has ended. Then the endpointing timer starts. The total perceived silence before the agent responds is the sum of both timers."
+  }
+]

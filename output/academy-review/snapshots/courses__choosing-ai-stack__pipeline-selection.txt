@@ -1,0 +1,245 @@
+1Pipeline selection & latency budgets
+
+2STT, LLM & TTS provider comparison
+
+3Cost analysis & use case recommendations
+
+Pipeline selection & latency budgets
+
+The voice AI pipeline and LiveKit plugins
+
+Every voice AI agent is built from the same three components: speech-to-text, a language model, and text-to-speech. LiveKit's Agents framework treats each component as a swappable plugin — you pick a provider, pass it to AgentSession, and the framework handles streaming, buffering, and orchestration. This chapter explains how the pipeline works, how the plugin architecture enables rapid experimentation, and when to use the traditional pipeline versus a realtime speech-to-speech model.
+
+What you will learn
+
+How audio flows through the STT, LLM, and TTS stages with streaming at each step
+
+How LiveKit Inference provides a unified model interface for voice AI — no per-provider API keys needed
+
+How LiveKit's plugin architecture lets you swap any provider in one line
+
+The difference between pipeline mode and realtime mode (OpenAI Realtime API, Gemini Live)
+
+When to choose pipeline mode versus realtime mode
+
+How to configure AgentSession with Inference or plugin combinations
+
+The three-stage pipeline
+
+When a user speaks to a LiveKit voice agent, the audio passes through three stages in sequence. Because every stage streams its output, they overlap — the next stage begins processing before the previous one finishes.
+
+Raw microphone audio arrives via WebRTC and is fed to the STT plugin. Streaming STT providers return partial transcripts as audio arrives, so the LLM can begin processing before the user finishes speaking. The critical metric is time to final transcript — typically 100-300ms with a streaming provider like Deepgram.
+
+The transcript is sent to the LLM plugin along with your system prompt and conversation history. The LLM streams tokens back as it generates them. The critical metric is time to first token (TTFT) — 50-200ms with a fast provider.
+
+As LLM tokens stream in, the TTS plugin begins synthesizing audio from partial sentences. The user hears the first syllable before the LLM finishes generating the full response. The critical metric is time to first byte (TTFB) — 80-300ms depending on the provider.
+
+The total end-to-end latency is the sum of all three stages plus WebRTC transport overhead. A well-tuned pipeline delivers first audio in 300-700ms — fast enough to feel conversational.
+
+Think of the pipeline like an assembly line where every station starts working the moment it receives any input, not waiting for the full batch. The LLM starts generating after the first few words of transcript arrive. The TTS starts speaking after the first few tokens of LLM output arrive. This streaming overlap is what makes sub-second voice AI possible despite each stage individually taking hundreds of milliseconds.
+
+The latency budget
+
+Human conversation has a natural rhythm. The average gap between turns is about 200ms. Users notice awkwardness around 500ms. Beyond one second, the interaction feels broken.
+
+Stage | Best case | Typical | What determines it
+STT processing | ~100ms | ~200ms | Provider speed, model size, audio quality
+LLM first token | ~50ms | ~150ms | Model size, prompt length, provider load
+TTS first audio | ~80ms | ~200ms | Provider speed, voice complexity
+Transport (2x) | ~20ms | ~100ms | WebRTC, geographic distance
+Total | ~250ms | ~650ms | Provider choices + transport
+
+Transport is handled by LiveKit
+
+WebRTC transport latency is already optimized by LiveKit's global edge network. The variable you control is which STT, LLM, and TTS plugins you plug into the pipeline. That is the focus of this course.
+
+LiveKit Inference: the simplest way to get started
+
+Before diving into individual plugins, you should know about LiveKit Inference — a unified model interface included in LiveKit Cloud. It provides access to STT, LLM, and TTS models from providers like OpenAI, Google, Deepgram, AssemblyAI, Cartesia, ElevenLabs, Rime, Inworld, xAI, DeepSeek, Groq, Cerebras, and more — all without managing separate API keys for each provider.
+
+from livekit.agents import AgentSession, Agent, RoomInputOptions, inference
+
+# LiveKit Inference — no per-provider API keys needed
+session = AgentSession(
+  stt=inference.STT(model="deepgram/nova-3", language="en"),
+  llm=inference.LLM(model="openai/gpt-4.1-mini"),
+  tts=inference.TTS(model="cartesia/sonic-3", voice="9626c31c-bec5-4cca-baa8-f8ba9e84c8bc"),
+)
+
+await session.start(
+  agent=Agent(instructions="You are a helpful assistant."),
+  room=ctx.room,
+  room_input_options=RoomInputOptions(),
+)
+
+You can also use string descriptors as a shortcut:
+
+session = AgentSession(
+  stt="deepgram/nova-3:en",
+  llm="openai/gpt-4.1-mini",
+  tts="cartesia/sonic-3:9626c31c-bec5-4cca-baa8-f8ba9e84c8bc",
+)
+
+LiveKit Inference handles billing, routing, and connection management automatically. Swapping models is as simple as changing the model string.
+
+When to use Inference vs plugins
+
+Use LiveKit Inference when you want the simplest setup — one billing relationship, no per-provider API keys, and automatic connection management. Use plugins when you need provider-specific features (voice cloning, custom endpoints, Azure compliance), self-hosted models, or providers not yet in Inference.
+
+How the plugin architecture works
+
+For providers not available in Inference, or when you need provider-specific features, LiveKit's Agents framework uses a modular plugin system. Each AI provider ships as a separate Python package under the livekit.plugins namespace. You import the plugin, instantiate it with your configuration, and pass it to AgentSession. The framework handles all streaming, buffering, and error recovery.
+
+Here are all the plugin packages available:
+
+Plugin | Import | Provides
+livekit-plugins-openai | livekit.plugins.openai | STT, LLM, TTS, Realtime
+livekit-plugins-anthropic | livekit.plugins.anthropic | LLM
+livekit-plugins-google | livekit.plugins.google | STT, LLM, TTS, Realtime
+livekit-plugins-deepgram | livekit.plugins.deepgram | STT, TTS
+livekit-plugins-cartesia | livekit.plugins.cartesia | STT, TTS
+livekit-plugins-elevenlabs | livekit.plugins.elevenlabs | STT, TTS
+livekit-plugins-assemblyai | livekit.plugins.assemblyai | STT
+livekit-plugins-azure | livekit.plugins.azure | STT, TTS
+livekit-plugins-xai | livekit.plugins.xai | LLM, TTS, Realtime
+livekit-plugins-groq | livekit.plugins.groq | STT, LLM, TTS
+livekit-plugins-speechmatics | livekit.plugins.speechmatics | STT, TTS
+livekit-plugins-nvidia | livekit.plugins.nvidia | STT, TTS
+livekit-plugins-rime | livekit.plugins.rime | TTS
+livekit-plugins-inworld | livekit.plugins.inworld | TTS
+livekit-plugins-fal | livekit.plugins.fal | STT
+livekit-plugins-playht | livekit.plugins.playht | TTS
+livekit-plugins-silero | livekit.plugins.silero | VAD (voice activity detection)
+
+Each plugin reads its API key from an environment variable automatically — DEEPGRAM_API_KEY, OPENAI_API_KEY, CARTESIA_API_KEY, and so on. The OpenAI plugin also supports custom base_url for OpenAI-compatible providers like Together AI, Fireworks, Cerebras, and self-hosted vLLM.
+
+Configuring AgentSession with plugins
+
+Here is a complete example wiring three plugins together:
+
+from livekit.agents import AgentSession, Agent, RoomInputOptions
+from livekit.plugins import deepgram, openai, cartesia
+
+session = AgentSession(
+  stt=deepgram.STT(model="nova-3", language="en"),
+  llm=openai.LLM(model="gpt-4.1-mini"),
+  tts=cartesia.TTS(model="sonic-3", voice="warm-professional"),
+)
+
+await session.start(
+  agent=Agent(instructions="You are a helpful assistant."),
+  room=ctx.room,
+  room_input_options=RoomInputOptions(),
+)
+
+Swapping a provider means changing one import and one line. Want Anthropic for the LLM and ElevenLabs for TTS?
+
+from livekit.agents import AgentSession, Agent, RoomInputOptions
+from livekit.plugins import deepgram, anthropic, elevenlabs
+
+session = AgentSession(
+  stt=deepgram.STT(model="nova-3", language="en"),
+  llm=anthropic.LLM(model="claude-sonnet-4-20250514"),
+  tts=elevenlabs.TTS(model="eleven_turbo_v2", voice_id="your-voice-id"),
+)
+
+await session.start(
+  agent=Agent(instructions="You are a helpful assistant."),
+  room=ctx.room,
+  room_input_options=RoomInputOptions(),
+)
+
+Want the cheapest possible stack? Use Gemini Flash and Deepgram Aura:
+
+from livekit.agents import AgentSession, Agent, RoomInputOptions
+from livekit.plugins import deepgram, google
+
+session = AgentSession(
+  stt=deepgram.STT(model="nova-3"),
+  llm=google.LLM(model="gemini-2.5-flash"),
+  tts=deepgram.TTS(model="aura-2", voice="asteria"),
+)
+
+await session.start(
+  agent=Agent(instructions="You are a helpful assistant."),
+  room=ctx.room,
+  room_input_options=RoomInputOptions(),
+)
+
+This plug-and-play design is one of the biggest advantages of LiveKit's pipeline architecture. You are never locked into a single provider, and you can A/B test different combinations by changing a few lines — or use LiveKit Inference to swap models with just a string change.
+
+Pipeline mode vs realtime mode
+
+LiveKit supports two fundamentally different architectures for voice AI.
+
+Pipeline mode (STT + LLM + TTS)
+
+This is the three-stage architecture described above. You choose a separate provider for each stage and the framework streams data between them. This is the default and most flexible approach.
+
+Realtime mode (speech-to-speech)
+
+OpenAI's Realtime API, Google's Gemini Live, and xAI's Grok offer speech-to-speech models that replace the entire pipeline with a single model. Audio goes in, audio comes out — no intermediate text. LiveKit supports these through dedicated realtime plugins.
+
+from livekit.agents import AgentSession, Agent, RoomInputOptions
+from livekit.plugins import openai
+
+# OpenAI Realtime — single model replaces STT + LLM + TTS
+session = AgentSession(
+  llm=openai.realtime.RealtimeModel(
+      model="gpt-4o-realtime-preview",
+      voice="alloy",
+  ),
+)
+
+await session.start(
+  agent=Agent(instructions="You are a helpful assistant."),
+  room=ctx.room,
+  room_input_options=RoomInputOptions(),
+)
+
+Other realtime options include google.realtime.RealtimeModel for Gemini Live and xai.realtime.RealtimeModel for xAI Grok.
+
+Realtime mode limitations
+
+Realtime models lock you to a single provider for the entire pipeline. You cannot swap the TTS voice independently, function calling support is more limited, and pricing is typically higher per minute than an equivalent pipeline setup.
+
+When to use each mode
+
+Dimension | Pipeline mode | Realtime mode
+Latency | 300-700ms | 200-500ms
+Voice quality | Choose best TTS independently | Tied to the model's built-in voices
+Provider flexibility | Swap any component independently | Locked to one provider
+Function calling | Full control via LLM plugin | Limited, provider-dependent
+Cost | Pay three services (often cheaper total) | Pay one service (often more expensive)
+Voice cloning | Yes, via ElevenLabs or others | No
+Best for | Production agents with tools, custom voices | Simple conversational agents, lowest latency prototypes
+
+Pipeline mode is like assembling a custom PC — you pick the best graphics card, the best CPU, the best storage, each from the vendor that excels at that component. Realtime mode is like buying a pre-built machine — convenient and optimized as a unit, but you cannot swap individual parts. Most production voice AI agents use pipeline mode for the flexibility.
+
+Start with pipeline mode
+
+Unless your only goal is minimal latency for a simple conversational agent, start with pipeline mode. It gives you the most flexibility to experiment, optimize costs, and customize the voice. You can always test realtime mode later — LiveKit makes it easy to switch.
+
+Test your knowledge
+
+Question 1 of 3
+
+How do the three pipeline stages (STT, LLM, TTS) achieve sub-second total latency despite each stage taking 100-300ms?
+
+What you learned
+
+The voice AI pipeline has three streaming stages: STT, LLM, and TTS, with a target latency budget of under 500ms
+
+LiveKit Inference provides a unified interface to models from 15+ providers — no per-provider API keys needed
+
+LiveKit's plugin ecosystem includes 17+ open source plugins covering all major AI providers — from OpenAI and Anthropic to Speechmatics, NVIDIA, Rime, Inworld, xAI, and more
+
+Configuring AgentSession with Inference or plugin combinations lets you A/B test providers trivially
+
+Pipeline mode offers maximum flexibility; realtime mode (OpenAI, Google, xAI) offers potentially lower latency at the cost of flexibility
+
+For most production use cases, pipeline mode with LiveKit Inference is the recommended starting point
+
+Next up
+
+Now that you understand the pipeline architecture and how plugins work, the next chapter compares every major STT, LLM, and TTS provider — with actual LiveKit plugin code for each one.

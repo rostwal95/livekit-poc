@@ -1,0 +1,18 @@
+{
+  "rendered_content_checks": 2303,
+  "audited_questions": 220,
+  "pages": 392,
+  "questions": 220,
+  "answered_followups": 501,
+  "code_snippets": 60,
+  "repository_evidence_references": 686,
+  "vector_figures": 19,
+  "primary_sources": 45,
+  "chapters": 15,
+  "outline_entries": 235,
+  "minimum_body_font": 10.5,
+  "duplex_sheets": 196,
+  "sha256": "45e9e2e617db216848645a3a718b118698570a7e1f1a4ca7c3c0f04c7d6a0cc8",
+  "bytes": 2514650,
+  "errors": []
+}

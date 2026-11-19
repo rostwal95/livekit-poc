@@ -42,6 +42,11 @@ with selected local host, container and browser evidence.
 | P2/P3 contract and intake slices | Partial: complete product acceptance remains pending | [Promotion gates](#promotion-gates-and-current-evidence) |
 | Complete integration and platform promotion | Planned | [Promotion gates](#promotion-gates-and-current-evidence) |
 
+The P1 provider result is retained checkpoint evidence. Its fresh P1-20 rerun
+after the v5 upgrade remains open in the
+[qualification guide](qualification-gates.md). Workload versions such as
+`provider_real` v2 are independent of storage schema versions.
+
 ### Authoritative records
 
 | Record | Owns |
@@ -62,7 +67,7 @@ with selected local host, container and browser evidence.
 | Node | 26.13.0 pinned container target; 24.22.2 validated host | Node runtime | [Node releases](https://nodejs.org/en/download) |
 | livekit-client | 2.23.0 | Browser SDK for M1 diagnostics and the business workspace | [Release](https://github.com/livekit/client-sdk-js/releases/tag/v2.23.0) |
 | LiveKit server | 1.13.11 | Self-hosted media server | Pulled and pinned by digest; [release](https://github.com/livekit/livekit/releases/tag/v1.13.11) |
-| PostgreSQL | 18.6 | Pinned local authority through explicit schema v4 | Default M1 stays on SQLite; the opt-in business service uses v4 |
+| PostgreSQL | 18.6 | Pinned local authority through explicit booking schema v5 | Default M1 stays on SQLite; serving supports ACTIVE v4/v5 and owner preparation upgrades through v5 |
 | nginx-unprivileged | stable-alpine3.24 | Static console runtime that serves the production-built console and proxies the local API | Immutable content selected through the digest in `images.env` |
 | Jaeger | 2.23.0 | Optional pinned local trace viewer | Viewer availability alone remains insufficient |
 
@@ -116,7 +121,7 @@ definitions are optional automation references.
 | FastAPI | 0.162.2 | Control API: default M1 plus opt-in scoped business/session HTTP adapters | None |
 | Uvicorn | 0.54.0 | Control API: default M1 plus opt-in scoped business/session HTTP adapters | None |
 | Pydantic | 2.14.3 | Runtime validation for typed HTTP contracts | None |
-| psycopg | 3.3.8 | Database client for the restricted PostgreSQL v4 authority, controlled migrations and bounded adapters | Installed with its binary extra |
+| psycopg | 3.3.8 | Database client for the restricted PostgreSQL authority, controlled migrations and bounded adapters | Installed with its binary extra |
 | HTTPX | 0.28.1 | HTTP client for local HTTP integration and API test support | None |
 | prometheus-client | 0.26.0 | API metrics with an isolated registry and protected bounded-label metrics | Direct pinned local dependency |
 | pytest | 9.2.0 | Installed Python test tool | Reports must identify which checks actually ran |
@@ -308,8 +313,8 @@ configuration and the exact lockfiles as a bounded tooling slice.
 - Verify known direct production and development entries, including
   livekit-client and browser and build tooling, plus known resolved transitives,
   against the frozen lock.
-- Cover every implemented workspace package, including future P2/P3 importers,
-  and the Python lock graph.
+- Cover every implemented workspace package, including the existing P2/P3
+  importers, and the Python lock graph.
 
 ### Inventory gate evidence
 
@@ -335,9 +340,9 @@ before promotion.
 | STACK-01 Versions and compatibility | Exact runtime, SDK, application, tool and image selections recorded | Refresh public metadata at each integration or upgrade |
 | STACK-02 Clean resolution | uv.lock, pnpm-lock.yaml and image digests exist and support the current foundation | Add and reproduce future provider/specialist dependencies with frozen resolution |
 | STACK-03 Native imports | Python SDK imports, host/container transport and selected provider_real v2 native integration exercised | Qualify additional provider/native integrations as introduced; Node Agents peers only for an actual Node realtime component |
-| STACK-04 Language checks | Root/P1/P2/P3 Python correctness/typing, console app/E2E checks, P2/P3 TypeScript contract, standalone/HTTP checks and explicit P2 PostgreSQL lane | Recoverable dispatch/coordinator integration, full artifact release and media/recovery qualification |
+| STACK-04 Language checks | Root/P1/P2/P3 Python correctness/typing, console app/E2E checks, P2/P3 TypeScript contract, standalone/HTTP checks and selected dispatch/coordinator PostgreSQL/process gates | Complete joined integration and charter release; repeat affected lifecycle and media gates after changes |
 | STACK-05 Local room | Diagnostic/M1, Phase G scripted media and selected provider_real v2 P1 browser inference/playback qualified in their declared scopes | Physical capture, local_real and P2/P3 integration/charter qualification |
-| STACK-06 Local runtime parity | Selected macOS arm64 host and isolated Linux P1 installed consumers passed; Python 3.14-only metadata | Qualify P2/P3 artifacts and any newly advertised platform; no remote CI prerequisite |
+| STACK-06 Local runtime parity | Selected P1 host/Linux and P2/P3 isolated installed consumers passed in their recorded scopes; Python 3.14-only metadata | Complete joined installed/container qualification and any newly advertised platform; no remote CI prerequisite |
 | STACK-07 Retained evidence | Local smoke/build, historical H1, current full H2, selected provider media, installed packages and reviewed P1 release index retained | P2/P3 workload/media/platform evidence and optional local_real qualification for their respective claims |
 
 The overall stack remains partially validated.

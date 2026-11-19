@@ -1,0 +1,24 @@
+[
+  {
+    "question": "In LiveKit, which of the following can be a Participant in a room?",
+    "options": [
+      "Only entities that publish both audio and video tracks",
+      "Only human users with web browsers or mobile apps",
+      "Any entity that connects \u2014 humans, AI agents, phone callers, IoT sensors, or robotic systems",
+      "Humans and AI agents, but not phone callers"
+    ],
+    "correctIndex": 2,
+    "explanation": "A Participant is any entity connected to a room. LiveKit's model diverges from traditional conferencing platforms by treating all connected entities uniformly. Humans on browsers, phone callers via SIP, AI agents, and IoT devices are all Participants with the same core capabilities: they can publish tracks, subscribe to tracks, send data, and update attributes."
+  },
+  {
+    "question": "What is a Track in LiveKit's data model?",
+    "options": [
+      "A single stream of media \u2014 one audio feed or one video feed \u2014 which is the atomic unit of media in the system",
+      "A connection between two participants",
+      "A room configuration setting that controls audio quality",
+      "A recording of a complete conversation"
+    ],
+    "correctIndex": 0,
+    "explanation": "A Track is a single stream of media \u2014 one audio feed or one video feed. Tracks are the atomic unit of media in LiveKit. Everything else (rooms, participants, subscriptions) exists to organize how tracks flow between entities. Participants publish tracks to make media available and subscribe to tracks from other participants to receive media."
+  }
+]

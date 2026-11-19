@@ -1,0 +1,6 @@
+$ pnpm --fail-if-no-match --filter @livekit-ecosystem/local-console typecheck && pnpm --fail-if-no-match --filter @livekit-ecosystem/channel-continuity typecheck && pnpm --fail-if-no-match --filter @livekit-ecosystem/delegation-specialist typecheck && pnpm --fail-if-no-match --filter @livekit-ecosystem/channel-policy-gateway typecheck
+$ pnpm --filter @livekit-ecosystem/channel-continuity build && tsc --noEmit && tsc --project tsconfig.e2e.json && tsc --project tsconfig.operations.json && tsc --project tsconfig.channel-policy.json
+$ tsc --project tsconfig.json && tsc --project tsconfig.examples.json && tsc --project tsconfig.starter.json
+$ tsc --noEmit --project tsconfig.json && tsc --noEmit --project tsconfig.test.json && tsc --noEmit --project tsconfig.examples.json
+$ tsc --noEmit --project tsconfig.json && tsc --noEmit --project tsconfig.test.json
+$ tsc --noEmit --project tsconfig.json && tsc --project tsconfig.test.json

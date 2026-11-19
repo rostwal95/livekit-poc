@@ -45,6 +45,7 @@ import {
   type RoomControlConfiguration,
   type RoomOpen,
   type RoomCommand,
+  type RoomBinding,
   type RoomRead,
   type RoomRecover,
   type RoomObservation,
@@ -57,6 +58,8 @@ export type NativeRoomPorts = Readonly<{
   publish: (value: NativePublication) => Promise<NativeBindingReceipt>;
   revoke: (bindingId: string) => Promise<Readonly<{ bindingId: string; revokedAt: string }>>;
   native: (bearer: string, deliveryId: string) => Promise<ResultNativeView | null>;
+  fenceInput: (binding: RoomBinding) => Promise<void>;
+  drainInput: (binding: RoomBinding) => Promise<void>;
   ready: () => boolean;
 }>;
 type Room = {
@@ -76,6 +79,8 @@ type Room = {
   attachmentFingerprint: string | undefined;
   agent: NativeRoomAgent | undefined;
   contexts: Set<Promise<RehydrationContext>>;
+  inputFenced: boolean;
+  inputsDrained: boolean;
 };
 type Recovery = {
   request: RoomRecover;
@@ -165,6 +170,8 @@ export class NativeRoomManager {
         publish: snapshotMethod<NativeRoomPorts['publish']>(ports, 'publish'),
         revoke: snapshotMethod<NativeRoomPorts['revoke']>(ports, 'revoke'),
         native: snapshotMethod<NativeRoomPorts['native']>(ports, 'native'),
+        fenceInput: snapshotMethod<NativeRoomPorts['fenceInput']>(ports, 'fenceInput'),
+        drainInput: snapshotMethod<NativeRoomPorts['drainInput']>(ports, 'drainInput'),
         ready: snapshotMethod<NativeRoomPorts['ready']>(ports, 'ready'),
       });
       this.#recoverId = this.#configuration.recoverBindingId;
@@ -403,6 +410,8 @@ export class NativeRoomManager {
         timer: undefined,
         attachment: undefined,
         attachmentFingerprint: undefined,
+        inputFenced: false,
+        inputsDrained: false,
         agent: undefined,
         contexts: new Set(),
       };
@@ -458,8 +467,16 @@ export class NativeRoomManager {
     this.#closingRoom(room);
     if (!room.closeTask) {
       const actual = Promise.resolve().then(async () => {
-        if (room.agent) await room.agent.close();
+        if (!room.inputFenced) {
+          await this.#ports.fenceInput(room.request.binding);
+          room.inputFenced = true;
+        }
         if (room.publishTask) await room.publishTask.catch(() => {});
+        if (room.publishStarted && !room.inputsDrained) {
+          await this.#ports.drainInput(room.request.binding);
+          room.inputsDrained = true;
+        }
+        if (room.agent) await room.agent.close();
         await Promise.allSettled([...room.reads, ...room.contexts]);
         if (!room.revocation)
           room.revocation = room.publishStarted
@@ -614,13 +631,17 @@ export class NativeRoomManager {
       if (!this.#bridge) return null;
       const copied = nativeBridgeInput(input, this.#route, provider),
         room = this.#room;
-      if (this.#closing) throw new ChannelError('DispatchUnavailable');
       if (
         !room ||
         copied.message.event.type !== 'text.received' ||
         copied.message.event.senderId !== room.request.binding.bindingId
       )
         return null;
+      // End has fenced new HTTP input. Existing accepted input must still reach
+      // its original durable operation; use the deterministic background path
+      // rather than requiring another reply from the retiring room's worker.
+      if (room.phase === 'closing') return null;
+      if (this.#closing) throw new ChannelError('DispatchUnavailable');
       this.#admit();
       const check = () => {
         this.#admit();
@@ -633,7 +654,24 @@ export class NativeRoomManager {
           throw new ChannelError('DispatchUnavailable');
       };
       check();
-      return await room.agent!.prepare(copied, signal, check);
+      try {
+        return await room.agent!.prepare(copied, signal, check);
+      } catch (error) {
+        // End can retire this exact worker after the original claim started.
+        // Its failed/late SDK reply must not consume another dispatch attempt:
+        // the caller can prepare the same input deterministically in this claim.
+        // Actual HTTP ownership remains with the stopped room agent, which is
+        // closed only after accepted input has drained. The P2 store still
+        // checks the original grant before preparing/reserving the operation.
+        if (
+          this.#room === room &&
+          this.#view(room).state === 'closing' &&
+          !signal.aborted &&
+          performance.now() < room.expires
+        )
+          return null;
+        throw error;
+      }
     } catch (error) {
       const code = dependencyCode(error);
       throw new ChannelError(

@@ -1,0 +1,13 @@
+[
+  {
+    "question": "What is the key architectural difference between LiveKit Agents and Pipecat?",
+    "options": [
+      "LiveKit is closed source while Pipecat is open source",
+      "LiveKit uses event-driven auto-orchestration while Pipecat uses explicit pipeline construction",
+      "LiveKit only supports Python while Pipecat supports multiple languages",
+      "Pipecat has built-in telephony while LiveKit requires third-party providers"
+    ],
+    "correctIndex": 1,
+    "explanation": "LiveKit Agents uses an event-driven architecture where you declare components and the framework orchestrates them automatically (state, interruptions, turn detection). Pipecat uses a pipeline-based architecture where you explicitly construct the data flow between components."
+  }
+]

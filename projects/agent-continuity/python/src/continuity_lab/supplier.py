@@ -108,7 +108,10 @@ def _event(event: str, code: str = "ok") -> None:
         level = logging.ERROR
     else:
         level = logging.INFO
-    LOGGER.log(level, event, extra={"event": event, "code": code})
+    try:
+        LOGGER.log(level, event, extra={"event": event, "code": code})
+    except Exception:  # noqa: BLE001 - telemetry cannot alter supplier truth or failures
+        return
 
 
 def _identity(value: str) -> str:

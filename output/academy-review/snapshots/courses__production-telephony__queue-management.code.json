@@ -1,0 +1,26 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import asyncio\nimport heapq\nimport time\nfrom dataclasses import dataclass, field\n\n@dataclass(order=True)\nclass QueuedCall:\n  priority: int\n  enqueue_time: float = field(compare=False)\n  caller_id: str = field(compare=False)\n  room_name: str = field(compare=False)\n  phone_number: str = field(compare=False)\n  callback_requested: bool = field(default=False, compare=False)\n\nclass CallQueue:\n  PRIORITY_VIP = 0\n  PRIORITY_NORMAL = 5\n  PRIORITY_LOW = 10\n\n  def __init__(self):\n      self._queue: list[QueuedCall] = []\n      self._available_agents: asyncio.Queue[str] = asyncio.Queue()\n      self._recent_handle_times: list[float] = []\n\n  def enqueue(self, caller_id: str, room_name: str, phone_number: str, priority: int = 5):\n      call = QueuedCall(\n          priority=priority,\n          enqueue_time=time.time(),\n          caller_id=caller_id,\n          room_name=room_name,\n          phone_number=phone_number,\n      )\n      heapq.heappush(self._queue, call)\n      return self.get_position(caller_id)\n\n  def get_position(self, caller_id: str) -> int:\n      sorted_queue = sorted(self._queue)\n      for i, call in enumerate(sorted_queue):\n          if call.caller_id == caller_id:\n              return i + 1\n      return -1\n\n  def estimate_wait_time(self, position: int) -> float:\n      if not self._recent_handle_times:\n          return position * 300.0  # Default 5 min per call\n      avg_handle_time = sum(self._recent_handle_times) / len(self._recent_handle_times)\n      return position * avg_handle_time\n\n  def record_handle_time(self, seconds: float):\n      self._recent_handle_times.append(seconds)\n      # Keep last 100 handle times for rolling average\n      if len(self._recent_handle_times) > 100:\n          self._recent_handle_times = self._recent_handle_times[-100:]\n\n  async def dispatch_loop(self):\n      while True:\n          if not self._queue:\n              await asyncio.sleep(1)\n              continue\n\n          agent_room = await self._available_agents.get()\n          call = heapq.heappop(self._queue)\n\n          if call.callback_requested:\n              await self._initiate_callback(call, agent_room)\n          else:\n              await self._connect_caller(call, agent_room)\n\n  async def _connect_caller(self, call: QueuedCall, agent_room: str):\n      # Transfer the caller from their holding room to the agent room\n      pass  # Implementation depends on your room management strategy\n\n  async def _initiate_callback(self, call: QueuedCall, agent_room: str):\n      # Place an outbound call to the caller's number\n      pass  # Use CreateSIPParticipant to call back"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "def format_wait_time(seconds: float) -> str:\n  minutes = int(seconds / 60)\n  if minutes < 1:\n      return \"less than a minute\"\n  elif minutes == 1:\n      return \"about 1 minute\"\n  elif minutes < 5:\n      return f\"about {minutes} minutes\"\n  elif minutes < 10:\n      return \"5 to 10 minutes\"\n  else:\n      return \"more than 10 minutes\"\n\n# Usage in hold message\nposition = queue.get_position(caller_id)\nwait_seconds = queue.estimate_wait_time(position)\nmessage = (\n  f\"You are currently number {position} in the queue. \"\n  f\"Estimated wait time is {format_wait_time(wait_seconds)}.\"\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "CALLBACK_THRESHOLD_SECONDS = 300  # 5 minutes\n\nasync def check_callback_eligibility(queue: CallQueue, caller_id: str) -> str | None:\n  position = queue.get_position(caller_id)\n  wait_seconds = queue.estimate_wait_time(position)\n\n  if wait_seconds >= CALLBACK_THRESHOLD_SECONDS:\n      return (\n          f\"Your estimated wait time is {format_wait_time(wait_seconds)}. \"\n          \"Would you like us to call you back when an agent is available? \"\n          \"You will not lose your place in line.\"\n      )\n  return None\n\nasync def request_callback(queue: CallQueue, caller_id: str):\n  for call in queue._queue:\n      if call.caller_id == caller_id:\n          call.callback_requested = True\n          break\n  # Caller can now hang up \u2014 their position is preserved"
+  }
+]

@@ -1,0 +1,2466 @@
+{
+  "source": "/private/tmp/livekit-color-edition/book-content.json",
+  "source_sha256": "2ce65c57f8d4a542a3b2c209b01dc040edf6dd480ad0189942412b5a59466865",
+  "repository_commit": "6cec82f6718cf5f9319976196d2cfd449c2b0048",
+  "questions": [
+    {
+      "id": "P3-01",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.0",
+          "reason": "Replace a loose orchestration description with the actual two-mode experiment and its independently asserted observations."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/baseline.py",
+          "line": 114,
+          "claim": "Two modes share the evaluator; native path awaits TaskGroup"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_native_baseline.py",
+          "line": 130,
+          "claim": "Equal result/fingerprint, useful held reply, one completion and zero active cleanup"
+        }
+      ],
+      "followups_reviewed": [
+        "Would TaskGroup recover after a worker process dies?",
+        "What would make you remove the specialist service?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "The final controlled remote/native/tool quality and performance comparison remains unqualified."
+      ],
+      "rendered_prose_word_delta": 19,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-02",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.2",
+          "reason": "Teach the authority split through a concrete restart instead of repeating general architecture advice."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+          "line": 220,
+          "claim": "Coordinator owns public-port orchestration rather than a durable ledger"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/security.py",
+          "line": 274,
+          "claim": "Attempt map is process local"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/http.test.ts",
+          "line": 222,
+          "claim": "Held status explicitly reports durable=false; cancel retains active work until settlement"
+        }
+      ],
+      "followups_reviewed": [
+        "Could Redis or NATS own the retry queue instead?",
+        "Why retain permits until explicit release?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "The HTTP server does not independently verify P1 issuance; the runner path supplies that trust boundary."
+      ],
+      "rendered_prose_word_delta": 4,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-03",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.0",
+          "reason": "Make the versioning trade-off concrete without implying every JSON API should reject extensions."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/contracts.py",
+          "line": 62,
+          "claim": "Exact field set"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/contracts.py",
+          "line": 165,
+          "claim": "Bounded strict decoder"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_specialist_contracts.py",
+          "line": 92,
+          "claim": "Shared malformed and unsupported fixtures produce fixed codes"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/channel_policy_contracts.py",
+          "line": 228,
+          "claim": "Explicit schema3 parse path"
+        }
+      ],
+      "followups_reviewed": [
+        "Why reject unknown fields rather than ignore them?",
+        "Does a matching SHA-256 prove the result is correct?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Shared fixtures establish selected contract parity, not correctness of arbitrary future schema changes."
+      ],
+      "rendered_prose_word_delta": 5,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-04",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.0",
+          "reason": "Explain the endpoint-specific permission conjunction and retain the documented same-scope principal limitation."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/security.py",
+          "line": 154,
+          "claim": "Scope and operation capability authorization"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/server.ts",
+          "line": 543,
+          "claim": "Invocation explicitly checks result permission before attempt acquisition"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/http.test.ts",
+          "line": 222,
+          "claim": "Separate status and cancellation grants"
+        },
+        {
+          "path": "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+          "line": 124,
+          "claim": "Starting-principal binding remains open"
+        }
+      ],
+      "followups_reviewed": [
+        "Why separate result and invoke grants?",
+        "How would you fix the same-scope principal gap?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Finite local bearer grants are not a production identity system.",
+        "Starting principal is not retained as the status/cancel authorization subject."
+      ],
+      "rendered_prose_word_delta": 7,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-05",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.1",
+          "reason": "Distinguish a useful fake-port concurrency test from actual SQL/process evidence and avoid conflating submit attempts with accepted identities."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+          "line": 365,
+          "claim": "Find, preflight, one submit and exact reconciliation"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_coordinator.py",
+          "line": 262,
+          "claim": "ACK loss produces one submit and retained read"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_channel_policy_execution.py",
+          "line": 183,
+          "claim": "Two racing misses reconcile one created winner and one retained record"
+        }
+      ],
+      "followups_reviewed": [
+        "Why look up replay before checking the current case?",
+        "What if two callers both miss the initial lookup?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "The case admission read is a preflight and cannot authorize a later booking action."
+      ],
+      "rendered_prose_word_delta": 18,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-06",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.2",
+          "reason": "Name both the issuance-to-HTTP uncertainty gap and the non-atomic cancellation race; a fresh preflight is not a remote fence."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "line": 420,
+          "claim": "created=false returns without invocation; new issue receives exact current-grant read"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "line": 449,
+          "claim": "HTTP starts after the preflight, outside P1 transaction"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_runner.py",
+          "line": 292,
+          "claim": "Known post-issuance cancellation causes zero HTTP requests"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_runner.py",
+          "line": 314,
+          "claim": "Unknown issue ACK reconciles with zero invocation"
+        }
+      ],
+      "followups_reviewed": [
+        "Why not invoke after finding an ambiguously issued grant?",
+        "Does the HTTP server independently verify the P1 grant?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "No universal one-computation guarantee; an issued but unused attempt can consume its lease.",
+        "The direct HTTP service cannot validate P1 grant authority independently."
+      ],
+      "rendered_prose_word_delta": 21,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-07",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.1",
+          "reason": "Use the exact real-socket failure schedule and assertions instead of a generic recommendation about saturation."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/server.ts",
+          "line": 40,
+          "claim": "Independent configured transport and invocation bounds"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/server.ts",
+          "line": 551,
+          "claim": "Attempt acquisition precedes owned evaluation"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/http.test.ts",
+          "line": 285,
+          "claim": "Deadline retains active slot, rejects replacement and incomplete close until release"
+        }
+      ],
+      "followups_reviewed": [
+        "Why cap requests separately from connections?",
+        "What should happen at capacity?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Configured local ceilings are not measured production throughput or isolation guarantees."
+      ],
+      "rendered_prose_word_delta": 6,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-08",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.2",
+          "reason": "State exactly when the tested SDK cancellation occurs and avoid extending post-admission behavior to cancellation during acceptance."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+          "line": 537,
+          "claim": "Shielded actual port task retains call after waiter cancellation"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/native_policy.py",
+          "line": 538,
+          "claim": "Background runner is created only after validated acceptance"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_native_policy.py",
+          "line": 289,
+          "claim": "Cancellation after specialist entry retains run and result without another issue"
+        }
+      ],
+      "followups_reviewed": [
+        "Why not let asyncio cancellation propagate everywhere?",
+        "What should the user hear after interruption?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "The native attempted flag remains a documented open issue after a definitive failed first admission.",
+        "SDK interruption does not request business cancellation."
+      ],
+      "rendered_prose_word_delta": 25,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-09",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.2",
+          "reason": "Replace broad gate inventory language with the actual database-backed assertion bodies and two contrasting time schedules."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/tests/pg_deadline_cases.py",
+          "line": 914,
+          "claim": "Late result retains expired disposition despite earlier producer timestamp"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_deadline_cases.py",
+          "line": 1132,
+          "claim": "Eligible result survives grant expiry; cancellation changes applicability without reinvocation"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "line": 438,
+          "claim": "Host time is only the final pre-HTTP grant preflight"
+        }
+      ],
+      "followups_reviewed": [
+        "The specialist says it completed before the deadline. Can we use it?",
+        "Does lease expiry delete a result?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Historical gate source was reviewed; its database/process run was not repeated.",
+        "Display/read time is not an atomic P1 database-time decision."
+      ],
+      "rendered_prose_word_delta": 13,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-10",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.2",
+          "reason": "Tie the three meanings of eligibility to an actual delayed-result test and distinguish dependency failure from invalid output."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "line": 529,
+          "claim": "Copied observation and explicit applicability precedence"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_runner.py",
+          "line": 399,
+          "claim": "Case revision changes during held HTTP; result true but view outdated"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_runner.py",
+          "line": 413,
+          "claim": "Case read failure gives unavailable; cancelled case gives case_cancelled"
+        }
+      ],
+      "followups_reviewed": [
+        "Can a cached green candidate badge authorize an action?",
+        "How do you explain unavailable versus invalid?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Read views are non-atomic and can change after they return."
+      ],
+      "rendered_prose_word_delta": 12,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-11",
+      "verdict": "technical_or_proof_correction",
+      "changes": [
+        {
+          "field": "answer.2",
+          "reason": "Remove an ambiguous claim that the original-v1 TypeScript audit fix changed this separate fixed-policy verifier; give the actual late-body test proof."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy.py",
+          "line": 92,
+          "claim": "Fixed-policy facts verified before timeliness is returned"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/fixed-policy.ts",
+          "line": 128,
+          "claim": "TypeScript fixed-policy verifier compares exact witnesses and answer before returning timeliness"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_fixed_policy_observed_boundary.py",
+          "line": 102,
+          "claim": "Late supported response expires; late unsupported response rejects"
+        }
+      ],
+      "followups_reviewed": [
+        "Why verify an already expired response?",
+        "Does deterministic verification make the model unnecessary?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Deterministic source consistency does not prove that synthetic source observations match the real world."
+      ],
+      "rendered_prose_word_delta": -1,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-12",
+      "verdict": "technical_or_proof_correction",
+      "changes": [
+        {
+          "field": "answer.2",
+          "reason": "Keep useful clarification separate from false, and remove wording that could imply the fixed-policy v2/v3 result already enters the v1 action adapter."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy.py",
+          "line": 159,
+          "claim": "Exact unique fact witnesses determine missing/none/conflicting and bool/null"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_fixed_policy_execution.py",
+          "line": 243,
+          "claim": "Empty/conflicting source results complete once as clarification"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/fixed-policy.test.ts",
+          "line": 103,
+          "claim": "Agreeing distinct witnesses accepted; dropping one rejects"
+        }
+      ],
+      "followups_reviewed": [
+        "Can duplicate observations agree?",
+        "What do you store when the user clarifies?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "The current v1 action adapter does not accept fixed-policy v2 or origin-bound v3 envelopes."
+      ],
+      "rendered_prose_word_delta": 7,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-13",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.1",
+          "reason": "Clarify that a lost begin acknowledgement never regains accept permission merely by looking up an absent receiver receipt."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/completion.py",
+          "line": 674,
+          "claim": "Only created begin sets external permission; other calls remain lookup-only"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/completion.py",
+          "line": 742,
+          "claim": "Exact receiver lookup precedes accept"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_completion.py",
+          "line": 354,
+          "claim": "Ambiguous begin plus absence returns unknown and zero accept across replay"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_completion.py",
+          "line": 379,
+          "claim": "Changed route conflicts rather than retargeting"
+        }
+      ],
+      "followups_reviewed": [
+        "What if the original recipient changes phone number?",
+        "Why find before accept on a new begin?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Receiver acceptance does not prove carrier delivery or human acknowledgement.",
+        "Route/current-case checks are preflights; they do not cancel an already admitted external call."
+      ],
+      "rendered_prose_word_delta": 13,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-14",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.1",
+          "reason": "Name the unused-begin crash window explicitly so the availability trade-off is understandable rather than hidden behind general transport uncertainty."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/completion.py",
+          "line": 749,
+          "claim": "Existing possible send with absent receipt returns unknown without accept"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_completion.py",
+          "line": 354,
+          "claim": "Two calls retain unknown and zero accept after uncertain begin"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/completion_processor.py",
+          "line": 418,
+          "claim": "Possible delivery reconciliation precedes fresh eligibility handling"
+        }
+      ],
+      "followups_reviewed": [
+        "Is this at-most-once delivery?",
+        "How would operations resolve the unknown?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Under this policy unknown can persist for profile lifetime; stronger remediation needs a separately designed contract."
+      ],
+      "rendered_prose_word_delta": 9,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-15",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.1",
+          "reason": "Explain receipt truth after current invalidation with the actual ACK-loss/replay assertions rather than suggesting a new action check can be bypassed."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/action_adapter.py",
+          "line": 370,
+          "claim": "Confirmation copied before asynchronous work"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/action_adapter.py",
+          "line": 399,
+          "claim": "Original action receipt lookup precedes fresh applicability admission"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_completion.py",
+          "line": 497,
+          "claim": "Known receipt replays after invalidation with one authorize"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_completion.py",
+          "line": 513,
+          "claim": "Lost action ACK reconciles one original authorization"
+        }
+      ],
+      "followups_reviewed": [
+        "The model says the customer confirmed. Is that enough?",
+        "What if action commit succeeds but the reply is lost?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Atomic work/case guard requires the supported same-PostgreSQL target and trusted credential bindings.",
+        "Current guarded action is v1-only."
+      ],
+      "rendered_prose_word_delta": 17,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-16",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.0",
+          "reason": "Expose the actual ABA-style revision test: changing fields back does not make the old expected revision current."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/tests/pg_action_race_cases.py",
+          "line": 561,
+          "claim": "Revision-first action rejects stale_revision"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_action_race_cases.py",
+          "line": 583,
+          "claim": "Case changed away and back advances revision; intent-first blocks revise"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_action_race_cases.py",
+          "line": 610,
+          "claim": "Separate current B result and confirmation make useful progress"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_action_race_cases.py",
+          "line": 1079,
+          "claim": "Independent supplier checks count every physical apply"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_action_race_cases.py",
+          "line": 1330,
+          "claim": "Both schedules retain actual two-waiter blocker graphs"
+        }
+      ],
+      "followups_reviewed": [
+        "Why not let B always win because its timestamp is newer?",
+        "Why prove a real lock waiter graph?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "The gate source encodes selected schedules; it does not prove every future race or supplier protocol."
+      ],
+      "rendered_prose_word_delta": 8,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-17",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.1",
+          "reason": "Disambiguate source unavailability/corruption from current-case unavailability, and demonstrate the checkpoint behavior with explicit tests."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/projector.py",
+          "line": 299,
+          "claim": "Historical issuance and result/event equality are checked before P3 parsing"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/projector.py",
+          "line": 356,
+          "claim": "Definite P3 parsing/factual errors quarantine only"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_projection.py",
+          "line": 219,
+          "claim": "Case failure records unavailable metadata and advances"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_projection.py",
+          "line": 225,
+          "claim": "Definite invalid P3 result quarantines"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_projection.py",
+          "line": 296,
+          "claim": "Digest mismatch causes zero writes"
+        }
+      ],
+      "followups_reviewed": [
+        "Can we rebuild the projection?",
+        "Why no result blob in P3?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Original projector is v1-only; v2/v3 can be quarantined rather than projected as valid."
+      ],
+      "rendered_prose_word_delta": 8,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-18",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.0",
+          "reason": "Use the concrete two-event cursor values and late-receipt recovery proof instead of restating cursor definitions."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        },
+        {
+          "field": "answer.1",
+          "reason": "State the shared total precisely without describing an impossible eight-plus-eight partial-wrap case."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/processing_store.py",
+          "line": 174,
+          "claim": "At most one wrapped second query uses remaining budget"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_processing.py",
+          "line": 239,
+          "claim": "Unknown A plus useful B yields watermark0 scan2 count1"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_processing.py",
+          "line": 268,
+          "claim": "Late exact receipt closes gap without another accept"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/completion_processor.py",
+          "line": 418,
+          "claim": "Known receipt checked before current applicability"
+        }
+      ],
+      "followups_reviewed": [
+        "Can the terminal watermark move past a gap?",
+        "What about a new case with no configured recipient?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "These are P3 local processing ACKs; P1 result-feed reads have no source ACK capability."
+      ],
+      "rendered_prose_word_delta": 6,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-19",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.1",
+          "reason": "Replace a historical summary with the precise regression mechanism and negative control, avoiding a blanket transient-error claim."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/completion_processor.py",
+          "line": 43,
+          "claim": "Finite dependency-code mapping"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/completion_processor.py",
+          "line": 452,
+          "claim": "Known completion/run errors become unknown, unavailable or hard failure"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_processing.py",
+          "line": 345,
+          "claim": "First-call transient helper checks later useful ACK and eventual gap closure"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_processing.py",
+          "line": 376,
+          "claim": "Definite errors preserve zero sends and commits"
+        }
+      ],
+      "followups_reviewed": [
+        "Why not ACK unavailable as a terminal error?",
+        "Should all exceptions become unavailable?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Unknown delivery is not an automatic retry instruction.",
+        "Processor close observes a write already started but prevents later-row work."
+      ],
+      "rendered_prose_word_delta": 25,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-20",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.0",
+          "reason": "Explain what the CAS plus retained witnesses actually guarantees through a stale-read schedule."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/applicability_refresher.py",
+          "line": 175,
+          "claim": "Original command replay precedes source observations and caps"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/applicability_refresher.py",
+          "line": 198,
+          "claim": "Fresh source/read draft is committed by metadata CAS"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_applicability.py",
+          "line": 138,
+          "claim": "Higher case revision survives stale and unavailable reads"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_applicability.py",
+          "line": 306,
+          "claim": "Replay exact bytes before new reads or exhausted local cap"
+        }
+      ],
+      "followups_reviewed": [
+        "Why use expected local revision if source reads are non-atomic?",
+        "What happens after an uncertain refresh commit?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Refresh remains as_of_non_atomic and never grants delivery, consent or action."
+      ],
+      "rendered_prose_word_delta": 16,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-21",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.1",
+          "reason": "Separate the actual unit and PostgreSQL assertions instead of implying one test checks every receipt, ACK and hidden unresolved-delivery property."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/applicability_store.py",
+          "line": 311,
+          "claim": "Hide retains a permanent head tombstone without deleting projection/commands"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_applicability.py",
+          "line": 623,
+          "claim": "Repeated hide and original bytes unchanged"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_applicability_cases.py",
+          "line": 1259,
+          "claim": "Old refresh replay succeeds after hide; new refresh remains capacity-blocked"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/processing_store.py",
+          "line": 179,
+          "claim": "Processing selects unACKed projection rows independently of display tombstones"
+        }
+      ],
+      "followups_reviewed": [
+        "Can a display TTL free room for new accepted work?",
+        "How do you test hiding safely?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Lifetime retention intentionally consumes protected capacity; no general deletion or compaction policy is implemented."
+      ],
+      "rendered_prose_word_delta": 18,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-22",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.1",
+          "reason": "Make provenance verification limits explicit: carrying source IDs is not itself a P2 authentication proof."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/channel_policy_contracts.py",
+          "line": 74,
+          "claim": "Operation UUID selects deterministic scoped key"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/channel_policy_contracts.py",
+          "line": 189,
+          "claim": "Outer fingerprint binds origin plus nested logical request"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/channel_policy_execution.py",
+          "line": 101,
+          "claim": "Explicit v3 runner adapts v2 specialist"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_channel_policy_execution.py",
+          "line": 359,
+          "claim": "Original outer bytes retained; inner v2 result wrapped"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_channel_policy_execution.py",
+          "line": 385,
+          "claim": "Changed configured source records reject before invoking"
+        }
+      ],
+      "followups_reviewed": [
+        "Why not fingerprint only the transcript?",
+        "Can the specialist choose another origin?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Authentic P2 origin requires the trusted application boundary; hashes and UUID shape alone do not provide it."
+      ],
+      "rendered_prose_word_delta": 20,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-23",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.1",
+          "reason": "Use the exact contrast tested between submit and accept, including the important original-read-after-current-cancellation case."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/channel_policy_execution.py",
+          "line": 47,
+          "claim": "Exact submit and explicit first-origin accept are separate public methods"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_channel_policy_execution.py",
+          "line": 126,
+          "claim": "Changed generated proposal only recovers through accept without new admission"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_channel_policy_execution.py",
+          "line": 149,
+          "claim": "Changed entire origin/stable route conflicts"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_channel_policy_execution.py",
+          "line": 285,
+          "claim": "created=true cannot substitute another valid generated proposal"
+        }
+      ],
+      "followups_reviewed": [
+        "Does accept ignore changed customer intent?",
+        "Why validate created=true bytes more strictly?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "First-origin recovery does not renew the deadline or select newly configured source records."
+      ],
+      "rendered_prose_word_delta": 3,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-24",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.0",
+          "reason": "Ground the read-lane design in both held-work and timed-out-wrapper ownership assertions."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/native_policy.py",
+          "line": 523,
+          "claim": "Acceptance precedes owned background task and pending update"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/native_policy.py",
+          "line": 705,
+          "claim": "Independent bounded public inspection lane"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_native_policy.py",
+          "line": 257,
+          "claim": "Read observes original work while invocation is held"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_native_policy.py",
+          "line": 337,
+          "claim": "Completed wrapper does not free actual run ownership"
+        },
+        {
+          "path": "docs/work-items/0042-responsive-native-policy-and-compact-demo.md",
+          "line": 8,
+          "claim": "Selected qualification explicitly RTC text, excluding microphone/STT/playback/providers"
+        }
+      ],
+      "followups_reviewed": [
+        "Why reserve a read lane separately?",
+        "Why does repeated evaluate not start a new run?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "I18B is RTC text qualification; later joined provider/scripted showcase scopes are separate."
+      ],
+      "rendered_prose_word_delta": 12,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-25",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.0",
+          "reason": "Add the actual decompression-size guard and distinguish it from header dimensions and worker heap limits."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/document-png.ts",
+          "line": 95,
+          "claim": "Encoded size checked before copying, dimensions before worker"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/document-png-worker.ts",
+          "line": 87,
+          "claim": "Inflation output bounded and exact expected scanline size required"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/document-png.test.ts",
+          "line": 183,
+          "claim": "Tiny declared image with oversized expansion rejects"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_document_oracle.py",
+          "line": 195,
+          "claim": "Schema/correlation-valid wrong values and regions fail independent literal oracle"
+        }
+      ],
+      "followups_reviewed": [
+        "Why validate dimensions before decode?",
+        "Can a highlighted phrase in the image authorize a refund?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Supported static RGB/RGBA PNG subset only.",
+        "The literal fixture oracle is not OCR or general model-quality qualification."
+      ],
+      "rendered_prose_word_delta": 13,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-26",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.0",
+          "reason": "Explain the actual operation discriminator and use the existing version-negative test as a concrete compatibility example."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/agent-continuity/python/src/continuity_lab/work_models.py",
+          "line": 99,
+          "claim": "Public WorkPayload operation boundary"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/http_client.py",
+          "line": 336,
+          "claim": "Document invocation has separate codec and matching path"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_fixed_policy_execution.py",
+          "line": 205,
+          "claim": "V1 runner rejects v2 before any issue, completion or specialist request"
+        },
+        {
+          "path": "projects/delegation-reliability/AGENTS.md",
+          "line": 443,
+          "claim": "Document capability has no durable policy execution support"
+        }
+      ],
+      "followups_reviewed": [
+        "Is separating clients unnecessary API complexity?",
+        "Could you store an opaque image result body in P1 anyway?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "No durable image-operation extension or downstream image projection/action compatibility is implemented."
+      ],
+      "rendered_prose_word_delta": 20,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-27",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.1",
+          "reason": "Replace inventory-only discussion with actual resume assertions and explicitly retain the parent-owned kill proof requirement."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/tests/pg_recovery_cases.py",
+          "line": 1507,
+          "claim": "Original issue replay does not invoke; premature new issue rejects"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_recovery_cases.py",
+          "line": 1692,
+          "claim": "Explicit new command after lease expiry yields useful result"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_recovery_cases.py",
+          "line": 1722,
+          "claim": "Precommit kill has no result/event; postcommit preserves one exact result/event"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_recovery_cases.py",
+          "line": 1846,
+          "claim": "Unresolved possible delivery restart remains unknown without receiver call"
+        },
+        {
+          "path": "local-setup/scripts/p3_recovery_check.py",
+          "line": 1810,
+          "claim": "Parent-owned kill requires observed SIGKILL return and retained cleanup ownership"
+        }
+      ],
+      "followups_reviewed": [
+        "What if the coordinator dies immediately after issue and before HTTP?",
+        "Why inspect actual supplier calls after recovery?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Reviewed gate code and historical handoff, not a new process-kill run.",
+        "No autonomous scheduler or general remote-stop guarantee follows."
+      ],
+      "rendered_prose_word_delta": 18,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-28",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.1",
+          "reason": "Contrast preflight abandonment with a created possible-send obligation using two concrete close tests."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+          "line": 563,
+          "claim": "Close abandons only calls before writing"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/native_policy.py",
+          "line": 757,
+          "claim": "Independent port close attempts and actual pending/reservation checks"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_completion.py",
+          "line": 453,
+          "claim": "Abandoned prepare cannot later begin or accept"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_completion.py",
+          "line": 483,
+          "claim": "Created begin remains owned through receiver acceptance after incomplete close"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_native_policy.py",
+          "line": 400,
+          "claim": "Independent closes attempted; held actual run settles on explicit retry"
+        }
+      ],
+      "followups_reviewed": [
+        "Why retain the failed close task?",
+        "Should shutdown cancel a database write?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Incomplete close is not a successful teardown and cannot justify deleting dependent state."
+      ],
+      "rendered_prose_word_delta": 24,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-29",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.0",
+          "reason": "Distinguish cold import safety, genuine native export identity and artifact-install proof instead of treating them as one generic packaging claim."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/pyproject.toml",
+          "line": 5,
+          "claim": "Declared interpreter/dependencies and package-data marker"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_public_import_surface.py",
+          "line": 19,
+          "claim": "Fresh isolated import blocks SDK paths and all I/O attempts"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_public_import_surface.py",
+          "line": 100,
+          "claim": "Explicit native exports preserve actual identity/signatures"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_standalone_cases.py",
+          "line": 1543,
+          "claim": "Installed schedule independently joins one physical supplier apply and original receipt"
+        },
+        {
+          "path": "local-setup/scripts/p3_package_check.py",
+          "line": 630,
+          "claim": "Built archive payload and dependency metadata are validated explicitly"
+        }
+      ],
+      "followups_reviewed": [
+        "Why test sdist rebuilds as well as wheels?",
+        "Why does P3 depend on the P1 package if it is standalone?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "The SDK remains a declared distribution dependency; lazy imports do not make its package optional.",
+        "Installed evidence is selected local qualification rather than all-platform release proof."
+      ],
+      "rendered_prose_word_delta": 14,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-30",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.1",
+          "reason": "Give the concrete safe-diagnostics regression and distinguish observability failure from business-write failure."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/contracts.py",
+          "line": 54,
+          "claim": "Contract errors expose only a fixed code"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+          "line": 522,
+          "claim": "Telemetry failures are contained after outcome accounting"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_coordinator.py",
+          "line": 410,
+          "claim": "Logger exception preserves accepted result and excludes private strings"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/http_client.py",
+          "line": 315,
+          "claim": "Capability validation is a separate stage after HTTP payload reception"
+        }
+      ],
+      "followups_reviewed": [
+        "Why not put work IDs in metric labels?",
+        "What if the logger raises during a successful submit?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Production alert thresholds, retention and cross-service correlation policies are not qualified here."
+      ],
+      "rendered_prose_word_delta": 14,
+      "tests_rerun": false
+    },
+    {
+      "id": "P3-31",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.2",
+          "reason": "Replace a broad roadmap/personal-ownership paragraph with two concrete unresolved behaviors and evidence needed to resolve them."
+        },
+        {
+          "field": "evidence",
+          "reason": "Point the revised explanation to inspected implementation and assertion bodies, with explicit proof boundaries."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "docs/projects/delegation-reliability-scope.md",
+          "line": 78,
+          "claim": "Three complete registered lab rows; remaining fourteen planned"
+        },
+        {
+          "path": "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+          "line": 124,
+          "claim": "Starting principal, native attempted flag and v1 schema quarantine remain open"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/security.py",
+          "line": 330,
+          "claim": "Status/cancel does not compare starting principal"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/native_policy.py",
+          "line": 532,
+          "claim": "Once attempted, later evaluations inspect rather than resubmit"
+        }
+      ],
+      "followups_reviewed": [
+        "Which missing capability would you prioritize first?",
+        "Does a recorded passing gate mean you reran it today?"
+      ],
+      "count": 2,
+      "remaining_limitations": [
+        "Full P3 acceptance and portfolio-ready release remain pending.",
+        "The review did not rerun qualification or implement the proposed repairs."
+      ],
+      "rendered_prose_word_delta": 4,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-01",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "counterfactual",
+          "reason": "Replace a hypothetical differing-winner claim with the concrete cross-language accept/reject failure caused by losing duplicate-key evidence."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/contracts.py",
+          "line": 143,
+          "claim": "Duplicate hook rejects before dict projection"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/contracts.py",
+          "line": 165,
+          "claim": "Raw bytes/nesting bounded before JSON parse; node walk follows"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_specialist_contracts.py",
+          "line": 92,
+          "claim": "Shared actual malformed wire fixtures check fixed codes"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_specialist_contracts.py",
+          "line": 284,
+          "claim": "Typed bool byte length rejects"
+        },
+        {
+          "path": "contracts/delegation/v1.json",
+          "line": 118,
+          "claim": "Invalid fixture inventory includes raw duplicate/numeric cases"
+        }
+      ],
+      "followups_reviewed": [
+        "Why reject 1.0 when it equals 1 mathematically?",
+        "Does the digest make duplicate keys harmless?",
+        "Why is isinstance(value, int) insufficient?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "Canonical hashes do not authenticate supplied authority fields or prove factual correctness."
+      ],
+      "rendered_prose_word_delta": 4,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-02",
+      "verdict": "technical_or_proof_correction",
+      "changes": [
+        {
+          "field": "counterfactual",
+          "reason": "Correct the overclaimed renewal/retargeting consequence; distinguish fingerprint-only replay from the coordinator's independent full-semantic comparison."
+        },
+        {
+          "field": "evidence",
+          "reason": "Add the inspected supporting predicate or separate actual-store assertion for the narrowed claim."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/contracts.py",
+          "line": 295,
+          "claim": "Only attempt/fingerprint excluded from logical semantics"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_specialist_contracts.py",
+          "line": 111,
+          "claim": "New transport attempt preserves fingerprint but old result mismatches"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_specialist_contracts.py",
+          "line": 121,
+          "claim": "Deadline/route/source changes alter fingerprint and conflict"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+          "line": 368,
+          "claim": "Existing record returns retained view after replay comparison"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "line": 443,
+          "claim": "Wire attempt derived from issued grant, preserving logical fingerprint"
+        }
+      ],
+      "followups_reviewed": [
+        "Why include the original deadline?",
+        "Why not let the specialist choose the next attempt?",
+        "Can equal text imply equal logical identity?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "Logical deduplication does not grant invocation permission or rewrite persisted accepted bytes."
+      ],
+      "rendered_prose_word_delta": 4,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-03",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.0",
+          "reason": "Name the actual v1 function and its conditional conclusion check, avoiding an implied equivalence with v2 verification semantics."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/security.ts",
+          "line": 339,
+          "claim": "V1 verifies bound source/rule and checks definite boolean before expiry"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/contracts.test.ts",
+          "line": 473,
+          "claim": "Same late timestamp rejects false conclusion but classifies supported one expired"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_specialist_contracts.py",
+          "line": 319,
+          "claim": "Python parity regression uses the same late negative/positive controls"
+        },
+        {
+          "path": "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+          "line": 52,
+          "claim": "Documented original verifier parity repair"
+        }
+      ],
+      "followups_reviewed": [
+        "Why retain a valid late result at all?",
+        "Should a late malformed response consume result capacity?",
+        "Does producer completed_at restore eligibility?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "This verifies the supported v1 synthetic conclusion, not arbitrary model prose or the real-world source."
+      ],
+      "rendered_prose_word_delta": 6,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-04",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.2",
+          "reason": "Make recovery conditional on all P1 admission constraints, not merely waiting out a lease."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "line": 420,
+          "claim": "Replayed issue returns before HTTP; created issue requires fresh exact observation"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "line": 438,
+          "claim": "Lease check is one preflight condition"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_runner.py",
+          "line": 265,
+          "claim": "Original issued command is not reinvoked"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_runner.py",
+          "line": 292,
+          "claim": "Post-issue cancellation prevents first HTTP"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_runner.py",
+          "line": 314,
+          "claim": "Unknown issue acknowledgement performs no new invocation"
+        }
+      ],
+      "followups_reviewed": [
+        "Why not invoke after find_issue succeeds?",
+        "Is the second observation an atomic cancellation fence?",
+        "What is lost after a pre-HTTP crash?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "Cancellation after the final read can still race with HTTP; the read is not a remote fence."
+      ],
+      "rendered_prose_word_delta": 9,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-05",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "counterfactual",
+          "reason": "Use a minimal one-slot failure schedule instead of suggesting the permit unit test starts a fifth actual computation."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/security.py",
+          "line": 350,
+          "claim": "Release requires exact stored permit object"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_specialist_contracts.py",
+          "line": 336,
+          "claim": "Equal copied permit rejects while active remains one; original release works once"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_specialist_contracts.py",
+          "line": 355,
+          "claim": "Valid progress only after actual minted permit release"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/security.ts",
+          "line": 333,
+          "claim": "TypeScript also requires object identity"
+        }
+      ],
+      "followups_reviewed": [
+        "Can this permit survive a process restart?",
+        "Does object identity protect against malicious code in the process?",
+        "Why reject a second genuine release?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "Object possession is an in-process ownership contract, not a sandbox against malicious same-process code."
+      ],
+      "rendered_prose_word_delta": 8,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-06",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.1",
+          "reason": "Separate the worker slot released at exit from later observer cleanup, and name Node worker threads precisely."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/document-png.ts",
+          "line": 162,
+          "claim": "Message retained; exit validates result"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/document-png.ts",
+          "line": 228,
+          "claim": "Exit releases active worker before observer notification"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/document-png.ts",
+          "line": 247,
+          "claim": "Close observes both worker settlement and pending notices"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/document-png.test.ts",
+          "line": 212,
+          "claim": "Abort keeps actual worker active until exit"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/document-png.test.ts",
+          "line": 254,
+          "claim": "Held observer keeps close incomplete after decode succeeds"
+        }
+      ],
+      "followups_reviewed": [
+        "Why does abort not reject and release immediately?",
+        "What if the cleanup observer never settles?",
+        "How is Python runner ownership similar?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "Fixed worker-thread behavior does not establish termination of arbitrary external providers."
+      ],
+      "rendered_prose_word_delta": 4,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-07",
+      "verdict": "technical_or_proof_correction",
+      "changes": [
+        {
+          "field": "test",
+          "reason": "Identify the fake-port boundary of the unit assertion rather than presenting it as independent SQL cancellation proof."
+        },
+        {
+          "field": "evidence",
+          "reason": "Add the inspected supporting predicate or separate actual-store assertion for the narrowed claim."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "line": 456,
+          "claim": "Semantic verification precedes P1 completion despite late cancellation"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_runner.py",
+          "line": 428,
+          "claim": "Controlled fake-port cancellation tests preserved result and ineligible view"
+        },
+        {
+          "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+          "line": 237,
+          "claim": "Actual P1 protected disposition precedence"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_deadline_cases.py",
+          "line": 914,
+          "claim": "Actual persisted late/cancelled result schedule validates disposition"
+        }
+      ],
+      "followups_reviewed": [
+        "Why not call complete only when eligible?",
+        "Can a wrong late answer be retained the same way?",
+        "Does later cancellation rewrite eligible_at_commit?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "The unit test alone does not prove database-time/lease disposition; actual P1/gate code supplies that boundary."
+      ],
+      "rendered_prose_word_delta": 5,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-08",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.0",
+          "reason": "Use the paired positive and negative lifecycle assertions to answer whether close can undo in-flight acceptance."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+          "line": 563,
+          "claim": "Only pre-write calls abandoned by close"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_coordinator.py",
+          "line": 346,
+          "claim": "Paused read closes with zero submissions"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_coordinator.py",
+          "line": 359,
+          "claim": "Live submit stays pending through incomplete close and later acknowledges creation"
+        },
+        {
+          "path": "docs/work-items/0047-open-findings-schema-upgrades-and-landing.md",
+          "line": 27,
+          "claim": "Documented ownership fix context"
+        }
+      ],
+      "followups_reviewed": [
+        "Can close undo a submit already in flight?",
+        "Why does the abandoned read keep its slot?",
+        "Would increasing cleanup time fix wrong ordering?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "Correct component close does not prove the joined gateway/application shutdown ordering is fixed."
+      ],
+      "rendered_prose_word_delta": 4,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-09",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.2",
+          "reason": "Give the actual close-during-ACK schedule and retained partial-batch facts instead of a generic close rule."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/completion_processor.py",
+          "line": 452,
+          "claim": "Finite translation of known dependency failures"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/completion_processor.py",
+          "line": 511,
+          "claim": "Close spares current write but blocks later row/send"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_processing.py",
+          "line": 345,
+          "claim": "One transient failure permits later useful ACK then gap recovery"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_processing.py",
+          "line": 376,
+          "claim": "Definite violations retain zero unsafe writes"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_processing.py",
+          "line": 554,
+          "claim": "Close helper asserts one original ACK/delivery and no later-row effect"
+        }
+      ],
+      "followups_reviewed": [
+        "Why is unknown separate from unavailable?",
+        "Should a corrupt event block every later event?",
+        "What happens if close arrives between rows?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "A later definite batch error need not roll back an earlier row already committed."
+      ],
+      "rendered_prose_word_delta": 14,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-10",
+      "verdict": "technical_or_proof_correction",
+      "changes": [
+        {
+          "field": "counterfactual",
+          "reason": "Correct the arithmetic: because wrap requires a partial first page, the actual maximum after this edit is fifteen, not sixteen."
+        },
+        {
+          "field": "test",
+          "reason": "Separate fake-page API assertions from actual SQL-query proof; do not imply the named unit directly executes the SQL store."
+        },
+        {
+          "field": "evidence",
+          "reason": "Add the inspected supporting predicate or separate actual-store assertion for the narrowed claim."
+        },
+        {
+          "field": "answer.0",
+          "reason": "Use exceed the budget rather than double; this exact partial-wrap branch can total fifteen for limit eight."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/processing_store.py",
+          "line": 182,
+          "claim": "Partial first page wraps once using only remaining limit"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/processing_store.py",
+          "line": 245,
+          "claim": "Watermark independently derives earliest unACKed gap"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_processing.py",
+          "line": 437,
+          "claim": "Fake-page public one-row bound and invalid limits"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_processing.py",
+          "line": 239,
+          "claim": "Unknown A and acknowledged B keep distinct positions"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_processing_cases.py",
+          "line": 913,
+          "claim": "Real store revisits unknown event2 behind head8 without advancing terminal prefix"
+        }
+      ],
+      "followups_reviewed": [
+        "Can the scan skip an unknown event forever?",
+        "Why reject True as a limit?",
+        "Does processing ACK the P1 source?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "The named unit does not directly test a mixed SQL page with both new and wrapped rows; a focused store regression would strengthen this predicate proof."
+      ],
+      "rendered_prose_word_delta": 24,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-11",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.0",
+          "reason": "Qualify replay precedence: it bypasses fresh observations and persisted growth checks, not authentication, client admission or receipt-store availability."
+        },
+        {
+          "field": "evidence",
+          "reason": "Add the inspected supporting predicate or separate actual-store assertion for the narrowed claim."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/applicability_refresher.py",
+          "line": 161,
+          "claim": "Public UUID/expected-revision/binding checks precede owned call"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/applicability_refresher.py",
+          "line": 175,
+          "claim": "Exact receipt returns before head cap and fresh source reads"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_applicability.py",
+          "line": 306,
+          "claim": "Same receipt survives source/case failure and exhausted revision head"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_applicability.py",
+          "line": 320,
+          "claim": "Changed expected revision under same command conflicts"
+        }
+      ],
+      "followups_reviewed": [
+        "What if the caller wants a fresh answer?",
+        "Why validate expected revision on replay?",
+        "Does local CAS solve stale case reads?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "Replay needs a readable original receipt and normal public client admission; it is not guaranteed under every resource outage."
+      ],
+      "rendered_prose_word_delta": 12,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-12",
+      "verdict": "technical_or_proof_correction",
+      "changes": [
+        {
+          "field": "counterfactual",
+          "reason": "Correct the counterfactual using the actual count-consistency guard: a naive decrement fails closed rather than immediately bypassing capacity."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/applicability_store.py",
+          "line": 76,
+          "claim": "Retained refresh row count must equal command_count"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/applicability_store.py",
+          "line": 323,
+          "claim": "Hide records/replays head tombstone without removing history"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_applicability.py",
+          "line": 623,
+          "claim": "Original projection/latest receipt unchanged by repeated hide"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/pg_applicability_cases.py",
+          "line": 1259,
+          "claim": "Retained cap not freed; original command still replays"
+        }
+      ],
+      "followups_reviewed": [
+        "Why bind the tombstone to digests?",
+        "Does hidden mean processing complete?",
+        "How would production reclaim this storage?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "The counter-only edit is rejected by current validation; actual safe reclamation would need a reviewed lifecycle/storage contract."
+      ],
+      "rendered_prose_word_delta": 9,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-13",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "answer.1",
+          "reason": "Attribute commit visibility to the actual combined transaction/admission/head protocol and distinguish its safety proof from throughput claims."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_store.py",
+          "line": 61,
+          "claim": "Append requires result insert under admission guard in same transaction"
+        },
+        {
+          "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_store.py",
+          "line": 72,
+          "claim": "Scoped head locked and incremented transactionally"
+        },
+        {
+          "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+          "line": 230,
+          "claim": "Exact result replay returns before another append"
+        },
+        {
+          "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+          "line": 266,
+          "claim": "Result and feed append share the protected completion transaction"
+        },
+        {
+          "path": "tests/postgres/pg_result_feed_cases.py",
+          "line": 429,
+          "claim": "Actual blocked backend, empty precommit feed and exact final ordering"
+        }
+      ],
+      "followups_reviewed": [
+        "Why not use recorded_at_ms as the cursor?",
+        "Does the per-scope sequence imply a global order?",
+        "What about old results adopted during upgrade?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "Per-scope cursors promise no global ordering or throughput independence across scopes.",
+        "The actual database test was inspected, not rerun."
+      ],
+      "rendered_prose_word_delta": 2,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-14",
+      "verdict": "technical_or_proof_correction",
+      "changes": [
+        {
+          "field": "test",
+          "reason": "Separate directly asserted pre-worker rejection from the source-verified allocation ordering and independent expansion checks."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/document-png.ts",
+          "line": 95,
+          "claim": "Raw body bound precedes Uint8Array.from"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/document-png.ts",
+          "line": 118,
+          "claim": "Actual dimensions validated before worker construction"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/document-png-worker.ts",
+          "line": 87,
+          "claim": "Expected scanlines bound inflation and exact output/input consumption"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/document-png.test.ts",
+          "line": 242,
+          "claim": "Encoded overflow rejects with zero workers started"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/document-png.test.ts",
+          "line": 183,
+          "claim": "Expansion rejected"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/document.ts",
+          "line": 140,
+          "claim": "Provider invoked only after decode and renewed local deadline check"
+        }
+      ],
+      "followups_reviewed": [
+        "Why copy only after the bound check?",
+        "Does a 2 MiB PNG cap bound memory to 2 MiB?",
+        "Can a valid decoded region prove the extracted booking value?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "Tests/source do not establish an RSS ceiling for the entire Node process or arbitrary providers."
+      ],
+      "rendered_prose_word_delta": 6,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-15",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "counterfactual",
+          "reason": "Use a concrete codec-selection edit with an observable inspect-contract break, without claiming a parser change alone makes every v2/v3 invocation path work."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "line": 750,
+          "claim": "Original facade seals V1_CODEC and V1 invocation adapter"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy_execution.py",
+          "line": 80,
+          "claim": "Separate fixed-policy facade selects FIXED_CODEC"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/channel_policy_execution.py",
+          "line": 133,
+          "claim": "Channel facade selects CHANNEL_CODEC plus explicit nested adapter"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_fixed_policy_execution.py",
+          "line": 205,
+          "claim": "Original facade inspect and run reject v2 before any authority use"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_channel_policy_execution.py",
+          "line": 359,
+          "claim": "Explicit outer-v3/inner-v2 transport maintains both fingerprints"
+        }
+      ],
+      "followups_reviewed": [
+        "Why share the generic runner engine at all?",
+        "Can v3 reach a specialist that understands only v2?",
+        "Does supporting v3 delivery complete integration?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "Invocation, delivery, projection and action are separate version-compatibility boundaries."
+      ],
+      "rendered_prose_word_delta": 7,
+      "tests_rerun": false
+    },
+    {
+      "id": "D3-16",
+      "verdict": "clarified_from_implementation_and_tests",
+      "changes": [
+        {
+          "field": "followups.0",
+          "reason": "Distinguish exact-submit replay from explicit first-origin acceptance instead of treating all replay flexibility as one comparison rule."
+        },
+        {
+          "field": "evidence",
+          "reason": "Add the inspected supporting predicate or separate actual-store assertion for the narrowed claim."
+        }
+      ],
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+          "line": 417,
+          "claim": "created=true full canonical comparison precedes replay semantics"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+          "line": 190,
+          "claim": "Replay identity mode is explicit per call"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/_policy_codec.py",
+          "line": 82,
+          "claim": "V1 full-semantic replay identity excludes attempt only"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_channel_policy_execution.py",
+          "line": 235,
+          "claim": "All three facade creations reject substituted attempt bytes"
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_channel_policy_execution.py",
+          "line": 285,
+          "claim": "Origin creation rejects another valid generated proposal and later recovers real winner"
+        }
+      ],
+      "followups_reviewed": [
+        "Why not require full bytes on every replay?",
+        "Does first-origin accept allow changing the user request?",
+        "Why snapshot before the first await?"
+      ],
+      "count": 3,
+      "remaining_limitations": [
+        "A true created flag remains a port claim that must be validated against the submitted snapshot."
+      ],
+      "rendered_prose_word_delta": 12,
+      "tests_rerun": false
+    }
+  ],
+  "question_count": 47,
+  "followup_count": 110,
+  "all_original_code_ranges_and_hashes_preserved": true,
+  "tests_rerun": false,
+  "reviewed_files": [
+    "contracts/delegation/v1.json",
+    "docs/projects/delegation-reliability-scope.md",
+    "docs/work-items/0042-responsive-native-policy-and-compact-demo.md",
+    "docs/work-items/0047-open-findings-schema-upgrades-and-landing.md",
+    "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+    "local-setup/scripts/p3_package_check.py",
+    "local-setup/scripts/p3_recovery_check.py",
+    "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+    "projects/agent-continuity/python/src/continuity_lab/result_feed_store.py",
+    "projects/agent-continuity/python/src/continuity_lab/work_models.py",
+    "projects/delegation-reliability/AGENTS.md",
+    "projects/delegation-reliability/python/pyproject.toml",
+    "projects/delegation-reliability/python/src/delegation_reliability/_policy_codec.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/action_adapter.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/applicability_refresher.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/applicability_store.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/baseline.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/channel_policy_contracts.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/channel_policy_execution.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/completion.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/completion_processor.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/contracts.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy_execution.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/http_client.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/native_policy.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/processing_store.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/projection_api.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/projector.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+    "projects/delegation-reliability/python/src/delegation_reliability/security.py",
+    "projects/delegation-reliability/specialist-ts/src/document-png-worker.ts",
+    "projects/delegation-reliability/specialist-ts/src/document-png.ts",
+    "projects/delegation-reliability/specialist-ts/src/document.ts",
+    "projects/delegation-reliability/specialist-ts/src/fixed-policy.ts",
+    "projects/delegation-reliability/specialist-ts/src/security.ts",
+    "projects/delegation-reliability/specialist-ts/src/server.ts",
+    "projects/delegation-reliability/specialist-ts/tests/contracts.test.ts",
+    "projects/delegation-reliability/specialist-ts/tests/document-png.test.ts",
+    "projects/delegation-reliability/specialist-ts/tests/fixed-policy.test.ts",
+    "projects/delegation-reliability/specialist-ts/tests/http.test.ts",
+    "projects/delegation-reliability/tests/pg_action_race_cases.py",
+    "projects/delegation-reliability/tests/pg_applicability_cases.py",
+    "projects/delegation-reliability/tests/pg_deadline_cases.py",
+    "projects/delegation-reliability/tests/pg_processing_cases.py",
+    "projects/delegation-reliability/tests/pg_recovery_cases.py",
+    "projects/delegation-reliability/tests/pg_standalone_cases.py",
+    "projects/delegation-reliability/tests/test_applicability.py",
+    "projects/delegation-reliability/tests/test_channel_policy_execution.py",
+    "projects/delegation-reliability/tests/test_completion.py",
+    "projects/delegation-reliability/tests/test_coordinator.py",
+    "projects/delegation-reliability/tests/test_document_oracle.py",
+    "projects/delegation-reliability/tests/test_fixed_policy_execution.py",
+    "projects/delegation-reliability/tests/test_fixed_policy_observed_boundary.py",
+    "projects/delegation-reliability/tests/test_native_baseline.py",
+    "projects/delegation-reliability/tests/test_native_policy.py",
+    "projects/delegation-reliability/tests/test_processing.py",
+    "projects/delegation-reliability/tests/test_projection.py",
+    "projects/delegation-reliability/tests/test_public_import_surface.py",
+    "projects/delegation-reliability/tests/test_runner.py",
+    "projects/delegation-reliability/tests/test_specialist_contracts.py",
+    "tests/postgres/pg_result_feed_cases.py"
+  ],
+  "chapter_audit": [
+    {
+      "chapter": 6,
+      "fields": [
+        "intro.0",
+        "intro.2",
+        "walkthrough.0.detail",
+        "walkthrough.1.detail",
+        "concepts.3.body",
+        "limits"
+      ],
+      "reason": "Shorten the entry reading route and teach exact origin authentication, replay-mode and non-atomic preflight limits."
+    },
+    {
+      "chapter": 7,
+      "fields": [
+        "intro.0",
+        "concepts.0.body",
+        "limits"
+      ],
+      "reason": "Make test proof levels and the SQL-wrap coverage limit visible to learners."
+    }
+  ],
+  "figure_audit": [
+    {
+      "id": "F10",
+      "key": "delegation",
+      "verdict": "caption_clarified",
+      "figure": {
+        "id": "F10",
+        "title": "Acceptance issuance result and action",
+        "kind": "delegation",
+        "refs": [
+          "P3-06",
+          "P3-10",
+          "P3-15"
+        ],
+        "caption": "These are separate authority gates. The fresh running-grant read is a preflight, not a remote cancellation fence. Original v1 action and newer policy delivery facades have distinct support; the flow grants no automatic version compatibility."
+      },
+      "previous_caption": "These gates answer different questions. The original v1 action path and the explicit newer policy delivery facades have separate support; the diagram grants no automatic version compatibility.",
+      "changes": [],
+      "reason": "Retain one durable authority and explicit version support while qualifying the gap between fresh read and HTTP.",
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "line": 420,
+          "claim": "Invocation needs created grant and fresh preflight"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/processing_store.py",
+          "line": 179,
+          "claim": "SQL excludes ACKed rows"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy.py",
+          "line": 92,
+          "claim": "V2 factual verification precedes temporal classification"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/security.ts",
+          "line": 339,
+          "claim": "V1 conclusion verification is conditional on none uncertainty"
+        }
+      ]
+    },
+    {
+      "id": "F11",
+      "key": "feed",
+      "verdict": "diagram_label_corrected",
+      "figure": {
+        "id": "F11",
+        "title": "Scan progress is not the terminal watermark",
+        "kind": "feed",
+        "refs": [
+          "P3-18",
+          "D3-10"
+        ],
+        "caption": "This is a retained eight-event window, not one returned processing page. Terminally ACKed rows are excluded from discovery; later useful events can finish while an earlier unknown holds the contiguous watermark behind the gap."
+      },
+      "previous_caption": "Illustrative eight-event window. Later useful terminal observations can progress while an earlier unknown prevents a contiguous terminal watermark from advancing.",
+      "changes": [
+        {
+          "field": "top diagram label",
+          "from": "ILLUSTRATIVE EVENTS IN ONE BOUNDED SCAN",
+          "to": "RETAINED EVENTS AND PROCESSING KNOWLEDGE",
+          "reason": "Actual page queries exclude ACKed rows, so terminal boxes cannot be labelled as rows examined in one scan."
+        }
+      ],
+      "reason": "Correct a mismatch between the retained-window teaching picture and the actual unACKed-only processing query.",
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "line": 420,
+          "claim": "Invocation needs created grant and fresh preflight"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/processing_store.py",
+          "line": 179,
+          "claim": "SQL excludes ACKed rows"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy.py",
+          "line": 92,
+          "claim": "V2 factual verification precedes temporal classification"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/security.ts",
+          "line": 339,
+          "claim": "V1 conclusion verification is conditional on none uncertainty"
+        }
+      ]
+    },
+    {
+      "id": "F12",
+      "key": "facts",
+      "verdict": "caption_clarified",
+      "figure": {
+        "id": "F12",
+        "title": "Valid bytes can still be unsupported facts",
+        "kind": "facts",
+        "refs": [
+          "D3-01",
+          "D3-03",
+          "P3-11"
+        ],
+        "caption": "Conceptual gates across supported paths, not an implemented v2/v3 action pipeline. Both policy verifiers reject unsupported facts before returning expiry; v1 and v2 have different witness and uncertainty rules."
+      },
+      "previous_caption": "Independent gates, not one success flag. In fixed-policy verification, unsupported factual output remains invalid even when it is late; expiry must not mask the factual error.",
+      "changes": [],
+      "reason": "Keep the correct fact-before-expiry order while avoiding schema-version equivalence or implied v2/v3 action support.",
+      "evidence_checked": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "line": 420,
+          "claim": "Invocation needs created grant and fresh preflight"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/processing_store.py",
+          "line": 179,
+          "claim": "SQL excludes ACKed rows"
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy.py",
+          "line": 92,
+          "claim": "V2 factual verification precedes temporal classification"
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/security.ts",
+          "line": 339,
+          "claim": "V1 conclusion verification is conditional on none uncertainty"
+        }
+      ]
+    }
+  ],
+  "prose_word_delta_total": 528,
+  "largest_increases": [
+    [
+      "P3-08",
+      25
+    ],
+    [
+      "P3-19",
+      25
+    ],
+    [
+      "P3-28",
+      24
+    ],
+    [
+      "D3-10",
+      24
+    ],
+    [
+      "P3-06",
+      21
+    ],
+    [
+      "P3-22",
+      20
+    ],
+    [
+      "P3-26",
+      20
+    ],
+    [
+      "P3-01",
+      19
+    ]
+  ],
+  "handoff_notes": [
+    "No application, builder, baseline, PDF, schema or provider state changed.",
+    "Reviewed all 47 main questions and 110 answered probes.",
+    "Every question has a substantive visible answer/probe/counterfactual/test-proof edit.",
+    "All 16 literal excerpts, code ranges and SHA-256 values remain identical and were checked against current source.",
+    "F11 header must describe retained events rather than rows returned by one bounded scan; see figure_revisions.",
+    "Net question prose change is +528 words; largest single increase is 25 words."
+  ]
+}

@@ -1,0 +1,29 @@
+Multimodal Agents
+
+Add vision, avatars, and rich media to voice agents
+
+Extend voice agents with vision, avatars, document processing, and screen sharing. Learn when each modality adds value, manage token costs and latency, and build a complete multimodal agent.
+
+What You Build
+
+Multimodal voice agent with vision, document Q&A, and avatar — with cost-aware modality selection.
+
+Prerequisites
+
+->Course 1.1
+
+->Course 1.2
+
+How multimodal works in LiveKit (audio, video, data tracks). The token cost model for images (250-5000 tokens per frame). When adding vision or avatars is worth the cost and latency — and when it is not.
+
+Add vision to voice agents: frame capture configuration, continuous observation vs on-demand analysis, screen reading patterns, and handling vision limitations (poor lighting, small text, hallucination).
+
+Give your agent a face with Tavus avatars. Understand the architecture (TTS -> avatar lip-sync -> video track), configure quality vs bandwidth, and render in the frontend.
+
+Handle document uploads via data channels, extract text from PDFs, use vision models for OCR, analyze screen shares, and overlay annotations with normalized coordinates.
+
+Build a complete study partner agent combining voice, vision, documents, and drawing. Manage context windows (images are 80-95% of token cost), estimate session costs, and test each modality in isolation.
+
+What You Walk Away With
+
+Ability to add vision, avatars, and document processing to voice agents with clear understanding of cost/latency tradeoffs and when each modality is worth adding.

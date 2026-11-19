@@ -224,3 +224,5 @@ Work items are the change plans, verification records and handoffs.
 | [0046](work-items/0046-joined-showcase-providers-and-demo.md) | Joined showcase providers, hardening and demo |
 | [0047](work-items/0047-open-findings-schema-upgrades-and-landing.md) | Open review findings, schema upgrades and landing page |
 | [0048](work-items/0048-code-audit-fixes-and-documentation-cleanup.md) | Code audit fixes and documentation cleanup |
+| [0049](work-items/0049-sdk-compatibility-and-code-review.md) | SDK compatibility and code review |
+| [0050](work-items/0050-lifecycle-drain-and-documentation-cleanup.md) | Lifecycle drains and documentation cleanup |

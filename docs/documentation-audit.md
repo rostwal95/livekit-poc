@@ -5,14 +5,14 @@
 | Status | Completed |
 | Purpose | Record the earlier documentation-only audit, its corrections and its verification |
 | Audience | Readers who want to know why the documentation has its current structure |
-| Scope | The earlier documentation-only audit; the current whole-ecosystem review and implementation corrections live in the plan audit |
+| Scope | The earlier documentation-only audit; excludes subsequent architecture and implementation audits |
 | Owns | Findings, corrections and verification of the earlier documentation-only audit |
 | Related | [Plan audit](plan-audit.md) · [Audit work item](work-items/0002-documentation-audit.md) · [Build plan](build-plan.md) · [Documentation standards](documentation-standards.md) |
 
 This document records the earlier documentation-only audit. It is for readers who
-want to know why the documentation has its current structure. The current
-whole-ecosystem review and implementation corrections are in the
-[plan audit](plan-audit.md).
+want to know why the documentation has its current structure. The broader
+planning review is in the [plan audit](plan-audit.md); subsequent implementation
+reviews retain their own work-item records in the [documentation map](README.md#history).
 
 | Audit dimension | Coverage |
 | --- | --- |

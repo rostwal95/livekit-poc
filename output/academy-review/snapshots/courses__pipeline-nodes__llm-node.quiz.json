@@ -1,0 +1,24 @@
+[
+  {
+    "question": "What is the main latency tradeoff of the accumulate-then-parse approach to structured JSON output in llm_node?",
+    "options": [
+      "It increases LLM inference time",
+      "TTS cannot start synthesizing audio until the entire JSON object is complete, adding latency for longer responses",
+      "It uses more memory than streaming",
+      "It requires a faster LLM model"
+    ],
+    "correctIndex": 1,
+    "explanation": "The accumulate-then-parse approach waits for the complete JSON object before yielding any text to TTS. This means TTS cannot begin synthesizing until the LLM finishes its entire response. For shorter responses this is acceptable, but for longer responses an incremental streaming JSON parser would allow TTS to start sooner."
+  },
+  {
+    "question": "Why does the chain-of-thought agent instruct the LLM to put the 'thinking' field first and 'emotion' last in the JSON output?",
+    "options": [
+      "The framework requires this specific field order",
+      "It gives the LLM time to reason before producing the spoken response, and the response field can be streamed incrementally to TTS before emotion is parsed",
+      "JSON requires alphabetical field ordering",
+      "It makes the JSON easier to read in logs"
+    ],
+    "correctIndex": 1,
+    "explanation": "By putting thinking first, the LLM does its reasoning before generating the user-facing response. With the incremental streaming approach, the response field can be extracted and sent to TTS as it streams, without waiting for the emotion field at the end. This lets the LLM think without delaying the spoken output."
+  }
+]

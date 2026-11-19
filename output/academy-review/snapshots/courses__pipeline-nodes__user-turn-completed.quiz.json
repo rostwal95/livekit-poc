@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why is on_user_turn_completed the ideal place for RAG injection rather than stt_node or llm_node?",
+    "options": [
+      "It is the only node that supports system messages",
+      "It runs faster than the other nodes",
+      "The user has finished speaking so you have the complete query, and the LLM has not started generating yet so the context arrives in time",
+      "It has access to the vector database API"
+    ],
+    "correctIndex": 2,
+    "explanation": "on_user_turn_completed fires after the user's complete turn is transcribed but before the LLM generates a response. This gives you the full user query to search with, and the context you inject via add_system_message is available when the LLM begins processing."
+  },
+  {
+    "question": "What happens to the user experience when StopResponse is raised in on_user_turn_completed?",
+    "options": [
+      "The agent is completely silent \u2014 no acknowledgment, no error message, just silence",
+      "The pipeline crashes and reconnects",
+      "The agent repeats the last response",
+      "The agent says 'I cannot answer that'"
+    ],
+    "correctIndex": 0,
+    "explanation": "StopResponse halts the pipeline entirely \u2014 the user hears nothing. For better UX, consider injecting a redirect message via add_system_message instead, letting the LLM politely decline. Reserve StopResponse for cases where any response would be actively harmful."
+  },
+  {
+    "question": "Why does the RAG agent use add_system_message() rather than modifying the user's message directly?",
+    "options": [
+      "System messages appear as authoritative knowledge the LLM should use, not as user input it might misinterpret or argue with",
+      "The user's message cannot be modified in turn_ctx",
+      "System messages are faster to process",
+      "System messages are invisible to the LLM"
+    ],
+    "correctIndex": 0,
+    "explanation": "add_system_message injects context at the system level, which the LLM treats as authoritative knowledge. If the context were injected as a user message, the LLM might treat it as something the user said and respond to it conversationally rather than using it as reference material."
+  }
+]

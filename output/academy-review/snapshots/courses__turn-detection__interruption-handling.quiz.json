@@ -1,0 +1,24 @@
+[
+  {
+    "question": "What is the key difference between VAD mode and adaptive mode when the user speaks while the agent is talking?",
+    "options": [
+      "VAD mode works only in noisy environments; adaptive mode works only in quiet ones",
+      "VAD mode ignores the user; adaptive mode stops immediately",
+      "VAD mode is slower; adaptive mode is faster",
+      "VAD mode stops immediately on any speech; adaptive mode uses the LLM to classify whether it is a real interruption"
+    ],
+    "correctIndex": 3,
+    "explanation": "VAD mode treats every detected voice activity as a deliberate interruption and stops the agent immediately. Adaptive mode adds an LLM classification step that determines whether the speech is a real interruption or just noise, a cough, or a backchannel, allowing the agent to resume if it was not meaningful."
+  },
+  {
+    "question": "In which scenario would VAD mode be preferred over adaptive mode?",
+    "options": [
+      "A noisy call center environment",
+      "An agent delivering long explanations to users",
+      "A telephony application with background noise",
+      "A quiet environment with fast, short exchanges where classification delay would be noticeable"
+    ],
+    "correctIndex": 3,
+    "explanation": "VAD mode is preferred for quiet environments with fast, rapid exchanges because it has zero classification delay. In these settings, there are few false positives from noise, and the 50-200ms delay from adaptive mode's LLM classification would be noticeable in the fast-paced interaction."
+  }
+]

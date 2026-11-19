@@ -226,8 +226,11 @@ Startup and drain order:
 
 1. It binds the worker-read and result HTTP listeners before the native and SMS
    gateways can drive retained inputs.
-2. On close, the transport drains before the readers, and the readers drain
-   before storage.
+2. Close fences new application admission and drains the current room while its
+   dispatch, source and result dependencies remain available.
+3. It quiesces both gateway dispatchers, retaining actual calls until settlement.
+4. It drains transport, then readers and retained native calls, then storage.
+   Borrowed case and operation clients close only after this application closes.
 
 Case, agent, operation and carrier ports are borrowed and close outside the
 application. Its `nativeResult` method is internal to a trusted room owner.
@@ -247,7 +250,29 @@ input uncertain.
   dormant inputs retain their background semantics.
 - Before/after current-room checks reject late agent and context returns, and
   actual call/close ownership blocks room B.
+- End first fences new native HTTP accepts and awaits actual admitted accepts.
+  It drains original input to known dispatch receipts while ordinary dispatch and
+  the original grant remain available, then closes the agent and read/context
+  owners before revoking the binding.
+- An in-flight prepare may use the existing deterministic background path within
+  the same claim only if its exact captured room is now closing, its caller has
+  not aborted and its monotonic room lifetime has not expired. Active failures,
+  replaced rooms and foreign bindings cannot use that exception. All later P2
+  grant and operation checks still apply.
 - Deeper P2 SQL remains application-owned after a room-facing waiter settles.
+
+| Native drain bound | Value | Meaning |
+| --- | --- | --- |
+| Process-local bearer fences | 1,024 retained hashes | A fence is published before awaiting admitted accepts; it is not persistent grant revocation |
+| Actual drain owners | Two | A timed-out observer does not free an actual owner |
+| History read | Sixteen account-history rows total | Overflow fails closed before filtering original provider and binding |
+| Retry admission | 20 seconds | No new drain step after the window; actual admitted work remains owned |
+
+A drain requires the same bearer to have been fenced and ordinary dispatch to
+remain live. An original known dispatch receipt completes that input; possible
+external calls use lookup-only reconciliation. Blocked, exhausted, expired,
+revoked or unresolved inputs can retain Closing. No retry changes an input,
+operation or grant, and P2 acceptance is distinct from P1 work acceptance.
 
 ### Current-room context
 
@@ -278,10 +303,11 @@ Failed startup clears its own listeners and permits an explicit retry.
 | Claim lease, newly prepared joined profiles | 8,000 ms | Dispatch claims; persisted by `local-setup/scripts/channel_policy_setup.py` | Exceeds the step deadline |
 | Claim lease, earlier profiles | 5,000 ms | Profiles prepared earlier | Kept |
 
-Neither the bridge's 1,500 ms default nor the client's 2,000 ms default can then
-cut off a slow accept inside the 5,000 ms [dispatch step](#gateway-application).
-With the 8,000 ms lease, a receipt that arrives near the step deadline still
-passes the claim guard.
+Both layers receive the 5,000 ms runtime budget rather than their shorter
+defaults. The 8,000 ms lease leaves time for a near-deadline receipt, subject to
+the fresh database-time guard. Scheduling, SQL and network delay can still make
+an acknowledgement unknown. The original operation and actual call remain owned
+for reconciliation.
 
 ### Source reader
 

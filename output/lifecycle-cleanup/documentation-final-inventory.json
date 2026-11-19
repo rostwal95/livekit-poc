@@ -1,0 +1,980 @@
+{
+  "manifest": "harness/documentation.json",
+  "count": 137,
+  "lines": 61205,
+  "words": 500922,
+  "status_counts": {
+    "Active": 87,
+    "Planned": 2,
+    "Template": 2,
+    "Completed": 46
+  },
+  "scope": "Current final stable corpus; original136document baseline inventory is retained unchanged.",
+  "baseline_inventory": {
+    "path": "documentation-inventory.json",
+    "sha256": "e40efe6bec3c48849cd2b09b1d022317cc2a5d3a75533a034ba6543e880336ab",
+    "count": 136,
+    "preserved_unchanged": true
+  },
+  "documents": [
+    {
+      "path": "AGENTS.md",
+      "status": "Active",
+      "lines": 1006,
+      "words": 6574,
+      "sha256": "ab3106a333c92df0512279cecd13745677addfe393f0ea1ec2445f8bb90858e4"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "status": "Active",
+      "lines": 111,
+      "words": 811,
+      "sha256": "afc9f8b61426bfd0619f15c2f98b2ced9663fb20a486426a47f061fc4830c8aa"
+    },
+    {
+      "path": "Design.md",
+      "status": "Active",
+      "lines": 2070,
+      "words": 17040,
+      "sha256": "7c7a5f4763171c33fe9d9347fe3af355f13c7f71dcfcf172169c003a310c3b29"
+    },
+    {
+      "path": "README.md",
+      "status": "Active",
+      "lines": 458,
+      "words": 4495,
+      "sha256": "468c3d4d5e492685fa842c5ea9e73e332d8c532c3834c0502cff7ed6fb60ae7f"
+    },
+    {
+      "path": "apps/local-console/AGENTS.md",
+      "status": "Active",
+      "lines": 423,
+      "words": 3104,
+      "sha256": "9f0d0da8073a35d039f2df24de9746b7897b7c0142c064753110844e59c6e88d"
+    },
+    {
+      "path": "apps/local-console/Design.md",
+      "status": "Active",
+      "lines": 1034,
+      "words": 8832,
+      "sha256": "9023f850a70f8ac2ac26f31172805f99809c8fd6228f06cdfdeeec91c0e166d6"
+    },
+    {
+      "path": "apps/local-console/README.md",
+      "status": "Active",
+      "lines": 796,
+      "words": 5677,
+      "sha256": "1a63091a8e213cf917a9d9103e7653d7d5308a651e26ce72d35a1bf38204b987"
+    },
+    {
+      "path": "contracts/AGENTS.md",
+      "status": "Active",
+      "lines": 102,
+      "words": 608,
+      "sha256": "6cdb049bc2302e2837aa8ea97a1c8b503808392f69afce7e38cfb9fa4b7a3eb7"
+    },
+    {
+      "path": "contracts/Design.md",
+      "status": "Active",
+      "lines": 343,
+      "words": 3410,
+      "sha256": "d89325bc16c51718b78102ed90dda3bb4123a5f5b99afd71ce9c125f021d2215"
+    },
+    {
+      "path": "contracts/README.md",
+      "status": "Active",
+      "lines": 164,
+      "words": 1330,
+      "sha256": "090372496ffc340cd82465dacac9e0ec5c44182dbbf44a8b46871b34b7ba9182"
+    },
+    {
+      "path": "docs/README.md",
+      "status": "Active",
+      "lines": 228,
+      "words": 2183,
+      "sha256": "699147387a717992297c669e47426d32cf8697aeead4731a72534b9d597b73a9"
+    },
+    {
+      "path": "docs/build-plan.md",
+      "status": "Planned",
+      "lines": 1044,
+      "words": 8752,
+      "sha256": "97827d5bccd777efba67b8943fb2215f2d8c38b08cac32397027c3b498edff46"
+    },
+    {
+      "path": "docs/case-and-continuation.md",
+      "status": "Active",
+      "lines": 502,
+      "words": 4062,
+      "sha256": "05f709f73fa2e4f24a32d1d1ffff138d39fe3284b83d89f44e49ca1798c72b60"
+    },
+    {
+      "path": "docs/checkpoint-history.md",
+      "status": "Active",
+      "lines": 225,
+      "words": 1559,
+      "sha256": "c2f6571205a2ea2377759ae6ae44a6497044103e25f055fbfbe11e7a44337fde"
+    },
+    {
+      "path": "docs/conversation-and-showcase.md",
+      "status": "Active",
+      "lines": 320,
+      "words": 2308,
+      "sha256": "80c80a235d34fbea5182888b596ea52957691b1829ca6fb9295306b85225c5e1"
+    },
+    {
+      "path": "docs/decisions/0001-runtime-boundaries.md",
+      "status": "Active",
+      "lines": 71,
+      "words": 459,
+      "sha256": "6cc5c0fa30cadddda6eeb688c30005004b1543328a07e01eba213de2d5e40715"
+    },
+    {
+      "path": "docs/decisions/0002-sqlite-inquiry-subset.md",
+      "status": "Active",
+      "lines": 88,
+      "words": 674,
+      "sha256": "c6d5520aa015b3b371bb4e9d2f3dbe9a9b5777fd425f736a29ec65e249d8c343"
+    },
+    {
+      "path": "docs/decisions/0003-postgres-cutover-and-scope.md",
+      "status": "Active",
+      "lines": 152,
+      "words": 1175,
+      "sha256": "5666d01bc97e5e4373351e58599dec697d3dfd6a4a3e68de65c1258eb01c966b"
+    },
+    {
+      "path": "docs/decisions/0004-case-authority-and-continuation.md",
+      "status": "Active",
+      "lines": 110,
+      "words": 738,
+      "sha256": "d5c3a2d7075d7e0a8ee8f7a907095ed15f7406a9c7b301e71b47314bafa2f743"
+    },
+    {
+      "path": "docs/decisions/0005-effects-cancellation-and-outbox.md",
+      "status": "Active",
+      "lines": 92,
+      "words": 672,
+      "sha256": "a09b1467398115d5343388a5e70ef5624c19743b07b449e79b6a3fa515dd1aa9"
+    },
+    {
+      "path": "docs/decisions/0006-database-leases-and-bounded-worker.md",
+      "status": "Active",
+      "lines": 157,
+      "words": 1142,
+      "sha256": "f9a4b99f508d52ebbefc853b0d13a21d23f2d2600fd016f0fa9312d3a199cf08"
+    },
+    {
+      "path": "docs/decisions/0007-native-conversation-and-local-media.md",
+      "status": "Active",
+      "lines": 152,
+      "words": 1082,
+      "sha256": "0fd10d7caeb619e3e97001199b0b7e047e75e86b526ffecc880241b6ac80a67a"
+    },
+    {
+      "path": "docs/demo-plan.md",
+      "status": "Active",
+      "lines": 901,
+      "words": 7192,
+      "sha256": "2709615d37b161e41d2e5ca702ef3fd93283363dddc47d348fdcfd5509f5d73c"
+    },
+    {
+      "path": "docs/design-template.md",
+      "status": "Template",
+      "lines": 244,
+      "words": 1569,
+      "sha256": "52d0c909c53e6332a6f509820277cb3c52c3a2c66fd6bdd113e0aa2d94532c33"
+    },
+    {
+      "path": "docs/documentation-audit.md",
+      "status": "Completed",
+      "lines": 68,
+      "words": 583,
+      "sha256": "44f7ded0a07d723a4f2b3c5776d3f5004bc3fe5b614101a71b7c9ef8bddf8c04"
+    },
+    {
+      "path": "docs/documentation-standards.md",
+      "status": "Active",
+      "lines": 325,
+      "words": 2925,
+      "sha256": "b6ff676bc6cf7853c70a72b95f048e405f01baaa9ae02800349540ef820f401c"
+    },
+    {
+      "path": "docs/effects-and-completion.md",
+      "status": "Active",
+      "lines": 403,
+      "words": 2850,
+      "sha256": "31663fcfef30c5192dbab303d3ff0c5debd7e169d23fe064680958182c8c3ed2"
+    },
+    {
+      "path": "docs/harness-architecture.md",
+      "status": "Active",
+      "lines": 224,
+      "words": 1636,
+      "sha256": "131e6687d70159670eed7012c3b96171ec580f246c83d412e698252990f928d3"
+    },
+    {
+      "path": "docs/implementation-plan.md",
+      "status": "Active",
+      "lines": 900,
+      "words": 7955,
+      "sha256": "649e621822330d35f92c8d75c8678c3d6c5db6da3ef1ee2444525823a7202927"
+    },
+    {
+      "path": "docs/implementation/p1-agent-continuity.md",
+      "status": "Active",
+      "lines": 943,
+      "words": 6959,
+      "sha256": "695b3fb81383208b23e9e3199a1529789ea88d8ca8433fe89a2198ecbd93b77e"
+    },
+    {
+      "path": "docs/implementation/p2-channel-continuity.md",
+      "status": "Active",
+      "lines": 862,
+      "words": 6811,
+      "sha256": "4ecd1b6776ca46d4435d69672927a3f2233effe4d681478c2ef8c7f6b217884b"
+    },
+    {
+      "path": "docs/implementation/p3-delegation-reliability.md",
+      "status": "Active",
+      "lines": 887,
+      "words": 7280,
+      "sha256": "e6a5cb93690679b203a25f3950ecd569055b3a78b030ac02a6ddc57a8fadc9d0"
+    },
+    {
+      "path": "docs/learning-plan.md",
+      "status": "Active",
+      "lines": 219,
+      "words": 1703,
+      "sha256": "31cd38b95d1c19ef699de17ce20aafe4e6d770f8bb809fccb3dc004cbd50b198"
+    },
+    {
+      "path": "docs/leases-and-workers.md",
+      "status": "Active",
+      "lines": 568,
+      "words": 4010,
+      "sha256": "747eeb63579b3a11de2e3c4c750e8c45e9ded33d16b7ec9106babc4cfbf10cc3"
+    },
+    {
+      "path": "docs/local-real-inference.md",
+      "status": "Active",
+      "lines": 551,
+      "words": 3967,
+      "sha256": "871a99f3a5a5f0cfe8c7bee1d79a4833ef27648d942ae6819c24c798d115640b"
+    },
+    {
+      "path": "docs/observability.md",
+      "status": "Active",
+      "lines": 1746,
+      "words": 14725,
+      "sha256": "8364137cf5d34af6de96159d0766e565bca078a746703cebd894b5adecfad807"
+    },
+    {
+      "path": "docs/plan-audit.md",
+      "status": "Active",
+      "lines": 264,
+      "words": 2304,
+      "sha256": "b23b4b20b8f75917583f43dc4f9b11bfa01149f15e9ccb14dc09f158045793e8"
+    },
+    {
+      "path": "docs/portfolio-scope.md",
+      "status": "Active",
+      "lines": 576,
+      "words": 4110,
+      "sha256": "6f4db3b93143962e0e615ba088b97ff8593f5b305897880d9eb3a90bd22e6f9c"
+    },
+    {
+      "path": "docs/project-brief.md",
+      "status": "Active",
+      "lines": 98,
+      "words": 657,
+      "sha256": "4e9c2e19cdc927d6d8ff44766e86dcd47092196dc5825dd012d262dc8ec72cf9"
+    },
+    {
+      "path": "docs/projects/agent-continuity-scope.md",
+      "status": "Active",
+      "lines": 492,
+      "words": 4071,
+      "sha256": "567879551a0de03f859f7b1209b202e39d7fe84a1df8f89a95e2ef8402774470"
+    },
+    {
+      "path": "docs/projects/channel-continuity-scope.md",
+      "status": "Active",
+      "lines": 602,
+      "words": 5063,
+      "sha256": "78dc1915b0af9cb71358a62736872ce54928f0a22ddf269d2cedfc1a2f529b41"
+    },
+    {
+      "path": "docs/projects/delegation-reliability-scope.md",
+      "status": "Active",
+      "lines": 637,
+      "words": 5217,
+      "sha256": "28d9e44853e344a1d56c9a889f543c70fd54e0e137914332d79d972c7e12339b"
+    },
+    {
+      "path": "docs/provider-demo.md",
+      "status": "Active",
+      "lines": 581,
+      "words": 4152,
+      "sha256": "ddee496fc9c35188d95a628ac2881fb540f1ded603ec8036c7d1090e6a7902ae"
+    },
+    {
+      "path": "docs/python-engineering.md",
+      "status": "Active",
+      "lines": 315,
+      "words": 2529,
+      "sha256": "5701f8fd48987ff0076ba14c3bb4b74955fb05bc8a89d9f99a8e8cbb1fecffc7"
+    },
+    {
+      "path": "docs/qualification-gates.md",
+      "status": "Active",
+      "lines": 209,
+      "words": 1809,
+      "sha256": "e38344c0289b8201afbd1591c50e2ee6c472928347ae318b8a997a292fd0590a"
+    },
+    {
+      "path": "docs/technology-baseline.md",
+      "status": "Active",
+      "lines": 476,
+      "words": 3751,
+      "sha256": "2328f4e8836eea5507586f57fa7928c43fd9f93edd91950486d8c4ee03a5aa69"
+    },
+    {
+      "path": "docs/validation-plan.md",
+      "status": "Active",
+      "lines": 1526,
+      "words": 11683,
+      "sha256": "6547e2b99998e7943861dace04848f0be8cdec89dc9f284dba908758d9735d3b"
+    },
+    {
+      "path": "docs/work-items/0001-portfolio-foundation.md",
+      "status": "Completed",
+      "lines": 89,
+      "words": 685,
+      "sha256": "da4b5d21bb635973d40e6697bb96d5336685297e1f59d1c407e94b17ff7513c8"
+    },
+    {
+      "path": "docs/work-items/0002-documentation-audit.md",
+      "status": "Completed",
+      "lines": 69,
+      "words": 525,
+      "sha256": "fa4e9bb45b8e56bb3ac15e5f8cccfda2486caadff6a0fedccb78ec9d05872a12"
+    },
+    {
+      "path": "docs/work-items/0003-local-project-foundation.md",
+      "status": "Completed",
+      "lines": 138,
+      "words": 1067,
+      "sha256": "d225496713d32489a80f8b9e920db8135b976f53f4309822ba1da8bdfbf2be5a"
+    },
+    {
+      "path": "docs/work-items/0004-plan-and-showcase-audit.md",
+      "status": "Completed",
+      "lines": 126,
+      "words": 998,
+      "sha256": "41241dde4e289c9868e4c438290345f17de771dc9db8efd7b6921cd00e849127"
+    },
+    {
+      "path": "docs/work-items/0005-granular-implementation-plan.md",
+      "status": "Completed",
+      "lines": 89,
+      "words": 664,
+      "sha256": "26cd0a1a8df49ea0db22fab3f6d3169787c4173a20defa8c1d43fa9c04d6469a"
+    },
+    {
+      "path": "docs/work-items/0006-design-and-engineering-gates.md",
+      "status": "Completed",
+      "lines": 139,
+      "words": 1182,
+      "sha256": "bc1bc01a6ef7ca2c7527b85d7147beb29c442b094cb360421d4523880cddea32"
+    },
+    {
+      "path": "docs/work-items/0007-p1-phase-a-execution-foundation.md",
+      "status": "Completed",
+      "lines": 124,
+      "words": 1136,
+      "sha256": "c0f238e0f6b6163e7cd763f720d8ee04c5802a2d29eebbf234d0acd411f4d327"
+    },
+    {
+      "path": "docs/work-items/0008-p1-phase-b-inquiry-recovery.md",
+      "status": "Completed",
+      "lines": 148,
+      "words": 1358,
+      "sha256": "ab031846d03aaae3d7df2f84ba22fb4d435425706ceade2a5d3416a01305d701"
+    },
+    {
+      "path": "docs/work-items/0009-p1-phase-c-postgres-cutover.md",
+      "status": "Completed",
+      "lines": 161,
+      "words": 1541,
+      "sha256": "0a546a3771e61bae4f89c850d0291eb2ed2aaf6f3c298690878c07ded71d8303"
+    },
+    {
+      "path": "docs/work-items/0010-p1-phase-d-authority-and-waits.md",
+      "status": "Completed",
+      "lines": 205,
+      "words": 2101,
+      "sha256": "e78079fd58df87bde8a75e0dbb2ede8a81a5957c99836c85becc8cff428934f7"
+    },
+    {
+      "path": "docs/work-items/0011-p1-phase-e-effects-and-completion.md",
+      "status": "Completed",
+      "lines": 155,
+      "words": 1643,
+      "sha256": "2f0f0b287bbbe1eadb1ce0bb1febf3531d756000882cb07667dec947d65dd056"
+    },
+    {
+      "path": "docs/work-items/0012-p1-phase-f-leases-and-deployment.md",
+      "status": "Completed",
+      "lines": 186,
+      "words": 1595,
+      "sha256": "0497097873d8f82d830f1c0c19d3737f4339376a4820fb523d77df15dfa0d894"
+    },
+    {
+      "path": "docs/work-items/0013-p1-phase-g-conversation-and-showcase.md",
+      "status": "Completed",
+      "lines": 247,
+      "words": 2073,
+      "sha256": "f343aabc80cacfdda0e1db0dbf498dc4d46b129bc4af3d1e54111772e766d122"
+    },
+    {
+      "path": "docs/work-items/0014-p1-phase-h-workload-baseline.md",
+      "status": "Completed",
+      "lines": 271,
+      "words": 2675,
+      "sha256": "e990ad525f0c305fd8635bcbc05a9cff4791d44eb916c9d1ac2acbf9b01181b2"
+    },
+    {
+      "path": "docs/work-items/0015-p1-reliability-workloads.md",
+      "status": "Completed",
+      "lines": 163,
+      "words": 1508,
+      "sha256": "622902447abb05ea1685479a0f7a761918b4b1e1f1231fbe867aa036350eb2b2"
+    },
+    {
+      "path": "docs/work-items/0016-p1-standalone-package.md",
+      "status": "Completed",
+      "lines": 109,
+      "words": 1190,
+      "sha256": "deb9e15c7699b55c9d21e7b553d99beac9cd17781d8158839eec4923c4c3d666"
+    },
+    {
+      "path": "docs/work-items/0017-p1-local-real-inference.md",
+      "status": "Active",
+      "lines": 142,
+      "words": 1269,
+      "sha256": "0568b8fd4a22e3387ef4105a2b6cc58c97347c578fd5f37b998c58366cc66e03"
+    },
+    {
+      "path": "docs/work-items/0018-p1-provider-demo.md",
+      "status": "Completed",
+      "lines": 145,
+      "words": 1245,
+      "sha256": "e3cba0a5504b3ca289164f6ada1ff15b4fe69a01e2c561c2ad63b13d8b793238"
+    },
+    {
+      "path": "docs/work-items/0019-p1-phase-h-release-qualification.md",
+      "status": "Completed",
+      "lines": 150,
+      "words": 1477,
+      "sha256": "297634af58e157137787c8223aaf9bbe4f84bd68cde3d50a8be6064038d56594"
+    },
+    {
+      "path": "docs/work-items/0020-architecture-audit-reconciliation.md",
+      "status": "Completed",
+      "lines": 172,
+      "words": 2013,
+      "sha256": "2910eb09dcfb10bc96899576748d59b657c4143b21fd5816a27e9270a17779cc"
+    },
+    {
+      "path": "docs/work-items/0021-p1-operational-safety-extensions.md",
+      "status": "Planned",
+      "lines": 203,
+      "words": 1708,
+      "sha256": "433ccdd929ae482d018484e279480fd3c29323ef8b111e398239f4e829efa69e"
+    },
+    {
+      "path": "docs/work-items/0022-p2-channel-contracts.md",
+      "status": "Completed",
+      "lines": 176,
+      "words": 1280,
+      "sha256": "1d2bc14edf11faad461cb074c98ee291aed3a39d023928032a5e3fcefce6bf69"
+    },
+    {
+      "path": "docs/work-items/0023-p3-native-baseline.md",
+      "status": "Completed",
+      "lines": 212,
+      "words": 1770,
+      "sha256": "4e99350a320ab82cbe33dda20a2a27d6d80d2c61a4a1cd8cc0537d0b823eab83"
+    },
+    {
+      "path": "docs/work-items/0024-p2-verified-durable-intake.md",
+      "status": "Completed",
+      "lines": 178,
+      "words": 1332,
+      "sha256": "83b6f44bc3a7d85176c89dfe8fdd38fbbb8f765af13c0c9b2793e466608ed475"
+    },
+    {
+      "path": "docs/work-items/0025-p3-specialist-contracts-and-trust.md",
+      "status": "Completed",
+      "lines": 229,
+      "words": 1773,
+      "sha256": "e0c399cfe40a057f2171669d089224c6d8e78f5e54cdb2f5c219adc4c0951277"
+    },
+    {
+      "path": "docs/work-items/0026-p2-postgres-inbox.md",
+      "status": "Completed",
+      "lines": 229,
+      "words": 1750,
+      "sha256": "bb53b7c67c627a8bc3a1bf09a66032292e6616946a4e9c5af44d958d62cdb33b"
+    },
+    {
+      "path": "docs/work-items/0027-p2-standalone-and-p3-http.md",
+      "status": "Completed",
+      "lines": 234,
+      "words": 2133,
+      "sha256": "2c120fdefb8bd4866f1f2d8de0da46f6775ffb0133a84f4fe8e0ed20b10c37b1"
+    },
+    {
+      "path": "docs/work-items/0028-p2-dispatch-and-p3-coordinator.md",
+      "status": "Completed",
+      "lines": 259,
+      "words": 2309,
+      "sha256": "ffbeef62cbd86d70aa0344fada71e3a5456df73c21426ce5145fb5294950209c"
+    },
+    {
+      "path": "docs/work-items/0029-p2-gateway-and-p3-issued-execution.md",
+      "status": "Completed",
+      "lines": 305,
+      "words": 2843,
+      "sha256": "df9ae443c995fa66db44008d4c476b98556932d6e422608dd34b9a3750029310"
+    },
+    {
+      "path": "docs/work-items/0030-p2-agent-recovery-and-p3-completion.md",
+      "status": "Completed",
+      "lines": 304,
+      "words": 2917,
+      "sha256": "952745f5fe52fbe7a0a544c49268d4f06e9b5483a7ec9afad6c8c679467d6570"
+    },
+    {
+      "path": "docs/work-items/0031-revision-routing-and-delegation-acceptance.md",
+      "status": "Completed",
+      "lines": 324,
+      "words": 3080,
+      "sha256": "6f518f4dcabcc934ef9ab07ee9c06ed97c749a30ccf1b1e4e9b611eb35659b23"
+    },
+    {
+      "path": "docs/work-items/0032-linked-confirmation-and-result-projections.md",
+      "status": "Completed",
+      "lines": 283,
+      "words": 2774,
+      "sha256": "ce1fec8f76fa91641d5b98dcba911caaf68f323d32c45f40b3f0d10baf81350a"
+    },
+    {
+      "path": "docs/work-items/0033-outbound-replies-and-completion-processing.md",
+      "status": "Completed",
+      "lines": 316,
+      "words": 3266,
+      "sha256": "d6d0203e4cb6f151266e8355c0081d00d9ed7105cf1754634f19847461711a68"
+    },
+    {
+      "path": "docs/work-items/0034-callback-evidence-and-applicability-refresh.md",
+      "status": "Completed",
+      "lines": 481,
+      "words": 4550,
+      "sha256": "cca0f9222eb63aa03fe33e2a9060275d283069519b809759d739e1023f9e1e7b"
+    },
+    {
+      "path": "docs/work-items/0035-send-policy-and-action-races.md",
+      "status": "Completed",
+      "lines": 466,
+      "words": 4433,
+      "sha256": "85ac1486b386d6373f940507ecffb247e0b19553f30ced8aa826d7089ba44745"
+    },
+    {
+      "path": "docs/work-items/0036-native-input-and-deadline-cancellation.md",
+      "status": "Completed",
+      "lines": 303,
+      "words": 3334,
+      "sha256": "53a7a0e00d738341fc0f90541eb18cd6620e4bc9cdea2afef8198dcf73a0db65"
+    },
+    {
+      "path": "docs/work-items/0037-playback-evidence-and-process-recovery.md",
+      "status": "Completed",
+      "lines": 399,
+      "words": 4237,
+      "sha256": "ce77d2106d3f4da6abfc07076c2f2e3549570ddc39431fb22cf00f69e7310275"
+    },
+    {
+      "path": "docs/work-items/0038-case-rehydration-and-standalone-release.md",
+      "status": "Completed",
+      "lines": 273,
+      "words": 2719,
+      "sha256": "cdb5303e3fb6bfbddb76887df54e37be166eb959100a3fe45d52308348207911"
+    },
+    {
+      "path": "docs/work-items/0039-bounded-channel-workloads-and-image-evidence.md",
+      "status": "Completed",
+      "lines": 352,
+      "words": 3229,
+      "sha256": "96a91fd03b0d472e39e8faa911c996280ef88172e517da15fe8c059b448f7dab"
+    },
+    {
+      "path": "docs/work-items/0040-operations-ui-and-fixed-policy-evidence.md",
+      "status": "Completed",
+      "lines": 279,
+      "words": 2662,
+      "sha256": "ff1e642a83eb512b9f871f2c574ed4f5271183a6c60aaeedab1359866dba850b"
+    },
+    {
+      "path": "docs/work-items/0041-standalone-channel-and-durable-policy.md",
+      "status": "Completed",
+      "lines": 247,
+      "words": 2394,
+      "sha256": "fd97fd3330ef2b861df42439adb0be00738f80cfc65e2326c70b543833573f84"
+    },
+    {
+      "path": "docs/work-items/0042-responsive-native-policy-and-compact-demo.md",
+      "status": "Completed",
+      "lines": 445,
+      "words": 3716,
+      "sha256": "a92c07a125669d62bc56bf28cc3c7dc1229a07b92b015a056823a4056fbe72e5"
+    },
+    {
+      "path": "docs/work-items/0043-stable-result-delivery-and-return-context.md",
+      "status": "Completed",
+      "lines": 380,
+      "words": 3793,
+      "sha256": "9cce175319e550ccc6af45b7ea186d9fe64df50276409096c9c6699557091ac6"
+    },
+    {
+      "path": "docs/work-items/0044-origin-bound-channel-policy.md",
+      "status": "Completed",
+      "lines": 579,
+      "words": 5102,
+      "sha256": "4c166f48343fdbe683201dc02ebd69300d82279e4f9aa5458bbc26c62c8b8366"
+    },
+    {
+      "path": "docs/work-items/0045-joined-native-channel-policy.md",
+      "status": "Active",
+      "lines": 830,
+      "words": 6485,
+      "sha256": "3ee910b3b1523d961bd716f99a45a4e946fa3ae30359d7393655312cc0d61591"
+    },
+    {
+      "path": "docs/work-items/0046-joined-showcase-providers-and-demo.md",
+      "status": "Active",
+      "lines": 241,
+      "words": 2891,
+      "sha256": "81fb844837ecd1229e4df3f4f59521857ddc6f1745f6d75fb016390d2e46a806"
+    },
+    {
+      "path": "docs/work-items/0047-open-findings-schema-upgrades-and-landing.md",
+      "status": "Active",
+      "lines": 173,
+      "words": 2869,
+      "sha256": "098b8f7d43f5e420c7192e899f6a7337f151e542eed1a30248f64a10a10740d0"
+    },
+    {
+      "path": "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+      "status": "Completed",
+      "lines": 181,
+      "words": 2874,
+      "sha256": "267108da3b6c7515a85e706b8d461cca0ef84569d2f9c5dd4ef80d428fa57641"
+    },
+    {
+      "path": "docs/work-items/0049-sdk-compatibility-and-code-review.md",
+      "status": "Completed",
+      "lines": 139,
+      "words": 1649,
+      "sha256": "7f6377588dfd39dd1948581f07eeaa51ad5b663b1abcedf8fcaa825e3b1ce406"
+    },
+    {
+      "path": "docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md",
+      "status": "Completed",
+      "lines": 212,
+      "words": 2700,
+      "sha256": "80cc38839fcc3f27870640090c052d7c6a824d832cc92fc1bd15ed9085584620"
+    },
+    {
+      "path": "docs/work-items/template.md",
+      "status": "Template",
+      "lines": 126,
+      "words": 753,
+      "sha256": "029112f0e655d6b8796e61c45e9f7ea1c0b3a6ba84a0e0ddabaa8aeb1459134a"
+    },
+    {
+      "path": "harness/AGENTS.md",
+      "status": "Active",
+      "lines": 260,
+      "words": 1715,
+      "sha256": "ac3cdc8806f10fec5ae9336a86ac77df5117b357b507114a905cb423c65553a0"
+    },
+    {
+      "path": "harness/Design.md",
+      "status": "Active",
+      "lines": 715,
+      "words": 6225,
+      "sha256": "2d1ae991ad1bfe5d3f4ee866e06864630048ab7f61a08c365e4411d5b1ecfbc1"
+    },
+    {
+      "path": "harness/README.md",
+      "status": "Active",
+      "lines": 951,
+      "words": 7105,
+      "sha256": "64b6f57dcb1f06c0107373f83b4aa6c798fae86a14e7534a4aa082132e57f7f6"
+    },
+    {
+      "path": "local-setup/AGENTS.md",
+      "status": "Active",
+      "lines": 544,
+      "words": 3759,
+      "sha256": "0e062d73ded72b8883140b93a75f50c1540946d29a554afb179c679785d3eaaa"
+    },
+    {
+      "path": "local-setup/Design.md",
+      "status": "Active",
+      "lines": 1030,
+      "words": 8797,
+      "sha256": "1e63f1552b36260c84917d13b2363fc4db0011ec48abde681f66c8628743b54a"
+    },
+    {
+      "path": "local-setup/README.md",
+      "status": "Active",
+      "lines": 2059,
+      "words": 16112,
+      "sha256": "9a68d7990902e88f72713fdf897c1ecfe2bf0172ebe00c0b8ef6d3595a7c8315"
+    },
+    {
+      "path": "projects/agent-continuity/AGENTS.md",
+      "status": "Active",
+      "lines": 358,
+      "words": 2459,
+      "sha256": "4f9a7114a8d5c23e10d76e0f59c94922500aa2d51a39fe5abd5f98623e5f4257"
+    },
+    {
+      "path": "projects/agent-continuity/Design.md",
+      "status": "Active",
+      "lines": 1199,
+      "words": 9802,
+      "sha256": "fdff3091a2aa1722574f3630a31ce7108bd5837f2c746a295d51e0223875f24f"
+    },
+    {
+      "path": "projects/agent-continuity/README.md",
+      "status": "Active",
+      "lines": 481,
+      "words": 3816,
+      "sha256": "e9742e1035cac214cf1dda2a006572ed324e161e0de1bc1ae10c2db36f883b09"
+    },
+    {
+      "path": "projects/agent-continuity/python/README.md",
+      "status": "Active",
+      "lines": 493,
+      "words": 3855,
+      "sha256": "5517aa0e23018fe66489aa58a5aa35e9a96aa92bfbeb8d71d1e9b3d5d66bafd2"
+    },
+    {
+      "path": "projects/channel-continuity/AGENTS.md",
+      "status": "Active",
+      "lines": 881,
+      "words": 6088,
+      "sha256": "647ce28a09a21bc1e45060f6022c5d3c8ab4673b30949b77ebb6ea498fa2bd55"
+    },
+    {
+      "path": "projects/channel-continuity/COMMUNICATION.md",
+      "status": "Active",
+      "lines": 233,
+      "words": 1715,
+      "sha256": "a060117516e96adbd1f618a2a8df82adc0819da3fb542b28ac02f3d7d06b1d96"
+    },
+    {
+      "path": "projects/channel-continuity/Design.md",
+      "status": "Active",
+      "lines": 2635,
+      "words": 21207,
+      "sha256": "1b88d6931700c8b18abfe9f9d43b7119c8ebc14b007ebfbf52a9c02ff3e3183f"
+    },
+    {
+      "path": "projects/channel-continuity/OPERATIONS.md",
+      "status": "Active",
+      "lines": 267,
+      "words": 1828,
+      "sha256": "34583a57aab61b1ba1bcde5aadaa89a87ccf0b5b03b7bb375e099ee3339cb067"
+    },
+    {
+      "path": "projects/channel-continuity/README.md",
+      "status": "Active",
+      "lines": 1655,
+      "words": 11878,
+      "sha256": "5152f3c290c948b5871aa0f3a20caf7d579870177559ff28ecf789508c1545db"
+    },
+    {
+      "path": "projects/channel-continuity/REHYDRATION.md",
+      "status": "Active",
+      "lines": 258,
+      "words": 1897,
+      "sha256": "f366804243a8d3c8df840877c535fb35696a02882634fa5e21027e33c07ddd11"
+    },
+    {
+      "path": "projects/channel-continuity/STARTER.md",
+      "status": "Active",
+      "lines": 324,
+      "words": 2452,
+      "sha256": "50c88fbe3b567eddfd680c224caf06cf9f27c0286dd51c41c5abd16d53402237"
+    },
+    {
+      "path": "projects/channel-continuity/WORKLOAD.md",
+      "status": "Active",
+      "lines": 303,
+      "words": 2177,
+      "sha256": "0fa14f2c255437418fefe886594666e5f89f3a29b3b0f7eb8ee97b6703312421"
+    },
+    {
+      "path": "projects/channel-continuity/python/README.md",
+      "status": "Active",
+      "lines": 239,
+      "words": 1761,
+      "sha256": "0aafdbeae673c0bd18f33e42fc00eb6135cdcd681f60f4141089e17bd5aebc3f"
+    },
+    {
+      "path": "projects/delegation-reliability/AGENTS.md",
+      "status": "Active",
+      "lines": 705,
+      "words": 5254,
+      "sha256": "517291ef18a96313b590f99442468678b34531d59f022547f9f1f8629be70ccc"
+    },
+    {
+      "path": "projects/delegation-reliability/Design.md",
+      "status": "Active",
+      "lines": 2386,
+      "words": 19485,
+      "sha256": "a2f8df900863dff5a57cc035e1429340f7ddf62d3bb1f60b65fed85c65c0b684"
+    },
+    {
+      "path": "projects/delegation-reliability/README.md",
+      "status": "Active",
+      "lines": 842,
+      "words": 7020,
+      "sha256": "4e33c9e1424e6de1fa9e5df04c5adc043b9b881e5d78e7409f6a6d1c0a03b994"
+    },
+    {
+      "path": "projects/delegation-reliability/python/README.md",
+      "status": "Active",
+      "lines": 1261,
+      "words": 9141,
+      "sha256": "98afa52acfc6bf8466848f2a1b29a13c703fa2a03c58726735c0dae4cbc63938"
+    },
+    {
+      "path": "projects/delegation-reliability/specialist-ts/README.md",
+      "status": "Active",
+      "lines": 466,
+      "words": 3191,
+      "sha256": "8f66b8dccc7805833a1af5a81b5c193ce45909d455d7c7abc7c24271b27f8f48"
+    },
+    {
+      "path": "services/channel-policy-gateway/AGENTS.md",
+      "status": "Active",
+      "lines": 115,
+      "words": 760,
+      "sha256": "b5d458fbac8b3324e832e63853877c53b947dd1f46d4ffe9dbd6b40d022d8c3c"
+    },
+    {
+      "path": "services/channel-policy-gateway/Design.md",
+      "status": "Active",
+      "lines": 389,
+      "words": 3286,
+      "sha256": "611afdfe320304eb1884933145c0faf9d51af4e235dda4e1ed4de3aa8cef6b14"
+    },
+    {
+      "path": "services/channel-policy-gateway/README.md",
+      "status": "Active",
+      "lines": 195,
+      "words": 1642,
+      "sha256": "74783175c1410cdc547b259d7880692d1b225181fb210caaed2b7ae15fa3f8e4"
+    },
+    {
+      "path": "services/channel_policy_demo/AGENTS.md",
+      "status": "Active",
+      "lines": 180,
+      "words": 1267,
+      "sha256": "ff8dc95745d7ec6ae2016cbfbd1a915da3f4f7d090b98e32fa40a0a887c39300"
+    },
+    {
+      "path": "services/channel_policy_demo/Design.md",
+      "status": "Active",
+      "lines": 543,
+      "words": 4851,
+      "sha256": "65ee71a18b025547dec6fd017eaf199374c2c8c6766bb63e032e89bdf1a93093"
+    },
+    {
+      "path": "services/channel_policy_demo/README.md",
+      "status": "Active",
+      "lines": 284,
+      "words": 2313,
+      "sha256": "d3baa006717ecb0de68d98a4f5b0be716dce0832f66d050ff320f16d9019fed7"
+    },
+    {
+      "path": "services/control_api/AGENTS.md",
+      "status": "Active",
+      "lines": 107,
+      "words": 669,
+      "sha256": "c19312c62f9facc4364b76681c36d06361a84ae6293745cc095239295eaf2ab9"
+    },
+    {
+      "path": "services/control_api/Design.md",
+      "status": "Active",
+      "lines": 454,
+      "words": 4083,
+      "sha256": "5de2b6d0fb8d95d1b4b521c58f96dffded41cc13cbfcb83e2f6567a2f1b8712d"
+    },
+    {
+      "path": "services/control_api/README.md",
+      "status": "Active",
+      "lines": 205,
+      "words": 1641,
+      "sha256": "e1d3b18cf1de6f171179468e31925e6f2993394c85f461d77cd42b817598b8af"
+    },
+    {
+      "path": "services/conversation_agent/AGENTS.md",
+      "status": "Active",
+      "lines": 210,
+      "words": 1496,
+      "sha256": "5697d1a6c39247cbf2466d10b74ceac09ed3f474f23ab68941d2f0e06d15d1c5"
+    },
+    {
+      "path": "services/conversation_agent/Design.md",
+      "status": "Active",
+      "lines": 592,
+      "words": 4602,
+      "sha256": "1f14b5f91a472393a286bca1d3172061b533ea6e5e05da1a5a9dcd92aa0d6f21"
+    },
+    {
+      "path": "services/conversation_agent/README.md",
+      "status": "Active",
+      "lines": 254,
+      "words": 2117,
+      "sha256": "597119d8461fa190d737b408267623b988f2bcd370a157221a84d516bab78fb4"
+    },
+    {
+      "path": "services/rtc_agent/AGENTS.md",
+      "status": "Active",
+      "lines": 72,
+      "words": 410,
+      "sha256": "f5967be5e8a2b8f495833b384af5cb9d2ab6e5456f4c8a9ae4ac6081000d17a2"
+    },
+    {
+      "path": "services/rtc_agent/Design.md",
+      "status": "Active",
+      "lines": 328,
+      "words": 3090,
+      "sha256": "d5f5d2f4502100d154a13ff5827def345263c559f8a6ee7be4d342ef0feb10f9"
+    },
+    {
+      "path": "services/rtc_agent/README.md",
+      "status": "Active",
+      "lines": 81,
+      "words": 488,
+      "sha256": "6639ea9db44648c7051901dbb2bbfad44d3411c6278999fe48ea67ed9f722b79"
+    }
+  ]
+}

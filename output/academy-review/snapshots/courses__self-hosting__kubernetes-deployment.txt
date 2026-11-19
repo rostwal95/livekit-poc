@@ -1,0 +1,315 @@
+1Self-hosting architecture & decision framework
+
+2Kubernetes deployment & server configuration
+
+3Monitoring & security hardening
+
+4Upgrades, backup & operations
+
+Kubernetes deployment & server configuration
+
+Kubernetes Deployment and Server Configuration
+
+This chapter covers the full deployment: Helm charts for LiveKit server, Redis for multi-node coordination, TURN for NAT traversal, and every server configuration option that matters in production. By the end, you will have a running multi-node LiveKit cluster on Kubernetes.
+
+What you'll learn
+
+How to deploy LiveKit Server on Kubernetes using official Helm charts
+
+How to configure Redis for multi-node room coordination and persistence
+
+How to set up TURN for clients behind restrictive NATs
+
+Every key server configuration option: ports, TLS, logging, limits
+
+How to deploy agent workers alongside LiveKit server
+
+Helm chart deployment
+
+LiveKit publishes official Helm charts. The deployment is three steps: add the repo, write your values, install.
+
+# Add the LiveKit Helm repository
+helm repo add livekit https://helm.livekit.io
+helm repo update
+
+# Install with a values file (recommended for production)
+helm install livekit livekit/livekit-server \
+--namespace livekit --create-namespace \
+-f values.yaml
+
+# Or quick-start with inline config for testing
+helm install livekit livekit/livekit-server \
+--set config.keys.devkey=devsecret \
+--set config.redis.address=redis:6379
+
+The --set flags work for quick tests, but a values.yaml file is better for production because it is version-controlled, reviewable, and easier to maintain. Always use a values file when deploying to staging or production.
+
+Production values.yaml
+
+This is a complete starting point. Adapt it to your environment.
+
+replicaCount: 2
+
+livekit:
+config:
+  port: 7880
+  rtc:
+    port_range_start: 50000
+    port_range_end: 60000
+    tcp_port: 7881
+    use_external_ip: true
+  redis:
+    address: redis-master.livekit.svc.cluster.local:6379
+    password: your-redis-password
+  keys:
+    your-api-key: your-api-secret
+  turn:
+    enabled: true
+    domain: turn.example.com
+    tls_port: 5349
+  logging:
+    level: info
+    json: true
+  limit:
+    num_tracks: 0
+    bytes_per_sec: 0
+
+resources:
+requests:
+  cpu: "2"
+  memory: "2Gi"
+limits:
+  cpu: "4"
+  memory: "4Gi"
+
+service:
+type: LoadBalancer
+annotations: {}
+
+nodeSelector:
+kubernetes.io/os: linux
+
+terminationGracePeriodSeconds: 18000  # 5 hours -- allows active rooms to drain
+
+Use real secrets management
+
+Never store API keys or Redis passwords in plain text in your values file. Use Kubernetes Secrets, Sealed Secrets, or an external secrets manager like HashiCorp Vault. Plain text keys here are for illustration only.
+
+Networking on Kubernetes
+
+LiveKit networking is where most Kubernetes deployments break. The signaling path works like any web application, but the media path has strict requirements.
+
+Port | Protocol | Purpose | K8s routing
+7880 | TCP | HTTP API + WebSocket signaling | Through Ingress or LoadBalancer Service
+7881 | TCP | RTC over TCP fallback | NodePort or LoadBalancer
+50000-60000 | UDP | RTC media (audio/video) | Must bypass HTTP ingress
+5349 | TCP | TURN over TLS | NodePort or LoadBalancer
+
+hostNetwork simplifies media routing
+
+Setting hostNetwork: true in the pod spec bypasses Kubernetes networking for media traffic. This is the simplest way to ensure UDP media packets reach LiveKit without NAT or proxy issues. The tradeoff is that you lose network isolation -- the pod shares the host's network namespace. For production with dedicated nodes, this is the recommended approach.
+
+# Enable hostNetwork for media traffic
+hostNetwork: true
+dnsPolicy: ClusterFirstWithHostNet
+
+# When using hostNetwork, the service type for signaling can be ClusterIP
+# since the pod is directly reachable on the node IP
+service:
+type: ClusterIP
+
+Redis configuration
+
+Redis is required for any multi-node deployment. It stores room-to-node mappings, enables inter-node pub/sub messaging, and provides distributed locking. Redis is not in the media path -- its latency contribution to audio/video is zero.
+
+Use the Bitnami Redis chart for a quick, production-ready deployment with persistence enabled.
+
+Enable both RDB snapshots and AOF logging. Set maxmemory-policy noeviction so Redis never silently drops room state.
+
+Add the Redis address and password to your LiveKit Helm values. Every LiveKit node must point at the same Redis instance.
+
+# Deploy Redis with persistence and Sentinel HA
+helm install redis bitnami/redis \
+--namespace livekit \
+--set architecture=replication \
+--set sentinel.enabled=true \
+--set sentinel.masterSet=mymaster \
+--set replica.replicaCount=2 \
+--set auth.password=your-redis-password \
+--set master.persistence.enabled=true \
+--set master.persistence.size=8Gi \
+--set master.configuration="maxmemory-policy noeviction"
+
+Use noeviction memory policy
+
+LiveKit depends on Redis data being present. If Redis evicts keys under memory pressure, rooms become orphaned and participants cannot rejoin. Always set maxmemory-policy noeviction and provision enough memory for your expected room count.
+
+For Redis Sentinel (high availability), configure LiveKit to connect through Sentinel instead of directly.
+
+livekit:
+config:
+  redis:
+    sentinel_master_name: mymaster
+    sentinel_addresses:
+      - redis-node-0.redis-headless.livekit.svc.cluster.local:26379
+      - redis-node-1.redis-headless.livekit.svc.cluster.local:26379
+      - redis-node-2.redis-headless.livekit.svc.cluster.local:26379
+    password: your-redis-password
+
+Redis Sentinel monitors the primary Redis instance and automatically promotes a replica to primary if it fails. LiveKit connects through Sentinel, so failover is transparent -- active rooms survive a Redis primary crash with only a brief pause in coordination (existing media streams continue uninterrupted since Redis is not in the media path).
+
+TURN server setup
+
+TURN relays media for clients behind symmetric NATs or firewalls that block direct UDP. LiveKit includes a built-in TURN server -- no need to deploy coturn separately unless you have specific requirements.
+
+livekit:
+config:
+  turn:
+    enabled: true
+    domain: turn.example.com    # Must resolve to your LiveKit server IP
+    tls_port: 5349              # TURN over TLS -- works through most firewalls
+    # udp_port: 3478            # Optional: also offer TURN over UDP
+
+The TURN domain must have a DNS record pointing to your LiveKit server. Port 5349 must be reachable from the internet. When enabled, clients that fail direct UDP connectivity automatically fall back to the TURN relay.
+
+TURN adds latency but ensures connectivity
+
+TURN-relayed connections add 10-50ms of latency depending on geography. For most voice and video applications this is acceptable. Monitor the percentage of TURN sessions -- if more than 10-15% of sessions use TURN, your network configuration may be unnecessarily blocking direct UDP.
+
+TLS configuration
+
+Production deployments must use TLS for signaling. You have two options.
+
+Option 1: Reverse proxy (recommended). Terminate TLS at your Ingress controller or load balancer. Forward plain HTTP to LiveKit on port 7880.
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+name: livekit-ingress
+namespace: livekit
+annotations:
+  cert-manager.io/cluster-issuer: letsencrypt
+  nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+  nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
+  nginx.ingress.kubernetes.io/upstream-hash-by: "$arg_access_token"
+spec:
+tls:
+  - hosts:
+      - livekit.example.com
+    secretName: livekit-tls
+rules:
+  - host: livekit.example.com
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: livekit-server
+              port:
+                number: 7880
+
+Option 2: Built-in ACME. LiveKit can obtain Let's Encrypt certificates automatically. Simpler stack, but LiveKit must be directly reachable on port 443.
+
+port: 443
+turn:
+enabled: true
+domain: turn.example.com
+tls_port: 5349
+cert_file: ""    # Empty = ACME auto-provisioning
+key_file: ""
+
+Agent worker deployment
+
+Agent workers connect to LiveKit as participants. They register through the same Redis instance, so the agent dispatch system routes jobs automatically. Deploy agents as a separate Kubernetes Deployment so you can scale them independently.
+
+replicaCount: 3
+
+image:
+repository: your-registry/your-agent
+tag: latest
+
+env:
+- name: LIVEKIT_URL
+  value: "ws://livekit-server.livekit.svc.cluster.local:7880"
+- name: LIVEKIT_API_KEY
+  valueFrom:
+    secretKeyRef:
+      name: livekit-keys
+      key: api-key
+- name: LIVEKIT_API_SECRET
+  valueFrom:
+    secretKeyRef:
+      name: livekit-keys
+      key: api-secret
+
+resources:
+requests:
+  cpu: "1"
+  memory: "2Gi"
+limits:
+  cpu: "2"
+  memory: "4Gi"
+
+# For GPU agents (STT/TTS), add:
+# resources:
+#   limits:
+#     nvidia.com/gpu: 1
+# nodeSelector:
+#   gpu: "true"
+
+Agent workers connect to LiveKit over WebSocket on port 7880, the same as any client. They use the internal Kubernetes DNS name, not the external URL, since they run in the same cluster. This avoids hairpinning traffic through the external load balancer and reduces latency.
+
+Verifying the deployment
+
+After installing everything, confirm the full stack is working.
+
+# Check pod status
+kubectl -n livekit get pods
+
+# Check LiveKit server logs for startup errors
+kubectl -n livekit logs -l app.kubernetes.io/name=livekit-server --tail=50
+
+# Verify Redis connectivity
+kubectl -n livekit exec -it deploy/livekit-server -- \
+redis-cli -h redis-master -a your-redis-password ping
+
+# Port-forward and test the API
+kubectl -n livekit port-forward svc/livekit-server 7880:7880
+
+# In another terminal:
+livekit-cli room list \
+--url http://localhost:7880 \
+--api-key your-api-key \
+--api-secret your-api-secret
+
+# Verify all nodes registered
+redis-cli -h redis-master -a your-redis-password keys "livekit:node:*"
+
+Verify the full stack, not just pods
+
+Running pods only mean containers started. Use livekit-cli to make an authenticated API call -- this verifies the server is accepting connections, API keys are configured correctly, Redis connectivity works, and networking is properly exposed.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why does LiveKit require a wide UDP port range (50000-60000) exposed on Kubernetes nodes?
+
+What you learned
+
+LiveKit's official Helm charts deploy the server with sensible defaults; a values.yaml file controls replicas, resources, Redis, keys, TURN, and networking
+
+Redis is the coordination layer for multi-node deployments -- deploy with persistence and noeviction, use Sentinel for HA
+
+The built-in TURN server handles NAT traversal without a separate coturn deployment
+
+TLS can be terminated at an Ingress controller or handled by LiveKit's built-in ACME
+
+Agent workers deploy as a separate Kubernetes Deployment, connecting to LiveKit via internal cluster DNS
+
+Always verify with livekit-cli, not just kubectl get pods
+
+Next up
+
+In the next chapter, you will set up monitoring with Prometheus and Grafana, then harden security with network policies, TLS on every path, and API key rotation.

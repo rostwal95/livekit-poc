@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "privateReport": "/Users/rostwal/Downloads/livekit-poc/output/lifecycle-cleanup/private-runs/7ad205bdf47c4288a6757e25d80118f8/report.json",
+  "reportSha256": "7b6eeef9962a132fc0d24542adc2f560aee789447a8e1a42f9f78ec0f6e26349",
+  "schema": "p2_lifecycle_7ad205bdf47c4288a6757e25d80118f8",
+  "elapsedSeconds": 4.757,
+  "fixtureSha256": "b6c53c3a6eeeb1bac1c51b7f9abd37554834e788d9c0e633f3f0dd35ef31228b",
+  "scenarioCount": 6,
+  "externalLogicalAcceptances": 3,
+  "scenarios": [
+    {
+      "name": "pending_sql_fence",
+      "state": "dispatched",
+      "possibleExternal": true,
+      "calls": 1,
+      "lookups": 1,
+      "prepares": 1,
+      "actualSqlWaiterObserved": true
+    },
+    {
+      "name": "held_possible_call",
+      "state": "dispatched",
+      "possibleExternal": true,
+      "calls": 1,
+      "lookups": 1,
+      "prepares": 1,
+      "actualSqlWaiterObserved": false
+    },
+    {
+      "name": "lost_operation_ack",
+      "state": "dispatched",
+      "possibleExternal": true,
+      "calls": 1,
+      "lookups": 2,
+      "prepares": 1,
+      "actualSqlWaiterObserved": false
+    },
+    {
+      "name": "revoked_pending",
+      "state": "blocked",
+      "possibleExternal": false,
+      "calls": 0,
+      "lookups": 0,
+      "prepares": 0,
+      "actualSqlWaiterObserved": false
+    },
+    {
+      "name": "expired_pending",
+      "state": "blocked",
+      "possibleExternal": false,
+      "calls": 0,
+      "lookups": 0,
+      "prepares": 0,
+      "actualSqlWaiterObserved": false
+    },
+    {
+      "name": "exhausted_initial",
+      "state": "exhausted",
+      "possibleExternal": false,
+      "calls": 0,
+      "lookups": 0,
+      "prepares": 2,
+      "actualSqlWaiterObserved": false
+    }
+  ],
+  "stages": [
+    {
+      "groupAbsent": true,
+      "mode": "install",
+      "pgid": 56920,
+      "pid": 56920,
+      "pipeEof": true,
+      "reaped": true,
+      "report": {
+        "mode": "install",
+        "schemaVersion": 1,
+        "status": "passed"
+      },
+      "returncode": 0,
+      "stderrBytes": 0,
+      "stdoutBytes": 55
+    },
+    {
+      "groupAbsent": true,
+      "mode": "run",
+      "pgid": 56921,
+      "pid": 56921,
+      "pipeEof": true,
+      "reaped": true,
+      "report": {
+        "cleanupComplete": true,
+        "externalLogicalAcceptances": 3,
+        "mode": "run",
+        "scenarios": 6,
+        "schemaVersion": 1,
+        "status": "passed"
+      },
+      "returncode": 0,
+      "stderrBytes": 0,
+      "stdoutBytes": 119
+    },
+    {
+      "groupAbsent": true,
+      "mode": "verify",
+      "pgid": 56942,
+      "pid": 56942,
+      "pipeEof": true,
+      "reaped": true,
+      "report": {
+        "independentExternalReceipts": 3,
+        "mode": "verify",
+        "reconciledOriginalInputs": 6,
+        "schemaVersion": 1,
+        "status": "passed"
+      },
+      "returncode": 0,
+      "stderrBytes": 0,
+      "stdoutBytes": 115
+    },
+    {
+      "groupAbsent": true,
+      "mode": "cleanup",
+      "pgid": 56943,
+      "pid": 56943,
+      "pipeEof": true,
+      "reaped": true,
+      "report": {
+        "cleanupComplete": true,
+        "mode": "cleanup",
+        "schemaVersion": 1,
+        "status": "passed"
+      },
+      "returncode": 0,
+      "stderrBytes": 0,
+      "stdoutBytes": 78
+    }
+  ],
+  "schemaAbsenceIndependentlyObserved": true,
+  "credentialCopiesRemoved": true,
+  "credentialCopyPathsAbsent": true,
+  "nonsecretProofRetained": true,
+  "privateDirectoryModes": {
+    ".": "0o700",
+    "data": "0o700"
+  },
+  "preservedPreviousFailedRuns": true,
+  "limits": "Real P2 PostgreSQL/HTTP plus cooperating file-backed operation evidence; no real P1 execution, SDK/browser media, provider, or full joined gate claim."
+}

@@ -1,0 +1,24 @@
+[
+  {
+    "question": "A company is building a high-volume outbound calling system handling 10,000 daily conversations. Which architecture consideration should dominate their decision?",
+    "options": [
+      "Voice quality \u2014 they need the most natural-sounding voice",
+      "Simplicity \u2014 they should use whatever is easiest to deploy",
+      "Cost \u2014 at 10,000 daily conversations, the difference between pipeline and realtime can be $50,000-$130,000 per month",
+      "Latency \u2014 they need the fastest possible responses"
+    ],
+    "correctIndex": 2,
+    "explanation": "At 10,000 daily conversations, cost differences compound dramatically. Pipeline with a small LLM can be 3-6x cheaper than OpenAI Realtime. For high-volume applications, cost is often the deciding factor and can fund a dedicated engineering team to optimize the pipeline."
+  },
+  {
+    "question": "Why does the decision framework recommend building a prototype with your primary architecture choice AND a second implementation with your fallback?",
+    "options": [
+      "Because the framework requires two implementations",
+      "To compare real performance with your actual prompts and tools, and to have a backup if the primary choice hits a wall",
+      "To test the deployment pipeline",
+      "To double the development team's workload"
+    ],
+    "correctIndex": 1,
+    "explanation": "Theory and benchmarks only go so far. Building a prototype with your actual use case reveals real performance characteristics. Having a fallback implementation means you are not locked in if the primary choice does not meet requirements in production. The code changes between architectures are minimal thanks to LiveKit's consistent API."
+  }
+]

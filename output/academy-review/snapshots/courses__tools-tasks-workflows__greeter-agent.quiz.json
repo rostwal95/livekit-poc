@@ -1,0 +1,35 @@
+[
+  {
+    "question": "What does on_enter() do when an agent takes over a conversation?",
+    "options": [
+      "It registers the agent's tools with the LLM",
+      "It runs automatically and is used for greetings or setup before the user speaks",
+      "It blocks until the user sends their first message",
+      "It initializes the STT and TTS models for the session"
+    ],
+    "correctIndex": 1,
+    "explanation": "on_enter() is a lifecycle hook that fires automatically when an agent takes over a conversation, either at session start or after a handoff. It is the ideal place for automatic behavior like generating a welcome greeting before the user speaks."
+  },
+  {
+    "question": "How does self.hand_off() trigger an agent transition?",
+    "options": [
+      "It creates a new instance of the target agent and tells the session to switch to it",
+      "It sends a message to the LLM asking it to change its instructions",
+      "It stops the current session and starts a new one",
+      "It passes the target agent's class to the session"
+    ],
+    "correctIndex": 0,
+    "explanation": "self.hand_off() takes an instance (not a class) of the target agent. It tells the session to switch to that new agent, firing on_exit() on the current agent and on_enter() on the new one. The conversation continues seamlessly with the new agent's personality and tools."
+  },
+  {
+    "question": "When tools are defined as decorated methods on an Agent subclass, how are they registered?",
+    "options": [
+      "They are only available after calling update_tools()",
+      "They are automatically discovered through the @function_tool decorator",
+      "You must pass them in a tools=[] list in the constructor",
+      "You must call self.register_tool() for each one in on_enter()"
+    ],
+    "correctIndex": 1,
+    "explanation": "Tools defined as methods on an Agent subclass using the @function_tool decorator are automatically registered with that agent. The framework discovers them through the decorator, so you do not need to pass them in a tools=[] list."
+  }
+]

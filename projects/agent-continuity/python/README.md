@@ -164,8 +164,8 @@ The P3 prerequisite is an explicit P1-owned profile, independent of booking v4.
    `WorkLimits`. A repeated install validates the unchanged catalog, grants and
    limits; it does not repair or refresh the baseline.
 3. Serve with `open_work_client`, passing restricted settings, a `WorkDirectory`
-   that maps `BearerToken` to `WorkPrincipal`, and a typed
-   `WorkScope(tenant_id, account_id)`. Trusted startup validates the existing
+   that maps the bound `BearerToken` to a `WorkPrincipal` containing a typed
+   `WorkScope(tenant_id, account_id)`, and that token. Trusted startup validates the existing
    profile. Offload this synchronous factory before serving media.
 
 **Client and payload.**
@@ -246,9 +246,9 @@ all using keyword arguments. `issue` returns `Issuance(attempt, created)`.
   grant, even after expiry, cancellation or later attempts.
 - `acknowledgement_unknown` requires `find_issue` on the original command, never a
   new command or automatic invocation.
-- P1 issues the UUID attempt and owner identity, number, epoch and absolute lease
-  together with the complete original accepted record. Wire attempt labels do not
-  issue it.
+- The caller supplies an invocation-owner UUID. P1 allocates the attempt UUID,
+  number, epoch and absolute lease, then persists them with that owner and the
+  complete original accepted record. Wire attempt labels do not issue a grant.
 
 **Limits.**
 
@@ -312,7 +312,7 @@ credential-bound settings. The delivery flow is:
 1. `prepare(work_id, attempt_id, result_sha256, receiver_id, recipient_id)` binds
    the known eligible stored result bytes and the exact receiver and recipient
    before I/O. Changed bindings conflict.
-2. `begin(intent)` revalidates work cancellation, the deadline and result
+2. A new `begin(intent)` revalidates work cancellation, the deadline and result
    eligibility, then records possible external acceptance. Only its `created=true`
    result permits a new accept call.
 3. `record_receipt(intent, receipt)` retains an exact known receipt, even after a
@@ -424,15 +424,23 @@ selected local qualification and remaining product boundaries.
 
 ### Closing boundaries and safe error codes
 
-- Call `close` or use the async context manager.
+- Call `close` in `finally`. `AsyncExecutionStore`, `ManagedCaseClient` and
+  `CaseControlClient` also support `async with`; the work, execution, delivery,
+  feed, action and receiver clients expose explicit `close` methods without an
+  async context-manager interface.
 - Cancelling a waiter propagates `CancelledError` while the actual synchronous work
   retains capacity.
 - A close timeout reports incomplete cleanup. It does not stop the thread or undo a
   write. Retain ownership and close again after the work finishes.
-- New operations on a closing or closed boundary fail with `execution_port_closed`.
+- New operations on the inquiry and managed async boundaries fail with
+  `execution_port_closed`. Work-profile clients use `WorkError("closed")`, and
+  guarded actions use `ActionError("closed")`.
 - `safe_error_code` selects only a fixed diagnostic vocabulary. Do not serialize
   exception arguments, causes, request data or credential-bearing configuration. It
   grants no retry or mutation authority.
+- `safe_error_code` covers the inquiry and managed-case error families. Catch
+  `WorkError` and `ActionError` separately to retain their documented fixed
+  profile-specific codes.
 
 ## Validation
 

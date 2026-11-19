@@ -1,0 +1,35 @@
+[
+  {
+    "question": "If your VAD padding_duration is 0.3 seconds and your min_endpointing_delay is 0.5 seconds, what is the minimum total silence the user experiences before the agent can respond?",
+    "options": [
+      "0.8 seconds",
+      "0.5 seconds",
+      "0.3 seconds",
+      "0.2 seconds"
+    ],
+    "correctIndex": 0,
+    "explanation": "VAD padding and endpointing delay are separate timers that stack. The VAD padding runs first (0.3s), then the endpointing timer starts. The minimum total silence before the agent can begin responding is 0.3 + 0.5 = 0.8 seconds."
+  },
+  {
+    "question": "Why is setting min_endpointing_delay equal to max_endpointing_delay generally a bad idea?",
+    "options": [
+      "It eliminates the adaptive window where contextual signals like STT results can trigger early turn boundaries",
+      "It causes the system to crash",
+      "It is not supported by the framework",
+      "It makes the agent respond too quickly every time"
+    ],
+    "correctIndex": 0,
+    "explanation": "The power of the two-threshold model is the range between min and max, where contextual signals (like a complete sentence in the STT transcript) can fire an early turn boundary for clearly finished sentences while still waiting for users who pause mid-thought. Setting them equal removes this adaptive capability and produces a fixed delay."
+  },
+  {
+    "question": "For a medical intake agent where patients may pause frequently while describing symptoms, which endpointing profile is most appropriate?",
+    "options": [
+      "min: 0.5s, max: 1.0s",
+      "min: 0.1s, max: 0.3s",
+      "min: 0.8s, max: 1.5s",
+      "min: 0.3s, max: 0.6s"
+    ],
+    "correctIndex": 2,
+    "explanation": "Medical intake requires patience \u2014 the agent should never rush the patient or interrupt their descriptions. Higher delays (min: 0.8s, max: 1.5s) give patients time to gather their thoughts and complete their sentences without the agent jumping in prematurely."
+  }
+]

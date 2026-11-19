@@ -46,7 +46,7 @@ covers all changes, storage and migration, Phase F and inquiry workloads.
 | `projects/agent-continuity/python/src/continuity_lab` | Canonical source, retaining the `continuity_lab` import name |
 | `tests/test_intake.py` | Baseline tests |
 | `tests/test_execution*.py`, `test_async_execution.py` and `test_migrations.py` | Execution, async, migration and actual accepting-process checks |
-| `projects/agent-continuity/python` | Future reusable Python code |
+| `projects/agent-continuity/python` | Canonical reusable Python distribution, examples and packaging |
 | `projects/agent-continuity/tests` | Project tests |
 | [V1 charter](../../docs/projects/agent-continuity-scope.md) | Scope and acceptance IDs |
 | [Root design](../../Design.md) | Shared authority and ports |

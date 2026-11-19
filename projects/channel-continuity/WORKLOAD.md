@@ -25,7 +25,8 @@ ports.
   records the selected qualification and remaining release boundaries.
 - This experiment does not establish production capacity, speech/model latency,
   carrier behavior or complete P2 charter acceptance.
-- The I20 joined UI is a separate gate.
+- The I20 read-only operations UI passed its separate
+  [operations gate](OPERATIONS.md); its evidence is independent of this workload.
 
 ## Commands and ownership
 
@@ -293,8 +294,8 @@ observations are not per-case memory or deployment capacity. The handoff retains
 exact cohort sizes, quantile policy, queue ages, restart lag and source-qualified
 artifacts.
 
-- The I20 joined UI and all seventeen complete P2 charter rows retain separate
-  gates.
+- The I20 operations UI has a separately passed gate; all seventeen complete P2
+  charter rows retain their own pending acceptance gates.
 - Existing I12–I18 gates and isolated archive consumers keep their own scopes.
 - The fifty-five scenario definitions, twenty-four registered runners and complete
   seventeen-row P2 acceptance boundary remain governed by the shared plans and

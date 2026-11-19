@@ -1,0 +1,243 @@
+1Architecture comparison
+
+2Pipeline implementation
+
+3OpenAI Realtime
+
+4Gemini Live
+
+5Custom TTS with realtime models
+
+6Hybrid approaches
+
+7Latency & quality comparison
+
+8Choosing your architecture
+
+Architecture comparison
+
+Architecture comparison: pipeline vs realtime
+
+Voice AI agents can be built with two fundamentally different architectures. The pipeline approach chains separate models together — speech-to-text, then a language model, then text-to-speech. The realtime approach uses a single end-to-end model that processes audio directly and produces audio output. Each architecture makes different tradeoffs around latency, control, cost, and capability. Understanding these tradeoffs is the foundation for every decision in this course.
+
+The pipeline architecture
+
+The pipeline model is the traditional approach to building voice AI. It breaks the problem into three discrete stages, each handled by a specialized model.
+
+Pipeline architecture
+
+User Audio
+
+STT
+
+LLM
+
+TTS
+
+Agent Audio
+
+The user's audio is transcribed into text by a dedicated STT model such as Deepgram Nova-3 or Google Chirp. Streaming STT produces partial transcripts as the user speaks, so the next stage can begin processing before the user finishes.
+
+The transcribed text is sent to a text-based LLM like GPT-4o or Claude. The LLM generates a text response based on the conversation history and instructions. Streaming output means the first tokens arrive quickly.
+
+The LLM's text output is converted back to audio by a TTS model such as Cartesia or ElevenLabs. Streaming TTS begins synthesizing audio as soon as the first sentence arrives from the LLM, without waiting for the full response.
+
+The pipeline architecture works because each stage streams into the next. The STT does not wait for the user to finish before sending partial transcripts. The LLM does not wait for the full transcript before generating tokens. The TTS does not wait for the full response before synthesizing audio. This pipelining is what makes the architecture viable for real-time conversation despite having three separate models in the chain.
+
+In LiveKit, a pipeline agent looks like this:
+
+from livekit.agents import AgentSession, Agent, AgentServer, rtc_session
+from livekit.plugins import deepgram, openai, cartesia
+
+server = AgentServer()
+
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  await session.start(
+      agent=Agent(instructions="You are a helpful assistant."),
+      room=session.room,
+      stt=deepgram.STT(model="nova-3"),
+      llm=openai.LLM(model="gpt-4o"),
+      tts=cartesia.TTS(),
+  )
+
+
+if __name__ == "__main__":
+  server.run()
+
+import { AgentSession, Agent, defineAgent, type RtcSession } from "@livekit/agents";
+import { DeepgramSTT } from "@livekit/agents-plugin-deepgram";
+import { OpenAILLM } from "@livekit/agents-plugin-openai";
+import { CartesiaTTS } from "@livekit/agents-plugin-cartesia";
+
+export default defineAgent({
+entry: async (session: RtcSession) => {
+  await session.start({
+    agent: new Agent({ instructions: "You are a helpful assistant." }),
+    room: session.room,
+    stt: new DeepgramSTT({ model: "nova-3" }),
+    llm: new OpenAILLM({ model: "gpt-4o" }),
+    tts: new CartesiaTTS(),
+  });
+},
+});
+
+Three separate models, each independently configurable. This is the defining characteristic of the pipeline — you can swap any component without touching the others. Want to switch from Deepgram to Whisper for STT? Change one line:
+
+# Before: Deepgram Nova-3
+stt=deepgram.STT(model="nova-3"),
+
+# After: OpenAI Whisper — only this line changes
+stt=openai.STT(model="whisper-1"),
+
+# The LLM and TTS stay exactly the same
+llm=openai.LLM(model="gpt-4o"),
+tts=cartesia.TTS(),
+
+The same applies to any component. Switch the LLM from GPT-4o to Claude without touching STT or TTS. Switch TTS from Cartesia to ElevenLabs without touching STT or the LLM. Each component is an independent slot.
+
+The realtime architecture
+
+Realtime models take a fundamentally different approach. Instead of converting audio to text, processing text, and converting back to audio, a single model handles the entire flow end-to-end.
+
+Realtime architecture
+
+User Audio
+
+Realtime Model
+
+Agent Audio
+
+The model receives raw audio input and produces raw audio output. There is no intermediate text representation. The model "hears" the user and "speaks" the response directly.
+
+from livekit.agents import AgentSession, Agent, AgentServer, rtc_session
+from livekit.plugins.openai import realtime
+
+server = AgentServer()
+
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  await session.start(
+      agent=Agent(instructions="You are a helpful assistant."),
+      room=session.room,
+      llm=realtime.RealtimeModel(
+          model="gpt-4o-realtime-preview",
+          voice="alloy",
+      ),
+  )
+
+
+if __name__ == "__main__":
+  server.run()
+
+import { AgentSession, Agent, defineAgent, type RtcSession } from "@livekit/agents";
+import { OpenAIRealtime } from "@livekit/agents-plugin-openai";
+
+export default defineAgent({
+entry: async (session: RtcSession) => {
+  await session.start({
+    agent: new Agent({ instructions: "You are a helpful assistant." }),
+    room: session.room,
+    llm: new OpenAIRealtime({
+      model: "gpt-4o-realtime-preview",
+      voice: "alloy",
+    }),
+  });
+},
+});
+
+Notice what is missing: no stt and no tts parameters. The realtime model handles everything. You provide it as the llm and the framework routes audio directly to and from it.
+
+Realtime models still use the llm parameter
+
+Even though a realtime model is not a traditional text LLM, LiveKit's AgentSession accepts it via the llm parameter. The framework detects that it is a realtime model and adjusts the pipeline accordingly — skipping STT and TTS entirely and routing audio directly. This keeps the API surface simple.
+
+Comparing the architectures
+
+Here is a side-by-side comparison of the two approaches across the dimensions that matter most for production voice agents.
+
+Dimension | Pipeline (STT + LLM + TTS) | Realtime (end-to-end)
+Latency | Higher — three model round-trips, even with streaming | Lower — single model, no intermediate steps
+Component control | Full — swap STT, LLM, or TTS independently | Limited — the model is a single unit
+Voice selection | Wide — choose from any TTS provider's voice library | Narrow — limited to the realtime model's built-in voices
+Tool use | Mature — standard LLM function calling | Emerging — supported but with fewer patterns
+Conversation nuance | Text-based — loses tone, emphasis, emotion from audio | Audio-native — preserves vocal nuance and prosody
+Provider options | Many — mix and match across dozens of providers | Few — OpenAI Realtime, Gemini Live, and a small number of others
+Cost | Variable — pay separately for each model | Bundled — single pricing, often higher per-minute
+Interruption handling | Engineered — requires VAD and explicit logic | Native — the model handles interruptions naturally
+Multilingual | Per-component — each model must support the language | Unified — the model handles language natively
+Transparency | High — you can log transcripts at each stage | Lower — no intermediate text unless explicitly requested
+
+Neither architecture is universally better. The pipeline gives you maximum control and provider flexibility at the cost of higher latency and engineering complexity. Realtime models give you lower latency and more natural conversation dynamics at the cost of fewer customization options and provider lock-in. The right choice depends on your specific requirements — which is exactly what the rest of this course will help you determine.
+
+How latency adds up in a pipeline
+
+Understanding where time goes in each architecture helps explain the latency difference. In a pipeline, the total time from the user finishing their sentence to hearing the first syllable of the response is approximately:
+
+Pipeline latency components
+
+STT finalization
+
+LLM first token
+
+TTS first audio chunk
+
+Typical values:
+
+Stage | Typical latency | What contributes
+STT finalization | 200-400ms | Endpointing delay, final transcript processing
+LLM first token | 200-500ms | Network round-trip, model inference startup
+TTS first chunk | 100-300ms | Network round-trip, audio buffer fill
+Total | 500-1200ms | Cumulative across three models
+
+A realtime model collapses all three stages into one:
+
+Stage | Typical latency | What contributes
+Model first audio | 200-500ms | Single network round-trip, model inference
+Total | 200-500ms | Single model, no cascading delays
+
+These are typical ranges, not guarantees
+
+Actual latency depends on model choice, network conditions, region, load, and configuration. A well-tuned pipeline with fast models can approach realtime latency. A poorly configured realtime model can be slower than expected. The numbers above represent typical production scenarios, not theoretical minimums.
+
+When pipeline wins
+
+The pipeline architecture is the better choice in several common scenarios:
+
+You need a specific voice. TTS providers like Cartesia and ElevenLabs offer hundreds of voices with fine-grained control over speed, emotion, and style. Realtime models offer a handful of built-in voices.
+
+You need the best LLM. Pipeline lets you use whatever text LLM is best for your use case — Claude for nuanced reasoning, GPT-4o for general capability, a fine-tuned model for domain-specific tasks. Realtime models are limited to what the provider offers.
+
+You need full transcript logging. In regulated industries (healthcare, finance, legal), you may need a complete text transcript of every conversation. The pipeline produces transcripts naturally at the STT and LLM stages. Realtime models can produce transcripts but it is not their primary output.
+
+You need heavy tool use. Complex multi-step tool calling with validation, retries, and chained operations is more mature and predictable in text-based LLMs.
+
+You need to control cost. With a pipeline, you can use a cheaper STT, a smaller LLM, and a budget TTS to minimize cost. Realtime models have bundled pricing that you cannot optimize component by component.
+
+When realtime wins
+
+Realtime models are the better choice in other scenarios:
+
+Latency is critical. If you need the fastest possible response time — a customer service bot where every millisecond matters, or an interactive game character — realtime models have a fundamental advantage.
+
+Natural conversation is the goal. Realtime models hear tone, pacing, and emphasis. They can respond with matching energy, pause naturally, and handle overlapping speech gracefully. Pipelines lose this nuance in the text conversion.
+
+Simplicity matters. One model instead of three means fewer configuration decisions, fewer failure points, and fewer API keys to manage.
+
+Interruption handling must be seamless. Realtime models handle barge-in (the user interrupting the agent mid-sentence) natively. Pipelines require explicit VAD configuration and careful interruption logic.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why can a pipeline architecture achieve viable real-time conversation performance despite chaining three separate models?
+
+What comes next
+
+You now understand the two architectures at a conceptual level. In the next chapter, you will build a fully optimized pipeline agent, exploring model selection, latency tuning, and the configuration options that make pipelines competitive. Then in Chapters 3 and 4, you will implement the same agent using OpenAI Realtime and Gemini Live, giving you hands-on experience with both approaches.
+
+Build both, then decide
+
+The most effective way to choose an architecture is to build both and compare them in your specific context. This course is structured to help you do exactly that — by the end, you will have pipeline, OpenAI Realtime, and Gemini Live implementations of the same agent, with benchmarks to compare them.

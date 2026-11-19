@@ -1,7 +1,13 @@
 # Conversation and durable-work showcase
 
-Status: Active
-Last reviewed: 15 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Active |
+| Purpose | Explain how the Phase G native conversation and browser workspace use durable P1 work |
+| Audience | Engineers who run the showcase or change its conversation, console and controller boundaries |
+| Scope | Inference profiles, local setup, showcase flow, readiness and media evidence; excludes durable authority implementation |
+| Owns | Phase G showcase operation, component limits and media invocation reconciliation |
+| Related | [P1 guide](../projects/agent-continuity/README.md) · [Case and continuation](case-and-continuation.md) · [Demo plan](demo-plan.md) · [Phase G work item](work-items/0013-p1-phase-g-conversation-and-showcase.md) |
 
 ## Overview
 
@@ -37,6 +43,11 @@ conversation, console or controller boundaries.
 - The local_real engine profile remains unqualified. Phase H work items track the
   exact scope.
 - The P2/P3 charters and full acceptance catalog are unchanged.
+
+Provider qualification is retained checkpoint evidence. The fresh P1-20 rerun
+after the v5 upgrade remains open in the
+[qualification guide](qualification-gates.md). Current business serving supports
+ACTIVE v4 and v5; explicit owner preparation upgrades through v5.
 
 ## Configured profiles and evidence
 

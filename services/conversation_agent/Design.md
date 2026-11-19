@@ -1,7 +1,13 @@
 # Native conversation agent design
 
-Status: Active
-Last reviewed: 15 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Active |
+| Purpose | Explain the native conversation agent's design, authority, resource limits and evidence |
+| Audience | Engineers changing the conversation worker or reviewing its qualification |
+| Scope | Native conversation, provider adapters and lifecycle; excludes durable business authority and browser implementation |
+| Owns | Conversation agent components, interfaces, failure boundaries and design decisions |
+| Related | [README](README.md) · [Agent instructions](AGENTS.md) · [Shared design](../../Design.md) · [P1 charter](../../docs/projects/agent-continuity-scope.md) · [Phase G work item](../../docs/work-items/0013-p1-phase-g-conversation-and-showcase.md) |
 
 ## Overview
 
@@ -448,6 +454,10 @@ cases with cleanup. P1 V1, the fixed first-version P1 scope, is qualified for th
 local POC (proof of concept) using `provider_real` v2. A passing provider
 scenario cannot qualify the separate local-engine declaration.
 
+This retained provider checkpoint is separate from the fresh P1-20 rerun after
+the v5 upgrade, which remains open in the
+[qualification guide](../../docs/qualification-gates.md).
+
 ### Provider recognition handles
 
 The SDK clears a manual turn by replacing its recognition pipeline while the old
@@ -485,44 +495,33 @@ or establish ASR quality.
 
 ### Authority
 
-- The server validates HMAC (hash-based message authentication code) grant
-  signatures, the room and expected participant, the configured scope/actor and
-  a finite expiry before constructing the port.
-- Model and tool schemas cannot supply an actor, task, request key,
-  confirmation or storage credential.
-- Cancellation targets only the current owned task.
-- Investigation consent and exact quote confirmation remain distinct, even when
-  the agent speaks an apparent approval.
+| Boundary | Control |
+| --- | --- |
+| Port construction | The server validates HMAC (hash-based message authentication code) grant signatures, the room and expected participant, the configured scope/actor and a finite expiry before constructing the port |
+| Model and tool input | Model and tool schemas cannot supply an actor, task, request key, confirmation or storage credential |
+| Cancellation | Targets only the current owned task |
+| Consent | Investigation consent and exact quote confirmation remain distinct, even when the agent speaks an apparent approval |
 
 ### Diagnostics and export
 
-- Application and dedicated native SDK log formatting keeps only fixed finite
-  metadata.
-- Optional export strips raw attributes, events, links, status descriptions,
-  resource labels and trace-state content into a new span while retaining
-  ancestry. The original SDK span is unchanged.
-- The local exporter does not honor OpenTelemetry (OTEL) header, credential
-  provider or proxy environment hooks. It does not follow redirects, and it closes responses after
-  status inspection without reading their body.
-- Audio and transcript recording are disabled. Trace recording is enabled with
-  SDK redaction. Review SDK recording behavior separately from the application's
-  exported-field allowlist.
+| Surface | Control and limit |
+| --- | --- |
+| Logging | Application and dedicated native SDK log formatting keeps only fixed finite metadata |
+| Span export | Optional export strips raw attributes, events, links, status descriptions, resource labels and trace-state content into a new span while retaining ancestry. The original SDK span is unchanged |
+| Export transport | The local exporter does not honor OpenTelemetry (OTEL) header, credential provider or proxy environment hooks. It does not follow redirects, and it closes responses after status inspection without reading their body |
+| Recording | Audio and transcript recording are disabled. Trace recording is enabled with SDK redaction. Review SDK recording behavior separately from the application's exported-field allowlist |
 
 See the shared [observability policy](../../docs/observability.md).
 
 ## Observability
 
-- Fixed JSON events distinguish admission rejection, session start/end, invalid
-  input, hint failure, application failure and incomplete cleanup.
-- Raw dependency errors never become application messages.
-- Export uses one private provider and a bounded worker queue. Saturation drops
-  diagnostic observations, and a collector outage cannot change an accepted
-  business result.
-- After native session closure, the observer extracts finite numeric usage and
-  report fields, closes the exporter off the media loop and writes a small
-  private local file. An SDK report failure remains a failure observation.
-- Collector readiness alone is insufficient. The phase gate must inspect actual
-  stored SDK and application spans.
+| Producer or boundary | Behavior and evidence limit |
+| --- | --- |
+| Application JSON events | Fixed events distinguish admission rejection, session start/end, invalid input, hint failure, application failure and incomplete cleanup |
+| Error messages | Raw dependency errors never become application messages |
+| Export queue | Export uses one private provider and a bounded worker queue. Saturation drops diagnostic observations, and a collector outage cannot change an accepted business result |
+| Post-session observer | After native session closure, the observer extracts finite numeric usage and report fields, closes the exporter off the media loop and writes a small private local file. An SDK report failure remains a failure observation |
+| Collector verification | Collector readiness alone is insufficient. The phase gate must inspect actual stored SDK and application spans |
 
 ## Metrics
 
@@ -581,7 +580,7 @@ tests.
 | Trusted adapter | Grant tamper/expiry/scope/caller rejection, current-task-only operations, safe errors and independent cleanup | Real PostgreSQL acceptance/replay is a separate lane |
 | Telemetry | Decode real loopback OTLP protobuf; inspect safe fields, env-header exclusion, delayed response/outage, bounded queue and shutdown races | Local receiver binding required; no collector ingestion claim from HTTP alone |
 | Browser | Real WebRTC input/output samples, native transcription, interruption, session end and authorized reconnect | Controlled browser/media fixture; human microphone and hearing remain separate |
-| Durable continuity | Independent worker progress, scoped projection, exact approval, supplier/outcome/delivery evidence under held dependencies | Prepared v4 schema/runtime roles and synthetic supplier/receiver |
+| Durable continuity | Independent worker progress, scoped projection, exact approval, supplier/outcome/delivery evidence under held dependencies | Prepared ACTIVE v4/v5 schema, runtime roles and synthetic supplier/receiver |
 | Compatibility and full phase | Full fast/type/style/docs, original diagnostic/M1, PostgreSQL and previous recovery lanes | Missing, skipped or timed-out required scenarios remain non-passing |
 
 M1 is the existing confirmed-investigation intake. Run the focused commands in

@@ -50,7 +50,7 @@ exit alone or the number of tests. This support boundary is not a fourth product
 - P1-01, P1-02 and P1-03 run the shared actual accepting-process suite. P1-04 and
   P1-05 run the shared independent supplier/worker recovery suite.
 - P1 local V1 coverage passed. V1 is the fixed project scope.
-- P3-01, P3-03 and P3-11 have complete registered lab runners and fresh passing
+- P3-01, P3-03 and P3-11 have complete registered lab runners and retained passing
   reports.
 - All 17 P2 rows and the remaining 14 P3 rows stay planned.
 
@@ -76,7 +76,9 @@ The [H1 work item](../docs/work-items/0014-p1-phase-h-workload-baseline.md) owns
 qualified local inquiry measurement and its inspected results. H1 alone is not a
 Phase H/P1 release. That qualification is recorded separately in the
 [Phase H release-qualification work item](../docs/work-items/0019-p1-phase-h-release-qualification.md).
-Later P2/P3 workload qualification remains planned.
+The selected P2 capacity/dormancy study subsequently qualified in
+[0039](../docs/work-items/0039-bounded-channel-workloads-and-image-evidence.md).
+Broader P2/P3 workload and release gates remain separate.
 
 ## Objectives
 
@@ -100,7 +102,7 @@ These local design rows do not create acceptance IDs or register future runners.
 | Technical | Select scope conservatively | Unknown ownership, shared policy changes or an unavailable comparison baseline expand scope. Focused structural inspection never drops full current Python suites. | Implemented. |
 | Technical | Validate documentation policy | Declared corpus presence, one six-row Field/Value document card before the first section, no `Status:` or `Last reviewed:` lines, required sections and populated tables per role, design order and diagrams, safe relative Markdown and HTML link targets and prohibited reference forms are checked. | Implemented. Each rule has positive and negative fixtures. |
 | Technical | Run registered behavior | unittest_discovery, python_json_report or python_infrastructure_report invokes a bounded argument vector (argv) without a shell. Both report kinds bind the exact case and catalog mode. | Implemented. |
-| Business and technical | Freeze a reproducible inquiry declaration before measurement | A strict typed manifest/digest binds schedules, resources and observation pressure. Actual installed results and owned cleanup remain a separate explicit lane. | Local inquiry baseline qualified in the [H1 work item](../docs/work-items/0014-p1-phase-h-workload-baseline.md). Current P1 workload/release evidence is separately qualified. P2/P3 workload/release qualification remains pending. |
+| Business and technical | Freeze a reproducible inquiry declaration before measurement | A strict typed manifest/digest binds schedules, resources and observation pressure. Actual installed results and owned cleanup remain a separate explicit lane. | H1 qualified in [0014](../docs/work-items/0014-p1-phase-h-workload-baseline.md); later P1 and selected P2 workload gates retain their own scope. Full P2/P3 release remains pending. |
 | Technical | Extend only for real evidence | Product report wrappers own prerequisites and exact assertion mappings. Missing, skipped or timed-out cases never pass. | Implemented closed report protocol. Register only reviewed complete rows. |
 
 ## Non-functional requirements
@@ -341,13 +343,13 @@ PID-bound barriers and actual termination. It does not retroactively byte-cap th
 existing top-level acceptance subprocess: legacy unittest_discovery still uses
 time-bounded capture without a byte cap.
 
-### Planned runner additions
+### Adding runners
 
-The first actual process-failure slice must own child processes, barriers, finite
-cleanup and post-recovery state assertions. Later media and cross-language runners
-add their real command, prerequisites, execution mode, artifacts and failure
-semantics. Do not create placeholder commands or mark a related acceptance ID
-complete after only a partial assertion.
+Process-failure runners own child processes, barriers, finite cleanup and
+post-recovery state assertions. Each media or cross-language runner declares its
+actual command, prerequisites, execution mode, artifacts and failure semantics.
+Do not create placeholder commands or mark a related acceptance ID complete after
+only a partial assertion.
 
 ### H1 declaration and evidence contract
 
@@ -503,7 +505,7 @@ passing provider scenario cannot qualify the separate local-engine declaration.
 
 | Boundary or threat | Control | Test or evidence |
 | --- | --- | --- |
-| Offline tooling | Synthetic isolated state, no provider credentials and no network calls | Import/boundary review and offline fixtures |
+| Offline tooling | Synthetic isolated state, no provider credentials or external calls; declared loopback fixtures remain local | Import/boundary review and offline fixtures |
 | Config paths and discovered symlinks | Must remain inside the repository root | Deliberately invalid and symlink fixtures |
 | Comparison baseline or unknown changed path | Can expand scope but cannot grant permission to execute untrusted content | Changed-scope and missing-baseline fixtures |
 | unittest_discovery child stdout/stderr | Retained as evidence; not automatically sanitized service logs | Explicit legacy limitation |

@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why should a CRM lookup timeout gracefully (proceeding without context) rather than blocking the call setup?",
+    "options": [
+      "Because blocking calls violates SIP protocol standards",
+      "Because CRM data is not important for customer service calls",
+      "Because a delayed greeting is worse than a generic one \u2014 callers should never wait for a slow or unavailable CRM before the agent speaks",
+      "Because CRM APIs do not support timeout parameters"
+    ],
+    "correctIndex": 2,
+    "explanation": "A 2-second hard timeout ensures the call proceeds even if the CRM is slow or down. A generic greeting is far better than making the caller wait in silence while the system retries a CRM query. The lookup can continue in the background and enrich the conversation later."
+  },
+  {
+    "question": "How is 'screen pop' for an AI agent more powerful than traditional screen pop for a human agent?",
+    "options": [
+      "Because the caller profile is woven into the AI agent's instructions, making it part of the agent's behavior \u2014 it will never forget to mention an open ticket or greet a VIP by name",
+      "Because AI agents can access more CRM fields than human agents",
+      "Because AI agents can update the CRM in real time while human agents cannot",
+      "Because AI agents read data faster than humans can"
+    ],
+    "correctIndex": 0,
+    "explanation": "A human agent glances at a sidebar and might miss details. An AI agent has the entire caller profile injected into its system instructions \u2014 the context becomes part of its behavior, not just displayed information. It will always reference open tickets and greet VIPs by name because it is literally in its instructions."
+  },
+  {
+    "question": "Why is logging call outcomes back to the CRM essential for a contact center system?",
+    "options": [
+      "Because CRM vendors require it for API usage compliance",
+      "Because it closes the feedback loop \u2014 the next time this caller phones in, the agent has the full history including today's call, preventing the caller from repeating themselves",
+      "Because call logs are required for TTS provider billing",
+      "Because it reduces the CRM subscription cost"
+    ],
+    "correctIndex": 1,
+    "explanation": "Writing call outcomes back to the CRM closes the loop. On the next call from the same customer, the CRM lookup returns today's interaction as part of their history. The agent can reference previous conversations, avoiding the frustrating experience of the caller having to re-explain everything."
+  }
+]

@@ -43,13 +43,19 @@ as P1-I11 are implementation task IDs, not acceptance IDs such as P1-20.
 - All continuation state is keyed to the original task.
 - A successful inquiry and a completed booking change are different facts.
 
+The table records the schema introduced in each phase. Current serving supports
+ACTIVE v4 and v5; explicit owner `prepare-business` applies the additive v5 retry
+pacing upgrade. The [worker operations guide](leases-and-workers.md) owns that
+upgrade procedure. The separate P1 generic work-profile schema has its own
+version sequence.
+
 ### Related guides and boundaries
 
 | Document | Purpose |
 | --- | --- |
 | [Effects and completion guide](effects-and-completion.md) | Owns the detailed supplier, receiver, worker and replay contract |
 | [Lease and worker guide](leases-and-workers.md) | Owns the full lease and worker runtime contract |
-| [Local setup guide](../local-setup/README.md) | The deliberately selected ACTIVE v4 schema and the private fixture procedure |
+| [Local setup guide](../local-setup/README.md) | The deliberately selected ACTIVE v4/v5 schema and the private fixture procedure |
 
 - The original SQLite M1 intake (the confirmed-investigation intake) and the
   transport diagnostics remain independently available.
@@ -303,7 +309,7 @@ or leases are refused.
 - Consult the
   [Phase F work item](work-items/0012-p1-phase-f-leases-and-deployment.md) and the
   [local setup guide](../local-setup/README.md) for the deliberately selected
-  ACTIVE v4 schema and the private fixture procedure.
+  ACTIVE v4/v5 schema and the private fixture procedure.
 
 ### Upgrade to v4
 

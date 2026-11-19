@@ -1,0 +1,74 @@
+{
+  "chapter_changes": [
+    {
+      "chapter": 4,
+      "fields": [
+        "intro.2",
+        "concepts.1",
+        "walkthrough.1",
+        "walkthrough.3",
+        "limits"
+      ],
+      "reason": "Qualify inconsistent I22 status labels, receipt domains and acceptance-before-generation without exactly-once speech."
+    },
+    {
+      "chapter": 5,
+      "fields": [
+        "intro.2"
+      ],
+      "reason": "Practice the exact predicate and independent counterexample; do not extrapolate component behavior to joined shutdown."
+    }
+  ],
+  "figure_review": [
+    {
+      "id": "F06",
+      "key": "intake",
+      "verdict": "title_and_caption_correction_required",
+      "title": "Durable native input before dispatched generation",
+      "caption": "The opt-in native adapter accepts input before dispatched generation. One accepted input may have multiple generation/response identities; neither repeat-commit safety nor the two-handle SDK lifecycle proves exactly-once generation or playback.",
+      "reason": "Current title says one generation, stronger than native.py 1041–1052 and the 64-ID/same-input UI test."
+    },
+    {
+      "id": "F07",
+      "key": "context",
+      "verdict": "verified",
+      "reason": "P2 snapshot, released SQL, public P1 case read and fresh original-grant disclosure check are separate observations. Existing title/caption correctly deny atomicity."
+    },
+    {
+      "id": "F08",
+      "key": "outbound",
+      "verdict": "caption_precision_recommended",
+      "caption": "Reservation commits local permission before carrier I/O and shares admission with callback evidence. Any retained callback vetoes a new reservation; neither later callback nor revocation retracts an already admitted possible call.",
+      "reason": "Keep callback evidence distinct from a resend trigger; current separate callback arrow is correct."
+    },
+    {
+      "id": "F09",
+      "key": "auth",
+      "verdict": "caption_precision_recommended",
+      "caption": "After local call admission, the cheap pass authenticates signed bytes before SQL but cannot establish current freshness. Protected intake checks freshness again with database time after the shared admission lock.",
+      "reason": "The local four-call cap precedes the cheap pass; signed timestamp is not a current-clock proof."
+    }
+  ],
+  "cue_changes_required": [
+    {
+      "search": "one generation / one native input before one generation",
+      "replacement": "accepted native input before dispatched generation",
+      "reason": "Do not infer exactly-once model or playback from intake deduplication."
+    },
+    {
+      "search": "1024 dormant inputs / 1,024 dormant inputs",
+      "replacement": "1,000 observed dormant inputs under a 1,024-row cap",
+      "reason": "Separate workload population from configured retained capacity."
+    },
+    {
+      "search": "changed callback bytes conflict",
+      "replacement": "changed canonical callback semantics conflict; each transport encoding authenticates anew",
+      "reason": "Raw whitespace and fresh timestamp/signature can legitimately change on callback replay."
+    }
+  ],
+  "review_notes": [
+    "Canonical P1 delivery intent includes base64 body. The 8192-byte full-body fixture disproves a digest-only interpretation; opaque body retention is preserved.",
+    "Pinned installed agent_session.py documentation was read for session_host: it controls RemoteSession driving/observation; it is not itself a duplicate-host proof.",
+    "All original question IDs, follow-up counts and continuous source ranges/hashes are preserved."
+  ]
+}

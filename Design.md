@@ -83,7 +83,7 @@ is the authoritative table.
 | Capability | Status | Evidence |
 | --- | --- | --- |
 | M1 intake and the local operational foundation | Implemented | [Foundation and P1 gate history](#foundation-and-p1-gate-history) |
-| Explicit business profile: a separate PostgreSQL v4 workspace and native scripted conversation | Qualified: Phase G combined gate | [Phase G work item](docs/work-items/0013-p1-phase-g-conversation-and-showcase.md) |
+| Explicit business profile: a separate PostgreSQL v4/v5 workspace and native scripted conversation | Qualified at the Phase G checkpoint; current owner preparation targets v5 | [Phase G work item](docs/work-items/0013-p1-phase-g-conversation-and-showcase.md) · [Upgrade follow-up](docs/work-items/0047-open-findings-schema-upgrades-and-landing.md) |
 | P1 local V1 acceptance and release gates | Qualified for the local POC using provider_real v2 | [Foundation and P1 gate history](#foundation-and-p1-gate-history) |
 | `local_real` inference profile | Not qualified | [Local-real operations guide](docs/local-real-inference.md) |
 | P2 and P3 backend libraries | Partial: qualified checkpoint by checkpoint; complete P2/P3 acceptance pending | [P2 and P3 checkpoints](#p2-and-p3-checkpoints) |
@@ -93,6 +93,9 @@ is the authoritative table.
 These caveats apply to the table:
 
 - The ordinary browser/API path retains M1 intake.
+- The retained P1 provider qualification predates the v5 rerun. Fresh P1-20
+  provider evidence remains open in the
+  [qualification guide](docs/qualification-gates.md).
 - P1-01 through P1-05 have actual SQLite acceptance/recovery evidence.
 - Local scripted-media qualification remains distinct from physical microphone,
   real-inference, hosted CI and capacity claims.
@@ -234,11 +237,13 @@ The flowchart groups the system into three parts:
   SQLite store.
 - The explicit P1 business profile: the native agent, the business service, the
   case authority, lease-governed execution, the pull worker and independent
-  fixtures on PostgreSQL v4.
+  fixtures on PostgreSQL v4/v5.
 - The explicit host backend libraries: the P2 and P3 components, which are
   separate from default Compose.
 
-Dotted arrows mark an alternative authority or a planned integration, as labelled.
+Dotted arrows mark an alternative authority or an opt-in integration, as labelled.
+The separate joined showcase is described under
+[Joined composition and remaining integration](#joined-composition-and-remaining-integration).
 
 ```mermaid
 flowchart LR
@@ -255,7 +260,7 @@ flowchart LR
         Lease[Database-time task leases and epochs]
         Supplier[Independent supplier fixture]
         Sink[Independent completion receiver]
-        PG[(PostgreSQL v4)]
+        PG[(PostgreSQL v4 or v5)]
         Agent -->|submit inspect cancel only| Business
         Business --> Case
         Business --> P1
@@ -331,8 +336,8 @@ flowchart LR
         Guard --> WorkPG
         Guard --> Case
     end
-    P2 -. planned native route integration .-> Agent
-    P3 -. planned integrated result route .-> P2
+    P2 -. opt-in native input .-> Agent
+    P3 -. opt-in original-input result return .-> P2
 ```
 
 The numbered notes explain the main boundaries:
@@ -383,7 +388,7 @@ The diagram shows the implemented P1 business path, followed by optional blocks
 for separate explicit P2 and P3 backend examples. Exact human consent stays in the
 authenticated controller, and the native agent receives no quote-confirmation
 operation. This path is separate from the diagnostic echo and from planned P2
-channel routing. Delivery does not establish human acknowledgement. A later case
+channel release qualification. Delivery does not establish human acknowledgement. A later case
 revision cannot undo an already accepted supplier operation.
 
 ```mermaid
@@ -726,13 +731,15 @@ collected in the [selected qualification record](#selected-qualification-record)
 | P3 delegation | Capability/input snapshot, result schema, applicability and routing metadata |
 
 The P1 native adapter is implemented, and the opt-in P2 native adapter has
-selected qualification. Wider P2/P3 composition is planned.
+selected qualification. The joined P2/P3 composition is implemented with selected
+journey evidence; its full installed/container and charter qualification remains
+open.
 
 The control API adapts local authenticated M1/business commands, observations and
 media grants; it does not own durable scheduling. TaskStore owns the original M1
-records. The opt-in P1 business service composes PostgreSQL v4
-case/continuation/effect and lease authority. The integrated P2/P3 runtime remains
-planned.
+records. The opt-in P1 business service composes PostgreSQL v4/v5
+case/continuation/effect and lease authority. The separate joined runtime composes
+public P1/P2/P3 APIs without copying their authoritative state.
 
 ### Shared commitment and effect rules
 
@@ -845,10 +852,11 @@ The current stack remains a deterministic lab foundation:
 | Standalone PostgreSQL v3 mutation, cancellation and completion | Qualified: Phase E final gate passed | [Phase E work item](docs/work-items/0011-p1-phase-e-effects-and-completion.md) |
 | PostgreSQL v4 coordination and an opt-in product worker | Qualified: Phase F final combined gate passed | [Phase F work item](docs/work-items/0012-p1-phase-f-leases-and-deployment.md) |
 | Explicit business workspace and scripted native media | Qualified: Phase G combined gate | [Phase G work item](docs/work-items/0013-p1-phase-g-conversation-and-showcase.md) |
-| P2/P3 platform and workload qualification | Planned | None yet; see the [granular roadmap](docs/implementation-plan.md) |
+| P2/P3 platform and workload qualification | Selected workload and installed-consumer gates passed; full release remains open | [Selected qualification record](#selected-qualification-record) and the [granular roadmap](docs/implementation-plan.md) |
 | `local_real` inference | Not qualified: implemented; actual engine/model/media qualification pending | [Local-real operations guide](docs/local-real-inference.md), which owns that profile |
 
-Fake SMS remains qualified for P1.
+Signed synthetic SMS belongs to P2's separately qualified channel slices. It does
+not establish real-carrier delivery or a P1 supplier outcome.
 
 [Portfolio scope](docs/portfolio-scope.md) defines the eventual offline, lab and
 live modes; their full product coverage must be added through the
@@ -994,7 +1002,7 @@ cooperating lookup can reconcile eligible work. Terminal uncertainty remains
 immutable pending a future adjudication contract.
 
 **Worker deployment profile.** The opt-in p1-workers profile receives only
-runtime credentials and checks ACTIVE v4 plus existing supplier/receiver
+runtime credentials and checks ACTIVE v4 or v5 plus existing supplier/receiver
 fixtures. It never performs serving DDL or fixture initialization. The same named
 state survives normal restart.
 
@@ -1206,6 +1214,7 @@ never run them:
 | v6 | Exactly the native binding/input tables, retaining v5 identities | [Native channel input](#native-channel-input) |
 | v7 | Three communication evidence tables within existing admission | [Communication evidence and playback](#communication-evidence-and-playback) |
 | v8 | One immutable receipt table linked atomically to the existing outbox notice | [Stable result delivery and current-channel reads](#stable-result-delivery-and-current-channel-reads) |
+| v9 | Owner-only due-work and status indexes, preserving v8 payloads and identities | [Upgrade follow-up](docs/work-items/0047-open-findings-schema-upgrades-and-landing.md) |
 
 #### Dispatch, gateway and owned agent process
 
@@ -1746,18 +1755,28 @@ stays in P2. The existing P1 work authority retains the accepted origin and
 policy bytes. Joined native voice/text/SMS, autonomous discovery, whole-stack
 restart, applicable provider runs and the final video retain their later gates.
 
-### Planned integrated composition
+### Joined composition and remaining integration
 
-The wider V1 composition will add channel continuity, specialists and
-appropriate native handoffs. P2 channel integration remains planned, as do the
-dotted native-route and integrated-result-route arrows in the high-level design.
+The optional joined application composes the implemented channel, specialist and
+durable-work APIs. Its Python Parent owns one native room worker and the
+independent background application; its Node gateway owns channel intake,
+dispatch, source reads and room control. Their
+[application design](services/channel_policy_demo/Design.md) and
+[gateway design](services/channel-policy-gateway/Design.md) own the concrete
+interfaces.
 
-- Use AgentTask/TaskGroup for suitable conversational subtasks. They do not
-  replace P1's durable business execution across process/session lifetimes.
-- Channel adapters will persist asynchronous input and route it into an active or
-  newly created interaction.
-- Durable execution and remote specialists will run independently of the media
-  job. Committed results will return through a stable conversation/account route.
+- Native text, recorded voice, signed synthetic SMS, dormancy and returning
+  results have selected actual journey evidence in
+  [0046](docs/work-items/0046-joined-showcase-providers-and-demo.md).
+- Installed/container reproduction, the frozen joined discovery/restart/media
+  gates and complete charter release remain open in
+  [0045](docs/work-items/0045-joined-native-channel-policy.md).
+- The [lifecycle follow-up](docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md)
+  fences room ingress and drains accepted input before worker teardown, then
+  quiesces gateway dispatch before Parent origin dependencies close. Its
+  verification record distinguishes offline, store/process and media evidence.
+- Native AgentTask/TaskGroup remain suitable for conversational subtasks. They
+  do not replace P1's durable execution across process/session lifetimes.
 
 ### Implementation layout and engineering
 

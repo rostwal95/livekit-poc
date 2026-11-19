@@ -1,0 +1,182 @@
+1Workflow architecture
+
+2Building the greeter agent
+
+3Complex tool definitions
+
+4AgentTask: structured data collection
+
+5TaskGroup: multi-step flows
+
+6Prebuilt tasks
+
+7Agent handoffs & context
+
+8State with userdata
+
+9Dynamic tool management
+
+10Testing the workflow
+
+Workflow architecture
+
+Workflow architecture
+
+Every real-world voice agent eventually needs to do more than hold a single conversation. A restaurant ordering system needs a greeter, an order taker, and a feedback collector — each with different personalities, tools, and goals. In this chapter, you will learn the three primitives that make this possible and how they compose into multi-agent workflows.
+
+What you'll learn
+
+The difference between tools, tasks, and agents
+
+When to reach for each primitive
+
+How the restaurant ordering system is structured end to end
+
+The decision tree for choosing the right abstraction
+
+The three primitives
+
+LiveKit Agents gives you three building blocks for structuring conversational logic. Each operates at a different level of abstraction, and choosing the right one for each piece of your system is the most important design decision you will make.
+
+Tools: functions the LLM can call
+
+A tool is a single function that the LLM invokes mid-conversation to fetch data or perform a side effect. You define the function, the framework generates a JSON schema from your type hints, and the LLM decides when to call it. The LLM stays in control of the conversation — the tool just gives it a new capability.
+
+Use a tool when you need to look something up, write a record, or trigger an external action. The interaction is quick: the LLM calls the function, reads the result, and continues talking.
+
+from livekit.agents import function_tool, RunContext
+
+@function_tool
+async def check_menu(context: RunContext, category: str) -> str:
+  """Check available menu items for a category."""
+  menu = {
+      "appetizers": ["Bruschetta", "Soup of the Day", "Caesar Salad"],
+      "mains": ["Grilled Salmon", "Ribeye Steak", "Pasta Primavera"],
+      "desserts": ["Tiramisu", "Cheesecake", "Gelato"],
+  }
+  items = menu.get(category, [])
+  return f"Available {category}: {', '.join(items)}" if items else f"No items found for '{category}'"
+
+import { functionTool, RunContext } from "@livekit/agents";
+
+const checkMenu = functionTool({
+name: "check_menu",
+description: "Check available menu items for a category.",
+parameters: { category: { type: "string", description: "The menu category" } },
+execute: async (context: RunContext, { category }: { category: string }) => {
+  const menu: Record<string, string[]> = {
+    appetizers: ["Bruschetta", "Soup of the Day", "Caesar Salad"],
+    mains: ["Grilled Salmon", "Ribeye Steak", "Pasta Primavera"],
+    desserts: ["Tiramisu", "Cheesecake", "Gelato"],
+  };
+  const items = menu[category] ?? [];
+  return items.length > 0
+    ? `Available ${category}: ${items.join(", ")}`
+    : `No items found for '${category}'`;
+},
+});
+
+Tasks: focused sub-agents for structured data
+
+A task is a mini-agent with a single job: collect a specific piece of structured data and return it. Think of it as a form that the LLM fills out through conversation. You define a typed result (a Pydantic model in Python, a Zod schema in TypeScript), and the task runs its own conversational loop until it has everything it needs. Then it calls complete() with the result and hands control back to the parent.
+
+Use a task when you need structured input from the user — an order item with name, quantity, and modifications; a delivery address with street, city, and zip; an email address that needs spelling confirmation.
+
+from livekit.agents import AgentTask, function_tool, RunContext
+from pydantic import BaseModel
+
+class OrderItem(BaseModel):
+  name: str
+  quantity: int
+  modifications: list[str] = []
+
+class CollectOrderItem(AgentTask[OrderItem]):
+  def __init__(self):
+      super().__init__(
+          instructions="Collect one menu item from the customer. Ask for the item name, quantity, and any modifications.",
+          output_type=OrderItem,
+      )
+
+Agents: full conversational personalities
+
+An agent is a complete conversational entity with its own instructions, tools, and personality. When the system hands off from one agent to another, the new agent takes over the conversation entirely. The user might notice a shift in tone or topic, but the transition is seamless.
+
+Use an agent when you need a fundamentally different instruction set, personality, or set of tools. A greeter agent is warm and brief. An order taker is methodical and detail-oriented. A feedback collector is empathetic and open-ended. These are different roles, not different steps in a form.
+
+The decision tree
+
+When you are building a new piece of conversational logic, walk through this decision tree:
+
+If the answer is a quick lookup, API call, or side effect with a simple return value, use a tool. The LLM stays in the same conversation and uses the result to formulate its next response.
+
+If you need a typed result — a filled-out data model with specific fields — use a task. The task runs its own conversational loop, validates the input, and returns the structured data to the parent agent.
+
+If the conversation needs to shift to a fundamentally different mode — different tone, different goals, different tools — use an agent handoff. The new agent takes over completely.
+
+Primitives compose
+
+These are not mutually exclusive. An agent can have tools and run tasks. A task can have its own tools. An agent can hand off to another agent that runs a TaskGroup with multiple tasks. The power comes from combining them.
+
+The restaurant system architecture
+
+Throughout this course, you will build a restaurant ordering system with three agents and several tasks. Here is the high-level architecture:
+
+Restaurant ordering system
+
+Greeter Agent
+
+Tools: check_hours, check_wait_time. Hands off to Order Taker.
+
+Order Taker Agent
+
+Tools: check_menu, apply_coupon (dynamic). Runs TaskGroup for full order.
+
+CollectOrderItem Task
+
+Collects individual menu items as structured data
+
+CollectPayment Task
+
+Collects payment details
+
+Feedback Agent
+
+Uses prebuilt GetEmailTask. Wraps up the interaction.
+
+The Greeter Agent welcomes diners, answers questions about hours and wait times, and hands off to the Order Taker when the customer is ready to order. The Order Taker uses a TaskGroup to collect individual order items and payment details, then hands off to the Feedback Agent. The Feedback Agent collects satisfaction feedback and uses a prebuilt GetEmailTask to get the customer's email for the receipt. Each agent has its own tools, and the Order Taker dynamically adds a coupon tool after the order is placed.
+
+Agent roles
+
+Each agent has a distinct responsibility and personality:
+
+Greeter Agent — Warm and welcoming. Answers questions about the restaurant (hours, wait times, menu overview). Has a transfer_to_order_taker tool that triggers a handoff when the guest is ready to order. Uses on_enter() to deliver the initial greeting.
+
+Order Taker Agent — Methodical and precise. Runs a TaskGroup to collect each menu item as structured data. Has a check_menu tool for looking up available dishes. Dynamically adds an apply_coupon tool after the order is confirmed. Hands off to the Feedback Agent when the order is complete.
+
+Feedback Agent — Empathetic and conversational. Asks the customer about their experience. Uses the prebuilt GetEmailTask to collect an email address for the receipt. Wraps up the interaction.
+
+Shared state
+
+All three agents share state through session.userdata, a persistent object that survives agent handoffs. You will build an OrderState dataclass that tracks the customer's name, their order items, the total price, and the feedback — all accessible to every agent in the chain.
+
+What you learned
+
+Tools are functions for quick lookups and actions — the LLM stays in control
+
+Tasks are mini-agents that collect structured data and return typed results
+
+Agents are full conversational personalities with their own instructions and tools
+
+The decision tree helps you pick the right primitive for each piece of logic
+
+The restaurant system uses all three: agents for different conversation phases, tasks for structured data collection, and tools for lookups and actions
+
+Test your knowledge
+
+Question 1 of 3
+
+When should you use an AgentTask instead of a tool?
+
+Next up
+
+In the next chapter, you will build the Greeter Agent — the first agent in the chain. You will learn how to subclass Agent, use on_enter() for the initial greeting, and create a tool that triggers the handoff to the Order Taker.

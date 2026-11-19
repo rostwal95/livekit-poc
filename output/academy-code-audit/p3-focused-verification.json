@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "area": "P3 native-policy focused verification",
+  "recorded_at": "2026-11-19",
+  "provenance": "Structured transcription of completed tool observations from this audit. This file was written after those runs; it is not a fresh rerun or a full raw console log.",
+  "python": "/Users/rostwal/Downloads/livekit-poc/.venv/bin/python",
+  "network": "Offline scripted fixtures. Actual-SDK tests deny socket.socket.connect. No remote model/provider or Docker/PG invocation.",
+  "observations": [
+    {
+      "phase": "unchanged native baseline",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /Users/rostwal/Downloads/livekit-poc/.venv/bin/python -m unittest discover -s projects/delegation-reliability/tests -p test_native_baseline.py -q",
+      "exit_code": 0,
+      "tests": 18,
+      "seconds": 1.626,
+      "result": "OK",
+      "tool_session": 23043,
+      "final_output_chunk": "714ff8",
+      "limit": "Actual pinned SDK objects and scripted FixtureLLM; no live model/media inference."
+    },
+    {
+      "phase": "red: new regressions before native source repair",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /Users/rostwal/Downloads/livekit-poc/.venv/bin/python -m unittest discover -s projects/delegation-reliability/tests -p test_native_policy.py -q",
+      "exit_code": 1,
+      "tests": 18,
+      "failures": 1,
+      "seconds": 0.337,
+      "failing_test": "test_pre_admission_capacity_allows_explicit_same_request_retry",
+      "assertion": "Expected result.state == 'result'; observed 'no_work'.",
+      "tool_session": 14454,
+      "final_output_chunk": "109978"
+    },
+    {
+      "phase": "green: approved submit-only capacity repair",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /Users/rostwal/Downloads/livekit-poc/.venv/bin/python -m unittest discover -s projects/delegation-reliability/tests -p test_native_policy.py -q",
+      "exit_code": 0,
+      "tests": 18,
+      "seconds": 0.325,
+      "result": "OK",
+      "tool_session": 90649,
+      "final_output_chunk": "bee2cb",
+      "limits": [
+        "Real public P3 coordinator and runner, in-memory public P1 authority fixture.",
+        "No real PG commit, lease, socket or process qualification."
+      ]
+    },
+    {
+      "phase": "actual pinned SDK native application",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /Users/rostwal/Downloads/livekit-poc/.venv/bin/python -m unittest discover -s projects/delegation-reliability/tests -p test_native_policy_sdk.py -q",
+      "exit_code": 0,
+      "tests": 3,
+      "seconds": 0.19,
+      "result": "OK",
+      "tool_session": 15077,
+      "final_output_chunk": "ae3dbb",
+      "proof": "Held background work permits a useful second text turn; SDK close stops waiting while durable app ownership remains; missing evidence produces clarification with eligible=null.",
+      "limit": "Scripted LLM and fake durable ports, no PG/RTC/provider."
+    },
+    {
+      "phase": "changed-file static lint",
+      "command": "/Users/rostwal/Downloads/livekit-poc/.venv/bin/ruff check projects/delegation-reliability/python/src/delegation_reliability/native_policy.py projects/delegation-reliability/tests/test_native_policy.py",
+      "exit_code": 0,
+      "result": "All checks passed!",
+      "final_output_chunk": "0b35c8"
+    },
+    {
+      "phase": "changed-file format",
+      "command": "/Users/rostwal/Downloads/livekit-poc/.venv/bin/ruff format --check projects/delegation-reliability/python/src/delegation_reliability/native_policy.py projects/delegation-reliability/tests/test_native_policy.py",
+      "exit_code": 0,
+      "result": "2 files already formatted",
+      "final_output_chunk": "0b35c8"
+    },
+    {
+      "phase": "parent-owned exact pinned Node specialist suite",
+      "command_role": "Run specialist vitest with isolated official Node 24.22.2 on PATH; see parent log for exact invocation.",
+      "tests": 188,
+      "test_files": 11,
+      "seconds": 2.51,
+      "result": "All passed",
+      "evidence_file": "output/academy-code-audit/specialist-tests-pinned-node.log",
+      "toolchain_evidence": "output/academy-code-audit/node-toolchain.json",
+      "limit": "No guard weakening; not a PG/media/provider qualification."
+    }
+  ],
+  "regression_contracts": [
+    {
+      "path": "projects/delegation-reliability/tests/test_native_policy.py",
+      "line": 257,
+      "name": "test_pre_admission_capacity_allows_explicit_same_request_retry",
+      "asserts": "Four held real coordinator reads cause definite pre-admission capacity; no acceptance/issuance/invoke; after pressure settles, one explicit retry preserves binding/payload and produces one result."
+    },
+    {
+      "path": "projects/delegation-reliability/tests/test_native_policy.py",
+      "line": 290,
+      "name": "test_unknown_submit_ack_never_retries_acceptance_or_issues",
+      "asserts": "Commit then lose submit ACK and fail original reconciliation; later explicit calls inspect only, with submit_calls=1 and issue_count=0."
+    },
+    {
+      "path": "projects/delegation-reliability/tests/test_native_policy.py",
+      "line": 317,
+      "name": "test_runner_capacity_after_acceptance_keeps_calls_lookup_only",
+      "asserts": "Capacity after accepted work does not reset the application attempt; later calls stay lookup-only after pressure clears."
+    }
+  ],
+  "not_run": [
+    "Actual PostgreSQL P3 capacity/ACK failpoint regression",
+    "P3 actual process/package/workload release lanes",
+    "Browser/audio/playback/media gates",
+    "Provider inference"
+  ],
+  "prerequisite_evidence": "output/academy-code-audit/p3-typescript-fixture-diagnosis.json",
+  "parent_validation": "Parent owns serial TypeScript/shared fast checks. The 188/188 specialist pinned-runtime result is recorded from its saved log; no claim is made about an unfinished shared fast run."
+}

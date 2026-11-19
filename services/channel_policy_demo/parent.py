@@ -186,8 +186,9 @@ def _rooms(settings: ParentSettings, app: AppPort, cursor: NodeRoomCursor) -> Ro
         directory=settings.room_directory,
         python_executable=settings.python_executable,
         base_environment=settings.base_environment,
-        # Real provider sessions need longer than scripted models to close cleanly.
-        cleanup_timeout_s=8 if settings.inference_mode == "provider_real" else 2,
+        # The room observes its retained worker-process drain before closing
+        # gateway/SFU resources. Both inference modes keep the same hierarchy.
+        cleanup_timeout_s=30,
         provider_environment=settings.provider_environment,
     )
 
@@ -229,7 +230,7 @@ class ChannelPolicyParent:
         settings: ParentSettings,
         *,
         startup_timeout_s: float = 15,
-        cleanup_timeout_s: float = 5,
+        cleanup_timeout_s: float = 60,
         factories: ParentFactories | None = None,
     ) -> None:
         _need(type(settings) is ParentSettings)
@@ -244,8 +245,8 @@ class ChannelPolicyParent:
             settings.inference_mode,
             settings.provider_environment,
         )
-        for value in (startup_timeout_s, cleanup_timeout_s):
-            _need(type(value) in (int, float) and 0.02 <= value <= 15 and math.isfinite(value))
+        for value, maximum in ((startup_timeout_s, 15), (cleanup_timeout_s, 60)):
+            _need(type(value) in (int, float) and 0.02 <= value <= maximum and math.isfinite(value))
         self._startup_budget, self._cleanup_budget = (
             float(startup_timeout_s),
             float(cleanup_timeout_s),
@@ -261,6 +262,8 @@ class ChannelPolicyParent:
         self._sources: asyncio.Task[None] | None = None
         self._starting: asyncio.Task[LoopbackEndpoint] | None = None
         self._closing_task: asyncio.Task[None] | None = None
+        self._front_task: asyncio.Task[None] | None = None
+        self._front_closed = False
         self._source_deadline: float | None = None
         self._start_deadline: float | None = None
         self._cursor: NodeRoomCursor | None = None
@@ -299,6 +302,7 @@ class ChannelPolicyParent:
                 "operator_ready": int(self.ready),
                 "closing": int(self._closing),
                 "closed": int(self._closed),
+                "front_closed": int(self._front_closed),
                 "owned_resources": len(self._owners) - len(self._closed_owners),
                 "cleanup_allocation_failed": self._cleanup_allocation_failed,
                 "startup_active": sum(
@@ -328,7 +332,9 @@ class ChannelPolicyParent:
             async with asyncio.timeout_at(self._source_deadline):
                 await asyncio.shield(self._sources)
         except BaseException as error:
-            self._begin_close()
+            # A launcher may already own a dispatching gateway. Keep App
+            # origins alive until its explicit dispatch-quiesce phase.
+            self._begin_prepare_shutdown()
             if isinstance(error, Exception):
                 raise _failure(error) from None
             raise
@@ -397,13 +403,13 @@ class ChannelPolicyParent:
             async with asyncio.timeout_at(self._start_deadline):
                 return await asyncio.shield(self._starting)
         except BaseException as error:
-            self._begin_close()
+            self._begin_prepare_shutdown()
             if isinstance(error, Exception):
                 raise _failure(error) from None
             raise
 
     def _begin_close(self) -> None:
-        self._closing = True
+        self._begin_prepare_shutdown()
         if (
             self._closing_task is None
             or self._closing_task.done()
@@ -411,6 +417,20 @@ class ChannelPolicyParent:
         ):
             try:
                 self._closing_task = _task(self._finish_close(), cleanup=True)
+            except Exception:  # noqa: BLE001 - actual owners remain retained for explicit close
+                self._cleanup_allocation_failed = min(
+                    9007199254740991, self._cleanup_allocation_failed + 1
+                )
+
+    def _begin_prepare_shutdown(self) -> None:
+        self._closing = True
+        if (
+            self._front_task is None
+            or self._front_task.done()
+            and (self._front_task.cancelled() or self._front_task.exception() is not None)
+        ):
+            try:
+                self._front_task = _task(self._finish_prepare_shutdown(), cleanup=True)
             except Exception:  # noqa: BLE001 - all returned owners remain retained for explicit close
                 self._cleanup_allocation_failed = min(
                     9007199254740991, self._cleanup_allocation_failed + 1
@@ -426,7 +446,7 @@ class ChannelPolicyParent:
         await asyncio.shield(task)
         self._closed_owners.add(name)
 
-    async def _finish_close(self) -> None:
+    async def _finish_prepare_shutdown(self) -> None:
         startup = tuple(task for task in (self._sources, self._starting) if task is not None)
         if startup:
             await asyncio.gather(
@@ -444,10 +464,41 @@ class ChannelPolicyParent:
             values = await asyncio.gather(*observers, return_exceptions=True)
             failed = failed or any(isinstance(value, BaseException) for value in values)
         _need(not failed, "cleanup_incomplete")
+        self._front_closed = True
+
+    async def prepare_shutdown(self) -> None:
+        """Drain room/operator owners while application origin listeners stay live.
+
+        The launcher observes this before globally quiescing gateway dispatch.
+        Timeout/cancellation abandons only this observer; the same front task and
+        every returned resource stay owned for the next observation.
+        """
+        self._bind()
+        self._begin_prepare_shutdown()
+        try:
+            _need(self._front_task is not None, "cleanup_incomplete")
+            assert self._front_task is not None
+            async with asyncio.timeout(min(45, self._cleanup_budget)):
+                await asyncio.shield(self._front_task)
+        except asyncio.CancelledError:
+            raise
+        except Exception:  # noqa: BLE001 - private owner failures stay behind one finite code
+            raise ParentError("cleanup_incomplete") from None
+
+    async def _finish_close(self) -> None:
+        _need(self._front_task is not None, "cleanup_incomplete")
+        assert self._front_task is not None
+        await asyncio.shield(self._front_task)
         await self._close_one("app")
         self._closed = True
 
     async def close(self) -> None:
+        """Close owned resources after the caller's external dispatch barrier.
+
+        A composition with a gateway must first await prepare_shutdown(), then
+        quiesce that gateway's actual dispatch owners. Parent does not own or
+        independently verify an externally supplied gateway's lifecycle.
+        """
         self._bind()
         self._begin_close()
         try:

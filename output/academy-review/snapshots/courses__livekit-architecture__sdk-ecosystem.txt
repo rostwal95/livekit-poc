@@ -1,0 +1,162 @@
+1Why WebRTC? The latency problem in voice AI
+
+2P2P vs MCU vs SFU: why LiveKit chose the SFU
+
+3Rooms, Participants & Tracks: universal primitives
+
+4AI agents as room participants
+
+5The data plane: streams, RPC & state sync
+
+6Extending the room: telephony, egress & ingress
+
+7Security, encryption & self-hosting
+
+8The universal SDK ecosystem
+
+The universal SDK ecosystem
+
+The universal SDK ecosystem
+
+In this chapter, you will learn the full breadth of LiveKit's SDK ecosystem — client SDKs for every major platform, server SDKs for backend operations, agent SDKs for AI, and pre-built UI components that accelerate development. You will see how a consistent API design across all SDKs means that learning LiveKit once lets you build everywhere, and why this ecosystem breadth is itself a significant competitive advantage.
+
+Why SDK breadth matters
+
+A realtime platform is only as useful as the places you can run it. A brilliant SFU architecture means nothing if you cannot connect to it from an iOS app, an Android app, a web browser, a Unity game, a Raspberry Pi, and a backend server. Every missing SDK is a missing use case — a customer who cannot adopt the platform, an application that cannot be built.
+
+LiveKit's ecosystem covers more platforms than any competing realtime infrastructure. This is not accidental. It reflects a strategic understanding that realtime communication is not a browser-only problem, and that the winning platform is the one developers can use wherever they need it.
+
+Client SDKs: every platform, one API
+
+Client SDKs connect end-user devices to LiveKit rooms. Each SDK implements the same core abstractions — Room, Participant, Track, publication, subscription — adapted to the idioms and conventions of its target platform.
+
+SDK | Platform | Language | Notes
+livekit-client | Web browsers | TypeScript/JavaScript | The reference implementation. Works in all modern browsers.
+LiveKit Swift | iOS, macOS, visionOS | Swift | Native Apple platform support with SwiftUI integration
+LiveKit Android | Android | Kotlin | Native Android with Jetpack Compose support
+LiveKit Flutter | iOS, Android, Web, Desktop | Dart | Cross-platform from a single codebase
+LiveKit React Native | iOS, Android | TypeScript | For React Native mobile applications
+LiveKit Unity | Windows, macOS, Linux, WebGL | C# | For games, simulations, and 3D experiences
+LiveKit C++ | Desktop, embedded | C++ | For native desktop apps and embedded systems
+LiveKit Rust | Desktop, server, embedded | Rust | High-performance native applications
+
+Learn once, build everywhere
+
+Every client SDK exposes the same conceptual API. Connecting to a room, subscribing to tracks, publishing media, handling participant events — these operations work the same way whether you are writing TypeScript for the web, Swift for iOS, or Kotlin for Android. The method names adapt to platform conventions, but the mental model is identical.
+
+This consistency matters for teams. A developer who has built a LiveKit web application can contribute to the mobile app without learning a new conceptual framework. The Room is still a Room. A Participant is still a Participant. Tracks still publish and subscribe. The architecture chapter you read earlier — rooms, participants, tracks — is the API you use in every SDK.
+
+Server SDKs: backend operations
+
+Server SDKs run on your backend and handle operations that should never happen on a client: generating access tokens, creating and managing rooms, ejecting participants, starting egress, and controlling the server-side lifecycle of your LiveKit deployment.
+
+SDK | Language | Primary use cases
+livekit-server-sdk-python | Python | Token generation, room management, webhooks
+livekit-server-sdk-js | Node.js / TypeScript | Token generation, room management, webhooks
+livekit-server-sdk-go | Go | Token generation, room management, webhooks
+livekit-server-sdk-ruby | Ruby | Token generation, room management, webhooks
+livekit-server-sdk-kotlin | Kotlin / Java | Token generation, room management, webhooks
+livekit-server-sdk-php | PHP | Token generation, room management, webhooks
+livekit-server-sdk-rust | Rust | Token generation, room management, webhooks
+
+Every server SDK provides the same capabilities: create access tokens with specific grants, list and manage rooms, send data to rooms, start and stop egress, and receive webhook events. The choice of server SDK is driven purely by your backend's language — not by any feature difference.
+
+Room Service API
+
+The Room Service API is the server-side control plane for rooms and participants. It lets your backend manage the lifecycle of rooms and participants programmatically — useful for admin dashboards, moderation, and orchestration.
+
+Operation | What it does
+Create Room | Explicitly create a room with specific settings (max participants, empty timeout, metadata) before anyone joins
+List Rooms | Enumerate all active rooms — useful for dashboards and monitoring
+Delete Room | Force-close a room and disconnect all participants
+List Participants | Get all participants in a specific room with their metadata and track info
+Get Participant | Retrieve details for a specific participant by identity
+Remove Participant | Eject a participant from a room (moderation, policy enforcement)
+Mute Published Track | Server-side mute a participant's track (moderation)
+Update Participant | Change a participant's metadata, permissions, or name
+Update Room Metadata | Change room-level metadata visible to all participants
+Send Data | Push data messages to participants from the server side
+
+Most agents do not need the Room Service API
+
+For typical voice AI workflows, rooms are created automatically when participants join. The Room Service API is for when you need server-side control: building admin tools, enforcing policies, orchestrating multi-room workflows, or integrating with external systems that need to inspect or modify room state.
+
+Webhooks for server-side events
+
+Server SDKs also handle webhook validation. LiveKit sends webhooks for events like participant joined, participant left, room started, room finished, egress completed, and more. Your server SDK validates the webhook signature and provides typed event objects, making it straightforward to react to room lifecycle events from your backend.
+
+Key webhook events include:
+
+Event | When it fires
+room_started | A new room is created
+room_finished | A room is closed (all participants left)
+participant_joined | A participant enters a room
+participant_left | A participant leaves a room
+track_published | A participant publishes a new track
+track_unpublished | A participant removes a track
+egress_started | An egress (recording/stream) begins
+egress_ended | An egress completes
+ingress_started | An ingress (RTMP/WHIP ingest) begins
+ingress_ended | An ingress ends
+
+Webhooks are essential for server-side automation: logging call records, triggering post-call processing, updating CRM systems when calls end, or alerting when rooms exceed expected durations.
+
+Agent SDKs: building AI participants
+
+The Agents Framework — LiveKit's toolkit for building AI participants — has dedicated SDKs in two languages:
+
+SDK | Language | Focus
+livekit-agents (Python) | Python | Full agent framework with plugin ecosystem for STT, LLM, TTS
+livekit-agents (Node.js) | Node.js / TypeScript | Full agent framework, same capabilities as the Python SDK
+
+Agent SDKs are more than thin wrappers around the client SDK. They provide the Agents Framework — a structured way to build AI participants that handle the full voice AI pipeline (STT, LLM, TTS), manage conversation state, use tools, and interact with room participants. The framework handles the hard parts: voice activity detection, interruption handling, turn-taking, audio buffering, and graceful degradation.
+
+Python is the primary language for AI/ML development, and the Python agent SDK has the broadest plugin ecosystem — integrations with OpenAI, Anthropic, Deepgram, ElevenLabs, Cartesia, Silero, and many others. The Node.js SDK provides the same core framework for teams whose backend is JavaScript-native.
+
+The three SDK tiers — client, server, agent — mirror the three roles in a LiveKit application. Clients connect users to rooms. Servers manage infrastructure and authorization. Agents add intelligence. Each tier has SDKs in the languages that make sense for that role, and all three tiers share the same underlying concepts.
+
+UI components: pre-built interfaces
+
+Building realtime UI from scratch is tedious and error-prone. Managing video tile layouts, audio level visualizations, connection state indicators, mute buttons, and participant lists involves substantial frontend work that is the same across most applications. LiveKit provides pre-built UI component libraries that handle this common work.
+
+Library | Platform | What it provides
+@livekit/components-react | React (Web) | Video/audio renderers, layout components, controls, chat
+LiveKit Components (Swift) | SwiftUI (iOS/macOS) | Native video views, audio visualizers, participant lists
+LiveKit Components (Android) | Jetpack Compose | Native video renderers, controls, participant management
+
+The React component library is the most mature, providing composable components for video grids, audio visualizers, chat interfaces, media device selectors, and connection management. These components handle the visual complexity of realtime communication — tile reflow when participants join or leave, audio-level-driven speaker highlighting, responsive layouts for different screen sizes — so you can focus on your application's unique features.
+
+Composable, not monolithic
+
+LiveKit's UI components are designed to be composed, not consumed as a monolith. You can use the full pre-built layout, or you can use individual primitives — a single video renderer, a single audio visualizer — and arrange them however your design requires. The components handle the hard realtime parts; you control the design.
+
+ESP32: voice AI on microcontrollers
+
+At the far edge of the ecosystem sits something remarkable: LiveKit support for the ESP32, a low-cost microcontroller commonly used in IoT devices. This means you can build a hardware device — a smart speaker, a voice-controlled appliance, an embedded kiosk — that connects directly to a LiveKit room and participates in voice AI conversations.
+
+The ESP32 integration represents the logical extreme of LiveKit's "everything is a participant" philosophy. A five-dollar microcontroller with a microphone and speaker becomes a full room participant, publishing and subscribing to audio tracks, receiving text streams, and interacting with AI agents — all through the same room model that powers browser and mobile applications.
+
+This is not a toy. Voice AI on embedded hardware opens use cases that browser and mobile apps cannot serve: always-on devices in physical spaces, industrial equipment with voice interfaces, accessibility devices, and hardware products with conversational AI built in.
+
+Test your knowledge
+
+Question 1 of 2
+
+What is the primary difference between LiveKit client SDKs and server SDKs?
+
+The ecosystem as competitive advantage
+
+Consider the full picture:
+
+Category | Platforms covered
+Web | All modern browsers via JavaScript/TypeScript
+Mobile | iOS (Swift), Android (Kotlin), cross-platform (Flutter, React Native)
+Desktop | macOS, Windows, Linux via C++, Rust, Unity
+Games/3D | Unity (C#)
+Embedded/IoT | ESP32, any platform via C++ or Rust
+Server | Python, Node.js, Go, Ruby, Kotlin/Java, PHP, Rust
+AI agents | Python, Node.js
+
+No other realtime platform covers this range. Competing platforms typically cover web and mobile, with limited or no support for desktop, games, embedded, or AI agents. The breadth of LiveKit's ecosystem means you can start with a web prototype, add a mobile app, integrate a voice AI agent, deploy to hardware — all using the same platform, the same room model, the same conceptual API.
+
+SDK ecosystem breadth is a compounding advantage. Every new SDK expands the set of applications that can be built on the platform, which attracts more developers, which justifies investment in more SDKs. LiveKit's coverage — from ESP32 microcontrollers to Unity games to server-side Go — represents years of sustained investment in making the platform accessible everywhere developers need it. For teams evaluating realtime infrastructure, this breadth significantly de-risks the choice: wherever your application needs to go next, LiveKit can follow.

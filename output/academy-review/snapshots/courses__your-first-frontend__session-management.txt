@@ -1,0 +1,320 @@
+1Frontend architecture for the dental receptionist
+
+2Connecting to the dental receptionist
+
+3Agent dispatch
+
+4Agent state & the dental session lifecycle
+
+5Transcription & booking confirmations
+
+6Text input for the dental receptionist
+
+7RPC & data channels: a visual booking flow
+
+Agent state & the dental session lifecycle
+
+Agent state & the dental session lifecycle
+
+Maya goes through a predictable lifecycle every time a patient connects: she starts up, listens, thinks, speaks, and eventually disconnects. In this chapter, you will track that lifecycle in real time and build a dental-specific UI that responds to every state change — from showing "Connecting to Maya..." when the session starts to displaying a booking summary when the conversation ends.
+
+What you'll learn
+
+The agent state machine and its six states
+
+How to read agent state from the session object
+
+How to build a dental receptionist state indicator
+
+How to read participant attributes (patient name, conversation phase)
+
+How to handle errors and session endings gracefully
+
+The agent state machine
+
+Every LiveKit voice AI agent follows a predictable state machine. Maya is no exception.
+
+Dental receptionist state machine
+
+connecting
+
+Maya joins the room and initializes STT/LLM/TTS
+
+listening
+
+Waiting for the patient to speak
+
+thinking
+
+Processing speech — checking availability or formulating a response
+
+speaking
+
+Streaming TTS audio — greeting, confirming a booking, answering a question
+
+disconnected
+
+Session ended cleanly
+
+failed
+
+Error occurred
+
+In a typical dental conversation, the cycle looks like this:
+
+connecting — Maya joins, initializes Deepgram STT + GPT-4o-mini + Cartesia TTS
+
+speaking — Maya greets: "Thanks for calling Bright Smile Dental!"
+
+listening — Patient says: "I'd like to book an appointment for next Tuesday"
+
+thinking — Maya processes speech, LLM decides to call check_availability
+
+speaking — "I have openings at 9 AM, 11:30, and 2 in the afternoon"
+
+listening -> thinking -> speaking (loops until booking is complete or patient hangs up)
+
+disconnected — Patient ends the call
+
+Reading agent state
+
+The session object exposes the agent's current state reactively. Your components re-render on every transition — no polling needed.
+
+"use client";
+
+import { useSession } from "@livekit/agents-react";
+
+const stateConfig: Record<string, { label: string; color: string }> = {
+connecting:   { label: "Connecting to Maya...",     color: "bg-yellow-400" },
+listening:    { label: "Maya is listening",         color: "bg-green-400" },
+thinking:     { label: "Maya is thinking...",       color: "bg-blue-400" },
+speaking:     { label: "Maya is speaking",          color: "bg-purple-400" },
+disconnected: { label: "Session ended",             color: "bg-gray-400" },
+failed:       { label: "Connection lost",           color: "bg-red-400" },
+};
+
+export function DentalStateIndicator() {
+const session = useSession();
+const state = session.agent.agentState;
+const config = stateConfig[state] ?? stateConfig.connecting;
+
+return (
+  <div className="flex items-center gap-2">
+    <span
+      className={`inline-block h-3 w-3 rounded-full ${config.color} ${
+        state === "thinking" ? "animate-pulse" : ""
+      }`}
+    />
+    <span className="text-sm font-medium text-gray-700">{config.label}</span>
+  </div>
+);
+}
+
+The thinking state gets a pulse animation — this communicates to the patient that Maya heard them and is working on a response. In the dental context, this is especially important when the agent is calling check_availability or book_appointment, which may take a moment.
+
+The session.agent.agentState value is reactive. When Maya transitions from listening to thinking (because the patient asked about availability), your component re-renders automatically. There is no manual subscription, no event listener, no useEffect — just read the value and the framework handles the rest.
+
+Reading participant attributes
+
+Beyond the standard agent state, your dental receptionist publishes custom participant attributes. In Course 1.1, you used set_attributes() to publish the patient's name and conversation phase. The frontend reads these to personalize the UI.
+
+"use client";
+
+import { useSession } from "@livekit/agents-react";
+
+export function PatientGreeting() {
+const session = useSession();
+
+// Read custom attributes published by the dental agent
+const agentAttributes = session.agent.attributes;
+const patientName = agentAttributes?.patient_name;
+
+if (!patientName) return null;
+
+return (
+  <p className="text-sm text-gray-500">
+    Patient: <span className="font-medium text-gray-900">{patientName}</span>
+  </p>
+);
+}
+
+Attributes are set by the agent
+
+The frontend reads participant attributes — it does not set them. The dental receptionist agent sets patient_name after it collects the patient's name during the conversation. The frontend simply subscribes and displays the value when it appears.
+
+Building the dental session page
+
+Now combine the state indicator, patient greeting, and phase-aware UI into a complete page. Each phase of the dental conversation gets its own visual treatment.
+
+"use client";
+
+import { useSession } from "@livekit/agents-react";
+import { TokenSource } from "livekit-client";
+import { DentalStateIndicator } from "@/components/DentalStateIndicator";
+import { PatientGreeting } from "@/components/PatientGreeting";
+
+export default function DentalReceptionist() {
+const session = useSession({
+  tokenSource: TokenSource.endpoint({ url: "/api/token" }),
+});
+
+const { agentState, isFinished, error } = session.agent;
+
+return (
+  <main className="flex min-h-screen flex-col items-center justify-center bg-white p-8">
+    <div className="w-full max-w-md space-y-6">
+      {/* Header */}
+      <div className="text-center">
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Bright Smile Dental
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">AI Receptionist</p>
+      </div>
+
+      {/* State indicator */}
+      <div className="flex justify-center">
+        <DentalStateIndicator />
+      </div>
+
+      {/* Patient name (appears after agent collects it) */}
+      <div className="flex justify-center">
+        <PatientGreeting />
+      </div>
+
+      {/* Connecting phase */}
+      {agentState === "connecting" && (
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500" />
+          <p className="mt-4 text-gray-500">
+            Connecting you to Maya, our receptionist...
+          </p>
+        </div>
+      )}
+
+      {/* Active conversation */}
+      {(agentState === "listening" ||
+        agentState === "thinking" ||
+        agentState === "speaking") && (
+        <div className="text-center">
+          <p className="text-sm text-gray-400">
+            {agentState === "listening" &&
+              "Go ahead — tell Maya what you need."}
+            {agentState === "thinking" &&
+              "One moment while Maya checks on that..."}
+            {agentState === "speaking" && ""}
+          </p>
+          {/* Audio visualizer and chat transcript will go here in later chapters */}
+        </div>
+      )}
+
+      {/* Session ended cleanly */}
+      {isFinished && !error && (
+        <div className="text-center">
+          <p className="text-lg font-semibold text-gray-900">
+            Thanks for calling Bright Smile Dental!
+          </p>
+          <p className="mt-2 text-gray-500">
+            If you booked an appointment, you will receive a confirmation
+            shortly.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
+          >
+            Start a new conversation
+          </button>
+        </div>
+      )}
+
+      {/* Error state */}
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+          <p className="font-semibold text-red-700">Connection lost</p>
+          <p className="mt-2 text-sm text-red-600">{error.message}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 rounded-lg bg-red-600 px-6 py-2 text-white hover:bg-red-700"
+          >
+            Reconnect
+          </button>
+        </div>
+      )}
+    </div>
+  </main>
+);
+}
+
+This page is structured around the dental patient journey: connecting to Maya, having the conversation, and wrapping up. The "Thanks for calling" message mirrors Maya's own sign-off. The "Start a new conversation" button creates a fresh room with a new token. Each phase has UI tailored to a dental receptionist interaction, not a generic agent.
+
+Handling the failed state
+
+The failed state can occur for several reasons: network loss, agent crash, token expiration, or LiveKit Cloud issues. In a dental context, this is especially important — a patient mid-booking needs a clear path to recover.
+
+"use client";
+
+import { useSession } from "@livekit/agents-react";
+
+export function DentalError() {
+const session = useSession();
+const { error } = session.agent;
+
+if (!error) return null;
+
+return (
+  <div role="alert" className="rounded-lg border border-red-300 bg-red-50 p-4">
+    <h3 className="font-semibold text-red-800">
+      We lost the connection to our receptionist
+    </h3>
+    <p className="mt-1 text-sm text-red-700">
+      {error.message || "An unexpected error occurred."}
+    </p>
+    <p className="mt-2 text-sm text-red-600">
+      If you were in the middle of booking, your appointment has not been
+      confirmed. Please try again.
+    </p>
+    <button
+      onClick={() => window.location.reload()}
+      className="mt-3 rounded bg-red-600 px-4 py-1.5 text-sm text-white hover:bg-red-700"
+    >
+      Reconnect to Maya
+    </button>
+  </div>
+);
+}
+
+Do not silently swallow errors
+
+A blank screen when Maya crashes mid-booking is the worst experience for a patient. Always surface the error, explain the impact ("your appointment has not been confirmed"), and provide a recovery path.
+
+Convenience getters
+
+The session object provides shorthand getters that simplify conditional logic:
+
+Getter | Value | Dental use
+session.agent.agentState | Current state string | Drive the UI state machine
+session.agent.canListen | true when state is listening | Enable the text input field
+session.agent.isFinished | true when disconnected or failed | Show the end-of-session view
+session.agent.error | Error object or null | Show the error recovery UI
+session.agent.attributes | Agent's participant attributes | Read patient_name, custom state
+
+What you learned
+
+The agent state machine has six states: connecting, listening, thinking, speaking, disconnected, and failed
+
+session.agent.agentState is reactive — components re-render on every transition
+
+Participant attributes like patient_name are published by the agent and read by the frontend
+
+Each phase of the dental conversation (connecting, active, ended, error) has its own tailored UI
+
+The failed state must always show the impact ("booking not confirmed") and a recovery path
+
+Test your knowledge
+
+Question 1 of 2
+
+When Maya calls check_availability and the LLM is generating a response, what agent state is the frontend in?
+
+Next up
+
+Maya is talking and the UI reflects her state. But you cannot see the words yet. In the next chapter, you will display a streaming transcript of the dental conversation and render booking confirmation cards when Maya successfully books an appointment.

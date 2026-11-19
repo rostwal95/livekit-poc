@@ -133,6 +133,7 @@ media between the browser and the native session.
 ```mermaid
 sequenceDiagram
     participant User
+    participant Parent as Python room owner
     participant Native as P2 native session
     participant Gateway as P2 gateway
     participant Origin as Origin bridge
@@ -148,13 +149,18 @@ sequenceDiagram
     Worker->>Gateway: Read accepted dispatch and original prepared frame
     Worker->>P1: Validate source and issue exact work
     Worker->>Specialist: Bounded policy v2 invocation
-    User->>Native: Useful follow-up or End
-    Native-->>User: Fresh reply or actual media closure
+    User->>Parent: End original activation
+    Parent->>Gateway: Close original Node room binding
+    Gateway->>Gateway: Fence ingress and settle accepted inputs under original identities
+    Gateway-->>Parent: Original binding closed after known dispatch receipts
+    Parent->>Native: Drain and reap room worker
+    Parent-->>User: Room closure observation
     Specialist-->>Worker: Read-only grounded facts
     Worker->>P1: Verify and store outer-v3 result
     Worker->>P1: Guard current new delivery
     Worker->>Receiver: Exact receiver-bound result
-    Receiver-->>P1: Immutable acceptance receipt
+    Receiver-->>Worker: Immutable acceptance receipt
+    Worker->>P1: Record original receiver receipt through public delivery API
     User->>Gateway: Signed simulated SMS during dormancy
     User->>Native: Join fresh current room B
     Native->>Receiver: Current-grant result read
@@ -251,11 +257,21 @@ room/media gate and the actual joined runtime qualification remain pending.
   startup, then `start` with the actual observed Node room cursor.
 - Its operator-listener readiness is separate from a connected SDK/native room.
 
-Parent shutdown runs in this order:
+Parent `prepare_shutdown()` fences new admission, drains operator calls, then
+drains room and SMS owners independently. It leaves the background application
+and its origin listeners available. The launcher next observes both gateway
+dispatchers quiesced, then calls Parent `close()` to drain the shared application.
+Gateway control/read dependencies remain alive until that close succeeds.
 
-1. Drain operator calls (operator HTTP).
-2. Drain the room and SMS owners independently.
-3. Drain the shared background application.
+Preparation and final close retain their actual tasks across timeout and
+cancellation. A failed startup also preserves application origins until the
+launcher can quiesce dispatch. Reobservation creates no new activation or
+business request. The [lifecycle work item](../../docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md)
+owns regression and actual-integration evidence.
+
+Parent owns no external gateway. A library caller composing one must establish
+the same dispatch barrier before final `close()`; that method alone is not
+evidence of gateway quiescence.
 
 **Activation identity.** The physical activation compare-and-set (CAS) is
 separate from the Node publication cursor. Exact Start replay retains its
@@ -391,6 +407,14 @@ and case dependencies.
 
 ### Worker End
 
+- The Parent first asks Node to close the original room binding. Node fences
+  native ingress, settles admitted accepts and drains their original dispatch
+  receipts while the grant and origin dependencies remain available.
+- A closing room uses the existing deterministic background preparation for
+  accepted input. It does not create replacement input or wait for policy result
+  completion. Unknown, exhausted or ineligible work leaves cleanup incomplete.
+- Only after Node confirms that drain and revokes the binding does the Parent
+  stop the worker and its callback/producer owners.
 - Worker End closes the prepare host and the native runtime concurrently.
 - It waits for actual SDK startup before closing the wrapper, models and
   transport dependencies.
@@ -403,10 +427,36 @@ and case dependencies.
   while room controls use four handlers and eight sockets.
 - A room drain does not claim that deeper application-owned SQL has stopped.
 
+The default cleanup observers are 15 s for the worker process, 30 s for the room,
+45 s for Parent preparation, 60 s for Parent close and 120 s for the launcher.
+These observers do not extend business, provider or qualification deadlines.
+Slow actual cleanup stays retained and is reobserved; timeout cannot authorize
+dependent removal or a successful End receipt.
+
+One retained End supervisor observes the original activation. It retries only
+`cleanup_incomplete`, with delays from 20 ms to 250 ms, while new attempts fit
+within its original configured room-cleanup budget (30 s by default). The window
+limits new attempts; it never cancels an already owned attempt. Observer timeout
+or cancellation leaves that actual task retained. A persistent failure remains
+Closing and requires an explicit original-End retry after the window. Neither
+automatic nor explicit observation creates another activation, repeats an
+ambiguous SFU delete or changes business identities.
+
+The P2 native drain requires the same bearer to have been fenced first. It reads
+at most sixteen total account-history rows before filtering for the original
+provider and binding. Overflow, blocked or exhausted input, an unresolved
+receipt, or expired/revoked authority can leave the drain incomplete. Its
+20-second retry-admission window does not extend a grant or cancel a previously
+admitted call. P2 channel acceptance and P1 durable-work acceptance remain separate
+facts; this ordering cannot guarantee that every accepted channel input becomes
+P1 work.
+
 ### Storage versions and packaging
 
-P1 work v4 and P2 v8 remain unchanged. New typed read surfaces require no table
-or profile version. Root runtime extras must declare the P2, P3 and native
+The typed read surfaces preserve P1 work v4 and the P2 v8 receipt contract without
+adding tables. The separate owner-only P2 v9 upgrade adds operating indexes, as
+recorded in [0047](../../docs/work-items/0047-open-findings-schema-upgrades-and-landing.md).
+These work, inbox and application versions are independent. Root runtime extras must declare the P2, P3 and native
 dependencies, because a dev installation is insufficient. Promoted bridges in
 isolated consumers require the actual built root app wheel, not a checkout path
 or copied unbound source.

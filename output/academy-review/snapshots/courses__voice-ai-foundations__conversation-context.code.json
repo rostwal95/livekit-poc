@@ -1,0 +1,50 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent\n\nclass DentalReceptionist(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a friendly receptionist at Bright Smile Dental clinic.\",\n      )\n\n  async def on_enter(self):\n      # Access the current conversation history\n      for msg in self.chat_ctx.messages:\n          print(f\"[{msg.role}]: {msg.content}\")\n\n      await self.session.generate_reply(\n          instructions=\"Greet the caller warmly.\"\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, TurnHandlingOptions, MultilingualModel\n\nclass DentalReceptionist(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are a friendly receptionist at Bright Smile Dental clinic.\n          Keep responses brief and conversational. Never use markdown or emojis.\n          If you know the patient's name, welcome them back warmly.\"\"\",\n          turn_handling=TurnHandlingOptions(\n              turn_detection=MultilingualModel(),\n              min_endpointing_delay=0.5,\n              max_endpointing_delay=1.5,\n              interruption_mode=\"adaptive\",\n              false_interruption_timeout=0.6,\n              resume_false_interruption=True,\n          ),\n      )\n\n  async def on_enter(self):\n      # Check if we have returning patient info (set by your backend)\n      patient_info = self.session.userdata.get(\"patient_info\")\n      if patient_info:\n          ctx = self.chat_ctx.copy()\n          ctx.add_message(\n              role=\"system\",\n              content=f\"Returning patient: {patient_info['name']}, \"\n                      f\"last visit: {patient_info['last_visit']}, \"\n                      f\"next cleaning due: {patient_info['next_cleaning']}\",\n          )\n          await self.update_chat_ctx(ctx)\n\n      await self.session.generate_reply(\n          instructions=\"Greet the caller. If they're a returning patient, welcome them back by name.\"\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentServer, AgentSession\n\nserver = AgentServer()\n\n@server.rtc_session\nasync def entrypoint(session: AgentSession):\n  # userdata is set by your backend when creating the room/token\n  # For example, your backend might look up the caller's phone number\n  # and attach their patient record before the agent connects\n  await session.start(\n      agent=DentalReceptionist(),\n      room=session.room,\n  )\n\nif __name__ == \"__main__\":\n  server.run()"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent\n\nclass DentalReceptionist(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a friendly receptionist at Bright Smile Dental clinic.\",\n      )\n\n  async def on_enter(self):\n      @self.session.on(\"conversation_item_added\")\n      def on_item_added(item):\n          print(f\"New conversation item: [{item.role}] {item.content[:80]}...\")\n\n      await self.session.generate_reply(\n          instructions=\"Greet the caller warmly.\"\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent\n\nclass DentalReceptionist(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a friendly receptionist at Bright Smile Dental clinic.\",\n      )\n\n  async def trim_context_if_needed(self):\n      \"\"\"Remove oldest non-system messages if context grows too large.\"\"\"\n      ctx = self.chat_ctx.copy()\n      messages = ctx.messages\n\n      # Keep system messages and the most recent 20 conversation messages\n      system_msgs = [m for m in messages if m.role == \"system\"]\n      conversation_msgs = [m for m in messages if m.role != \"system\"]\n\n      if len(conversation_msgs) > 20:\n          trimmed = system_msgs + conversation_msgs[-20:]\n          ctx.messages = trimmed\n          await self.update_chat_ctx(ctx)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, TurnHandlingOptions, MultilingualModel\n\nclass DentalReceptionist(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are a friendly receptionist at Bright Smile Dental clinic.\n          Keep responses brief and conversational. Never use markdown or emojis.\n          If you know the patient's name, welcome them back warmly.\n          Help callers with appointment inquiries and booking.\"\"\",\n          turn_handling=TurnHandlingOptions(\n              turn_detection=MultilingualModel(),\n              min_endpointing_delay=0.5,\n              max_endpointing_delay=1.5,\n              interruption_mode=\"adaptive\",\n              false_interruption_timeout=0.6,\n              resume_false_interruption=True,\n          ),\n      )\n      self._turn_count = 0\n\n  async def on_enter(self):\n      # Inject returning patient info if available\n      patient_info = self.session.userdata.get(\"patient_info\")\n      if patient_info:\n          ctx = self.chat_ctx.copy()\n          ctx.add_message(\n              role=\"system\",\n              content=f\"Returning patient: {patient_info['name']}, \"\n                      f\"last visit: {patient_info['last_visit']}\",\n          )\n          await self.update_chat_ctx(ctx)\n\n      # Track conversation items\n      @self.session.on(\"conversation_item_added\")\n      def on_item_added(item):\n          if item.role == \"user\":\n              self._turn_count += 1\n\n      await self.session.generate_reply(\n          instructions=\"Greet the caller. If they're a returning patient, welcome them back by name.\"\n      )"
+  }
+]

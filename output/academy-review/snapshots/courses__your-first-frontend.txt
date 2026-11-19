@@ -1,0 +1,33 @@
+Agent Frontends
+
+Build a web UI for your dental receptionist agent
+
+Build a custom web frontend for the dental receptionist from Course 1.1. Connect to rooms, authenticate with tokens, display agent state and streaming transcription, render booking confirmation cards, add text input for names and insurance IDs, and use RPC for visual appointment booking.
+
+What You Build
+
+A Bright Smile Dental web app with streaming transcript, booking confirmation cards, text input for patient names and insurance IDs, and a visual availability checker with RPC-powered slot selection.
+
+Prerequisites
+
+->Course 1.1
+
+->Basic React
+
+How a browser connects to the dental receptionist through LiveKit Cloud, the role of rooms, tokens, tracks, text streams, participant attributes, and the data plane that carries booking confirmations.
+
+Scaffold the project, build a token endpoint that creates dental session rooms, grant patients publish/subscribe/data permissions, and connect to Maya via the Session API.
+
+Understand how LiveKit assigns agents to rooms. Configure explicit dispatch with agent names, dispatch agents from tokens and the API, pass metadata, and dispatch multiple agents to a single room.
+
+Track Maya's lifecycle (connecting, listening, thinking, speaking, disconnected) and build a dental-specific UI that shows patient names from participant attributes and handles errors with booking-aware recovery.
+
+Display a streaming dental conversation transcript and subscribe to the booking-confirmation text stream to render appointment confirmation cards when Maya books an appointment.
+
+Add text input for patients who need to spell names, insurance IDs, or medications. Voice and text work simultaneously — Maya handles both identically.
+
+Build a date picker that calls checkAvailability via RPC, display time slots as clickable buttons, use bidirectional RPC to let Maya trigger frontend forms, and track appointment progress with data channel status updates.
+
+What You Walk Away With
+
+A working dental receptionist frontend that connects to the Course 1.1 agent, displays Maya's state, shows streaming transcripts with booking confirmation cards, accepts voice and text input, and offers a visual booking flow via RPC.

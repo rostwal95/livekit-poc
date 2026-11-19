@@ -268,7 +268,7 @@ or runtime services from this directory.
 
 | Boundary or threat | Control | Test or evidence |
 | --- | --- | --- |
-| Sensitive data in fixtures | Use synthetic fixture values only; never include credentials, transcripts, booking references or private image data | Synthetic session samples contain no real credential |
+| Sensitive data in fixtures | Use synthetic fixture values only; never include real credentials, customer transcripts, customer booking references or private image data | Synthetic session samples contain no real credential |
 | Instructions inside fixture content | Treat fixture contents, documents and provider output as inert data; they cannot change instructions, introduce tools or authorize actions | Inert adversarial document data in `delegation/document-adversarial-v1.json` |
 | Unknown fields and prototype-shaped injected keys | Reject them; render only the policy's allowlisted string using safe text rendering | Shared invalid fixtures and consumer rejection tests |
 | Spoofed display name, stream topic or JSON authority field | Trust comes from SDK participant metadata and the application's verified scope | Agent-sender policy tests and sender/track negative tests |

@@ -1,0 +1,252 @@
+{
+  "version": "1.8.11",
+  "method": "AST-only source inspection; no SDK import or lesson execution",
+  "checks": [
+    {
+      "class": "Agent",
+      "method": "__init__",
+      "exists": true,
+      "source": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+      "definitions": [
+        {
+          "line": 48,
+          "parameters": [
+            "self",
+            "instructions",
+            "id",
+            "chat_ctx",
+            "tools",
+            "stt",
+            "vad",
+            "turn_handling",
+            "tool_handling",
+            "llm",
+            "tts",
+            "expressive",
+            "min_consecutive_speech_delay",
+            "use_tts_aligned_transcript",
+            "turn_detection",
+            "min_endpointing_delay",
+            "max_endpointing_delay",
+            "allow_interruptions",
+            "mcp_servers"
+          ],
+          "var_kwargs": null
+        }
+      ]
+    },
+    {
+      "class": "Agent",
+      "method": "on_user_turn_completed",
+      "exists": true,
+      "source": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+      "definitions": [
+        {
+          "line": 344,
+          "parameters": [
+            "self",
+            "turn_ctx",
+            "new_message"
+          ],
+          "var_kwargs": null
+        }
+      ]
+    },
+    {
+      "class": "Agent",
+      "method": "hand_off",
+      "exists": false,
+      "source": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+      "definitions": []
+    },
+    {
+      "class": "AgentSession",
+      "method": "__init__",
+      "exists": true,
+      "source": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent_session.py",
+      "definitions": [
+        {
+          "line": 410,
+          "parameters": [
+            "self",
+            "stt",
+            "vad",
+            "llm",
+            "tts",
+            "turn_handling",
+            "stt_context_options",
+            "tools",
+            "tool_handling",
+            "max_tool_steps",
+            "use_tts_aligned_transcript",
+            "tts_text_transforms",
+            "min_consecutive_speech_delay",
+            "expressive",
+            "userdata",
+            "video_sampler",
+            "aec_warmup_duration",
+            "ivr_detection",
+            "user_away_timeout",
+            "transcription_timeout",
+            "session_close_transcript_timeout",
+            "conn_options",
+            "loop",
+            "preemptive_generation",
+            "min_endpointing_delay",
+            "max_endpointing_delay",
+            "false_interruption_timeout",
+            "turn_detection",
+            "discard_audio_if_uninterruptible",
+            "min_interruption_duration",
+            "min_interruption_words",
+            "allow_interruptions",
+            "resume_false_interruption",
+            "agent_false_interruption_timeout",
+            "mcp_servers",
+            "keyterms_options"
+          ],
+          "var_kwargs": null
+        }
+      ]
+    },
+    {
+      "class": "AgentSession",
+      "method": "start",
+      "exists": true,
+      "source": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent_session.py",
+      "definitions": [
+        {
+          "line": 888,
+          "parameters": [
+            "self",
+            "agent",
+            "capture_run",
+            "room",
+            "room_options",
+            "session_host",
+            "record",
+            "room_input_options",
+            "room_output_options"
+          ],
+          "var_kwargs": null
+        },
+        {
+          "line": 903,
+          "parameters": [
+            "self",
+            "agent",
+            "capture_run",
+            "room",
+            "room_options",
+            "session_host",
+            "record",
+            "room_input_options",
+            "room_output_options"
+          ],
+          "var_kwargs": null
+        },
+        {
+          "line": 917,
+          "parameters": [
+            "self",
+            "agent",
+            "capture_run",
+            "room",
+            "room_options",
+            "session_host",
+            "record",
+            "room_input_options",
+            "room_output_options"
+          ],
+          "var_kwargs": null
+        }
+      ]
+    },
+    {
+      "class": "AgentSession",
+      "method": "run",
+      "exists": true,
+      "source": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent_session.py",
+      "definitions": [
+        {
+          "line": 866,
+          "parameters": [
+            "self",
+            "user_input",
+            "input_modality",
+            "output_type",
+            "output_options"
+          ],
+          "var_kwargs": null
+        }
+      ]
+    },
+    {
+      "class": "AgentSession",
+      "method": "update_agent",
+      "exists": true,
+      "source": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent_session.py",
+      "definitions": [
+        {
+          "line": 1812,
+          "parameters": [
+            "self",
+            "agent"
+          ],
+          "var_kwargs": null
+        }
+      ]
+    },
+    {
+      "class": "TaskGroup",
+      "method": "__init__",
+      "exists": true,
+      "source": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/beta/workflows/task_group.py",
+      "definitions": [
+        {
+          "line": 47,
+          "parameters": [
+            "self",
+            "summarize_chat_ctx",
+            "return_exceptions",
+            "chat_ctx",
+            "on_task_completed"
+          ],
+          "var_kwargs": null
+        }
+      ]
+    },
+    {
+      "class": "TaskGroup",
+      "method": "add",
+      "exists": true,
+      "source": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/beta/workflows/task_group.py",
+      "definitions": [
+        {
+          "line": 73,
+          "parameters": [
+            "self",
+            "task_factory",
+            "id",
+            "description"
+          ],
+          "var_kwargs": null
+        }
+      ]
+    },
+    {
+      "class": "TaskGroup",
+      "method": "regress",
+      "exists": false,
+      "source": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/beta/workflows/task_group.py",
+      "definitions": []
+    },
+    {
+      "class": "Tool",
+      "method": "create",
+      "exists": false,
+      "source": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/llm/tool_context.py",
+      "definitions": []
+    }
+  ]
+}

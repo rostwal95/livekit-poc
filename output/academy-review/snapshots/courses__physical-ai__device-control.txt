@@ -1,0 +1,183 @@
+1Embedded voice architecture
+
+2Wake word detection & audio streaming
+
+3Hardware control via agent tools
+
+4Production: OTA updates & fleet management
+
+Hardware control via agent tools
+
+Voice-Controlled Hardware
+
+The real power of physical AI is bridging natural language and the physical world. In this chapter, you will wire sensors and actuators to the ESP32, expose them as agent tools, and control hardware with voice commands routed through your LiveKit agent.
+
+What you'll learn
+
+How to map voice commands to GPIO operations on the ESP32
+
+How to read sensors and report values through the agent
+
+How to define agent-side tools that send commands to the device
+
+The data channel pattern for bidirectional device communication
+
+The command architecture
+
+Voice commands do not go directly from speech to GPIO. The flow is: user speaks, ESP32 streams audio to LiveKit, the agent processes the speech, the agent decides which tool to call, and the tool sends a command back to the ESP32 over a LiveKit data channel. The ESP32 receives the command and actuates the hardware.
+
+This architecture keeps all intelligence in the cloud agent. The ESP32 never needs to understand natural language — it only needs to execute structured commands like {"action": "set_led", "pin": 2, "value": 1}. This means you can update the agent's understanding of commands without reflashing firmware.
+
+ESP32 side: receiving commands and sending sensor data
+
+The ESP32 listens for JSON commands on the LiveKit data channel and dispatches them to hardware functions.
+
+#include <LiveKitClient.h>
+#include <ArduinoJson.h>
+#include <DHT.h>
+
+#define LED_PIN 2
+#define SERVO_PIN 4
+#define DHT_PIN 13
+#define RELAY_PIN 12
+
+DHT dht(DHT_PIN, DHT22);
+LiveKitClient lk;
+
+void onDataReceived(const char* data, size_t len) {
+  StaticJsonDocument<256> doc;
+  deserializeJson(doc, data, len);
+
+  const char* action = doc["action"];
+
+  if (strcmp(action, "set_led") == 0) {
+      int value = doc["value"];
+      digitalWrite(LED_PIN, value ? HIGH : LOW);
+      sendResponse("led", value ? "on" : "off");
+  }
+  else if (strcmp(action, "set_relay") == 0) {
+      int value = doc["value"];
+      digitalWrite(RELAY_PIN, value ? HIGH : LOW);
+      sendResponse("relay", value ? "on" : "off");
+  }
+  else if (strcmp(action, "read_temperature") == 0) {
+      float temp = dht.readTemperature();
+      char buf[64];
+      snprintf(buf, sizeof(buf),
+          "{\"sensor\":\"temperature\",\"value\":%.1f}", temp);
+      lk.sendData(buf);
+  }
+  else if (strcmp(action, "set_servo") == 0) {
+      int angle = doc["angle"];
+      setServoAngle(SERVO_PIN, angle);
+      sendResponse("servo", String(angle).c_str());
+  }
+}
+
+void sendResponse(const char* device, const char* state) {
+  char buf[128];
+  snprintf(buf, sizeof(buf),
+      "{\"device\":\"%s\",\"state\":\"%s\"}", device, state);
+  lk.sendData(buf);
+}
+
+void setup() {
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(RELAY_PIN, OUTPUT);
+  dht.begin();
+
+  lk.onData(onDataReceived);
+  // ... WiFi and LiveKit connection setup
+}
+
+Agent side: tools that control hardware
+
+On the Python agent side, you define tools that send structured commands to the ESP32 over the data channel. The agent decides when to call these tools based on the user's voice request.
+
+from livekit.agents import AgentSession, Agent, function_tool, RunContext
+from livekit import rtc
+import json
+
+
+class HardwareAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You control a smart home device. You can:
+          - Turn lights on and off
+          - Read the current temperature
+          - Control a servo motor (0-180 degrees)
+          - Toggle a relay for appliances
+          Confirm each action after executing it.""",
+      )
+
+  @function_tool()
+  async def turn_light_on(self, context: RunContext):
+      """Turn on the LED light."""
+      await self._send_command(context, {"action": "set_led", "value": 1})
+      return "Light turned on."
+
+  @function_tool()
+  async def turn_light_off(self, context: RunContext):
+      """Turn off the LED light."""
+      await self._send_command(context, {"action": "set_led", "value": 0})
+      return "Light turned off."
+
+  @function_tool()
+  async def read_temperature(self, context: RunContext):
+      """Read the current temperature from the sensor."""
+      await self._send_command(context, {"action": "read_temperature"})
+      return "Temperature reading requested."
+
+  @function_tool()
+  async def set_servo(self, context: RunContext, angle: int):
+      """Set the servo motor to a specific angle (0-180 degrees)."""
+      angle = max(0, min(180, angle))
+      await self._send_command(
+          context, {"action": "set_servo", "angle": angle}
+      )
+      return f"Servo set to {angle} degrees."
+
+  async def _send_command(self, context: RunContext, command: dict):
+      payload = json.dumps(command).encode()
+      await context.room.local_participant.publish_data(
+          payload, reliable=True
+      )
+
+Use reliable data channels for commands
+
+Always set reliable=True when sending hardware commands. Unreliable (UDP-based) data channels are fine for telemetry updates where dropping a packet is acceptable, but a missed "turn off the heater" command could be dangerous. Reliable delivery uses retransmission to guarantee the command arrives.
+
+Sensor polling and event reporting
+
+For continuous monitoring, the ESP32 can send periodic sensor readings to the agent without being asked.
+
+unsigned long lastSensorRead = 0;
+const unsigned long SENSOR_INTERVAL = 30000;  // 30 seconds
+
+void loop() {
+  lk.update();
+
+  if (millis() - lastSensorRead > SENSOR_INTERVAL) {
+      float temp = dht.readTemperature();
+      float humidity = dht.readHumidity();
+
+      char buf[128];
+      snprintf(buf, sizeof(buf),
+          "{\"type\":\"telemetry\",\"temp\":%.1f,\"humidity\":%.1f}",
+          temp, humidity);
+      lk.sendData(buf);
+      lastSensorRead = millis();
+  }
+}
+
+The agent can use this telemetry to proactively inform the user ("The temperature has risen to 28 degrees — would you like me to turn on the fan?") or to log data for monitoring dashboards.
+
+Test your knowledge
+
+Question 1 of 2
+
+Why does the architecture keep all natural language understanding in the cloud agent rather than on the ESP32?
+
+Looking ahead
+
+In the next chapter, you will handle the inevitable: what happens when the WiFi drops. You will implement offline fallback with local command recognition so the device remains useful even without a cloud connection.

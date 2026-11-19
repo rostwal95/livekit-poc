@@ -1,0 +1,35 @@
+[
+  {
+    "question": "How does the outbound call flow differ from the inbound call flow in terms of room creation?",
+    "options": [
+      "Outbound calls do not use rooms at all",
+      "Outbound calls require a different type of agent",
+      "The room is created by the SIP trunk provider",
+      "In outbound calls, the backend creates the room and places the call via CreateSIPParticipant, rather than a dispatch rule creating the room from an incoming call"
+    ],
+    "correctIndex": 3,
+    "explanation": "The outbound pattern flips the usual flow. Instead of the caller triggering room creation via a dispatch rule, your backend calls CreateSIPParticipant, which creates a room and places the SIP call. The agent is dispatched to that room the same way as inbound \u2014 only who initiated the room creation differs."
+  },
+  {
+    "question": "What is a critical consideration when making outbound calls with CreateSIPParticipant?",
+    "options": [
+      "The outbound trunk must use the same provider as the inbound trunk",
+      "Outbound calls cannot use HD voice",
+      "The patient must be in the directory before calling",
+      "Your agent must be registered to handle the room name pattern used for outbound calls, or the patient will hear silence when they answer"
+    ],
+    "correctIndex": 3,
+    "explanation": "If no agent is registered to handle the room name pattern used for outbound calls (e.g., 'outbound-*'), then when the patient answers, there will be no agent in the room and the patient hears silence. The agent must be ready to join before or shortly after the patient picks up."
+  },
+  {
+    "question": "Why do outbound and inbound trunks need to be configured separately?",
+    "options": [
+      "They have different authentication, routing, and billing \u2014 inbound handles calls coming in while outbound handles calls going out",
+      "Outbound trunks are only available on paid plans",
+      "They use different SIP protocols",
+      "LiveKit requires separate trunk IDs for security"
+    ],
+    "correctIndex": 0,
+    "explanation": "Inbound and outbound trunks serve opposite directions of call flow. They require different configurations: outbound trunks need the provider's SIP address and authentication credentials for placing calls, while inbound trunks need the phone numbers to accept calls on. The provider also bills differently for each direction."
+  }
+]

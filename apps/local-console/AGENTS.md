@@ -54,7 +54,9 @@ Verification follows the same order.
 - Render dynamic text with textContent.
 - Keep tokens out of builds, URLs, browser storage, logs and evidence.
 - Clear the private input on use.
-- Explicit Forget and pagehide clear shared credentials and release room/readers/tracks.
+- Explicit Forget and pagehide clear shared credentials and initiate cleanup of
+  owned room/readers/tracks. Page exit is not proof of observed remote End or
+  actual resource settlement; keep explicit End's cleanup barrier distinct.
 - Reload requires explicit scoped resume.
 - Browser task hints require a selected native AGENT sender, reliable topic/schema
   validation and authenticated GET before any business update.
@@ -387,7 +389,11 @@ The table indexes these checks; the rules below it remain authoritative.
   source/installed qualification in
   [0042](../../docs/work-items/0042-responsive-native-policy-and-compact-demo.md).
 - Both selected browser journeys passed their three groups.
-- Integrated voice/SMS/showcase/video and full P2/P3 charter release remain pending.
+- These 0042 checks did not qualify integrated voice/SMS or the final recording.
+  Later selected provider journeys and recordings are in
+  [0046](../../docs/work-items/0046-joined-showcase-providers-and-demo.md) and
+  [0047](../../docs/work-items/0047-open-findings-schema-upgrades-and-landing.md).
+  Complete joined and P2/P3 charter release gates remain separate and pending.
 - Repeat the native source/installed gates after changing their HTTP, SDK or room
   lifetime.
 

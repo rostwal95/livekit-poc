@@ -1,0 +1,173 @@
+1Frontend architecture for the dental receptionist
+
+2Connecting to the dental receptionist
+
+3Agent dispatch
+
+4Agent state & the dental session lifecycle
+
+5Transcription & booking confirmations
+
+6Text input for the dental receptionist
+
+7RPC & data channels: a visual booking flow
+
+Frontend architecture for the dental receptionist
+
+Frontend architecture for the dental receptionist
+
+In Course 1.1, you built a dental receptionist that greets callers, checks appointment availability, and books appointments — all through voice. Right now, the only way to interact with it is through LiveKit Playground or a SIP phone call. In this course, you will build a custom web frontend that connects to that same agent and surfaces its features visually: a booking confirmation card when an appointment is confirmed, a live transcript of the conversation, and a text input for spelling out patient names or insurance IDs.
+
+This first chapter is a pure architecture chapter. No code yet — just the mental model you need before building.
+
+What you'll build in this course
+
+By the end of Course 1.2, you will have a Next.js app that:
+
+Connects to your dental receptionist agent via LiveKit Cloud
+
+Shows real-time agent state (connecting, listening, thinking, speaking)
+
+Displays a streaming transcript of the conversation
+
+Lets the user type when they cannot speak (spelling names, insurance IDs)
+
+Renders booking confirmation cards when the agent books an appointment
+
+Calls agent methods directly from the UI via RPC (check availability from a date picker)
+
+All of these features build on the dental receptionist you deployed in Course 1.1. The agent does not change — you are building its face.
+
+The big picture: browser to dental agent
+
+When a patient opens your web app and clicks "Start conversation," a chain of events connects their browser to the dental receptionist running on LiveKit Cloud.
+
+Dental receptionist frontend flow
+
+Patient's Browser
+
+Next.js app with LiveKit client SDK
+
+Token Server
+
+Next.js API route — generates a JWT for the patient
+
+LiveKit Cloud (SFU)
+
+Routes audio and data between participants
+
+Dental Receptionist Agent
+
+Your 1.1 agent — greets, checks availability, books
+
+The browser never talks directly to the agent. Every audio packet and data message flows through LiveKit Cloud's SFU (Selective Forwarding Unit). The browser and agent are both participants in the same room. They publish and subscribe to each other's tracks.
+
+This is the same architecture used for video calls, live streams, and any other LiveKit application. The browser is a STANDARD participant. The agent is an AGENT participant. There is no special "agent mode" — just participants in a room exchanging audio tracks, text streams, and data messages.
+
+Rooms and participants: the dental session
+
+From the frontend's perspective, a room is the container for one patient conversation. When a patient starts a session, the app creates a room. Inside that room:
+
+Participant | Kind | Publishes | Subscribes to
+Patient (browser) | STANDARD | Microphone audio track | Agent's TTS audio track
+Dental Receptionist (server) | AGENT | TTS audio track, text streams, participant attributes | Patient's microphone track
+
+Notice the agent publishes more than just audio. In Course 1.1, you added text streams (for booking confirmations) and participant attributes (for tracking conversation state like patient_name). The frontend will consume all of these.
+
+One room per patient conversation
+
+Each conversation gets its own room with a unique name like dental-session-abc123. This keeps conversations isolated and maps cleanly to the session analytics you see in LiveKit Cloud Insights.
+
+Tokens: authorizing the patient
+
+A browser cannot connect to any room without a JWT token signed with your LiveKit API secret. The token specifies:
+
+Identity: Who is this participant? (e.g., "patient-jane-doe")
+
+Room: Which room can they join? (e.g., "dental-session-abc123")
+
+Grants: What can they do? (canPublish for microphone, canSubscribe for agent audio, canPublishData for text messages)
+
+Your Next.js app generates these tokens in a server-side API route. The browser requests a token, receives it, and uses it to connect. The API secret never leaves the server.
+
+Never generate tokens in the browser
+
+Token generation requires your LiveKit API secret. Exposing it to the browser would let anyone generate tokens and access your rooms. Always generate tokens in a server-side API route.
+
+The Session API: connecting with one hook
+
+The Session API wraps token fetching, room connection, reconnection, and cleanup into a single useSession hook. You give it a token source and it handles everything:
+
+Token Source | When to use | How it works
+Sandbox | Development | Connects to a LiveKit sandbox. No token server needed.
+Endpoint | Production | Calls your /api/token route to get a JWT.
+
+In the next chapter, you will start with a sandbox and then switch to a custom token endpoint — exactly like going from lk agent dev to lk agent deploy on the backend.
+
+The Session API is to the frontend what AgentSession is to the backend. It manages the full connection lifecycle so you can focus on building UI, not debugging WebRTC state machines.
+
+Track subscription: how agent audio reaches the browser
+
+Once connected, the browser needs to receive the agent's audio. This happens through track subscription:
+
+The dental receptionist synthesizes speech with Cartesia TTS and publishes it as an audio track in the room.
+
+LiveKit Cloud tells the browser: "A new audio track is available from the AGENT participant."
+
+By default, LiveKit auto-subscribes participants to all tracks. The browser immediately begins receiving the agent's audio.
+
+The LiveKit React components decode the audio and play it through the patient's speakers. No manual audio element management needed.
+
+The same process works in reverse: the browser publishes a microphone track, and the agent's Deepgram STT subscribes to it.
+
+Beyond audio: the data plane
+
+Audio is only half the story. In Course 1.1, your dental receptionist also publishes:
+
+Data channel | What it carries | Frontend use
+Text streams (booking-confirmation topic) | Booking details after book_appointment succeeds | Render a confirmation card with patient name, date, and time
+Participant attributes (patient_name, agent_state) | Conversation state updated by the agent | Display the patient's name, show custom state like "booking"
+Transcription text stream | Word-by-word transcript of both speakers | Show a live chat-style transcript
+
+The frontend subscribes to all of these through the same room connection. No separate API calls, no polling — everything arrives in real time over the existing WebRTC connection.
+
+The data plane is your dental UI's best friend
+
+Instead of building a REST API for "get current booking status" or "get patient name," you read participant attributes. Instead of polling for appointment confirmations, you subscribe to the booking-confirmation text stream. The agent already publishes this data — your frontend just needs to listen.
+
+Agent state: the dental receptionist's lifecycle
+
+The agent publishes its current state as a participant attribute (lk.agent.state). The frontend reads this to drive the UI:
+
+Agent State | What the dental receptionist is doing | UI treatment
+connecting | Joining the room, initializing STT/LLM/TTS | Show "Connecting to receptionist..."
+listening | Waiting for the patient to speak | Show a passive mic visualizer
+thinking | Processing speech, LLM generating a response | Show "Maya is thinking..." with a pulse animation
+speaking | Streaming TTS audio back to the patient | Show an active audio visualizer
+disconnected | Session ended cleanly | Show "Session complete" with booking summary
+
+Your frontend will not guess what the agent is doing. The agent tells you, and you render accordingly.
+
+What you learned
+
+The browser and dental receptionist are both participants in the same LiveKit room
+
+JWT tokens authorize the patient's browser to join a specific room with specific permissions
+
+The Session API handles token fetching, room connection, and reconnection with a single hook
+
+Auto-subscribe delivers the agent's audio to the browser without manual subscription logic
+
+The data plane (text streams, participant attributes) carries booking confirmations, patient names, and transcription alongside audio
+
+Agent state drives the frontend UI through a predictable state machine
+
+Test your knowledge
+
+Question 1 of 2
+
+What data does the dental receptionist agent publish beyond audio that the frontend will consume?
+
+Next up
+
+Now that you understand what your dental receptionist frontend will look like architecturally, it is time to scaffold the Next.js project and connect to your agent. In the next chapter, you will build a token endpoint, connect to the dental receptionist via the Session API, and hear Maya greet you from the browser for the first time.

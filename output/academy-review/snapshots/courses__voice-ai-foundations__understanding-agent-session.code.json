@@ -1,0 +1,90 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentServer, rtc_session, Agent, AgentSession\nfrom livekit.plugins import openai, silero, deepgram, cartesia\n\nserver = AgentServer()\n\n\n@server.rtc_session\nasync def entrypoint(session: AgentSession):\n  await session.start(\n      agent=Agent(\n          instructions=(\n              \"You are a friendly receptionist at Bright Smile Dental clinic. \"\n              \"Greet callers warmly and help them with appointment inquiries. \"\n              \"Keep your responses short and conversational \u2014 one to two sentences at most.\"\n          ),\n      ),\n      room=session.room,\n      stt=deepgram.STT(model=\"nova-3\"),\n      llm=openai.LLM(model=\"gpt-4o-mini\"),\n      tts=cartesia.TTS(voice=\"79a125e8-cd45-4c13-8a67-188112f4dd22\"),\n  )\n\n\nif __name__ == \"__main__\":\n  server.run()"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "stt=deepgram.STT(model=\"nova-3\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "stt=deepgram.STT(\n  model=\"nova-3\",\n  language=\"en\",\n  keywords=[(\"Bright Smile Dental\", 3.0), (\"Dr. Chen\", 2.0)],\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "llm=openai.LLM(model=\"gpt-4o-mini\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "tts=cartesia.TTS(voice=\"79a125e8-cd45-4c13-8a67-188112f4dd22\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "tts=cartesia.TTS(\n  voice=\"79a125e8-cd45-4c13-8a67-188112f4dd22\",\n  speed=\"normal\",\n  emotion=[\"positivity:high\", \"curiosity:medium\"],\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.plugins import silero\n\n# In your entrypoint, before session.start():\nawait session.start(\n  agent=Agent(instructions=\"...\"),\n  room=session.room,\n  stt=deepgram.STT(model=\"nova-3\"),\n  llm=openai.LLM(model=\"gpt-4o-mini\"),\n  tts=cartesia.TTS(voice=\"79a125e8-cd45-4c13-8a67-188112f4dd22\"),\n  vad=silero.VAD.load(),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentServer, rtc_session, Agent, AgentSession, MultimodalModel\n\n# For more sophisticated turn detection using the LLM itself:\nawait session.start(\n  agent=Agent(instructions=\"...\"),\n  room=session.room,\n  turn_detection=MultimodalModel(),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentServer, rtc_session, Agent, AgentSession\nfrom livekit.plugins import openai, silero, deepgram, cartesia\n\nserver = AgentServer()\n\n\n@server.rtc_session\nasync def entrypoint(session: AgentSession):\n  @session.on(\"agent_state_changed\")\n  def on_agent_state(state: str):\n      print(f\"Agent state: {state}\")  # \"listening\", \"thinking\", \"speaking\"\n\n  @session.on(\"user_state_changed\")\n  def on_user_state(state: str):\n      print(f\"User state: {state}\")  # \"speaking\", \"listening\"\n\n  @session.on(\"user_input_transcribed\")\n  def on_transcript(transcript):\n      print(f\"User said: {transcript.text}\")\n\n  @session.on(\"conversation_item_added\")\n  def on_item(item):\n      print(f\"New conversation item: {item}\")\n\n  await session.start(\n      agent=Agent(\n          instructions=(\n              \"You are a friendly receptionist at Bright Smile Dental clinic. \"\n              \"Greet callers warmly and help them with appointment inquiries. \"\n              \"Keep your responses short and conversational \u2014 one to two sentences at most.\"\n          ),\n      ),\n      room=session.room,\n      stt=deepgram.STT(model=\"nova-3\"),\n      llm=openai.LLM(model=\"gpt-4o-mini\"),\n      tts=cartesia.TTS(voice=\"79a125e8-cd45-4c13-8a67-188112f4dd22\"),\n      vad=silero.VAD.load(),\n  )\n\n\nif __name__ == \"__main__\":\n  server.run()"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentServer, rtc_session, Agent, AgentSession\nfrom livekit.plugins import openai, silero, deepgram, cartesia\n\nserver = AgentServer()\n\n\n@server.rtc_session\nasync def entrypoint(session: AgentSession):\n  @session.on(\"user_input_transcribed\")\n  def on_transcript(transcript):\n      print(f\"Caller said: {transcript.text}\")\n\n  await session.start(\n      agent=Agent(\n          instructions=(\n              \"You are a friendly receptionist at Bright Smile Dental clinic. \"\n              \"Greet callers warmly and help them with appointment inquiries. \"\n              \"Keep your responses short and conversational \u2014 one to two sentences at most.\"\n          ),\n      ),\n      room=session.room,\n      stt=deepgram.STT(\n          model=\"nova-3\",\n          language=\"en\",\n          keywords=[(\"Bright Smile Dental\", 3.0)],\n      ),\n      llm=openai.LLM(model=\"gpt-4o-mini\"),\n      tts=cartesia.TTS(voice=\"79a125e8-cd45-4c13-8a67-188112f4dd22\"),\n      vad=silero.VAD.load(),\n  )\n\n\nif __name__ == \"__main__\":\n  server.run()"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "python agent.py dev"
+  }
+]

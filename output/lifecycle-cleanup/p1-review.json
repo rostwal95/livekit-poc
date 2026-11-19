@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "owner": "p1_book",
+  "work_item": "0050",
+  "finding": "GW-A1",
+  "status": "source_stable_focused_checks_passed",
+  "contract": [
+    "Close UI and prepare Parent admission/room/SMS front before global quiesce; keep App/origin controls live.",
+    "Sticky gateway quiesce fences new intake/driver steps, waits the ordinary loop and actual dispatcher I/O, and preserves read/prepared/receipt/control dependencies.",
+    "Only a requested, ready, exact PID/profile/original nodeEpoch acknowledgement permits Parent App teardown; closed group absence is the alternative for an unadopted/no-ready/exited child.",
+    "Direct Node application/runtime close drains current room before global quiesce and shared transport/client closure.",
+    "Observer timeout/cancellation retains actual tasks and resources; completed failed cleanup is automatically reobserved with bounded backoff."
+  ],
+  "owned_implementation_paths": [
+    "local-setup/scripts/channel_policy_launch.py",
+    "local-setup/scripts/channel_policy_launch_child.py",
+    "projects/channel-continuity/src/dispatch.ts",
+    "projects/channel-continuity/src/gateway.ts",
+    "services/channel-policy-gateway/src/application.ts",
+    "services/channel-policy-gateway/src/runtime.ts",
+    "services/channel-policy-gateway/src/serve.ts"
+  ],
+  "owned_test_paths": [
+    "tests/test_channel_policy_launch.py",
+    "tests/test_channel_policy_launch_child.py",
+    "projects/channel-continuity/tests/dispatch.test.ts",
+    "projects/channel-continuity/tests/gateway.test.ts",
+    "services/channel-policy-gateway/tests/application.test.ts",
+    "services/channel-policy-gateway/tests/runtime.test.ts",
+    "services/channel-policy-gateway/tests/serve.test.ts"
+  ],
+  "shared_file_coordination": [
+    "P2 gateway.ts: this owner added global quiesce; P2 owner subsequently added exact-bearer admission fence and original accepted-input drain.",
+    "Node application.ts: this owner added global quiesce/direct-close prephase; P2 owner wired room-manager fenceInput/drainInput ports.",
+    "Node application.test.ts: this owner added quiesce/direct-close coverage; P2 owner updated Gateway fixtures with room-specific ports."
+  ],
+  "red_evidence": [
+    {
+      "path": "output/lifecycle-cleanup/p1-launcher-failing-before.json",
+      "source": "HEAD loaded into isolated module; no source files reverted",
+      "tests": 3,
+      "failures": 2,
+      "errors": 1
+    },
+    {
+      "test": "tests.test_channel_policy_launch_child.ActualChildren.test_alive_gateway_without_ready_is_reaped_before_app_dependency_can_close",
+      "source": "Intermediate quiesce patch before removing unconditional _ready.wait; not the untouched HEAD",
+      "result": "failed",
+      "errors": 1,
+      "observed": "Actual harmless Node child alive without ready; quiesce exceeded 1-second test observer and raised TimeoutError."
+    }
+  ],
+  "green_evidence": [
+    {
+      "command": ".venv/bin/python -m unittest tests.test_channel_policy_launch tests.test_channel_policy_launch_child",
+      "tests": 51,
+      "seconds": 3.603,
+      "status": "passed",
+      "scope": "Synthetic launcher ports, strict frame tests, actual harmless owned Node children and private temporary public Vite preview."
+    },
+    {
+      "command": ".venv/bin/python -m unittest tests.test_channel_policy_provider_mode",
+      "tests": 13,
+      "seconds": 8.756,
+      "status": "passed",
+      "scope": "Synthetic keys/configuration and fake provider wire; no provider/private key reads or external calls."
+    },
+    {
+      "command": "Exact pinned Node + Vitest run tests/application.test.ts tests/runtime.test.ts tests/serve.test.ts --maxWorkers 1 (Node gateway cwd)",
+      "tests": 57,
+      "seconds": 1.83,
+      "status": "passed",
+      "scope": "Synthetic stores/ports and loopback HTTP listeners; includes held actual close/quiesce owners."
+    },
+    {
+      "command": "Exact pinned Node + Vitest run tests/dispatch.test.ts tests/gateway.test.ts --maxWorkers 1 (P2 cwd)",
+      "tests": 39,
+      "seconds": 5.26,
+      "status": "passed",
+      "scope": "Synthetic persistence/ports and real loopback HTTP; no PostgreSQL."
+    },
+    {
+      "command": "corepack pnpm --filter @livekit-ecosystem/channel-policy-gateway typecheck",
+      "status": "passed"
+    },
+    {
+      "command": "corepack pnpm --filter @livekit-ecosystem/channel-continuity build; then gateway build",
+      "status": "passed"
+    },
+    {
+      "command": "Ruff check and format --check on both launcher sources and both test modules",
+      "status": "passed"
+    },
+    {
+      "command": "git diff --check on owned source/tests/docs and shared gateway files",
+      "status": "passed"
+    },
+    {
+      "command": "documentation checker check_file on all seven owned documentation paths",
+      "documents": 7,
+      "violations": 0,
+      "status": "passed"
+    }
+  ],
+  "installed_consumer_plan_check": {
+    "result": "No separate installed-consumer fixture or frozen manifest copies the launcher shutdown plan. Repository-wide non-output search found plan assertions only in tests/test_channel_policy_launch.py, plus provider-mode imports and Make/foundation discovery.",
+    "current_plan": "60-second startup unchanged; role readiness15; shutdown observer120 with explicit prepare/quiesce phases.",
+    "source_binding": "Launcher source hashes are freshly computed at prepare time; old private active files are preserved and rejected rather than rewritten.",
+    "changed_business_or_gate_deadlines": false
+  },
+  "run_caveats": [
+    "An earlier pnpm forwarded -- separator started an unintended broad P2 suite in the restricted sandbox. That owned Vitest process was stopped with SIGINT and is not counted as validation. Correct exact-CLI focused reruns passed.",
+    "Initial restricted-sandbox loopback fixture errors and one obsolete plan expected60 assertion were corrected/retested; final focused launcher run passed51.",
+    "The first Node global-quiesce fixture exceeded its intentional40ms observer; the test now explicitly asserts retained timeout ownership and later successful reobservation rather than changing the bound.",
+    "Root owns full fast/all TypeScript, installed-package and actual PostgreSQL/joined-media verification serially after source stabilization."
+  ],
+  "limits": [
+    "No supplier/business logic, confirmation authority, schema, private provider configuration or fixed business/test-gate deadline was changed by this owner.",
+    "Fake persistence and harmless process tests do not establish crash recovery of PostgreSQL effects or real media delivery.",
+    "Whole-shutdown can remain cleanup_incomplete if actual owners fail to settle; resources/tasks and active markers remain retained instead of claiming clean closure.",
+    "A quiesced process remains live intentionally until Parent cleanup; quiescence is not process reaping."
+  ]
+}

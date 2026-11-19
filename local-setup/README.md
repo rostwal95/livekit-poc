@@ -82,7 +82,7 @@ the transport diagnostics, and it leaves business mode off.
 
 Explicit P1 profiles add:
 
-- PostgreSQL v4 managed admission;
+- PostgreSQL v4/v5 managed admission;
 - case, consent, effect and completion authority;
 - database-time leases;
 - an independent bounded pull worker.
@@ -112,6 +112,10 @@ declared assertions. The harness catalog owns the current complete registrations
 | P3 lab rows P3-01, P3-03 and P3-11 | Qualified | Registered passing local lab reports ([lab runners](#revision-routing-and-registered-p3-lab-runners)) |
 | All 17 P2 rows and the remaining 14 P3 rows | Planned | Complete P2/P3 acceptance and the full channel, delegation and release gates remain pending ([P2 charter](../docs/projects/channel-continuity-scope.md), [P3 charter](../docs/projects/delegation-reliability-scope.md)) |
 
+The P1 provider results above are retained checkpoint evidence. The fresh P1-20
+provider rerun after the v5 upgrade remains open in the
+[qualification guide](../docs/qualification-gates.md).
+
 ### Selected P2 and P3 slices
 
 Many P2 and P3 capabilities exist as opt-in host tooling with selected local
@@ -139,7 +143,7 @@ row. The last column links the part of this guide that lists the commands.
 | Native real-time communication (RTC) text policy (P3-I18B) | Qualified | [0042](../docs/work-items/0042-responsive-native-policy-and-compact-demo.md): selected qualification passed | See the work item |
 | Stable result delivery and return context | Qualified | [0043](../docs/work-items/0043-stable-result-delivery-and-return-context.md): selected delivery and read qualification, recorded in the work item | [Result receiver](#result-receiver-qualification) |
 | Original channel-input binding | Qualified | [0044](../docs/work-items/0044-origin-bound-channel-policy.md): selected source gate passed fourteen actual assertions | [Origin](#original-channel-input-qualification) |
-| Joined native channel policy | Partial | [0045](../docs/work-items/0045-joined-native-channel-policy.md): active; joined startup and connected media and provider qualification are pending | [Joined showcase](#joined-showcase) |
+| Joined native channel policy | Partial | [0046](../docs/work-items/0046-joined-showcase-providers-and-demo.md) records selected actual scripted/provider journeys and the video; full joined installed/container and charter qualification remains open in [0045](../docs/work-items/0045-joined-native-channel-policy.md) | [Joined showcase](#joined-showcase) |
 
 ### What ordinary startup does not compose
 
@@ -253,9 +257,9 @@ Python 3.14 interpreter (`python3.14`). Host-only preparation uses the frozen
 | Install a staging schema | `python3.14 local-setup/stack.py migrate-postgres` | Staging only; see [PostgreSQL role and schema preparation](#postgresql-role-and-schema-preparation) |
 | Prepare the persistent P1 workspace | `.venv/bin/python local-setup/stack.py prepare-business` | Host-only; `make business-setup` runs the same action; see [First persistent P1 business workspace](#first-persistent-p1-business-workspace) |
 | Initialize worker fixtures | `python3.14 local-setup/stack.py init-worker-fixtures` | Use the same `P1_WORKER_SCHEMA` and `P1_WORKER_SCOPE` as preparation and runtime |
-| Start the business profile | `.venv/bin/python local-setup/stack.py start-business` | Needs a prepared ACTIVE v4 schema and fixtures; see [Business conversation profile](#business-conversation-profile) |
+| Start the business profile | `.venv/bin/python local-setup/stack.py start-business` | Needs a prepared ACTIVE v4/v5 schema and fixtures; see [Business conversation profile](#business-conversation-profile) |
 | Stop the business profile | `python3.14 local-setup/stack.py stop-business` | Drains workers with a 35-second grace period; volumes remain |
-| Start the worker profile | `python3.14 local-setup/stack.py start-workers` | After explicit ACTIVE v4 preparation; see [Leased durable worker profile](#leased-durable-worker-profile) |
+| Start the worker profile | `python3.14 local-setup/stack.py start-workers` | After explicit ACTIVE v4/v5 preparation; see [Leased durable worker profile](#leased-durable-worker-profile) |
 | Show worker status | `python3.14 local-setup/stack.py worker-status` | Also the last step of the business workspace preparation |
 | Show worker logs | `python3.14 local-setup/stack.py logs --service p1-worker` | See [Operate the worker](#operate-the-worker) |
 | Stop the worker profile | `python3.14 local-setup/stack.py stop-workers` | Normal stop preserves all three volumes |
@@ -516,7 +520,7 @@ business mode off.
 
 #### Prerequisites and preflight
 
-Before starting, prepare an ACTIVE PostgreSQL v4 schema through the explicit
+Before starting, prepare an ACTIVE PostgreSQL v4/v5 schema through the explicit
 [business preparation](#first-persistent-p1-business-workspace). Then run
 init-worker-fixtures for the same P1_WORKER_SCOPE. The read-only preflight checks
 the schema, the runtime role and the existing independent provider and receiver
@@ -590,7 +594,7 @@ not change the live M1 SQLite backend or activate a source automatically.
 
 #### Operate the worker
 
-After explicit ACTIVE v4 preparation or the existing controlled upgrade, use these
+After explicit ACTIVE v4/v5 preparation or the existing controlled upgrade, use these
 operations:
 
 ```sh
@@ -679,7 +683,7 @@ The provider profile needs no local engines or model cache. Its authoritative
   cleanup and reports
   `{"status":"failed","code":"provider_start_failed","stage":"serving","cleanup_incomplete":<bool>}`.
 - local-setup/.env.providers.example lists the three key names.
-- The persistent ACTIVE v4 workspace and fixtures remain separate explicit
+- The persistent ACTIVE v4/v5 workspace and fixtures remain separate explicit
   prerequisites.
 - The selected provider_real v2 gate passed both actual browser cases with cleanup.
 - The joined showcase reuses the same private file.
@@ -736,12 +740,14 @@ Current status:
 
 - Actual fresh-schema setup now succeeds, with separate read-only version,
   receiver, case and original-M1 checks.
-- Future preparations also publish the nonsecret specialist configuration after
+- New preparations also publish the nonsecret specialist configuration after
   validating shared evidence identities.
 - The work item records a preliminary signed-SMS, execution and delivery path and
   scoped normal restarts. They do not complete the final frozen integration gate.
 - The room-bound current-result transport and Parent components are implemented.
-  Their connected media and provider qualification remain pending.
+  [0046](../docs/work-items/0046-joined-showcase-providers-and-demo.md) records
+  selected connected scripted/provider journeys; full joined qualification
+  remains open.
 
 #### Scripted launcher
 
@@ -756,7 +762,7 @@ make channel-policy-launch-plan
 Its command-line interface is
 `serve --profile ABSOLUTE_OWNER_CONFIG --node ABSOLUTE_NODE_EXECUTABLE`. Add
 `--no-ui` for the backend-only process composition. Actual joined startup and media
-qualification are still pending; a successful plan is not runtime readiness.
+qualification retain their separate gates; a successful plan is not runtime readiness.
 
 The optional UI uses the prebuilt public Vite preview at
 http://127.0.0.1:5179/channel-policy.html. The launcher prints only the private
@@ -769,16 +775,29 @@ settings and falls back to 13000.
 
 Shutdown and restart behavior:
 
-- A normal SIGINT or SIGTERM starts UI and Parent cleanup independently. It drains
-  both before the gateway and specialist dependencies, and it preserves all
-  product data. SIGHUP and SIGQUIT are treated like SIGTERM.
+- A normal SIGINT or SIGTERM starts UI close and Parent preparation independently.
+  Preparation drains operator, room and SMS owners while application origins and
+  gateway dispatch remain available. The launcher then observes gateway dispatch
+  quiescence, closes the Parent application, and finally closes/reaps gateway and
+  specialist. Product data is preserved. SIGHUP and SIGQUIT are treated like SIGTERM.
+- Room End first fences native intake and drains the original accepted inputs
+  while their grant and dispatch dependencies remain available. The original room
+  owner automatically reobserves only `cleanup_incomplete` within its configured
+  30-second default cleanup window. That window limits new attempts and does not
+  cancel actual work. An unresolved room stays Closing; an explicit retry retains
+  the original End identity.
+- A native drain inspects at most sixteen total account-history rows before
+  filtering the original binding, and has a 20-second retry-admission window.
+  Overflow, blocked/exhausted input, unresolved receipts or expired/revoked
+  authority can keep cleanup incomplete. Reobservation cannot issue a new grant
+  or replace a business operation.
 - The private operator key and the fixed bridge configuration survive normal
   restart.
 - Only the exact original active marker is removed, after owned work settles.
-- Unresolved cleanup retains the original owners and the marker. Another signal
-  retries the same cleanup.
+- Unresolved cleanup retains the original owners and the marker. The launcher
+  reobserves cleanup automatically; another signal only wakes the current wait.
 - When cleanup is incomplete, the launcher prints `cleanup_incomplete` once and
-  keeps retrying the same cleanup until it succeeds. After the 60-second shutdown
+  keeps reobserving the same cleanup until it succeeds. After the 120-second shutdown
   deadline each attempt fails at once, so retries without a new signal back off
   from 0.1 s, doubling to 5 s. Another signal ends the wait early.
 - An existing active marker fails closed. There is no automatic crash recovery or
@@ -1010,8 +1029,7 @@ The core Docker lifecycle does not require these host browser tools. Install the
 frozen workspace before running browser evidence:
 
 ```sh
-npm install --global pnpm@12.18.0
-pnpm install --frozen-lockfile
+corepack pnpm install --frozen-lockfile
 make browser-setup
 corepack pnpm --filter @livekit-ecosystem/local-console build
 ```
@@ -1028,7 +1046,7 @@ corepack pnpm --filter @livekit-ecosystem/local-console build
   `corepack pnpm --filter @livekit-ecosystem/local-console exec playwright install --with-deps chromium`
   instead. A separate Linux host is not a prerequisite for this local POC.
 
-After the four preparation commands above, `make phase-g-demo` uses the prepared
+After the preparation commands above, `make phase-g-demo` uses the prepared
 managed browser directly.
 
 #### Use an explicit browser executable
@@ -1835,10 +1853,11 @@ standalone fixed-policy API. The completed handoff records the exact source,
 installed, media-compatibility and cleanup scope. Existing default doctor and smoke
 passed eight checks and ten diagnostic audio frames with the original M1
 preserved. Selected P2-I21/P3-I18A qualification subsequently passed in 0041, and
-selected P3-I18B native RTC text qualification passed in 0042. Integrated voice,
-text and SMS return routing, live-provider behavior and the requested final demo
-video follow their separate gates. A build or healthy service alone cannot qualify
-them.
+selected P3-I18B native RTC text qualification passed in 0042. Later selected
+joined voice/text/SMS and provider journeys and the demo video are recorded in
+[0046](../docs/work-items/0046-joined-showcase-providers-and-demo.md); full joined
+release qualification remains separate. A build or healthy service alone cannot
+qualify it.
 
 #### Result receiver qualification
 
@@ -1912,7 +1931,7 @@ credentials to hide a failed recovery.
 | The Phase G helper finds that host assets do not match | Console source changed after the host distribution was built; the Docker image build does not create it | Rebuild the host console distribution ([Prepare host browser tools](#prepare-host-browser-tools)) |
 | The managed Chromium is not installed | Starting a gate does not download a browser | Run `make browser-setup` |
 | Joined setup rejects the target directory | An existing target directory is rejected | Prepare a new directory; a profile holds sixteen inputs |
-| The joined launcher finds an existing active marker | Unresolved cleanup or a crash left the original active marker in place | The launcher fails closed and offers no automatic crash recovery or destructive repair; if cleanup is unresolved, another signal retries the same cleanup |
+| The joined launcher finds an existing active marker | Unresolved cleanup or a crash left the original active marker in place | The original live launcher reobserves its cleanup automatically; a fresh launcher fails closed and offers no automatic crash recovery or destructive repair |
 | A gate reports missing setup, skips or a timeout | The documented setup is incomplete; the result is non-passing | Complete the documented setup and rerun |
 
 ## Reference
@@ -1939,7 +1958,7 @@ credentials to hide a failed recovery.
 | Default | `livekit`, `postgres`, `control-api`, `rtc-agent` and `console` | `start` | Serves M1 and the transport diagnostics with business mode off |
 | `observability` | `jaeger` | `start --observability`; also `start-business` | UI readiness alone does not establish export coverage |
 | `migrations` | `p1-migrate` | `migrate-postgres`, once | Prepares a staging schema with only the migration credential |
-| `p1-workers` | `p1-worker` | `start-workers`; also `start-business` | Requires explicit ACTIVE v4 preparation |
+| `p1-workers` | `p1-worker` | `start-workers`; also `start-business` | Requires explicit ACTIVE v4/v5 preparation |
 | `p1-business` | `conversation-agent` | `start-business` | Runs with the API in business mode; `stop-business` returns the API to ordinary M1 mode |
 | `p1-models` | `p1-llm`, `p1-stt` and `p1-tts` | `start-models`; also `start-local-real` | Cached model sizes and digests are checked before engines start |
 
@@ -2015,9 +2034,10 @@ control.
 
 ## Next milestone
 
-The next local-setup milestone is to retain and reproduce the S-I06/P1-I27 local
-inquiry baseline. The [H1 work item](../docs/work-items/0014-p1-phase-h-workload-baseline.md)
-owns the completed measurement, inspected results and limits.
+Current work focuses on repeatable joined lifecycle and release evidence. The
+[H1 work item](../docs/work-items/0014-p1-phase-h-workload-baseline.md) retains the
+completed inquiry measurement; it is a regression baseline rather than an
+unfinished implementation milestone.
 
 | Step | Outcome | Gate |
 | --- | --- | --- |
@@ -2031,9 +2051,8 @@ The following work remains outside the qualified scope and keeps its own gates:
 | --- | --- |
 | The optional local_real profile and physical quality, which remain unqualified | Actual headroom and engine, model and browser qualification ([local-real operations guide](../docs/local-real-inference.md)) |
 | Complete P2/P3 acceptance | The full channel, delegation and release gates |
-| Integrated browser voice, text and SMS return routing, provider composition and live-provider behavior, and restart discovery | Their separate gates |
-| Joined startup and connected media and provider qualification for the joined showcase | The [joined work item](../docs/work-items/0045-joined-native-channel-policy.md) gates |
-| The requested final demo video | Its separate gate |
+| Full joined discovery/restart, installed/container reproduction and media qualification beyond the selected journeys | The [joined work item](../docs/work-items/0045-joined-native-channel-policy.md) gates |
+| Fresh lifecycle drain qualification after the ordering repair | [Lifecycle follow-up](../docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md) |
 
 A build, a successful plan or a healthy service alone cannot qualify any of these.
 [Acceptance and qualification status](#acceptance-and-qualification-status)

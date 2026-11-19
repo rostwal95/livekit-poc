@@ -34,7 +34,7 @@ This README is for engineers who build, test or change the gateway.
 | Scripted specialist host | Implemented | Genuine public SDK fixed-policy handler, immutable evidence and separate one-key role; actual local HTTP invocation passed |
 | Room control and worker attachment | Implemented | Closed epoch/generation commands and one actual public native prepare client; old capabilities cannot retarget a new room |
 | Current-room context | Implemented | Public rehydration facade/server using existing storage, with before/after room checks; actual joined PostgreSQL/media gate pending |
-| Actual native/current-result integration | Partial | Component wire/interoperability checks pass; gap: parent/browser/provider composition remains in progress |
+| Actual native/current-result integration | Partial | Component wire/interoperability checks and selected actual journeys exist in [0046](../../docs/work-items/0046-joined-showcase-providers-and-demo.md); full joined qualification remains open |
 | Joined dispatch deadlines | Implemented | Step deadline in [0047](../../docs/work-items/0047-open-findings-schema-upgrades-and-landing.md); bridge budget and claim lease in [0048](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md) |
 
 ### Limits and deadlines
@@ -49,10 +49,40 @@ This README is for engineers who build, test or change the gateway.
 | Claim lease, newly prepared joined profiles | 8,000 ms | Dispatch claims; persisted by `local-setup/scripts/channel_policy_setup.py` | Exceeds the step deadline |
 | Claim lease, earlier profiles | 5,000 ms | Profiles prepared earlier | Kept |
 
-Because the runtime and the bridge pass 5,000 ms, neither the bridge's 1,500 ms
-default nor the client's 2,000 ms default can cut off a slow accept inside the
-5,000 ms dispatch step. With the 8,000 ms lease, a receipt that arrives near the
-step deadline still passes the claim guard.
+The runtime passes 5,000 ms through both layers rather than inheriting either
+shorter default. The 8,000 ms lease leaves room for a receipt near the step
+deadline, subject to the fresh database-time guard. Scheduling, SQL or network
+delay can still leave a call unknown; the original identity and actual owner
+remain retained for reconciliation.
+
+### Room End and application stop
+
+Room End first fences native HTTP intake and settles already admitted accepts,
+then drains the original accepted inputs to known dispatch receipts while their
+grant and dispatch dependencies remain available. It closes the native client
+and read owners before revoking the binding. This does not wait for a policy
+result or cancel business work.
+
+If End retires a prepare already awaiting the same room's worker, that prepare
+may select the existing deterministic background path within the same dispatch
+claim. This exception requires the same captured closing room, a live caller
+signal and an unexpired room. Active-room failures, foreign bindings, aborts and
+expiry do not receive it; the P2 store still checks the original grant.
+
+| Drain limit | Value | Failure behavior |
+| --- | --- | --- |
+| Process-local native fences | 1,024 retained bearer hashes | A new fence at capacity is rejected |
+| History inspected | Sixteen total account-history rows, before binding filtering | Overflow leaves cleanup incomplete |
+| Concurrent actual drains | Two | Additional drains are rejected |
+| Drain retry-admission window | 20 seconds | Already admitted actual work remains owned |
+
+Blocked, exhausted, expired, revoked or unresolved inputs can keep the room
+Closing. Reobservation cannot create authority or a replacement operation.
+Application close drains the room before quiescing both dispatchers, then closes
+their read and storage dependencies. The Python Parent's origins stay available
+until the launcher observes that dispatch barrier. See the
+[lifecycle work item](../../docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md)
+for corrective validation; full joined qualification remains separate.
 
 ### Startup resources
 
@@ -158,7 +188,7 @@ native media qualification; those gates are in
 
 | Step | Outcome | Gate |
 | --- | --- | --- |
-| Connect one current native room and guarded result disclosure | One connected current room with guarded result disclosure | None named yet |
+| Repeat current-room and guarded result-disclosure checks after lifecycle changes | Fresh evidence for the implemented current-room composition | [Lifecycle follow-up](../../docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md) |
 | Finish the frozen composed gateway/executor qualification | Composed gateway and executor qualified | Frozen composed gateway/executor gate in [0045](../../docs/work-items/0045-joined-native-channel-policy.md) |
 
 Native media, provider inference and the compact browser flow keep their

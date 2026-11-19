@@ -217,9 +217,11 @@ export class ChannelPolicyGatewayApplication {
   #startingPending = false;
   #startupDeadline = 0;
   #closeTask: Promise<void> | undefined;
+  #quiesceTask: Promise<void> | undefined;
   #listen: Required<GatewayApplicationListen> | undefined;
   #endpoints: GatewayApplicationEndpoints | undefined;
   #closing = false;
+  #closeRequested = false;
   #closed = false;
   #reader: ChannelResultReader | undefined;
   #native: NativeGateway | undefined;
@@ -357,7 +359,7 @@ export class ChannelPolicyGatewayApplication {
     return Object.freeze({
       ownedResources: this.#owners.filter((o) => !o.closed).length,
       starting: this.#startingPending ? 1 : 0,
-      closing: this.#closing,
+      closing: this.#closeRequested,
       closed: this.#closed,
       pendingNativeReads: this.#nativeCalls.size,
       pendingClose: this.#closeTask ? 1 : 0,
@@ -380,7 +382,7 @@ export class ChannelPolicyGatewayApplication {
     prepareEndpoint: GatewayEndpoint;
     rehydrationEndpoint: GatewayEndpoint;
   }> | null {
-    return this.#nativeBridge && this.#contextEndpoint && this.#endpoints && !this.#closing
+    return this.#nativeBridge && this.#contextEndpoint && this.#endpoints && !this.#closeRequested
       ? Object.freeze({
           prepareEndpoint: this.#nativeBridge.prepareEndpoint,
           rehydrationEndpoint: this.#contextEndpoint,
@@ -392,6 +394,7 @@ export class ChannelPolicyGatewayApplication {
   }
   #checkStarting(): void {
     this.#check();
+    if (this.#closeRequested) throw new GatewayApplicationError('closed');
     if (performance.now() >= this.#startupDeadline)
       throw new GatewayApplicationError('unavailable');
   }
@@ -564,6 +567,9 @@ export class ChannelPolicyGatewayApplication {
             publish: (input) => publishNative(options.publisherToken, input),
             revoke: (id) => revokeNative(options.publisherToken, id),
             native: (bearer, id) => readNative(bearer, id),
+            fenceInput: (binding) => native.fenceNativeInput(binding.nativeBearer),
+            drainInput: (binding) =>
+              native.drainNativeInput(c.accountToken, binding.bindingId, binding.nativeBearer),
             ready: () => !this.#closing && this.#endpoints !== undefined,
           },
           this.#nativeBridge,
@@ -616,6 +622,7 @@ export class ChannelPolicyGatewayApplication {
   start(request: GatewayApplicationListen = {}): Promise<GatewayApplicationEndpoints> {
     let ports: Required<GatewayApplicationListen>;
     try {
+      if (this.#closeRequested) throw new GatewayApplicationError('closed');
       ports = listenPorts(request);
       if (
         this.#nativeBridge &&
@@ -630,7 +637,7 @@ export class ChannelPolicyGatewayApplication {
       this.#check();
     } catch {
       return Promise.reject(
-        new GatewayApplicationError(this.#closing ? 'closed' : 'invalid_input'),
+        new GatewayApplicationError(this.#closeRequested ? 'closed' : 'invalid_input'),
       );
     }
     if (this.#listen && JSON.stringify(ports) !== JSON.stringify(this.#listen))
@@ -675,7 +682,7 @@ export class ChannelPolicyGatewayApplication {
         },
       );
       void actual.catch(() => {
-        this.#closing = true;
+        this.#closeRequested = true;
         void this.close().catch(() => {});
       });
     }
@@ -684,7 +691,7 @@ export class ChannelPolicyGatewayApplication {
       this.#endpoints ? this.#startupMs : Math.max(0, this.#startupDeadline - performance.now()),
       'unavailable',
     ).catch(() => {
-      this.#closing = true;
+      this.#closeRequested = true;
       void this.close().catch(() => {});
       throw new GatewayApplicationError('unavailable');
     });
@@ -737,12 +744,38 @@ export class ChannelPolicyGatewayApplication {
     if (result.some((r) => r.status === 'rejected'))
       throw new GatewayApplicationError('cleanup_incomplete');
   }
+  /** Stop dispatch before the Parent retires origin endpoints; keep room/read owners usable. */
+  quiesceDispatch(): Promise<void> {
+    if (!this.#native || !this.#sms)
+      return Promise.reject(new GatewayApplicationError('unavailable'));
+    if (!this.#quiesceTask) {
+      // Call both fences synchronously; one failed drain cannot leave the other driver running.
+      const actual = Promise.allSettled([
+        this.#native.quiesceDispatch(),
+        this.#sms.quiesceDispatch(),
+      ]).then((results) => {
+        if (results.some((result) => result.status === 'rejected'))
+          throw new GatewayApplicationError('cleanup_incomplete');
+      });
+      this.#quiesceTask = actual;
+      void actual.catch(() => {
+        if (this.#quiesceTask === actual) this.#quiesceTask = undefined;
+      });
+    }
+    return this.#bounded(this.#quiesceTask, this.#cleanupMs, 'cleanup_incomplete');
+  }
   close(): Promise<void> {
-    this.#closing = true;
+    this.#closeRequested = true;
     if (this.#closed) return Promise.resolve();
+    // Fence the current room synchronously, but keep source/receipt listeners and
+    // dispatch adapters alive until its already accepted inputs are drained.
+    if (this.#roomManager) void this.#roomManager.close().catch(() => {});
     if (!this.#closeTask) {
       const actual = Promise.resolve().then(async () => {
         if (this.#starting) await this.#starting.catch(() => {});
+        if (this.#roomManager) await this.#roomManager.close();
+        if (this.#native && this.#sms) await this.quiesceDispatch();
+        this.#closing = true;
         await this.#tier('transport');
         await this.#tier('reader');
         await Promise.allSettled([...this.#nativeCalls]);

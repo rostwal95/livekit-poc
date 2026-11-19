@@ -27,7 +27,7 @@ switch backend. A quiesced SQLite source returns the safe `source_quiesced` erro
 for new requests, while original replay and reads remain available.
 
 **Business profile.** An explicit business profile additionally composes
-authenticated PostgreSQL v4 managed acceptance, projection and exact
+authenticated PostgreSQL v4/v5 managed acceptance, projection and exact
 quote/signal/cancel operations. It uses a read-only supplier adapter for trusted
 proposals and a signed, expiring native conversation binding. Model tools cannot
 confirm a mutation.
@@ -124,7 +124,7 @@ flowchart LR
     Routes --> IO[Bounded thread offload]
     IO --> Store[SQLite TaskStore]
     Routes --> Business[Authenticated business service]
-    Business --> PGCase[PostgreSQL v4 case and lifecycle authority]
+    Business --> PGCase[PostgreSQL v4 or v5 case and lifecycle authority]
     Business --> Quote[Read-only supplier proposal reader]
     Business --> Grant[Signed room and frozen-request grant]
     Grant --> LiveKit
@@ -144,7 +144,7 @@ flowchart LR
    in bounded thread offload, outside the conversational event loop.
 4. Only TaskStore commits investigation acceptance. Dispatch and token success
    are transport facts, not business progress.
-5. In the explicit business profile, the business service uses the PostgreSQL v4
+5. In the explicit business profile, the business service uses the PostgreSQL v4/v5
    case authority, the read-only supplier proposal reader and the signed grant,
    and exports filtered bounded OpenTelemetry Protocol (OTLP) traces. See
    [Business profile boundary](#business-profile-boundary).
@@ -349,6 +349,12 @@ claim is made. The selected `provider_real` v2 gate passed both actual browser
 cases with cleanup. P1 V1, the fixed first-version P1 scope, is qualified for the
 local POC (proof of concept) using `provider_real` v2. A passing provider
 scenario cannot qualify the separate local-engine declaration.
+
+That provider result belongs to the retained checkpoint. The fresh P1-20 rerun
+after the additive v5 upgrade remains open in the
+[qualification guide](../../docs/qualification-gates.md). Owner preparation
+upgrades through v5; serving validates an already ACTIVE v4 or v5 schema and
+performs no DDL.
 
 ## Security and privacy
 

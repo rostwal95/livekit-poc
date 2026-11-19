@@ -1,0 +1,167 @@
+1What is voice AI? Why WebRTC matters
+
+2Project setup & your first agent
+
+3Understanding AgentSession
+
+4Writing great agent instructions
+
+5Adding your first tool: check availability
+
+6RunContext, state & the booking tool
+
+7Noise cancellation & room configuration
+
+8Testing your agent
+
+9Turn detection deep dive
+
+10Conversation context & multi-turn state
+
+11Beyond audio: the data plane
+
+12Deploy to LiveKit Cloud
+
+13Polish & production readiness
+
+Adding your first tool: check availability
+
+Adding your first tool: check availability
+
+Your dental receptionist can greet callers and answer general questions, but it cannot do anything useful yet. Ask it "Do you have any openings next Tuesday?" and it will apologize or fabricate an answer. In this chapter, you will give it a real capability: checking appointment availability by calling a Python function you define.
+
+What is a tool?
+
+A tool is a Python function that the LLM can decide to call during a conversation. You define the function, decorate it, and register it with the agent. The LiveKit Agents framework handles everything else: it reads your function's type hints and docstring, converts them into a JSON schema, sends that schema to the LLM alongside the conversation, and when the LLM decides to invoke the tool, the framework calls your function and feeds the result back into the conversation.
+
+The LLM never executes code. It produces a structured JSON request — "call check_availability with date='next Tuesday'" — and the framework does the actual execution on your server.
+
+The @function_tool decorator
+
+Here is the complete tool definition for checking appointment availability:
+
+from livekit.agents import function_tool, RunContext
+
+
+@function_tool
+async def check_availability(context: RunContext, date: str) -> str:
+  """Check available appointment slots for a given date.
+
+  Args:
+      date: The date to check availability for (e.g., "next Tuesday", "March 15")
+  """
+  # Simulated availability — in production, query your scheduling database
+  available_slots = ["9:00 AM", "11:30 AM", "2:00 PM", "4:30 PM"]
+  return f"Available slots for {date}: {', '.join(available_slots)}"
+
+Every piece of this function matters. Let's walk through each one.
+
+This single decorator transforms a regular async function into a tool the LLM can call. It inspects the function signature, extracts type hints and the docstring, and generates a JSON schema that gets sent to the LLM with every request.
+
+Every tool function receives a RunContext as its first argument. This object gives you access to the current session, the agent, and other runtime state. The framework injects it automatically — the LLM never sees it and never provides a value for it. You will use RunContext extensively in the next chapter.
+
+The date: str parameter becomes a required string field in the JSON schema. If you had written date: str, time: str, the schema would have two required string fields. The LLM reads this schema and knows exactly what arguments to provide. Use int, float, bool, str, or Optional[str] for optional parameters.
+
+The LLM reads your docstring to understand when and how to use the tool. The main docstring describes the tool's purpose. The Args: section describes each parameter. Write these as if you are explaining the tool to a colleague — because you are explaining it to a language model that needs the same kind of guidance.
+
+Whatever string you return becomes a message in the conversation that only the LLM sees. It reads the result and formulates a natural language response for the caller. The caller never hears "Available slots for next Tuesday: 9:00 AM, 11:30 AM, 2:00 PM, 4:30 PM" verbatim — the LLM weaves it into conversation.
+
+Schema generation is automatic
+
+You never write JSON schema by hand. The framework reads date: str and produces {"type": "string", "description": "The date to check availability for (e.g., \"next Tuesday\", \"March 15\")"}. Better type hints and docstrings mean the LLM makes better tool calls.
+
+Registering the tool with the agent
+
+A tool definition alone does nothing. You must pass it to the Agent so the LLM knows it exists. Update your entrypoint to register the tool and adjust the instructions:
+
+from livekit.agents import AgentServer, rtc_session, Agent, AgentSession, function_tool, RunContext
+from livekit.plugins import openai, silero, deepgram, cartesia
+
+server = AgentServer()
+
+
+@function_tool
+async def check_availability(context: RunContext, date: str) -> str:
+  """Check available appointment slots for a given date.
+
+  Args:
+      date: The date to check availability for (e.g., "next Tuesday", "March 15")
+  """
+  available_slots = ["9:00 AM", "11:30 AM", "2:00 PM", "4:30 PM"]
+  return f"Available slots for {date}: {', '.join(available_slots)}"
+
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  await session.start(
+      agent=Agent(
+          instructions="""You are a friendly receptionist at Bright Smile Dental clinic.
+          Keep responses brief and conversational. Never use markdown or emojis.
+          Help callers with appointment inquiries, clinic hours, and general questions.
+
+          When a caller asks about availability or openings, use the check_availability
+          tool to look up real appointment slots. Always check availability before
+          suggesting times — never guess or make up time slots.""",
+          tools=[check_availability],
+      ),
+      room=session.room,
+      stt=deepgram.STT(model="nova-3"),
+      llm=openai.LLM(model="gpt-4o-mini"),
+      tts=cartesia.TTS(voice="<voice-id>"),
+  )
+
+
+if __name__ == "__main__":
+  server.run()
+
+Two changes from the previous chapter: the tools=[check_availability] parameter on the Agent, and the updated instructions that tell the agent when and how to use the tool.
+
+Instructions must mention tools
+
+Registering a tool makes it available, but the LLM still needs guidance on when to use it. If your instructions say nothing about checking availability, the LLM might ignore the tool and guess answers instead. Always tell the agent: "use X tool when the caller asks about Y."
+
+How the LLM decides to call a tool
+
+When a caller says "Do you have any openings next Tuesday?", here is what happens behind the scenes:
+
+Deepgram transcribes the audio to text: "Do you have any openings next Tuesday?"
+
+The framework sends the LLM your system instructions, the conversation history, and the tool schema — including the name check_availability, its description, and the date parameter with its description.
+
+Instead of generating a text response, the LLM produces a structured tool call: check_availability(date="next Tuesday"). It extracted "next Tuesday" from the caller's speech and matched it to the date parameter.
+
+LiveKit Agents calls your check_availability function with context (injected automatically) and date="next Tuesday". Your function returns the string with available slots.
+
+The return value goes back to the LLM as a tool result. The LLM reads it and generates a natural spoken response like: "I have a few openings next Tuesday. I can do 9 AM, 11:30 AM, 2 PM, or 4:30 in the afternoon. Which works best for you?"
+
+The key insight is that tools give the LLM a way to bridge the gap between conversation and action. Without the tool, the LLM can only generate text. With the tool, it can query your systems, perform lookups, and base its responses on real data rather than hallucination.
+
+Test your agent
+
+Run your agent in dev mode:
+
+lk agent dev
+
+Open the LiveKit Playground and try these prompts:
+
+Try saying: "Do you have any openings next Tuesday?"
+
+Watch the dev console. You will see log output showing the tool call — the function name, the arguments the LLM chose, and the return value. The agent should respond with the four available time slots, phrased naturally.
+
+Try saying: "What about Thursday?"
+
+The LLM should call check_availability again with date="Thursday". Because the simulated data always returns the same slots, you will get the same times — but the agent will present them conversationally.
+
+Try saying: "I need to see the dentist soon."
+
+This is intentionally vague. A well-instructed agent should ask the caller what date works for them before calling the tool, rather than guessing a date. If your agent guesses instead of asking, refine your instructions.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why does the @function_tool decorator read the function's docstring and type hints?
+
+Looking ahead
+
+The availability tool returns simulated data. In a production system, you would query a real scheduling API or database inside the function. The LLM does not care where the data comes from — it only sees the string you return. In the next chapter, you will build a booking tool that writes data back, and you will use RunContext to manage state across multiple tool calls.

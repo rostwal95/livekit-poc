@@ -1,0 +1,460 @@
+1AI-native routing & multi-agent orchestration
+
+2Human escalation & context transfer
+
+3CRM integration & caller context
+
+Human escalation & context transfer
+
+Human Escalation: Agent Handoff and Context Transfer
+
+The most critical moment in a contact center interaction is the handoff from AI to human. Done poorly, the caller repeats everything they just said, the human agent fumbles for context, and trust evaporates. Done well, the human agent greets the caller by name, already knows the problem, and picks up exactly where the AI left off. This chapter builds that seamless transition.
+
+What you'll learn
+
+When and why to escalate from AI to human agents
+
+Building escalation triggers based on sentiment, complexity, and explicit requests
+
+Transferring full conversation context during handoff
+
+Implementing screen pop so human agents see caller information instantly
+
+The difference between warm and cold transfers and when to use each
+
+Detecting escalation triggers
+
+Not every call needs a human. The AI agent should handle routine requests autonomously and escalate only when it genuinely cannot help. Escalation triggers fall into three categories: explicit requests, capability limits, and sentiment signals.
+
+from dataclasses import dataclass, field
+from enum import Enum
+
+
+class EscalationReason(Enum):
+  CUSTOMER_REQUEST = "customer_request"
+  SENTIMENT_NEGATIVE = "sentiment_negative"
+  CAPABILITY_LIMIT = "capability_limit"
+  REPEATED_FAILURE = "repeated_failure"
+  HIGH_VALUE_ACCOUNT = "high_value_account"
+  COMPLIANCE_REQUIRED = "compliance_required"
+
+
+@dataclass
+class EscalationContext:
+  reason: EscalationReason
+  conversation_summary: str
+  caller_id: str
+  caller_name: str | None = None
+  account_number: str | None = None
+  sentiment_score: float = 0.0  # -1.0 to 1.0
+  topics_discussed: list[str] = field(default_factory=list)
+  actions_taken: list[str] = field(default_factory=list)
+  failed_attempts: int = 0
+  call_duration_seconds: float = 0.0
+  transcript: list[dict] = field(default_factory=list)
+
+
+class EscalationDetector:
+  def __init__(self):
+      self.negative_sentiment_threshold = -0.5
+      self.max_failed_attempts = 3
+      self.escalation_phrases = [
+          "speak to a human",
+          "talk to a person",
+          "real person",
+          "supervisor",
+          "manager",
+          "representative",
+          "agent",
+          "operator",
+      ]
+
+  def should_escalate(
+      self,
+      user_message: str,
+      sentiment_score: float,
+      failed_attempts: int,
+      account_tier: str | None = None,
+  ) -> EscalationReason | None:
+      # Explicit request -- always honor immediately
+      message_lower = user_message.lower()
+      for phrase in self.escalation_phrases:
+          if phrase in message_lower:
+              return EscalationReason.CUSTOMER_REQUEST
+
+      # Persistent negative sentiment
+      if sentiment_score < self.negative_sentiment_threshold:
+          return EscalationReason.SENTIMENT_NEGATIVE
+
+      # Repeated failures to resolve
+      if failed_attempts >= self.max_failed_attempts:
+          return EscalationReason.REPEATED_FAILURE
+
+      # VIP accounts get proactive escalation
+      if account_tier in ("enterprise", "platinum"):
+          return EscalationReason.HIGH_VALUE_ACCOUNT
+
+      return None
+
+enum EscalationReason {
+CUSTOMER_REQUEST = "customer_request",
+SENTIMENT_NEGATIVE = "sentiment_negative",
+CAPABILITY_LIMIT = "capability_limit",
+REPEATED_FAILURE = "repeated_failure",
+HIGH_VALUE_ACCOUNT = "high_value_account",
+COMPLIANCE_REQUIRED = "compliance_required",
+}
+
+interface EscalationContext {
+reason: EscalationReason;
+conversationSummary: string;
+callerId: string;
+callerName?: string;
+accountNumber?: string;
+sentimentScore: number;
+topicsDiscussed: string[];
+actionsTaken: string[];
+failedAttempts: number;
+callDurationSeconds: number;
+transcript: Array<{ role: string; content: string }>;
+}
+
+class EscalationDetector {
+private negativeSentimentThreshold = -0.5;
+private maxFailedAttempts = 3;
+private escalationPhrases = [
+  "speak to a human",
+  "talk to a person",
+  "real person",
+  "supervisor",
+  "manager",
+  "representative",
+  "agent",
+  "operator",
+];
+
+shouldEscalate(
+  userMessage: string,
+  sentimentScore: number,
+  failedAttempts: number,
+  accountTier?: string
+): EscalationReason | null {
+  const messageLower = userMessage.toLowerCase();
+  for (const phrase of this.escalationPhrases) {
+    if (messageLower.includes(phrase)) {
+      return EscalationReason.CUSTOMER_REQUEST;
+    }
+  }
+
+  if (sentimentScore < this.negativeSentimentThreshold) {
+    return EscalationReason.SENTIMENT_NEGATIVE;
+  }
+
+  if (failedAttempts >= this.maxFailedAttempts) {
+    return EscalationReason.REPEATED_FAILURE;
+  }
+
+  if (accountTier === "enterprise" || accountTier === "platinum") {
+    return EscalationReason.HIGH_VALUE_ACCOUNT;
+  }
+
+  return null;
+}
+}
+
+Never block escalation requests
+
+When a caller explicitly asks for a human, transfer them immediately. Do not ask "Are you sure?" or "Can I try one more thing?" This is the single fastest way to destroy trust. The caller has made their preference clear -- respect it.
+
+Building the handoff mechanism
+
+The handoff transfers the call from the AI agent to a human agent while passing along the full conversation context. LiveKit's agent framework supports this through agent handoffs that carry metadata.
+
+import json
+from livekit.agents import Agent, AgentSession, RunContext
+
+
+class ContactCenterAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are a customer service AI for Acme Corp.
+          Help callers with their requests. If you cannot resolve the issue
+          or the caller asks for a human, escalate immediately.""",
+      )
+      self.escalation_detector = EscalationDetector()
+      self.failed_attempts = 0
+      self.topics = []
+      self.actions = []
+      self.transcript = []
+
+  async def on_user_message(self, message: str, ctx: RunContext):
+      self.transcript.append({"role": "user", "content": message})
+
+      # Check for escalation triggers
+      reason = self.escalation_detector.should_escalate(
+          user_message=message,
+          sentiment_score=await self._analyze_sentiment(message),
+          failed_attempts=self.failed_attempts,
+      )
+
+      if reason:
+          await self._escalate_to_human(reason)
+          return
+
+      # Normal processing continues...
+
+  async def _escalate_to_human(self, reason: EscalationReason):
+      """Build context and hand off to a human agent."""
+      context = EscalationContext(
+          reason=reason,
+          conversation_summary=await self._generate_summary(),
+          caller_id=self.session.room.name,
+          sentiment_score=0.0,
+          topics_discussed=self.topics,
+          actions_taken=self.actions,
+          failed_attempts=self.failed_attempts,
+          call_duration_seconds=self._get_call_duration(),
+          transcript=self.transcript,
+      )
+
+      # Notify the caller
+      if reason == EscalationReason.CUSTOMER_REQUEST:
+          await self.session.say(
+              "Of course, I'll connect you with a team member right away. "
+              "Let me transfer you now."
+          )
+      else:
+          await self.session.say(
+              "I want to make sure you get the best help possible. "
+              "Let me connect you with a specialist who can assist further."
+          )
+
+      # Hand off to human agent via LiveKit agent transfer
+      await self.session.transfer(
+          agent_name="human_agent_bridge",
+          metadata=json.dumps({
+              "escalation_context": {
+                  "reason": context.reason.value,
+                  "summary": context.conversation_summary,
+                  "topics": context.topics_discussed,
+                  "actions": context.actions_taken,
+                  "transcript": context.transcript,
+              }
+          }),
+      )
+
+  async def _generate_summary(self) -> str:
+      """Use the LLM to generate a concise handoff summary."""
+      summary_prompt = (
+          "Summarize the following conversation for a human agent "
+          "who is taking over. Include: the caller's issue, what has "
+          "been tried, and what remains unresolved. Be concise.\n\n"
+          + "\n".join(
+              f"{t['role']}: {t['content']}" for t in self.transcript
+          )
+      )
+      # Use the agent's LLM to generate the summary
+      response = await self.session.llm.complete(summary_prompt)
+      return response.text
+
+import { Agent, RunContext } from "@livekit/agents";
+
+class ContactCenterAgent extends Agent {
+private escalationDetector = new EscalationDetector();
+private failedAttempts = 0;
+private topics: string[] = [];
+private actions: string[] = [];
+private transcript: Array<{ role: string; content: string }> = [];
+
+constructor() {
+  super({
+    instructions: `You are a customer service AI for Acme Corp.
+      Help callers with their requests. If you cannot resolve the issue
+      or the caller asks for a human, escalate immediately.`,
+  });
+}
+
+override async onUserMessage(message: string, ctx: RunContext): Promise<void> {
+  this.transcript.push({ role: "user", content: message });
+
+  const reason = this.escalationDetector.shouldEscalate(
+    message,
+    await this.analyzeSentiment(message),
+    this.failedAttempts
+  );
+
+  if (reason) {
+    await this.escalateToHuman(reason);
+    return;
+  }
+  // Normal processing continues...
+}
+
+private async escalateToHuman(reason: EscalationReason): Promise<void> {
+  const summary = await this.generateSummary();
+
+  if (reason === EscalationReason.CUSTOMER_REQUEST) {
+    await this.session.say(
+      "Of course, I'll connect you with a team member right away."
+    );
+  } else {
+    await this.session.say(
+      "Let me connect you with a specialist who can assist further."
+    );
+  }
+
+  await this.session.transfer({
+    agentName: "human_agent_bridge",
+    metadata: JSON.stringify({
+      escalationContext: {
+        reason,
+        summary,
+        topics: this.topics,
+        actions: this.actions,
+        transcript: this.transcript,
+      },
+    }),
+  });
+}
+
+private async generateSummary(): Promise<string> {
+  const conversationText = this.transcript
+    .map((t) => t.role + ": " + t.content)
+    .join("\n");
+  const prompt =
+    "Summarize this conversation for a human agent taking over. " +
+    "Include the issue, what was tried, and what is unresolved:\n\n" +
+    conversationText;
+  const response = await this.session.llm.complete(prompt);
+  return response.text;
+}
+}
+
+The key to a great handoff is the summary. Instead of dumping the raw transcript on the human agent, the AI generates a concise briefing: "Customer called about a billing discrepancy on invoice #4521. I verified their account, confirmed the charge exists, but could not process a refund because it exceeds my authorization limit. Customer is frustrated. Recommended action: review and approve the $750 refund." The human agent reads this in 5 seconds and is ready to help.
+
+Screen pop: arming the human agent
+
+When a call arrives at a human agent's desk, the "screen pop" displays everything the agent needs: caller information, account details, conversation summary, and recommended actions. This is delivered through a webhook or WebSocket to the agent's desktop application.
+
+from dataclasses import dataclass
+import httpx
+
+
+@dataclass
+class ScreenPopData:
+  caller_name: str
+  caller_phone: str
+  account_number: str
+  account_tier: str
+  conversation_summary: str
+  escalation_reason: str
+  topics: list[str]
+  actions_taken: list[str]
+  recommended_actions: list[str]
+  sentiment: str  # "positive", "neutral", "negative"
+  call_duration: str
+  previous_interactions: list[dict]
+
+
+async def send_screen_pop(agent_desktop_url: str, data: ScreenPopData):
+  """Push screen pop data to the human agent's desktop application."""
+  async with httpx.AsyncClient() as client:
+      await client.post(
+          f"{agent_desktop_url}/api/screen-pop",
+          json={
+              "caller": {
+                  "name": data.caller_name,
+                  "phone": data.caller_phone,
+                  "account": data.account_number,
+                  "tier": data.account_tier,
+              },
+              "conversation": {
+                  "summary": data.conversation_summary,
+                  "escalation_reason": data.escalation_reason,
+                  "topics": data.topics,
+                  "actions_taken": data.actions_taken,
+                  "recommended_actions": data.recommended_actions,
+                  "sentiment": data.sentiment,
+                  "duration": data.call_duration,
+              },
+              "history": data.previous_interactions,
+          },
+          timeout=5.0,
+      )
+
+interface ScreenPopData {
+callerName: string;
+callerPhone: string;
+accountNumber: string;
+accountTier: string;
+conversationSummary: string;
+escalationReason: string;
+topics: string[];
+actionsTaken: string[];
+recommendedActions: string[];
+sentiment: "positive" | "neutral" | "negative";
+callDuration: string;
+previousInteractions: Array<Record<string, unknown>>;
+}
+
+async function sendScreenPop(
+agentDesktopUrl: string,
+data: ScreenPopData
+): Promise<void> {
+await fetch(`${agentDesktopUrl}/api/screen-pop`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    caller: {
+      name: data.callerName,
+      phone: data.callerPhone,
+      account: data.accountNumber,
+      tier: data.accountTier,
+    },
+    conversation: {
+      summary: data.conversationSummary,
+      escalationReason: data.escalationReason,
+      topics: data.topics,
+      actionsTaken: data.actionsTaken,
+      recommendedActions: data.recommendedActions,
+      sentiment: data.sentiment,
+      duration: data.callDuration,
+    },
+    history: data.previousInteractions,
+  }),
+});
+}
+
+Warm vs cold transfers
+
+The AI agent transfers the call directly to the human agent and disconnects. The human agent receives the screen pop and takes over. This is faster but can feel abrupt to the caller. Use for straightforward escalations where the context is clear.
+
+The AI agent briefly introduces the human agent to the caller, summarizes the issue aloud, and then disconnects. This takes 10-15 seconds longer but dramatically improves the caller's experience. The caller hears: "I'm connecting you with Sarah, who specializes in billing disputes. Sarah, the customer is calling about an overcharge on invoice 4521." Use for complex or emotionally charged escalations.
+
+The AI agent stays on the line briefly after connecting the human, monitoring the first few exchanges to ensure the handoff is smooth. If the human agent needs clarification, the AI can provide it in real-time via a side channel. This is the gold standard but requires more infrastructure.
+
+Measure handoff quality
+
+Track the percentage of escalated calls where the human agent asks the caller to repeat information. This metric -- the "repeat rate" -- directly measures handoff quality. World-class contact centers achieve below 5%.
+
+Test your knowledge
+
+Question 1 of 3
+
+When a caller explicitly says 'let me talk to a real person,' what should the AI agent do?
+
+What you learned
+
+Escalation triggers detect when AI should hand off: explicit requests, negative sentiment, repeated failures
+
+Context transfer packages conversation history, actions taken, and a generated summary
+
+Screen pop delivers caller information to the human agent's desktop before they answer
+
+Warm transfers improve caller experience by introducing the human agent with context
+
+The "repeat rate" metric measures handoff quality
+
+Next up
+
+Not every call needs routing to a department. The next chapter covers the Directory Service -- enabling callers to find and connect with specific employees by name or extension.

@@ -1,0 +1,167 @@
+1How telephony works in LiveKit
+
+2Buy a number & configure inbound trunk
+
+3Dispatch rules: routing calls to agents
+
+4Recording consent with AgentTask
+
+5DTMF & keypad input
+
+6HD voice & secure trunking
+
+7Making outbound calls
+
+8Test from your phone
+
+Test from your phone
+
+Test from your phone
+
+You have configured inbound trunks, dispatch rules, recording consent, DTMF menus, HD voice, and outbound calls. Now it is time to put it all together and test the complete system from your actual phone. In this final chapter, you will call your agent, verify every feature works, and use LiveKit Cloud Insights to diagnose any issues.
+
+What you'll learn
+
+How to run the complete end-to-end test from your phone
+
+What to verify at each stage of the call
+
+How to use Cloud Insights to review call quality, latency, and logs
+
+What you have built in this course and where to go next
+
+Pre-flight checklist
+
+Before picking up your phone, make sure everything is in place:
+
+Start your agent in dev mode. It should be registered and ready to handle rooms matching your dispatch pattern.
+
+Verify with lk sip trunk list that your trunk shows the correct phone number and is in an active state.
+
+Verify with lk sip dispatch list that a dispatch rule exists for your trunk, creating individual rooms with the correct prefix.
+
+Confirm that LIVEKIT_URL, LIVEKIT_API_KEY, and LIVEKIT_API_SECRET are set, plus any model API keys (OpenAI, Deepgram, Cartesia).
+
+# Start your agent
+lk agent dev
+
+# In another terminal, verify infrastructure
+lk sip trunk list
+lk sip dispatch list
+
+The end-to-end test
+
+Pick up your phone and dial the number you provisioned. Here is what should happen at each stage, and what to listen for.
+
+Your phone should ring through and connect within a few seconds. If you hear a busy signal or the call fails to connect, check that your trunk and provider are configured correctly. Verify the phone number matches your trunk's number list exactly (E.164 format).
+
+You should hear: "Thank you for calling Bright Smile Dental. This call may be recorded for quality purposes. Do you consent to being recorded?" This confirms that the CollectConsent task is running and on_enter() fired correctly.
+
+Say "yes" or "I consent." The agent should acknowledge and transition seamlessly to the next stage. If you say "no," the agent should thank you and the call should end. Test both paths.
+
+If you included the DTMF phone menu, you should hear the menu prompt. Press 1 or 2 on your keypad and verify the agent responds to the correct option. Also try speaking your choice instead of pressing a key.
+
+Once past the consent and menu stages, the main dental receptionist should be active. Try asking: "Do you have any openings next Tuesday?" The agent should use the availability tool and respond with time slots.
+
+Say "goodbye" or hang up. The call should terminate cleanly. Check that the room closes in the LiveKit dashboard.
+
+Test from a different phone too
+
+Test from at least two different phones if possible -- your mobile and a colleague's, or a landline. Different phones negotiate different codecs, and you want to verify your trunk handles all of them.
+
+Using Cloud Insights
+
+LiveKit Cloud Insights is your post-call diagnostic tool. After completing a test call, open the LiveKit Cloud dashboard and navigate to the Insights section.
+
+What to look for
+
+Call timeline -- Insights shows the full lifecycle of the call: SIP INVITE received, room created, agent joined, first audio, conversation events, and call termination. Verify each stage happened in the expected order.
+
+Latency metrics -- Check the round-trip time for audio. For a good phone experience, you want total voice-to-voice latency under 800ms. Insights breaks this down by stage so you can see if the bottleneck is STT, LLM, TTS, or transport.
+
+Audio quality -- Insights tracks audio quality metrics including packet loss, jitter, and codec negotiation. If callers report choppy audio, this is where you diagnose it.
+
+Agent logs -- Your agent's log output appears in Insights, including tool calls, task transitions, and any errors. This is invaluable for debugging issues that only appear during real phone calls.
+
+Cloud Insights is like a flight recorder for your phone calls. Every call is logged with timing data, audio quality metrics, and agent activity. When something goes wrong -- a caller reports that the agent did not respond, or audio was garbled -- Insights lets you replay the call's technical details and find the root cause.
+
+Checking a specific call
+
+In the LiveKit Cloud dashboard, go to Rooms and find the room that was created for your test call. The name will match your dispatch rule's prefix (e.g., dental-abc123).
+
+Verify two participants: your SIP participant (the phone caller) and the agent. Check that both published audio tracks and the tracks were subscribed.
+
+Look at the audio round-trip time. If latency is high, identify which stage contributes the most. Common culprits: LLM response time (switch to a faster model), TTS startup time (try a different provider), or transport (check region pinning).
+
+Check the agent's event log for task transitions (consent -> menu -> main agent), tool calls, and any errors or warnings.
+
+Common issues and fixes
+
+Symptom | Likely cause | Fix
+Call does not connect | Trunk misconfigured or provider not routing | Verify phone number in trunk config, check provider dashboard
+Silence after connecting | Agent not dispatched to room | Verify dispatch rule room prefix matches agent registration
+Agent speaks but cannot hear caller | Audio track not subscribed | Check Insights for track subscription status
+Choppy or robotic audio | Packet loss or codec mismatch | Enable HD voice (Opus), check network quality
+High latency (>1s) | Slow LLM or wrong region | Use a faster LLM model, enable region pinning
+DTMF keys not detected | DTMF forwarding not enabled | Add sip.sendDtmf: "true" to dispatch rule attributes
+Consent task never completes | LLM not calling tools | Review consent task instructions, check agent logs
+
+Phone testing reveals issues browser testing misses
+
+Many issues only surface during real phone calls: codec negotiation failures, DTMF event handling, SIP-specific timing, and audio quality degradation from the PSTN. Always test with a real phone before going to production.
+
+What you built in this course
+
+Over eight chapters, you have taken the dental receptionist agent from Course 1.1 and connected it to the real phone network:
+
+Chapter 1 -- Learned how SIP bridges phone calls into LiveKit rooms as SIP participants
+
+Chapter 2 -- Purchased a phone number and configured an inbound SIP trunk
+
+Chapter 3 -- Created dispatch rules to route incoming calls to your agent
+
+Chapter 4 -- Built a recording consent flow using the AgentTask pattern
+
+Chapter 5 -- Added DTMF keypad input handling with GetDtmfTask
+
+Chapter 6 -- Configured HD voice, encrypted trunking, and region pinning
+
+Chapter 7 -- Set up outbound calling for appointment confirmations
+
+Chapter 8 -- Tested the complete system end-to-end and learned Cloud Insights
+
+Your dental receptionist can now:
+
+Receive real phone calls from patients
+
+Collect recording consent before the conversation
+
+Handle both voice and keypad input
+
+Deliver HD audio quality with encrypted calls
+
+Proactively call patients for appointment confirmations
+
+Be monitored and debugged through Cloud Insights
+
+Where to go next
+
+This course covered the fundamentals of telephony integration. For production telephony systems, continue to Course 2.5 (Production Telephony) which covers call transfers, queue management, recording, error handling, and load testing at scale.
+
+Test your knowledge
+
+Question 1 of 2
+
+Why is testing from a real phone essential even if the agent works perfectly in a browser-based test?
+
+What you learned
+
+Always run a pre-flight checklist before testing: agent running, trunk active, dispatch rule configured
+
+Test the complete flow: connect, consent, DTMF, conversation, and hangup
+
+Cloud Insights provides call timelines, latency breakdowns, audio quality metrics, and agent logs
+
+Test from real phones -- browser testing cannot catch SIP-specific issues
+
+Your agent handles both inbound and outbound calls through the same room-based architecture

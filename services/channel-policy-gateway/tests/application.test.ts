@@ -47,6 +47,19 @@ const f = vi.hoisted(() => {
     }
   }
   class Gateway extends Owner {
+    async fenceNativeInput(bearer: string) {
+      state.calls.push([this.label, 'fence_native', bearer]);
+    }
+    async drainNativeInput(token: string, binding: string, bearer: string) {
+      state.calls.push([this.label, 'drain_native', token, binding, bearer]);
+      await state.holds.get('drain_native');
+    }
+    async quiesceDispatch() {
+      state.trace.push('quiesce:' + this.label);
+      await state.holds.get('quiesce:' + this.label);
+      if (state.failClose.has('quiesce:' + this.label)) throw new Error('PRIVATE_QUIESCE');
+      state.trace.push('quiesced:' + this.label);
+    }
     async listen(port: number) {
       state.trace.push('listen:' + this.label);
       await state.holds.get('listen:' + this.label);
@@ -356,6 +369,28 @@ beforeEach(() => {
   f.state.nativeResult = null;
 });
 describe('explicit public P2 application ownership', () => {
+  it('quiesces both drivers while preserving source and result listeners and all owned storage', async () => {
+    const x = fixture(),
+      held = deferred();
+    const endpoints = await x.app.start();
+    f.state.holds.set('quiesce:native_gateway', held.promise);
+    const stopping = x.app.quiesceDispatch().catch((error: unknown) => error);
+    try {
+      await vi.waitFor(() => expect(f.state.trace).toContain('quiesced:sms_gateway'));
+      expect(await stopping).toMatchObject({ code: 'cleanup_incomplete' });
+      expect(f.state.trace.filter((v) => v.startsWith('close:'))).toEqual([]);
+      expect(
+        await post(endpoints.read.port, '/v1/policy/discovery', Buffer.from('{"schemaVersion":1}')),
+      ).toMatchObject({ status: 200, value: { items: [], overflow: false } });
+      held.resolve();
+      await x.app.quiesceDispatch();
+      expect(x.app.metrics().ownedResources).toBe(9);
+    } finally {
+      held.resolve();
+      await stopping.catch(() => {});
+      await x.app.close();
+    }
+  });
   it('is inert through configuration, starts actual worker/result hosts, and closes all owned tiers', async () => {
     const x = fixture();
     expect(f.state.trace).toEqual([]);
@@ -616,6 +651,40 @@ describe('explicit public P2 application ownership', () => {
 });
 
 describe('optin room manager shares existing application owners', () => {
+  it('keeps source reads and dispatch live while direct close drains accepted room input', async () => {
+    const held = deferred(),
+      x = fixture(
+        {},
+        {
+          configuration: { schemaVersion: 1, port: await port(), recoverBindingId: null },
+          publisherToken: 'n'.repeat(43),
+          forbiddenBearers: [],
+        },
+      );
+    const endpoints = await x.app.start(),
+      ready = x.app.roomControlReady()!,
+      opened = opening(ready.nodeEpoch),
+      safe = { ...opened, binding: { ...opened.binding, nativeBearer: 'x'.repeat(43) } };
+    await roomPost(ready.endpoint.port, 'open', safe, 'n'.repeat(43));
+    f.state.holds.set('drain_native', held.promise);
+    const closing = x.app.close().catch((error: unknown) => error);
+    try {
+      await vi.waitFor(() => expect(f.state.calls.some((v) => v[1] === 'drain_native')).toBe(true));
+      expect(f.state.trace).not.toContain('quiesce:native_gateway');
+      expect(f.state.trace).not.toContain('close:history');
+      expect(
+        await post(endpoints.read.port, '/v1/policy/discovery', Buffer.from('{"schemaVersion":1}')),
+      ).toMatchObject({ status: 200, value: { items: [], overflow: false } });
+      expect(await closing).toMatchObject({ code: 'cleanup_incomplete' });
+      held.resolve();
+      await vi.waitFor(() => expect(x.app.metrics().closed).toBe(true));
+      expect(f.state.trace).toContain('quiesced:native_gateway');
+    } finally {
+      held.resolve();
+      f.state.holds.delete('drain_native');
+      await x.app.close();
+    }
+  });
   it('binds one additional listener while using the one existing native inbox/reader', async () => {
     const roomOptions: NativeRoomOptions = {
       configuration: { schemaVersion: 1, port: await port(), recoverBindingId: null },

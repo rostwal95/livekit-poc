@@ -1,0 +1,226 @@
+1Deployment architecture
+
+2Docker configuration
+
+3LiveKit Cloud deployment
+
+4Monitoring setup
+
+5Custom metrics & data hooks
+
+6Alerting & incident response
+
+7Multi-tenant architecture
+
+8Auto-scaling
+
+9Cost optimization
+
+10Blue-green deployments
+
+11Operational runbook
+
+LiveKit Cloud deployment
+
+LiveKit Cloud deployment
+
+Your Docker image is built and tested. Now it is time to push it to production. This chapter covers the full LiveKit Cloud deployment workflow -- from lk agent deploy to verifying your agent is live, managing secrets securely, checking deployment status, and rolling back when things go wrong.
+
+What you'll learn
+
+The complete deployment workflow using the lk CLI
+
+How to manage secrets securely with lk agent secret set
+
+How to check deployment status and view logs
+
+How to roll back a bad deployment instantly
+
+Prerequisites
+
+Before deploying, make sure you have:
+
+Install the latest lk CLI. On macOS: brew install livekit-cli. On Linux, download the binary from the LiveKit releases page.
+
+Run lk cloud auth to log in to your LiveKit Cloud account. This stores credentials locally so subsequent commands work without re-authenticating.
+
+Your agent should build and run successfully in Docker locally (covered in the previous chapter).
+
+The deployment workflow
+
+Your agent needs API keys for LLM, STT, and TTS providers. Never bake these into the Docker image. Use LiveKit Cloud's encrypted secret store.
+
+A single command builds, pushes, and rolls out your agent.
+
+Check status, tail logs, and test from Playground.
+
+If something is wrong, revert to the previous version instantly.
+
+Managing secrets
+
+Secrets are encrypted at rest and injected as environment variables when your agent container starts. They never appear in logs, images, or the Cloud dashboard.
+
+# Set individual secrets
+lk agent secret set OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxx
+lk agent secret set DEEPGRAM_API_KEY=xxxxxxxxxxxxx
+lk agent secret set CARTESIA_API_KEY=xxxxxxxxxxxxx
+
+# List all configured secrets (values are masked)
+lk agent secret list
+
+# Delete a secret
+lk agent secret delete OLD_API_KEY
+
+LiveKit credentials are automatic
+
+You do not need to set LIVEKIT_URL, LIVEKIT_API_KEY, or LIVEKIT_API_SECRET as secrets. LiveKit Cloud injects these automatically into every agent container.
+
+Set secrets before deploying
+
+If your agent starts without the required API keys, it will crash on the first request. Always configure secrets before your first deployment, and verify them with lk agent secret list.
+
+Deploying your agent
+
+With secrets configured, deploy with a single command:
+
+# Deploy using agent.toml configuration
+lk agent deploy
+
+# Or specify the agent name explicitly
+lk agent deploy dental-receptionist
+
+Here is what happens behind the scenes:
+
+The CLI builds your Docker image using the Dockerfile specified in agent.toml. Build output streams to your terminal so you can watch progress.
+
+The built image is pushed to LiveKit's private container registry. Layer caching applies -- if only your application code changed, only that layer is uploaded.
+
+LiveKit Cloud starts new containers with your updated image. Existing sessions continue on the old version. New sessions route to the new version. Once all old sessions complete, old containers are terminated.
+
+The rolling deployment model means zero downtime for active calls. If a caller is mid-conversation when you deploy, their call continues uninterrupted on the old version. Only new calls are routed to the new version. This is critical for voice agents -- you never want to drop an active call because of a deployment.
+
+A typical first deployment takes 2-3 minutes. Subsequent deployments are faster thanks to Docker layer caching.
+
+Checking deployment status
+
+After deploying, verify everything is running:
+
+# Check current deployment status
+lk agent status
+
+# View detailed status for a specific agent
+lk agent status dental-receptionist
+
+The status command shows:
+
+Current version and deployment time
+
+Number of running instances
+
+Health check results
+
+Recent error counts
+
+Viewing logs
+
+Tail your agent's logs in real time:
+
+# Stream logs from all instances
+lk cloud logs dental-receptionist
+
+# View logs from the last hour
+lk cloud logs dental-receptionist --since 1h
+
+Look for these key indicators in the startup logs:
+
+INFO  agent registered: dental-receptionist
+INFO  worker connected to LiveKit Cloud
+INFO  ready to accept sessions
+
+Use structured logging in production
+
+Replace print() with Python's logging module or a structured logger like structlog. Include session IDs in every log line so you can trace issues to specific calls.
+
+Testing the deployment
+
+Open the LiveKit Playground from your Cloud dashboard. Your deployed agent appears in the agent list. Connect and test a conversation:
+
+# Or test from the CLI
+lk room join --identity test-caller dental-receptionist-room
+
+Verify these during testing:
+
+Agent responds to speech within expected latency
+
+Tool calls execute correctly (database access, API calls)
+
+No errors in the log stream
+
+Audio quality is acceptable
+
+Rolling back
+
+If a deployment introduces a bug, roll back immediately:
+
+# Roll back to the previous version
+lk agent rollback dental-receptionist
+
+# Check that rollback succeeded
+lk agent status dental-receptionist
+
+Rollback is instant. New sessions immediately route to the previous version. Active sessions on the broken version continue until they complete naturally.
+
+Always have a rollback plan
+
+Before every deployment, know which version you are rolling back to. After deploying, monitor logs and error rates for at least 15 minutes before considering the deployment stable. The first few production calls after a deploy are your canary.
+
+Deployment checklist
+
+Use this checklist for every production deployment:
+
+Verify all secrets are configured. Test the Docker image locally. Review code changes since the last deployment.
+
+Run lk agent deploy. Watch the build output for errors. Wait for the deployment to complete.
+
+Check lk agent status. Tail logs for errors. Test a conversation from Playground. Verify latency is within acceptable range.
+
+Watch error rates and latency for 15-30 minutes. If anything is off, roll back immediately with lk agent rollback.
+
+Versioning strategy
+
+Tag your deployments with meaningful versions in agent.toml. This file defines your agent's identity and build configuration for LiveKit Cloud:
+
+[agent]
+name = "dental-receptionist"
+version = "1.2.0"
+
+[build]
+dockerfile = "Dockerfile"
+
+Use semantic versioning: increment the patch version for bug fixes, minor version for new features, and major version for breaking changes. This makes it easy to identify which version is running and communicate about deployments with your team.
+
+Scaling is managed by LiveKit Cloud
+
+You do not configure scaling parameters in agent.toml. LiveKit Cloud automatically manages instance scaling based on session demand — spinning up new instances when call volume increases and scaling down when it drops. There is no YAML or infrastructure configuration to manage. That is the point of using Cloud.
+
+Test your knowledge
+
+Question 1 of 2
+
+Why should secrets be set before the first deployment rather than after?
+
+What you learned
+
+lk agent deploy handles the full build, push, and rollout cycle in a single command
+
+Secrets are managed separately from code and encrypted at rest -- never bake API keys into images
+
+Rolling deployments ensure zero downtime for active calls during updates
+
+lk agent rollback provides instant recovery when a deployment goes wrong
+
+A disciplined deployment checklist prevents most production incidents
+
+Next up
+
+Your agent is deployed and running. But how do you know it is performing well? In the next chapter, you will set up monitoring with Cloud Insights to track transcripts, traces, latency breakdowns, and session health.

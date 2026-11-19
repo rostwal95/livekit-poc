@@ -61,6 +61,11 @@ task.
 P1 V1, the fixed first-version P1 scope, is qualified for the local POC (proof
 of concept) using `provider_real` v2.
 
+This is retained checkpoint evidence. The fresh P1-20 provider-media rerun after
+the v5 upgrade remains open in the
+[qualification guide](../../docs/qualification-gates.md); the qualified workload
+version and the PostgreSQL schema version are separate identifiers.
+
 ### Function tools
 
 Native function tools use the SDK's async-tool lifecycle:

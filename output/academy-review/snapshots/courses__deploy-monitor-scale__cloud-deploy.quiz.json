@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Why should secrets be set before the first deployment rather than after?",
+    "options": [
+      "If the agent starts without required API keys, it will crash on the first real request \u2014 secrets must be available when the container starts",
+      "Secrets cannot be modified after the initial deployment",
+      "Setting secrets after deployment triggers an automatic rollback",
+      "LiveKit Cloud requires secrets to build the Docker image"
+    ],
+    "correctIndex": 0,
+    "explanation": "When LiveKit Cloud starts your agent container, it injects secrets as environment variables. If a required API key (like OPENAI_API_KEY) is missing, the agent will fail when it tries to process the first call. Configuring secrets before deploying ensures the agent can function immediately."
+  },
+  {
+    "question": "How does LiveKit Cloud's rolling deployment model ensure zero downtime for active calls?",
+    "options": [
+      "It deploys during off-peak hours automatically",
+      "New containers start with the updated image and receive new sessions, while existing sessions continue on old containers until they complete naturally",
+      "It uses WebSocket migration to transfer active sessions to new containers",
+      "It pauses all new calls during the deployment window"
+    ],
+    "correctIndex": 1,
+    "explanation": "Rolling deployment means old and new versions run simultaneously. Active calls continue uninterrupted on old containers while only new incoming calls are routed to updated containers. Once all old sessions complete, old containers are terminated. No caller is ever disconnected due to a deployment."
+  }
+]

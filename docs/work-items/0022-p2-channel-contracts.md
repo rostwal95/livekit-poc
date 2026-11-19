@@ -85,10 +85,11 @@ concurrency/process evidence.
 
 ## Results and handoff
 
-P2-I01/I02 implementation and focused checks passed. The primary agent owns the
-final shared workspace, discovery, lock and documentation gates before this work
-item can close. The full Phase P2-A remains incomplete, and no P2 acceptance
-runner is registered.
+P2-I01/I02 implementation and focused checks passed. The final shared workspace,
+discovery, lock and documentation results are recorded under
+[Shared validation and completion](#shared-validation-and-completion). At this
+checkpoint, the wider Phase P2-A remained incomplete and no P2 acceptance runner
+was registered.
 
 ### Focused gates
 

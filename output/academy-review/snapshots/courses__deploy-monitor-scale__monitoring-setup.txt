@@ -1,0 +1,288 @@
+1Deployment architecture
+
+2Docker configuration
+
+3LiveKit Cloud deployment
+
+4Monitoring setup
+
+5Custom metrics & data hooks
+
+6Alerting & incident response
+
+7Multi-tenant architecture
+
+8Auto-scaling
+
+9Cost optimization
+
+10Blue-green deployments
+
+11Operational runbook
+
+Monitoring setup
+
+Monitoring setup
+
+A deployed agent without monitoring is a black box. You have no idea if callers are getting good responses, if latency is creeping up, or if errors are silently piling up. This chapter sets up comprehensive monitoring with LiveKit Cloud Insights so you can see exactly what is happening inside every conversation.
+
+What you'll learn
+
+How to access and navigate LiveKit Cloud Insights
+
+How to read conversation transcripts and identify quality issues
+
+How to use traces to diagnose latency bottlenecks in the STT/LLM/TTS pipeline
+
+The key metrics every voice AI operator should watch daily
+
+Why monitoring voice agents is different
+
+Monitoring a web API is straightforward: track response times, error rates, and throughput. Voice agents add dimensions that traditional APM tools do not cover:
+
+Conversation quality -- Did the agent understand the caller? Did it give the right answer?
+
+Turn-level latency -- Not just overall response time, but how long each pipeline stage (STT, LLM, TTS) took for each conversational turn
+
+Audio quality -- Was there echo, packet loss, or jitter that degraded the experience?
+
+Session lifecycle -- Did the caller hang up in frustration, or did the conversation reach a natural conclusion?
+
+Monitoring a web API is like checking if the restaurant is open and serving food. Monitoring a voice agent is like checking if the food tastes good, the waiter is attentive, and the conversation at the table flows naturally. You need qualitative insight, not just quantitative metrics.
+
+Accessing Cloud Insights
+
+Cloud Insights is built into the LiveKit Cloud dashboard. No additional setup or third-party tools required.
+
+Navigate to your LiveKit Cloud project at cloud.livekit.io. Select your project from the project list.
+
+Click the Insights tab in the left navigation. You will see an overview of recent sessions, including total sessions, error rates, and average latency.
+
+Click any session to drill into its details -- transcripts, traces, and session metadata.
+
+Transcripts: understanding what happened
+
+Every conversation your agent handles is transcribed and stored. The transcript view shows:
+
+User messages -- What the caller said, as transcribed by STT
+
+Agent messages -- What the agent said in response
+
+Timestamps -- When each message occurred
+
+Tool calls -- Any function calls the agent made (booking appointments, looking up data)
+
+# List recent sessions from the CLI
+lk cloud sessions list dental-receptionist
+
+# View transcript for a specific session
+lk cloud sessions view sess_abc123 --transcript
+
+What to look for in transcripts:
+
+Pattern | Indicates | Action
+Agent misunderstands caller | STT errors or poor audio | Check audio quality metrics, consider STT model upgrade
+Agent gives wrong information | LLM hallucination or missing context | Update instructions, add guardrails
+Caller repeats themselves | Agent response was unclear or too long | Shorten responses, improve TTS pacing
+Caller hangs up mid-conversation | Frustration or latency issues | Check turn-level latency traces
+Tool call fails | Backend service issue | Check tool call error logs, verify API connectivity
+
+Schedule weekly transcript reviews
+
+Block 30 minutes per week to read 10-20 random transcripts. This is the single most effective way to improve your agent. Automated metrics tell you something is wrong; transcripts tell you what to fix.
+
+Traces: diagnosing latency
+
+Traces break down each conversational turn into its pipeline stages. For every turn, you can see:
+
+STT duration -- How long speech-to-text processing took
+
+LLM time to first token -- How long until the LLM started generating
+
+LLM total duration -- Full generation time including all tokens
+
+TTS time to first audio -- How long until the first audio chunk was ready
+
+End-to-end latency -- Total time from user finishing speech to agent starting speech
+
+# View traces for a specific session
+lk cloud sessions view sess_abc123 --traces
+
+A healthy voice agent trace looks like this:
+
+Turn 1:
+STT:           142ms
+LLM (TTFT):     89ms
+LLM (total):   340ms
+TTS (TTFA):    112ms
+End-to-end:    450ms  [PASS] Under 500ms budget
+
+Turn 4:
+STT:           156ms
+LLM (TTFT):   1240ms  [WARN] Slow - check prompt length
+LLM (total):  3200ms
+TTS (TTFA):    118ms
+End-to-end:   1520ms  [FAIL] Over budget
+
+Traces are like an itemized receipt for each turn. Instead of knowing "this turn took 1.5 seconds" you know exactly where those 1.5 seconds went. Turn 4 above is slow because of the LLM -- maybe the conversation context grew too large, or the model is overloaded. Without traces, you would be guessing.
+
+Key metrics to watch
+
+Set up a daily monitoring routine around these metrics:
+
+P50 under 500ms is good. P95 under 800ms is acceptable. If P95 exceeds 1 second, callers are noticing delays. Drill into traces to find the bottleneck stage.
+
+Track the percentage of sessions with errors. A healthy agent runs under 1% error rate. Spikes usually mean an API key expired, a provider is down, or a code bug was deployed.
+
+What percentage of sessions reach a natural conclusion versus the caller hanging up early? A drop in completion rate signals a quality problem -- the agent is frustrating callers.
+
+Review transcripts for misheard words. If STT accuracy is low, consider switching to a higher-quality model or adding domain-specific vocabulary.
+
+Track how often tool calls succeed versus fail. A spike in tool failures means your backend services need attention.
+
+Building a monitoring dashboard
+
+For teams that want a consolidated view, export key metrics to a dashboard:
+
+import logging
+from datetime import datetime
+
+logger = logging.getLogger("agent-monitor")
+
+class SessionMonitor:
+  """Track key metrics for each agent session."""
+
+  def __init__(self, session_id: str):
+      self.session_id = session_id
+      self.start_time = datetime.now()
+      self.turn_count = 0
+      self.tool_calls = 0
+      self.tool_failures = 0
+
+  def on_turn_complete(self, latency_ms: float):
+      self.turn_count += 1
+      logger.info(
+          "turn_complete",
+          extra={
+              "session_id": self.session_id,
+              "turn": self.turn_count,
+              "latency_ms": latency_ms,
+          },
+      )
+
+  def on_tool_call(self, tool_name: str, success: bool, duration_ms: float):
+      self.tool_calls += 1
+      if not success:
+          self.tool_failures += 1
+      logger.info(
+          "tool_call",
+          extra={
+              "session_id": self.session_id,
+              "tool": tool_name,
+              "success": success,
+              "duration_ms": duration_ms,
+          },
+      )
+
+  def on_session_end(self):
+      duration = (datetime.now() - self.start_time).total_seconds()
+      logger.info(
+          "session_end",
+          extra={
+              "session_id": self.session_id,
+              "duration_seconds": duration,
+              "turns": self.turn_count,
+              "tool_calls": self.tool_calls,
+              "tool_failures": self.tool_failures,
+          },
+      )
+
+import { Logger } from "pino";
+
+class SessionMonitor {
+private sessionId: string;
+private startTime: number;
+private turnCount = 0;
+private toolCalls = 0;
+private toolFailures = 0;
+
+constructor(
+  sessionId: string,
+  private logger: Logger
+) {
+  this.sessionId = sessionId;
+  this.startTime = Date.now();
+}
+
+onTurnComplete(latencyMs: number): void {
+  this.turnCount++;
+  this.logger.info({
+    event: "turn_complete",
+    sessionId: this.sessionId,
+    turn: this.turnCount,
+    latencyMs,
+  });
+}
+
+onToolCall(toolName: string, success: boolean, durationMs: number): void {
+  this.toolCalls++;
+  if (!success) this.toolFailures++;
+  this.logger.info({
+    event: "tool_call",
+    sessionId: this.sessionId,
+    tool: toolName,
+    success,
+    durationMs,
+  });
+}
+
+onSessionEnd(): void {
+  const durationSeconds = (Date.now() - this.startTime) / 1000;
+  this.logger.info({
+    event: "session_end",
+    sessionId: this.sessionId,
+    durationSeconds,
+    turns: this.turnCount,
+    toolCalls: this.toolCalls,
+    toolFailures: this.toolFailures,
+  });
+}
+}
+
+Structured logs feed dashboards
+
+The structured log output above can be collected by any log aggregator (Datadog, Grafana Loki, CloudWatch) and turned into dashboards and alerts. You will set up alerting in a later chapter.
+
+Monitoring checklist
+
+Run through this checklist daily:
+
+Check | Frequency | What to look for
+Error rate | Daily | Spikes above 1%
+P95 latency | Daily | Exceeding 800ms consistently
+Session completion | Daily | Drops below 80%
+Transcript review | Weekly | Misunderstandings, wrong answers, awkward phrasing
+Tool call failures | Daily | Spikes in failure rate
+Audio quality | Weekly | Listen to 3-5 random sessions
+
+Test your knowledge
+
+Question 1 of 3
+
+Why are traces more useful than overall response time for diagnosing voice agent latency issues?
+
+What you learned
+
+Cloud Insights provides transcripts, traces, and session data for every conversation without additional setup
+
+Transcripts reveal what happened in a conversation -- the qualitative view
+
+Traces reveal where time was spent in each turn -- the quantitative view
+
+A daily monitoring routine covering latency, errors, completion rate, and tool reliability catches problems before callers notice
+
+Structured logging in your agent code enables custom dashboards and alerting
+
+Next up
+
+Built-in monitoring covers the basics. In the next chapter, you will implement custom metrics and data hooks to track business-specific KPIs like booking rates, call duration by intent, and cost per conversation.

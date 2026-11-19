@@ -1,0 +1,365 @@
+1Deployment architecture
+
+2Docker configuration
+
+3LiveKit Cloud deployment
+
+4Monitoring setup
+
+5Custom metrics & data hooks
+
+6Alerting & incident response
+
+7Multi-tenant architecture
+
+8Auto-scaling
+
+9Cost optimization
+
+10Blue-green deployments
+
+11Operational runbook
+
+Custom metrics & data hooks
+
+Custom metrics and data hooks
+
+Cloud Insights tells you how your agent is performing technically. But business questions -- "How many appointments were booked today?", "What is the average call duration for billing inquiries?", "What percentage of callers reach a successful resolution?" -- require custom metrics. This chapter shows you how to instrument your agent with data hooks and push business metrics to Prometheus for dashboards and alerting.
+
+What you'll learn
+
+How to implement data hooks in your agent to capture business events
+
+How to expose custom metrics in Prometheus format
+
+How to build dashboards that track business KPIs alongside technical metrics
+
+Patterns for tracking booking rates, call duration, cost per session, and more
+
+Why custom metrics matter
+
+Cloud Insights answers "Is the agent working?" Custom metrics answer "Is the agent delivering business value?"
+
+Cloud Insights (built-in) | Custom metrics (you build)
+End-to-end latency | Booking conversion rate
+Error rate | Average call duration by intent
+Session count | Cost per conversation
+STT/LLM/TTS timing | Customer satisfaction proxy
+Tool call success rate | Revenue influenced per session
+
+Built-in metrics are like a car's speedometer and fuel gauge -- essential for driving. Custom metrics are like the trip computer that tells you miles per gallon, estimated arrival time, and total trip cost. Both matter, but the trip computer is what tells you if the journey is worth taking.
+
+Implementing data hooks in Python
+
+Data hooks are callbacks that fire at key moments in your agent's lifecycle. Use them to capture events and emit metrics.
+
+from livekit.agents import Agent, AgentSession, RoomInputOptions
+from livekit.agents.voice import MetricsCollectedEvent
+from prometheus_client import Counter, Histogram, start_http_server
+import time
+
+# Define Prometheus metrics
+SESSION_TOTAL = Counter(
+  "agent_sessions_total",
+  "Total number of agent sessions",
+  ["agent_name", "outcome"],
+)
+BOOKING_TOTAL = Counter(
+  "agent_bookings_total",
+  "Total number of bookings made",
+  ["agent_name"],
+)
+SESSION_DURATION = Histogram(
+  "agent_session_duration_seconds",
+  "Session duration in seconds",
+  ["agent_name"],
+  buckets=[30, 60, 120, 300, 600, 1800],
+)
+TOOL_CALL_DURATION = Histogram(
+  "agent_tool_call_duration_seconds",
+  "Tool call duration in seconds",
+  ["agent_name", "tool_name"],
+)
+TURN_LATENCY = Histogram(
+  "agent_turn_latency_seconds",
+  "End-to-end turn latency",
+  ["agent_name"],
+  buckets=[0.3, 0.5, 0.8, 1.0, 1.5, 2.0, 3.0],
+)
+
+# Start Prometheus metrics server
+start_http_server(9090)
+
+
+class DentalReceptionist(Agent):
+  def __init__(self) -> None:
+      super().__init__(
+          instructions="You are a dental receptionist...",
+      )
+      self._session_start = time.time()
+      self._booking_made = False
+
+  async def on_enter(self):
+      self.session.on("metrics_collected", self._on_metrics)
+
+  async def _on_metrics(self, event: MetricsCollectedEvent):
+      """Capture pipeline metrics from each turn."""
+      for metrics in event.metrics:
+          if hasattr(metrics, "ttft"):
+              TURN_LATENCY.labels(agent_name="dental-receptionist").observe(
+                  metrics.duration
+              )
+
+  async def on_close(self):
+      duration = time.time() - self._session_start
+      outcome = "booking" if self._booking_made else "inquiry"
+
+      SESSION_TOTAL.labels(
+          agent_name="dental-receptionist", outcome=outcome
+      ).inc()
+      SESSION_DURATION.labels(
+          agent_name="dental-receptionist"
+      ).observe(duration)
+
+      if self._booking_made:
+          BOOKING_TOTAL.labels(agent_name="dental-receptionist").inc()
+
+Prometheus metrics are defined as module-level variables. Counters track totals (sessions, bookings). Histograms track distributions (duration, latency) with configurable buckets.
+
+The on_enter method fires when the agent joins a session. The on_close method fires when the session ends. Use these to track session-level metrics.
+
+The metrics_collected event fires after each conversational turn with timing data for STT, LLM, and TTS stages.
+
+Labels like agent_name, outcome, and tool_name let you slice metrics in dashboards. Track outcomes (booking vs inquiry) to measure conversion.
+
+Implementing data hooks in TypeScript
+
+import { Agent, AgentSession } from "@livekit/agents";
+import { MetricsCollectedEvent } from "@livekit/agents";
+import { collectDefaultMetrics, Counter, Histogram, Registry } from "prom-client";
+import http from "node:http";
+
+const register = new Registry();
+collectDefaultMetrics({ register });
+
+const sessionTotal = new Counter({
+name: "agent_sessions_total",
+help: "Total number of agent sessions",
+labelNames: ["agent_name", "outcome"] as const,
+registers: [register],
+});
+
+const bookingTotal = new Counter({
+name: "agent_bookings_total",
+help: "Total number of bookings made",
+labelNames: ["agent_name"] as const,
+registers: [register],
+});
+
+const sessionDuration = new Histogram({
+name: "agent_session_duration_seconds",
+help: "Session duration in seconds",
+labelNames: ["agent_name"] as const,
+buckets: [30, 60, 120, 300, 600, 1800],
+registers: [register],
+});
+
+const turnLatency = new Histogram({
+name: "agent_turn_latency_seconds",
+help: "End-to-end turn latency",
+labelNames: ["agent_name"] as const,
+buckets: [0.3, 0.5, 0.8, 1.0, 1.5, 2.0, 3.0],
+registers: [register],
+});
+
+// Serve metrics on port 9090
+const server = http.createServer(async (req, res) => {
+if (req.url === "/metrics") {
+  res.setHeader("Content-Type", register.contentType);
+  res.end(await register.metrics());
+}
+});
+server.listen(9090);
+
+class DentalReceptionist extends Agent {
+private sessionStart = Date.now();
+private bookingMade = false;
+
+constructor() {
+  super({
+    instructions: "You are a dental receptionist...",
+  });
+}
+
+override async onEnter(): Promise<void> {
+  this.session.on("metricsCollected", (event: MetricsCollectedEvent) => {
+    for (const metrics of event.metrics) {
+      turnLatency
+        .labels({ agent_name: "dental-receptionist" })
+        .observe(metrics.duration);
+    }
+  });
+}
+
+override async onClose(): Promise<void> {
+  const duration = (Date.now() - this.sessionStart) / 1000;
+  const outcome = this.bookingMade ? "booking" : "inquiry";
+
+  sessionTotal.labels({ agent_name: "dental-receptionist", outcome }).inc();
+  sessionDuration
+    .labels({ agent_name: "dental-receptionist" })
+    .observe(duration);
+
+  if (this.bookingMade) {
+    bookingTotal.labels({ agent_name: "dental-receptionist" }).inc();
+  }
+}
+}
+
+Tracking tool call metrics
+
+Wrap your tool functions to automatically capture timing and success metrics:
+
+import time
+import functools
+from prometheus_client import Counter, Histogram
+
+TOOL_CALLS = Counter(
+  "agent_tool_calls_total",
+  "Total tool calls",
+  ["tool_name", "status"],
+)
+TOOL_DURATION = Histogram(
+  "agent_tool_call_duration_seconds",
+  "Tool call duration",
+  ["tool_name"],
+  buckets=[0.1, 0.25, 0.5, 1.0, 2.0, 5.0],
+)
+
+
+def tracked_tool(func):
+  """Decorator that tracks tool call metrics."""
+  @functools.wraps(func)
+  async def wrapper(*args, **kwargs):
+      tool_name = func.__name__
+      start = time.time()
+      try:
+          result = await func(*args, **kwargs)
+          TOOL_CALLS.labels(tool_name=tool_name, status="success").inc()
+          return result
+      except Exception as e:
+          TOOL_CALLS.labels(tool_name=tool_name, status="error").inc()
+          raise
+      finally:
+          TOOL_DURATION.labels(tool_name=tool_name).observe(
+              time.time() - start
+          )
+  return wrapper
+
+
+@tracked_tool
+async def check_availability(date: str, time_slot: str) -> dict:
+  """Check appointment availability."""
+  # Your implementation here
+  ...
+
+@tracked_tool
+async def book_appointment(
+  patient_name: str, date: str, time_slot: str
+) -> dict:
+  """Book an appointment."""
+  # Your implementation here
+  ...
+
+Track every tool call
+
+Tool calls are often the slowest part of a voice agent turn. A database query that takes 2 seconds or an external API that times out will dominate end-to-end latency. The tracked_tool decorator gives you visibility into exactly which tools are slow or failing.
+
+Prometheus and Grafana setup
+
+If you are self-hosting or running hybrid, configure Prometheus to scrape your agent's metrics endpoint:
+
+global:
+scrape_interval: 15s
+
+scrape_configs:
+- job_name: "voice-agents"
+  static_configs:
+    - targets:
+        - "agent-worker-1:9090"
+        - "agent-worker-2:9090"
+        - "agent-worker-3:9090"
+  metrics_path: /metrics
+
+Building a business dashboard
+
+With metrics flowing into Prometheus, create a Grafana dashboard with these panels:
+
+Graph rate(agent_sessions_total[5m]) split by outcome label. Shows how many sessions per minute result in bookings versus inquiries.
+
+Calculate rate(agent_bookings_total[1h]) / rate(agent_sessions_total[1h]). This is your headline business metric.
+
+Histogram panel on agent_session_duration_seconds. Short sessions (under 30s) might indicate callers giving up. Very long sessions might indicate the agent is confused.
+
+Graph P50, P90, and P99 of agent_turn_latency_seconds. This directly correlates with caller experience.
+
+Graph rate(agent_tool_calls_total{status="error"}[5m]) for each tool. Failing tools mean broken experiences.
+
+LiveKit Cloud users
+
+If you are using LiveKit Cloud, you still benefit from custom Prometheus metrics for business KPIs. Run a small Prometheus + Grafana stack alongside your agent, or push metrics to a managed service like Grafana Cloud or Datadog.
+
+Example: cost-per-session metric
+
+Track estimated cost for each session by summing up provider API costs:
+
+from prometheus_client import Histogram
+
+SESSION_COST = Histogram(
+  "agent_session_cost_dollars",
+  "Estimated cost per session in USD",
+  ["agent_name"],
+  buckets=[0.01, 0.05, 0.10, 0.25, 0.50, 1.00, 2.00],
+)
+
+class CostTracker:
+  def __init__(self):
+      self.total_cost = 0.0
+
+  def add_llm_cost(self, input_tokens: int, output_tokens: int):
+      # GPT-4o-mini pricing (example)
+      self.total_cost += (input_tokens * 0.15 / 1_000_000)
+      self.total_cost += (output_tokens * 0.60 / 1_000_000)
+
+  def add_stt_cost(self, audio_seconds: float):
+      # Deepgram Nova pricing (example)
+      self.total_cost += audio_seconds * (0.0043 / 60)
+
+  def add_tts_cost(self, characters: int):
+      # Cartesia pricing (example)
+      self.total_cost += characters * (0.000030)
+
+  def finalize(self, agent_name: str):
+      SESSION_COST.labels(agent_name=agent_name).observe(self.total_cost)
+
+Tracking cost per session lets you answer questions like "Is our average $0.08 per call worth the $15/hour human receptionist it replaces?" The answer is almost always yes, but having the data lets you prove it to stakeholders and optimize further.
+
+Test your knowledge
+
+Question 1 of 2
+
+Why do custom business metrics (like booking conversion rate) matter alongside built-in technical metrics (like error rate)?
+
+What you learned
+
+Data hooks (on_enter, on_close, metrics_collected) let you capture business events at key moments in the session lifecycle
+
+Prometheus metrics (Counters and Histograms) give you queryable, dashboardable data about agent performance and business outcomes
+
+The tracked_tool decorator pattern automatically captures timing and success/failure for every tool call
+
+Business dashboards combining conversion rate, session duration, tool reliability, and cost per session tell you if your agent is delivering value
+
+Next up
+
+You have metrics flowing. In the next chapter, you will set up alerting so you find out about problems before your callers do -- including PagerDuty integration and incident response runbooks.

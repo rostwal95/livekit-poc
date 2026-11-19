@@ -1,5 +1,6 @@
 """One-call worker safety and useful progress against independent real stores."""
 
+import importlib
 import json
 import logging
 import os
@@ -11,18 +12,22 @@ from datetime import date
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from threading import Event
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 from continuity_lab.execution import ExecutionStore
 from continuity_lab.execution_models import (
     AttemptStatus,
+    ExecutionError,
     ExecutionStatus,
     FailureCode,
     TransitionConflict,
 )
 from continuity_lab.inquiry_worker import InquiryWorker, WorkerBusy, WorkerLockUnavailable
+from continuity_lab.managed_inquiry_worker import ManagedInquiryWorker
 from continuity_lab.migrations import migrate
 from continuity_lab.models import BookingChange
-from continuity_lab.supplier import FakeSupplier, initialize_supplier
+from continuity_lab.supplier import FakeSupplier, InquiryCapabilities, initialize_supplier
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -422,6 +427,107 @@ class InquiryWorkerTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertNotIn("PRIVATE_SENTINEL", result.stdout + result.stderr)
         self.assertEqual(json.loads(result.stdout)["code"], "dependency_unavailable")
+
+
+class InquiryDiagnosticContainmentTests(unittest.TestCase):
+    """Observation failures cannot replace business results or primary failures."""
+
+    helpers = (
+        ("execution", "log"),
+        ("inquiry_worker", "log"),
+        ("managed_inquiry_worker", "log"),
+        ("postgres_case", "info"),
+        ("postgres_lifecycle", "info"),
+        ("postgres_store", "log"),
+        ("supplier", "log"),
+        ("postgres_migrations", "info"),
+    )
+
+    def test_existing_event_boundaries_contain_logger_failure_without_swallowing_fatal_exit(self):
+        for name, method in self.helpers:
+            module = importlib.import_module("continuity_lab." + name)
+            with self.subTest(module=name):
+                with patch.object(module.LOGGER, method, side_effect=OSError("private sink")):
+                    self.assertIsNone(module._event("diagnostic_fixture"))
+                fatal = KeyboardInterrupt()
+                with patch.object(module.LOGGER, method, side_effect=fatal):
+                    with self.assertRaises(KeyboardInterrupt) as caught:
+                        module._event("diagnostic_fixture")
+                    self.assertIs(caught.exception, fatal)
+
+    def test_managed_worker_returns_committed_success_when_completion_log_fails(self):
+        from contextlib import nullcontext
+
+        lifecycle = Mock()
+        lifecycle.worker_slot.return_value = nullcontext()
+        claim = SimpleNamespace(execution=SimpleNamespace(effect_id="effect", request="request"))
+        lifecycle.claim_due.return_value = claim
+        committed = object()
+        lifecycle.finish_success.return_value = committed
+        supplier = Mock(capabilities=InquiryCapabilities())
+        result = object()
+        supplier.lookup.return_value = SimpleNamespace(result=result)
+        worker = ManagedInquiryWorker(lifecycle, supplier)
+
+        def observe(_level, event, **_kwargs):
+            if event == "managed_worker_completed":
+                raise OSError("private sink")
+
+        with patch("continuity_lab.managed_inquiry_worker.LOGGER.log", side_effect=observe):
+            self.assertIs(worker.run_one(scope_id="scope", task_id="task"), committed)
+        lifecycle.finish_success.assert_called_once_with(claim, result)
+        supplier.inquire.assert_not_called()
+
+    def test_managed_worker_preserves_primary_failure_with_hostile_code_and_failed_logger(self):
+        from contextlib import nullcontext
+
+        class PrimaryFailure(RuntimeError):
+            @property
+            def code(self):
+                raise LookupError("private metadata")
+
+        original = PrimaryFailure("private primary")
+        lifecycle = Mock()
+        lifecycle.worker_slot.return_value = nullcontext()
+        lifecycle.claim_due.side_effect = original
+        supplier = Mock(capabilities=InquiryCapabilities())
+        worker = ManagedInquiryWorker(lifecycle, supplier)
+        with (
+            patch(
+                "continuity_lab.managed_inquiry_worker.LOGGER.log",
+                side_effect=OSError("private sink"),
+            ),
+            self.assertRaises(PrimaryFailure) as caught,
+        ):
+            worker.run_one(scope_id="scope", task_id="task")
+        self.assertIs(caught.exception, original)
+        supplier.lookup.assert_not_called()
+        lifecycle.finish_success.assert_not_called()
+
+    def test_inquiry_worker_preserves_primary_domain_failure_with_hostile_code_and_failed_logger(
+        self,
+    ):
+        from contextlib import nullcontext
+
+        class PrimaryFailure(ExecutionError):
+            @property
+            def code(self):
+                raise LookupError("private metadata")
+
+        original = PrimaryFailure("private primary")
+        executions = Mock()
+        executions.worker_slot.return_value = nullcontext()
+        executions.get.side_effect = original
+        supplier = Mock()
+        worker = InquiryWorker(executions, supplier)
+        with (
+            patch("continuity_lab.inquiry_worker.LOGGER.log", side_effect=OSError("private sink")),
+            self.assertRaises(PrimaryFailure) as caught,
+        ):
+            worker.run_one(scope_id="scope", task_id="task")
+        self.assertIs(caught.exception, original)
+        executions.start_attempt.assert_not_called()
+        supplier.lookup.assert_not_called()
 
 
 if __name__ == "__main__":

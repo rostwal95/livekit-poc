@@ -1,0 +1,156 @@
+1Deployment architecture
+
+2Docker configuration
+
+3LiveKit Cloud deployment
+
+4Monitoring setup
+
+5Custom metrics & data hooks
+
+6Alerting & incident response
+
+7Multi-tenant architecture
+
+8Auto-scaling
+
+9Cost optimization
+
+10Blue-green deployments
+
+11Operational runbook
+
+Deployment architecture
+
+Deployment architecture
+
+Your voice AI agent works beautifully on localhost. Now it needs to work for real users, at scale, around the clock. This chapter maps out the three deployment models for LiveKit voice agents -- Cloud, self-hosted, and hybrid -- so you can choose the right architecture before writing a single deployment script.
+
+What you'll learn
+
+The three deployment models for LiveKit voice agents and what each entails
+
+Pros and cons of managed, self-hosted, and hybrid architectures
+
+How to evaluate which model fits your constraints (compliance, cost, team size)
+
+The high-level architecture of each deployment model
+
+LiveKit Cloud (fully managed)
+
+LiveKit Cloud is the fastest path to production. You push your agent code, and LiveKit handles everything else: WebRTC infrastructure, container orchestration, scaling, TLS, monitoring, and global edge routing.
+
+# The entire deployment workflow for LiveKit Cloud
+lk agent deploy
+
+How it works:
+
+Your agent is packaged into a Docker container. LiveKit Cloud pulls the image, runs it on managed infrastructure, and routes incoming sessions to available instances. When call volume spikes, new instances spin up automatically. When volume drops, they scale back down.
+
+What LiveKit Cloud manages for you:
+
+Component | Managed by LiveKit Cloud
+WebRTC SFU | Yes -- global edge network
+Container orchestration | Yes -- automatic scheduling
+Auto-scaling | Yes -- based on concurrent sessions
+TLS and TURN | Yes -- automatic certificate management
+Monitoring and traces | Yes -- Cloud Insights dashboard
+Secret management | Yes -- encrypted at rest
+
+Cloud is the right default
+
+LiveKit Cloud is the right choice for the vast majority of teams. It handles scaling, monitoring, upgrades, and global distribution — plus exclusive features like Krisp noise cancellation, GPU-accelerated turn detection, and intelligent barge-in handling that are not available on self-hosted infrastructure. Even for data residency needs, contact LiveKit about custom Cloud deployments before considering self-hosting.
+
+Self-hosted (your infrastructure)
+
+Self-hosting means running the full LiveKit stack on your own servers: the LiveKit Server (SFU), your agent workers, Redis for coordination, and any supporting infrastructure like monitoring and load balancers. This is a significant operational commitment that most teams should avoid.
+
+What you take on:
+
+Server provisioning and OS updates
+
+LiveKit Server deployment and upgrades
+
+Network configuration (UDP port ranges, TURN servers, TLS)
+
+Container orchestration (Docker Compose, Kubernetes, ECS)
+
+Scaling policies and capacity planning
+
+Monitoring, logging, and alerting
+
+Redis cluster for multi-node setups
+
+24/7 on-call for media infrastructure
+
+Security patching and CVE tracking
+
+You also lose access to Cloud-exclusive features: Krisp noise cancellation, GPU-accelerated turn detection, and the intelligent barge-in model — all of which meaningfully improve voice AI quality.
+
+Self-hosting is like running your own phone system versus using a cloud PBX. You own every outage, every security patch, and every 3 AM alert. The operational burden is significant — plan for at least one engineer spending meaningful time on infrastructure every week, indefinitely.
+
+Self-hosting is rarely the right choice
+
+Before committing to self-hosting, contact LiveKit about custom Cloud deployments for your data residency or compliance needs. Self-hosting only makes sense for air-gapped environments or specific government contracts that mandate on-premises infrastructure. For everything else, Cloud or hybrid is the better path.
+
+Hybrid (split responsibility)
+
+The hybrid model uses LiveKit Cloud for WebRTC infrastructure while running your agent workers on your own servers. This is a practical middle ground: LiveKit handles the hard parts (SFU routing, global edge, TURN, TLS) while you keep agent execution in your environment.
+
+# Your agent connects to LiveKit Cloud but runs on your servers
+export LIVEKIT_URL=wss://your-project.livekit.cloud
+export LIVEKIT_API_KEY=APIxxxxxxx
+export LIVEKIT_API_SECRET=xxxxxxxxxxxxxxx
+
+python agent.py start
+
+Why hybrid makes sense:
+
+Your agent code often needs access to internal systems -- databases, CRMs, EHR systems -- that sit behind your firewall. With hybrid, the agent runs inside your network and connects outbound to LiveKit Cloud. No inbound firewall rules needed. LiveKit Cloud handles media routing; your agent handles business logic on your infrastructure.
+
+Aspect | Cloud | Self-hosted | Hybrid
+Time to production | Hours | Weeks | Days
+Ops burden | Minimal | High | Medium
+Data residency control | Limited | Full | Agent-side only
+WebRTC expertise needed | None | Significant | None
+Cost at low scale | Low | High (fixed infra) | Medium
+Cost at high scale | Usage-based | Seemingly lower, but ops costs add up | Usage-based SFU
+Access to internal systems | Via public APIs | Direct | Direct
+
+Hybrid is increasingly common
+
+Many production deployments use the hybrid model. It gives you the reliability of LiveKit Cloud's WebRTC infrastructure while keeping sensitive data processing inside your own network boundary.
+
+Architecture decision framework
+
+Use this framework to make the choice concrete:
+
+If regulations require data residency controls, contact LiveKit about custom Cloud deployments first. They offer dedicated infrastructure in specific regions and custom data processing agreements. Only consider self-hosting for air-gapped or on-premises-only mandates. If only agent-side data (transcripts, tool calls) needs to stay internal, hybrid works.
+
+Self-hosting LiveKit requires WebRTC expertise, Kubernetes operations, and on-call coverage. If your team does not have this — and most teams do not — use Cloud or hybrid.
+
+At any scale, Cloud is almost always cheaper when you factor in engineering time, on-call burden, and lost Cloud-exclusive features (Krisp noise cancellation, GPU turn detection, barge-in model). The infrastructure savings from self-hosting get eaten by operational overhead.
+
+If your agent needs to reach databases, APIs, or services behind a firewall, hybrid gives you direct access without exposing those systems to the internet.
+
+There is no universally correct answer. The right deployment model depends on your constraints today and your growth trajectory. The good news is that switching between models is straightforward -- your agent code is the same regardless of where it runs. The deployment wrapper changes, not the agent logic.
+
+Test your knowledge
+
+Question 1 of 3
+
+What is the key advantage of the hybrid deployment model over fully self-hosted?
+
+What you learned
+
+LiveKit Cloud is the fastest path to production with minimal ops burden -- best for most teams starting out
+
+Self-hosted gives you full control but requires significant infrastructure expertise and operational investment
+
+Hybrid splits the difference: LiveKit Cloud handles WebRTC, your infrastructure handles agent execution
+
+Your agent code is portable across all three models -- only the deployment configuration changes
+
+Next up
+
+With your deployment model chosen, the next step is containerizing your agent. In the next chapter, you will write optimized Dockerfiles for both Python and Node.js agents using multi-stage builds, layer caching, and minimal base images.

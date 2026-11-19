@@ -1,0 +1,42 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.plugins.silero import VAD\n\n# Load VAD with default settings\nvad = VAD.load()\n\n# VAD processes audio frames and emits events:\n# - SPEECH_STARTED: user began speaking\n# - SPEECH_FINISHED: user stopped speaking"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, TurnDetectionOptions\n\nsession = AgentSession(\n  turn_detection=TurnDetectionOptions(\n      # Minimum silence before considering the turn complete\n      min_endpointing_delay=0.5,\n      # Maximum silence \u2014 turn is always complete after this\n      max_endpointing_delay=1.0,\n  ),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession, TurnDetectionOptions } from \"@livekit/agents\";\n\nconst session = new AgentSession({\nturnDetection: {\n  // Minimum silence before considering the turn complete\n  minEndpointingDelay: 0.5,\n  // Maximum silence \u2014 turn is always complete after this\n  maxEndpointingDelay: 1.0,\n},\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import TurnDetectionOptions\n\n# Fast-paced: gaming, quick Q&A\nfast_turn_detection = TurnDetectionOptions(\n  min_endpointing_delay=0.3,\n  max_endpointing_delay=0.6,\n)\n\n# Balanced: general customer service\nbalanced_turn_detection = TurnDetectionOptions(\n  min_endpointing_delay=0.5,\n  max_endpointing_delay=1.0,\n)\n\n# Patient: medical intake, elderly users, complex questions\npatient_turn_detection = TurnDetectionOptions(\n  min_endpointing_delay=0.8,\n  max_endpointing_delay=1.5,\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "// Fast-paced: gaming, quick Q&A\nconst fastTurnDetection = {\nminEndpointingDelay: 0.3,\nmaxEndpointingDelay: 0.6,\n};\n\n// Balanced: general customer service\nconst balancedTurnDetection = {\nminEndpointingDelay: 0.5,\nmaxEndpointingDelay: 1.0,\n};\n\n// Patient: medical intake, elderly users, complex questions\nconst patientTurnDetection = {\nminEndpointingDelay: 0.8,\nmaxEndpointingDelay: 1.5,\n};"
+  }
+]

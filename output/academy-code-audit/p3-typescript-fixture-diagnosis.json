@@ -1,0 +1,27 @@
+{
+  "node_executable": "/opt/homebrew/bin/node",
+  "observed_node": "v24.22.3",
+  "required_node": "24.22.2",
+  "command_role": "standalone fixture; synthetic role-closed environment; no listen admitted",
+  "exit_code": 1,
+  "stdout": "{\"schema_version\":1,\"status\":\"failed\",\"code\":\"standalone_fixture_failed\",\"cleanup_complete\":true}\n",
+  "stderr": "",
+  "ready_file_created": false,
+  "endpoint_file_created": false,
+  "actual_child_exit_observed": true,
+  "private_directory_removal_after_wait": true,
+  "conclusion": "Node patch-version mismatch rejects setup before readiness; no package build can repair this fixture precondition.",
+  "resolution": {
+    "status": "resolved_by_parent",
+    "observed_runtime": "v24.22.2",
+    "specialist_tests": 188,
+    "test_files": 11,
+    "result": "all passed",
+    "seconds": 2.51,
+    "logs": [
+      "output/academy-code-audit/node-toolchain.json",
+      "output/academy-code-audit/specialist-tests-pinned-node.log"
+    ],
+    "pins_and_guards_unchanged": true
+  }
+}

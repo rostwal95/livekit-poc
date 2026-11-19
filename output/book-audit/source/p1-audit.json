@@ -1,0 +1,2632 @@
+[
+  {
+    "id": "P1-01",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.1",
+        "reason": "Lead with the concrete atomic acceptance and state the storage-survival assumption instead of implying process independence alone supplies durability."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/managed_admission.py",
+        "line": 63,
+        "claim": "Atomic managed acceptance",
+        "body_reviewed": "accept:63-149"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_work.py",
+        "line": 125,
+        "claim": "Due selection over existing authority",
+        "body_reviewed": "claim_next:125-231"
+      },
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "line": 834,
+        "claim": "Distinct stable case identity",
+        "body_reviewed": "test_business_case_identity_is_distinct_and_stable_across_replay_revision_and_scope_guards:834-896"
+      },
+      {
+        "path": "tests/postgres/pg_conversation_cases.py",
+        "line": 204,
+        "claim": "Fresh process recovers original managed identities after commit-time process exit",
+        "body_reviewed": "test_real_process_loss_after_atomic_commit_retains_all_three_owners:204-217"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "name": "test_business_case_identity_is_distinct_and_stable_across_replay_revision_and_scope_guards",
+        "start": 834,
+        "end": 896,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_conversation_cases.py",
+        "name": "test_real_process_loss_after_atomic_commit_retains_all_three_owners",
+        "start": 204,
+        "end": 217,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-02",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "answer",
+        "reason": "Separate managed booking replay, SQLite created/enrolled and work-profile find/error contracts; anchor the question in its own real-process tests."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/execution.py",
+        "line": 152,
+        "claim": "Canonical scoped submit and replay",
+        "body_reviewed": "submit:152-202"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/managed_admission.py",
+        "line": 80,
+        "claim": "Original owner and deadline on replay",
+        "body_reviewed": "accept:63-149"
+      },
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "line": 137,
+        "claim": "Commit uncertainty and reconciliation",
+        "body_reviewed": "test_before_commit_rolls_back_after_commit_unknown_reconciles:137-172"
+      },
+      {
+        "path": "tests/postgres/pg_conversation_cases.py",
+        "line": 178,
+        "claim": "Managed replay preserves original deadline at expiry and retained capacity",
+        "body_reviewed": "test_lost_ack_replay_preserves_ids_original_deadline_after_expiry_and_capacity:178-202"
+      },
+      {
+        "path": "tests/postgres/pg_conversation_cases.py",
+        "line": 204,
+        "claim": "Managed commit followed by actual process exit and fresh-process replay",
+        "body_reviewed": "test_real_process_loss_after_atomic_commit_retains_all_three_owners:204-217"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "name": "test_before_commit_rolls_back_after_commit_unknown_reconciles",
+        "start": 137,
+        "end": 172,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_conversation_cases.py",
+        "name": "test_lost_ack_replay_preserves_ids_original_deadline_after_expiry_and_capacity",
+        "start": 178,
+        "end": 202,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_conversation_cases.py",
+        "name": "test_real_process_loss_after_atomic_commit_retains_all_three_owners",
+        "start": 204,
+        "end": 217,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-03",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.0.answer",
+        "reason": "Explain the distinct roles of byte equality, derived digest and deadline equality directly rather than vaguely comparing exact semantics."
+      },
+      {
+        "field": "answer.2",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/execution.py",
+        "line": 49,
+        "claim": "Canonical inquiry payload",
+        "body_reviewed": "_canonical:49-52"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_store.py",
+        "line": 180,
+        "claim": "Immutable accepted bytes and deadline",
+        "body_reviewed": "submit:180-226"
+      },
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "line": 174,
+        "claim": "Changed content and deadline conflicts",
+        "body_reviewed": "test_changed_bytes_deadline_conflict_and_expired_new_input:174-194"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "name": "test_changed_bytes_deadline_conflict_and_expired_new_input",
+        "start": 174,
+        "end": 194,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-04",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.1.answer",
+        "reason": "Distinguish identity purpose from syntax; do not imply UUID text is necessarily rejected by the command parser."
+      },
+      {
+        "field": "answer.2",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+        "line": 240,
+        "claim": "Identity and quote integrity checks",
+        "body_reviewed": "get_in_transaction:223-300"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+        "line": 685,
+        "claim": "Independent intent effect and dispatch IDs",
+        "body_reviewed": "_commit_in_transaction:592-752"
+      },
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "line": 834,
+        "claim": "Stable distinct case identity test",
+        "body_reviewed": "test_business_case_identity_is_distinct_and_stable_across_replay_revision_and_scope_guards:834-896"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "name": "test_business_case_identity_is_distinct_and_stable_across_replay_revision_and_scope_guards",
+        "start": 834,
+        "end": 896,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-05",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.0",
+        "reason": "Make capability separation the actual authorization mechanism and distinguish a typed explicit flag from proof of human action."
+      },
+      {
+        "field": "answer.2",
+        "reason": "Replace a generic proposed test list with what the actual database/supplier and mock-facade tests each establish."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/case_models.py",
+        "line": 106,
+        "claim": "Exact versioned proposal"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/case_models.py",
+        "line": 207,
+        "claim": "Explicit confirmation value"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+        "line": 592,
+        "claim": "Atomic trusted commitment",
+        "body_reviewed": "_commit_in_transaction:592-752"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_public_api.py",
+        "line": 206,
+        "claim": "Controller confirmation route",
+        "body_reviewed": "test_controller_signal_keeps_exact_confirmation_and_rejects_another_route:206-235"
+      },
+      {
+        "path": "tests/postgres/pg_mutation_cases.py",
+        "line": 421,
+        "claim": "Invalid confirmation variants cause zero supplier calls; a valid case still progresses",
+        "body_reviewed": "test_absent_altered_stale_and_expired_confirmation_make_zero_supplier_apply_calls:421-460"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "projects/agent-continuity/tests/test_public_api.py",
+        "name": "test_controller_signal_keeps_exact_confirmation_and_rejects_another_route",
+        "start": 206,
+        "end": 235,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_mutation_cases.py",
+        "name": "test_absent_altered_stale_and_expired_confirmation_make_zero_supplier_apply_calls",
+        "start": 421,
+        "end": 460,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-06",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "Name the two observed process boundaries precisely; an after-commit process exit models a lost return, not a simulated database COMMIT-protocol failure."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_unit_of_work.py",
+        "line": 19,
+        "claim": "Admission and lock ordering"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+        "line": 592,
+        "claim": "Receipt replay and preconditions",
+        "body_reviewed": "_commit_in_transaction:592-752"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+        "line": 633,
+        "claim": "Post-lock deadline sampling",
+        "body_reviewed": "_commit_in_transaction:592-752"
+      },
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "line": 342,
+        "claim": "Actual precommit process loss",
+        "body_reviewed": "test_independent_process_exit_before_commit_leaves_no_partial_intent:342-350"
+      },
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "line": 352,
+        "claim": "After-commit process exit preserves one intent and exact replay after expiry",
+        "body_reviewed": "test_independent_process_lost_commit_ack_replays_original_intent_and_effect:352-367"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "name": "test_independent_process_exit_before_commit_leaves_no_partial_intent",
+        "start": 342,
+        "end": 350,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "name": "test_independent_process_lost_commit_ack_replays_original_intent_and_effect",
+        "start": 352,
+        "end": 367,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-07",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "Replace broad race-test rhetoric with the actual barrier mechanism, assertions and missing revise-receipt boundary."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+        "line": 358,
+        "claim": "Revision CAS and committed-intent rejection",
+        "body_reviewed": "revise:358-432"
+      },
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "line": 387,
+        "claim": "Revision-first race",
+        "body_reviewed": "test_revision_wins_race_and_stale_confirmation_cannot_commit:387-407"
+      },
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "line": 409,
+        "claim": "Intent-first race",
+        "body_reviewed": "test_commit_wins_race_and_revision_cannot_rewrite_committed_intent:409-424"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "name": "test_revision_wins_race_and_stale_confirmation_cannot_commit",
+        "start": 387,
+        "end": 407,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "name": "test_commit_wins_race_and_revision_cannot_rewrite_committed_intent",
+        "start": 409,
+        "end": 424,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-08",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "Replace a proposed compatibility test plan with read assertions for literal v1 preservation and actual wrong-provider useful progress."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/case_models.py",
+        "line": 124,
+        "claim": "All-or-none v2 supplier binding",
+        "body_reviewed": "__post_init__:124-147"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+        "line": 434,
+        "claim": "New mutation proposal version requirement",
+        "body_reviewed": "_require_proposal_version:434-441"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/mutation_worker.py",
+        "line": 138,
+        "claim": "Configured supplier identity check",
+        "body_reviewed": "run_one:128-209"
+      },
+      {
+        "path": "tests/test_mutation_contracts.py",
+        "line": 59,
+        "claim": "Literal v1 bytes round-trip unchanged and cannot authorize mutation",
+        "body_reviewed": "test_literal_v1_quote_confirmation_and_intent_bytes_remain_unchanged:59-93"
+      },
+      {
+        "path": "tests/postgres/pg_mutation_cases.py",
+        "line": 409,
+        "claim": "Wrong configured supplier consumes no attempt; original supplier progresses",
+        "body_reviewed": "test_wrong_configured_provider_consumes_no_attempt_and_valid_target_progresses:409-419"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/test_mutation_contracts.py",
+        "name": "test_literal_v1_quote_confirmation_and_intent_bytes_remain_unchanged",
+        "start": 59,
+        "end": 93,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_mutation_cases.py",
+        "name": "test_wrong_configured_provider_consumes_no_attempt_and_valid_target_progresses",
+        "start": 409,
+        "end": 419,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-09",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "question",
+        "reason": "Remove an unqualified hours claim: this managed facade configures a bounded 1–3600-second lifetime."
+      },
+      {
+        "field": "answer.2",
+        "reason": "State the real duration bound and add directly relevant process evidence instead of implying arbitrary multi-hour scheduling."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_lifecycle.py",
+        "line": 653,
+        "claim": "Persisted exact wait",
+        "body_reviewed": "arm_wait_in_transaction:653-722"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_lifecycle.py",
+        "line": 724,
+        "claim": "Immutable signal acceptance",
+        "body_reviewed": "signal:724-794"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_lifecycle.py",
+        "line": 810,
+        "claim": "Guarded wait advancement",
+        "body_reviewed": "advance:810-939"
+      },
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "line": 812,
+        "claim": "Revision cannot renew deadline",
+        "body_reviewed": "test_revision_cannot_renew_an_expired_business_deadline:812-832"
+      },
+      {
+        "path": "tests/postgres/pg_lifecycle_cases.py",
+        "line": 591,
+        "claim": "Early signal and wait survive actual process exit and fresh-process advancement",
+        "body_reviewed": "test_actual_process_retains_early_signal_and_wait_then_new_process_advances:591-648"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "name": "test_revision_cannot_renew_an_expired_business_deadline",
+        "start": 812,
+        "end": 832,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_lifecycle_cases.py",
+        "name": "test_actual_process_retains_early_signal_and_wait_then_new_process_advances",
+        "start": 591,
+        "end": 648,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-10",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "Separate actual SIGKILL recovery evidence from the paused-old-owner epoch test; neither test alone proves both mechanisms."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      },
+      {
+        "field": "answer.2",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/mutation_worker.py",
+        "line": 128,
+        "claim": "One apply or reconciliation attempt",
+        "body_reviewed": "run_one:128-209"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/mutation_worker.py",
+        "line": 155,
+        "claim": "Possible dispatch requires supplier cooperation",
+        "body_reviewed": "run_one:128-209"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "line": 252,
+        "claim": "Known success across epoch takeover",
+        "body_reviewed": "test_known_supplier_success_reconciles_after_epoch_takeover_and_rejects_old_ack:252-253"
+      },
+      {
+        "path": "tests/postgres/pg_mutation_cases.py",
+        "line": 301,
+        "claim": "Actual SIGKILL after supplier commit; fresh process recovers without second apply",
+        "body_reviewed": "test_sigkill_after_supplier_commit_reconciles_original_effect_without_second_apply:301-332"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "name": "test_known_supplier_success_reconciles_after_epoch_takeover_and_rejects_old_ack",
+        "start": 252,
+        "end": 253,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_mutation_cases.py",
+        "name": "test_sigkill_after_supplier_commit_reconciles_original_effect_without_second_apply",
+        "start": 301,
+        "end": 332,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed.",
+      "Post-reservation outage pacing remains open; terminal uncertainty is not automatically promoted by the illustrated path."
+    ]
+  },
+  {
+    "id": "P1-11",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "answer.1",
+        "reason": "Remove the ambiguous phrase lacks both: recovery requires the conjunction of lookup and idempotency."
+      },
+      {
+        "field": "answer.2",
+        "reason": "Explain the actual late supplier mutation and retained terminal outcome rather than suggesting all uncertainty is automatically reconciled."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+        "line": 605,
+        "claim": "Prior reservation protects uncertainty",
+        "body_reviewed": "prepare_dispatch:605-674"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/mutation_worker.py",
+        "line": 155,
+        "claim": "Noncooperating ambiguity",
+        "body_reviewed": "run_one:128-209"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "line": 255,
+        "claim": "Cancellation during paused old call",
+        "body_reviewed": "test_cancel_during_paused_old_call_is_uncertain_not_prevented_after_takeover:255-264"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "line": 266,
+        "claim": "Expiry during paused old call",
+        "body_reviewed": "test_deadline_during_paused_old_call_is_uncertain_not_failed_after_takeover:266-275"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "name": "test_cancel_during_paused_old_call_is_uncertain_not_prevented_after_takeover",
+        "start": 255,
+        "end": 264,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "name": "test_deadline_during_paused_old_call_is_uncertain_not_failed_after_takeover",
+        "start": 266,
+        "end": 275,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed.",
+      "Post-reservation outage pacing remains open; terminal uncertainty is not automatically promoted by the illustrated path."
+    ]
+  },
+  {
+    "id": "P1-12",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.0.answer",
+        "reason": "Distinguish concurrent controller access from an unsupported promise to cancel an already reserved call."
+      },
+      {
+        "field": "answer.2",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+        "line": 912,
+        "claim": "Receipted cancellation",
+        "body_reviewed": "cancel:912-1052"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+        "line": 633,
+        "claim": "Definite pre-dispatch prevention",
+        "body_reviewed": "prepare_dispatch:605-674"
+      },
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "line": 426,
+        "claim": "Precommit cancellation blocks intent",
+        "body_reviewed": "test_precommit_cancellation_flag_blocks_intent_without_false_mutation:426-449"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "line": 255,
+        "claim": "Postreservation cancellation stays uncertain",
+        "body_reviewed": "test_cancel_during_paused_old_call_is_uncertain_not_prevented_after_takeover:255-264"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "name": "test_precommit_cancellation_flag_blocks_intent_without_false_mutation",
+        "start": 426,
+        "end": 449,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "name": "test_cancel_during_paused_old_call_is_uncertain_not_prevented_after_takeover",
+        "start": 255,
+        "end": 264,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-13",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "Replace unconditional at-least-once transport language with bounded attempts, retained deduplication and explicit eventual-delivery limits."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+        "line": 323,
+        "claim": "Outcome event and delivery atomic insertion",
+        "body_reviewed": "_insert_completion:323-409"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/outbox_delivery.py",
+        "line": 23,
+        "claim": "Fixed receiver delivery worker"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/outbox_delivery.py",
+        "line": 49,
+        "claim": "External receiver call before local receipt",
+        "body_reviewed": "run_one:40-64"
+      },
+      {
+        "path": "tests/postgres/pg_effect_cases.py",
+        "line": 532,
+        "claim": "Receiver acceptance survives process exit and diagnostic pruning; one core receipt remains",
+        "body_reviewed": "test_actual_process_loss_after_receiver_commit_replays_one_stable_event:532-582"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_effect_cases.py",
+        "name": "test_actual_process_loss_after_receiver_commit_replays_one_stable_event",
+        "start": 532,
+        "end": 582,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-14",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.1.answer",
+        "reason": "Make the no-extension property explicit so same-owner acquisition is not mistaken for lease renewal."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      },
+      {
+        "field": "answer.2",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_leases.py",
+        "line": 60,
+        "claim": "Database clock after locks",
+        "body_reviewed": "_clock:60-66"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_leases.py",
+        "line": 103,
+        "claim": "Worker write lease guard",
+        "body_reviewed": "require_worker_lease:103-143"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_leases.py",
+        "line": 198,
+        "claim": "Retained epoch acquisition",
+        "body_reviewed": "acquire_in_transaction:198-257"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "line": 305,
+        "claim": "Stale inquiry acknowledgement rejected",
+        "body_reviewed": "test_expired_inquiry_grant_cannot_ack_and_current_grant_recovers_known_result:305-330"
+      },
+      {
+        "path": "tests/postgres/pg_lease_cases.py",
+        "line": 182,
+        "claim": "Same-owner acquisition replay does not extend expiry; explicit renewal and release retain epoch",
+        "body_reviewed": "test_acquire_replay_renew_and_release_retain_epoch:182-205"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "name": "test_expired_inquiry_grant_cannot_ack_and_current_grant_recovers_known_result",
+        "start": 305,
+        "end": 330,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_lease_cases.py",
+        "name": "test_acquire_replay_renew_and_release_retain_epoch",
+        "start": 182,
+        "end": 205,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-15",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.1",
+        "reason": "Distinguish bounded shutdown drain from unconditional killing, and retain the actual close-before-release control flow."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/worker_runtime.py",
+        "line": 616,
+        "claim": "Bounded owned step and cleanup",
+        "body_reviewed": "_owned_step:616-654"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/worker_runtime.py",
+        "line": 649,
+        "claim": "Child closure before lease release",
+        "body_reviewed": "_owned_step:616-654"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/worker_runtime.py",
+        "line": 694,
+        "claim": "Release only after ownership clears",
+        "body_reviewed": "run_once:656-718"
+      },
+      {
+        "path": "tests/test_worker_runtime.py",
+        "line": 198,
+        "claim": "Actual child is already reaped when lease release is attempted",
+        "body_reviewed": "test_normal_child_progress_reaps_before_lease_release_and_metrics_are_real:198-236"
+      },
+      {
+        "path": "tests/test_worker_runtime.py",
+        "line": 526,
+        "claim": "Failed child reaping withholds lease release; this negative case uses a synthetic child",
+        "body_reviewed": "test_failed_reap_does_not_release_current_lease:526-548"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/test_worker_runtime.py",
+        "name": "test_normal_child_progress_reaps_before_lease_release_and_metrics_are_real",
+        "start": 198,
+        "end": 236,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/test_worker_runtime.py",
+        "name": "test_failed_reap_does_not_release_current_lease",
+        "start": 526,
+        "end": 548,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-16",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "Describe assertions actually read and qualify the ownership guarantee to this wrapper lifecycle, avoiding a claim to recover a cancelled caller’s result."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/bounded_io.py",
+        "line": 17,
+        "claim": "Own actual offloaded work"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/bounded_io.py",
+        "line": 46,
+        "claim": "Slot release on real completion",
+        "body_reviewed": "_run:46-66"
+      },
+      {
+        "path": "tests/test_async_execution.py",
+        "line": 120,
+        "claim": "Cancelled caller retains slot",
+        "body_reviewed": "test_cancelled_caller_holds_slot_until_real_work_finishes:120-138"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_public_api.py",
+        "line": 237,
+        "claim": "Close timeout preserves actual work",
+        "body_reviewed": "test_cancelled_waiter_keeps_slot_and_close_timeout_until_actual_work_finishes:237-262"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/test_async_execution.py",
+        "name": "test_cancelled_caller_holds_slot_until_real_work_finishes",
+        "start": 120,
+        "end": 138,
+        "status": "read, not run"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_public_api.py",
+        "name": "test_cancelled_waiter_keeps_slot_and_close_timeout_until_actual_work_finishes",
+        "start": 237,
+        "end": 262,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-17",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "Separate retained-cap recovery from temporary I/O saturation or invalid authority; avoid promising reads always succeed at capacity."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_leases.py",
+        "line": 226,
+        "claim": "Global active lease cap",
+        "body_reviewed": "acquire_in_transaction:198-257"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_work.py",
+        "line": 125,
+        "claim": "Useful due selection",
+        "body_reviewed": "claim_next:125-231"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "line": 368,
+        "claim": "Waits and committed intents consume pending",
+        "body_reviewed": "test_pending_capacity_includes_successful_inquiry_waits_and_committed_intents:368-390"
+      },
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "line": 219,
+        "claim": "Replay survives retained caps",
+        "body_reviewed": "test_retained_caps_preserve_replay_reads_and_original_cancel:219-245"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "name": "test_pending_capacity_includes_successful_inquiry_waits_and_committed_intents",
+        "start": 368,
+        "end": 390,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "name": "test_retained_caps_preserve_replay_reads_and_original_cancel",
+        "start": 219,
+        "end": 245,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-18",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.1.answer",
+        "reason": "Tie resource benefit to the actual step-return/selector design rather than implying a selector itself releases execution resources."
+      },
+      {
+        "field": "answer.1",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_schema_v5.py",
+        "line": 1,
+        "claim": "Additive persisted due state"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+        "line": 761,
+        "claim": "Exact paced retry conditions",
+        "body_reviewed": "finish_failure:761-840"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_work.py",
+        "line": 139,
+        "claim": "Due selection and cancellation bypass",
+        "body_reviewed": "claim_next:125-231"
+      },
+      {
+        "path": "tests/postgres/pg_upgrade_v5_cases.py",
+        "line": 340,
+        "claim": "Persisted pacing test",
+        "body_reviewed": "test_paced_dependency_retry_waits_for_its_persisted_due_time:340-356"
+      },
+      {
+        "path": "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+        "line": 112,
+        "claim": "Open P1-A2 finding"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_upgrade_v5_cases.py",
+        "name": "test_paced_dependency_retry_waits_for_its_persisted_due_time",
+        "start": 340,
+        "end": 356,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed.",
+      "Post-reservation outage pacing remains open; terminal uncertainty is not automatically promoted by the illustrated path."
+    ]
+  },
+  {
+    "id": "P1-19",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "Anchor backup recovery in the actual destructive-isolated-target test procedure and separate it from ordinary startup."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py",
+        "line": 1326,
+        "claim": "Explicit coordination upgrade",
+        "body_reviewed": "upgrade_v4:1326-1458"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py",
+        "line": 1375,
+        "claim": "Reject unmanaged running inquiry before DDL",
+        "body_reviewed": "upgrade_v4:1326-1458"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py",
+        "line": 1461,
+        "claim": "Explicit retry pacing upgrade",
+        "body_reviewed": "upgrade_v5:1461-1526"
+      },
+      {
+        "path": "tests/postgres/pg_upgrade_v5_cases.py",
+        "line": 255,
+        "claim": "Actual backup restore and re-upgrade",
+        "body_reviewed": "test_pre_upgrade_backup_restores_an_exact_v4_that_upgrades_again:255-326"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_upgrade_v5_cases.py",
+        "name": "test_pre_upgrade_backup_restores_an_exact_v4_that_upgrades_again",
+        "start": 255,
+        "end": 326,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-20",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "Expose the important 60-second accepted-work limit and distinguish it from booking continuation; prevent SDK users inferring hours-long work leases."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_api.py",
+        "line": 51,
+        "claim": "Credential-bound small API"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_store.py",
+        "line": 180,
+        "claim": "Exact accepted-work persistence",
+        "body_reviewed": "submit:180-226"
+      },
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "line": 247,
+        "claim": "Runtime cannot DDL or rewrite identity",
+        "body_reviewed": "test_runtime_cannot_ddl_mutate_or_delete_identity_and_owner_repeat_is_validation:247-265"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "name": "test_runtime_cannot_ddl_mutate_or_delete_identity_and_owner_repeat_is_validation",
+        "start": 247,
+        "end": 265,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-21",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.0",
+        "reason": "Lead with why the return bit matters and cite the exact concurrent-client assertions rather than repeat an architectural slogan."
+      },
+      {
+        "field": "followups.0.answer",
+        "reason": "Clarify that a crash-before-call is indistinguishable to recovery and that a new attempt remains explicit and conditional."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+        "line": 143,
+        "claim": "Immutable issuance and created result",
+        "body_reviewed": "issue:143-207"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+        "line": 209,
+        "claim": "Original-command lookup",
+        "body_reviewed": "find_issue:209-213"
+      },
+      {
+        "path": "tests/postgres/pg_issued_execution_cases.py",
+        "line": 263,
+        "claim": "Concurrent exact issue command",
+        "body_reviewed": "test_concurrent_same_command_returns_one_exact_grant:263-290"
+      },
+      {
+        "path": "tests/postgres/pg_issued_execution_cases.py",
+        "line": 498,
+        "claim": "Acknowledgement reconciliation",
+        "body_reviewed": "test_before_after_commit_acknowledgement_boundaries_reconcile_original_rows:498-549"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_issued_execution_cases.py",
+        "name": "test_concurrent_same_command_returns_one_exact_grant",
+        "start": 263,
+        "end": 290,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_issued_execution_cases.py",
+        "name": "test_before_after_commit_acknowledgement_boundaries_reconcile_original_rows",
+        "start": 498,
+        "end": 549,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-22",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "answer.0",
+        "reason": "Do not describe arbitrary specialist bytes as verified truth; distinguish the protected eligibility sample from factual validation."
+      },
+      {
+        "field": "answer.2",
+        "reason": "Correct the proof scope of the cited lock test and avoid implying a final physical COMMIT-time expiry measurement."
+      },
+      {
+        "field": "answer.1",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+        "line": 215,
+        "claim": "Exact immutable result and disposition",
+        "body_reviewed": "complete:215-276"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+        "line": 288,
+        "claim": "Historical known result observation",
+        "body_reviewed": "observe:288-321"
+      },
+      {
+        "path": "tests/postgres/pg_issued_execution_cases.py",
+        "line": 435,
+        "claim": "Late bytes after cancellation",
+        "body_reviewed": "test_cancel_during_issued_work_retains_late_bytes_without_eligibility:435-465"
+      },
+      {
+        "path": "tests/postgres/pg_issued_execution_cases.py",
+        "line": 651,
+        "claim": "Deadline after real lock wait",
+        "body_reviewed": "test_deadline_is_sampled_after_actual_admission_lock_wait:651-689"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_issued_execution_cases.py",
+        "name": "test_cancel_during_issued_work_retains_late_bytes_without_eligibility",
+        "start": 435,
+        "end": 465,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_issued_execution_cases.py",
+        "name": "test_deadline_is_sampled_after_actual_admission_lock_wait",
+        "start": 651,
+        "end": 689,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed.",
+      "Fresh post-lock sample is not an independently measured final COMMIT timestamp."
+    ]
+  },
+  {
+    "id": "P1-23",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.0",
+        "reason": "Qualify eligibility revalidation as first-begin behavior; replay intentionally returns historical possible-send state before later cancellation."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/delivery_store.py",
+        "line": 218,
+        "claim": "Fresh begin marker is call permission",
+        "body_reviewed": "begin:218-234"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/delivery_store.py",
+        "line": 236,
+        "claim": "Exact retained receipt",
+        "body_reviewed": "record_receipt:236-274"
+      },
+      {
+        "path": "tests/postgres/pg_result_delivery_cases.py",
+        "line": 311,
+        "claim": "Receiver and result cannot retarget",
+        "body_reviewed": "test_immutable_receiver_recipient_and_result_conflicts_do_not_retarget:311-335"
+      },
+      {
+        "path": "tests/postgres/pg_result_delivery_cases.py",
+        "line": 379,
+        "claim": "Known late receipt survives cancellation",
+        "body_reviewed": "test_known_late_receipt_and_original_prepare_replay_survive_cancellation:379-402"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_result_delivery_cases.py",
+        "name": "test_immutable_receiver_recipient_and_result_conflicts_do_not_retarget",
+        "start": 311,
+        "end": 335,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_result_delivery_cases.py",
+        "name": "test_known_late_receipt_and_original_prepare_replay_survive_cancellation",
+        "start": 379,
+        "end": 402,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-24",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "State the capability boundary and actual race assertions precisely, avoiding an absolute claim that typed values alone prove human consent."
+      },
+      {
+        "field": "answer.1",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/action_store.py",
+        "line": 203,
+        "claim": "Atomic work and case action guard",
+        "body_reviewed": "authorize:203-377"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/action_store.py",
+        "line": 299,
+        "claim": "Post-case-lock deadline recheck",
+        "body_reviewed": "authorize:203-377"
+      },
+      {
+        "path": "tests/postgres/pg_guarded_action_cases.py",
+        "line": 318,
+        "claim": "Cancellation wins before locks",
+        "body_reviewed": "test_cancel_wins_before_shared_locks_then_other_work_progresses:318-345"
+      },
+      {
+        "path": "tests/postgres/pg_guarded_action_cases.py",
+        "line": 426,
+        "claim": "Cannot attach unrelated committed intent",
+        "body_reviewed": "test_unrelated_prior_case_intent_cannot_be_retroactively_bound_to_result:426-438"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_guarded_action_cases.py",
+        "name": "test_cancel_wins_before_shared_locks_then_other_work_progresses",
+        "start": 318,
+        "end": 345,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_guarded_action_cases.py",
+        "name": "test_unrelated_prior_case_intent_cannot_be_retroactively_bound_to_result",
+        "start": 426,
+        "end": 438,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-25",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "Use the exact observed lock schedule and clarify references versus bodies and source identity limits."
+      },
+      {
+        "field": "followups.0.answer",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_store.py",
+        "line": 61,
+        "claim": "Event and sequence inside result transaction",
+        "body_reviewed": "append_result_event:61-95"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+        "line": 266,
+        "claim": "Atomic result-feed append",
+        "body_reviewed": "complete:224-274"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_store.py",
+        "line": 116,
+        "claim": "Source-bound coherent cursor read",
+        "body_reviewed": "read:116-179"
+      },
+      {
+        "path": "tests/postgres/pg_result_feed_cases.py",
+        "line": 429,
+        "claim": "Lower uncommitted event cannot be skipped",
+        "body_reviewed": "test_uncommitted_lower_event_cannot_be_skipped_by_later_completion:429-476"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_result_feed_cases.py",
+        "name": "test_uncommitted_lower_event_cannot_be_skipped_by_later_completion",
+        "start": 429,
+        "end": 476,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed.",
+      "Divergent restored-branch source incarnation rotation is not qualified."
+    ]
+  },
+  {
+    "id": "P1-26",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "Narrow the diagnostic claim to the actual helper/test; do not imply all telemetry producers are uniformly failure-isolated."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/authorization.py",
+        "line": 59,
+        "claim": "Opaque token with safe representation"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/authorization.py",
+        "line": 73,
+        "claim": "Finite trusted token directory"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/authorization.py",
+        "line": 112,
+        "claim": "No per-call actor or scope override"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/api.py",
+        "line": 92,
+        "claim": "Fixed safe error codes",
+        "body_reviewed": "safe_error_code:92-113"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_public_api.py",
+        "line": 51,
+        "claim": "Safe-code helper avoids private message/cause and hostile code metadata",
+        "body_reviewed": "test_failure_codes_never_serialize_private_message_cause_or_unknown_metadata:51-66"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_public_api.py",
+        "line": 68,
+        "claim": "A hostile exception code property cannot replace safe error classification",
+        "body_reviewed": "test_tampered_error_property_cannot_replace_the_original_failure:68-74"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "projects/agent-continuity/tests/test_public_api.py",
+        "name": "test_failure_codes_never_serialize_private_message_cause_or_unknown_metadata",
+        "start": 51,
+        "end": 66,
+        "status": "read, not run"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_public_api.py",
+        "name": "test_tampered_error_property_cannot_replace_the_original_failure",
+        "start": 68,
+        "end": 74,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-27",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "answer.1",
+        "reason": "Clearly distinguish synthetic archive contract tests from actual installed-artifact qualification."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/api.py",
+        "line": 1,
+        "claim": "Import has no startup or migration"
+      },
+      {
+        "path": "projects/agent-continuity/python/pyproject.toml",
+        "line": 5,
+        "claim": "Distribution extras and Python range"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_package_contract.py",
+        "line": 44,
+        "claim": "One canonical namespace",
+        "body_reviewed": "test_only_member_owns_continuity_and_root_dependency_is_explicit:44-53"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_package_contract.py",
+        "line": 86,
+        "claim": "Wheel payload and entrypoints",
+        "body_reviewed": "test_wheel_requires_exact_namespace_marker_and_installed_entrypoints:86-94"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "projects/agent-continuity/tests/test_package_contract.py",
+        "name": "test_only_member_owns_continuity_and_root_dependency_is_explicit",
+        "start": 44,
+        "end": 53,
+        "status": "read, not run"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_package_contract.py",
+        "name": "test_wheel_requires_exact_namespace_marker_and_installed_entrypoints",
+        "start": 86,
+        "end": 94,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-28",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.0.answer",
+        "reason": "Give the interviewer a practical distinction among implementation, registration and snapshot-specific qualification."
+      },
+      {
+        "field": "answer.2",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+        "line": 605,
+        "claim": "Current audited uncertainty boundary",
+        "body_reviewed": "prepare_dispatch:605-674"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "line": 255,
+        "claim": "Concrete regression schedule",
+        "body_reviewed": "test_cancel_during_paused_old_call_is_uncertain_not_prevented_after_takeover:255-264"
+      },
+      {
+        "path": "docs/projects/agent-continuity-scope.md",
+        "line": 47,
+        "claim": "Historical local V1 qualification"
+      },
+      {
+        "path": "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+        "line": 91,
+        "claim": "Latest audit gate outcomes"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "name": "test_cancel_during_paused_old_call_is_uncertain_not_prevented_after_takeover",
+        "start": 255,
+        "end": 264,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed.",
+      "Post-reservation outage pacing remains open; terminal uncertainty is not automatically promoted by the illustrated path."
+    ]
+  },
+  {
+    "id": "P1-29",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "question",
+        "reason": "Avoid presenting workflow runtimes and message brokers as equivalent alternatives; ask for a concrete engineering decision."
+      },
+      {
+        "field": "answer.2",
+        "reason": "Make the reconsideration criteria concrete and distinguish orchestration from transport without asserting product-specific guarantees."
+      },
+      {
+        "field": "evidence",
+        "reason": "Add a directly relevant implementation/test body rather than rely on an adjacent contract or test name."
+      },
+      {
+        "field": "answer.1",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_unit_of_work.py",
+        "line": 19,
+        "claim": "Short shared authority transaction"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_work.py",
+        "line": 1,
+        "claim": "No second durable queue"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_api.py",
+        "line": 1,
+        "claim": "Narrow accepted-work contract"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "line": 392,
+        "claim": "Persisted selector skips idle waits and progresses independent work before signalled continuation",
+        "body_reviewed": "test_due_selection_skips_unsignalled_wait_and_releases_capacity_for_fresh_progress:392-434"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "name": "test_due_selection_skips_unsignalled_wait_and_releases_capacity_for_fresh_progress",
+        "start": 392,
+        "end": 434,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "P1-30",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.2",
+        "reason": "Replace generic code-review advice with the actual regression order, independent supplier assertion and terminal-uncertainty limit."
+      },
+      {
+        "field": "followups.0.answer",
+        "reason": "Align the minimal regression schedule with the actual test rather than imply an unimplemented lookup-pause hook."
+      },
+      {
+        "field": "title",
+        "reason": "Give the broad capstone a distinct purpose from D1-12, which already defends dispatch_count line by line."
+      },
+      {
+        "field": "question",
+        "reason": "Use a realistic review proposal about cross-system atomicity instead of duplicating the later dispatch_count code card."
+      },
+      {
+        "field": "answer",
+        "reason": "Remove a broad/deep duplicate and ground the replacement in the real no-lock-during-supplier and success-before-ACK tests."
+      },
+      {
+        "field": "followups",
+        "reason": "Ask two distinct probes about provider cooperation and observed transaction ownership, rather than repeat the prior-reservation timeline."
+      },
+      {
+        "field": "watch_for",
+        "reason": "Make the capstone warning specific to its changed cross-system atomicity proposal."
+      },
+      {
+        "field": "evidence",
+        "reason": "Replace duplicate dispatch_count pointers with the exact external-call transaction-boundary implementation and test bodies."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_unit_of_work.py",
+        "line": 1,
+        "claim": "Protected transaction explicitly excludes supplier/network work"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/mutation_worker.py",
+        "line": 184,
+        "claim": "Dispatch reservation returns before independent supplier apply",
+        "body_reviewed": "run_one:128-209"
+      },
+      {
+        "path": "tests/postgres/pg_mutation_cases.py",
+        "line": 586,
+        "claim": "Lookup and apply acquire admission through a separate connection",
+        "body_reviewed": "test_supplier_calls_can_acquire_admission_because_worker_holds_no_transaction:586-609"
+      },
+      {
+        "path": "tests/postgres/pg_mutation_cases.py",
+        "line": 301,
+        "claim": "Actual supplier-success SIGKILL recovers original effect without another apply",
+        "body_reviewed": "test_sigkill_after_supplier_commit_reconciles_original_effect_without_second_apply:301-332"
+      }
+    ],
+    "followups_reviewed": 2,
+    "count": 2,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_mutation_cases.py",
+        "name": "test_supplier_calls_can_acquire_admission_because_worker_holds_no_transaction",
+        "start": 586,
+        "end": 609,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_mutation_cases.py",
+        "name": "test_sigkill_after_supplier_commit_reconciles_original_effect_without_second_apply",
+        "start": 301,
+        "end": 332,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed.",
+      "Post-reservation outage pacing remains open; terminal uncertainty is not automatically promoted by the illustrated path."
+    ]
+  },
+  {
+    "id": "D1-01",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.0",
+        "reason": "Expose the precise temporal guarantee and avoid confusing the recorded eligibility decision with an independently measured final COMMIT timestamp."
+      },
+      {
+        "field": "alternatives",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_leases.py",
+        "line": 60,
+        "claim": "Fresh database time helper",
+        "body_reviewed": "_clock:60-66"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_leases.py",
+        "line": 132,
+        "claim": "Lease row before clock",
+        "body_reviewed": "require_worker_lease:103-143"
+      },
+      {
+        "path": "tests/postgres/pg_lease_cases.py",
+        "line": 443,
+        "claim": "Real admission wait crosses server expiry",
+        "body_reviewed": "test_guard_samples_database_time_after_waiting_for_admission_lock:443-491"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_lease_cases.py",
+        "name": "test_guard_samples_database_time_after_waiting_for_admission_lock",
+        "start": 443,
+        "end": 491,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed.",
+      "Fresh post-lock sample is not an independently measured final COMMIT timestamp."
+    ]
+  },
+  {
+    "id": "D1-02",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "counterfactual",
+        "reason": "Correct the inference: the test establishes error precedence, not a complete cross-scope existence oracle."
+      },
+      {
+        "field": "answer.0",
+        "reason": "Describe the errors actually emitted by this helper; it does not itself return the acquisition-only LeaseBusy error."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_leases.py",
+        "line": 118,
+        "claim": "Scoped lookup before lease observation",
+        "body_reviewed": "require_worker_lease:103-143"
+      },
+      {
+        "path": "tests/postgres/pg_lease_cases.py",
+        "line": 263,
+        "claim": "Foreign scope and wrong-task grant errors",
+        "body_reviewed": "test_scoped_lookup_precedes_coordination_observation:263-281"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_lease_cases.py",
+        "name": "test_scoped_lookup_precedes_coordination_observation",
+        "start": 263,
+        "end": 281,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "D1-03",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.2.answer",
+        "reason": "Explain exactly what reconstruction recomputes and what it cannot validate."
+      },
+      {
+        "field": "alternatives",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_models.py",
+        "line": 82,
+        "claim": "Exact integer timestamp helper",
+        "body_reviewed": "work_milliseconds:82-85"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_models.py",
+        "line": 105,
+        "claim": "Short-circuit primitive validation",
+        "body_reviewed": "__post_init__:105-114"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_work_public.py",
+        "line": 20,
+        "claim": "Hostile equality fixture"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_work_public.py",
+        "line": 37,
+        "claim": "Rejected values and valid boundary progress",
+        "body_reviewed": "test_bad_values_reject_before_caller_hooks_and_valid_input_progresses:37-53"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "projects/agent-continuity/tests/test_work_public.py",
+        "name": "test_bad_values_reject_before_caller_hooks_and_valid_input_progresses",
+        "start": 37,
+        "end": 53,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "D1-04",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.2.answer",
+        "reason": "Focus the remaining time-bound risk on custom Mapping execution rather than suggest hashing exact bounded primitive tokens invokes arbitrary hooks."
+      },
+      {
+        "field": "alternatives",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_models.py",
+        "line": 145,
+        "claim": "Bound actual inventory construction",
+        "body_reviewed": "__init__:145-162"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_work_public.py",
+        "line": 84,
+        "claim": "Duplicate credential rejects principal replacement",
+        "body_reviewed": "test_duplicate_credential_inventory_cannot_silently_replace_scope:84-95"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_work_public.py",
+        "line": 97,
+        "claim": "Reported-one mapping and actual yield bound",
+        "body_reviewed": "test_mapping_items_cannot_exceed_the_credential_inventory_limit:97-124"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "projects/agent-continuity/tests/test_work_public.py",
+        "name": "test_duplicate_credential_inventory_cannot_silently_replace_scope",
+        "start": 84,
+        "end": 95,
+        "status": "read, not run"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_work_public.py",
+        "name": "test_mapping_items_cannot_exceed_the_credential_inventory_limit",
+        "start": 97,
+        "end": 124,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "D1-05",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "followups.2.answer",
+        "reason": "Distinguish a known domain rollback from ACK uncertainty rather than treating all conflicts as ambiguous."
+      },
+      {
+        "field": "challenge.symptom",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+        "line": 395,
+        "claim": "Conditional revision update and affected-row assertion",
+        "body_reviewed": "revise:358-432"
+      },
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "line": 387,
+        "claim": "Revision-first race and useful fresh confirmation",
+        "body_reviewed": "test_revision_wins_race_and_stale_confirmation_cannot_commit:387-407"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "name": "test_revision_wins_race_and_stale_confirmation_cannot_commit",
+        "start": 387,
+        "end": 407,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed.",
+      "Representative race test does not inject the defensive zero-row branch."
+    ]
+  },
+  {
+    "id": "D1-06",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.0",
+        "reason": "Name the compared evidence and failure paths directly; avoid implying the excerpt authenticates every original controller command field."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+        "line": 173,
+        "claim": "Mandatory original commitment evidence",
+        "body_reviewed": "_validate_intent_evidence:173-221"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+        "line": 208,
+        "claim": "Canonical evidence comparison",
+        "body_reviewed": "_validate_intent_evidence:173-221"
+      },
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "line": 692,
+        "claim": "Missing and altered dispatch rejected then original restored",
+        "body_reviewed": "test_committed_read_requires_mandatory_canonical_dispatch_evidence:692-727"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_case_cases.py",
+        "name": "test_committed_read_requires_mandatory_canonical_dispatch_evidence",
+        "start": 692,
+        "end": 727,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "D1-07",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.0.answer",
+        "reason": "Connect replay-first to both its lower-level prerequisites and later authority gates, avoiding unconditional availability language."
+      },
+      {
+        "field": "alternatives",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_store.py",
+        "line": 184,
+        "claim": "Reconstruct payload before identity comparison",
+        "body_reviewed": "submit:180-226"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_store.py",
+        "line": 187,
+        "claim": "Original record before new deadline and cap",
+        "body_reviewed": "accept:187-224"
+      },
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "line": 219,
+        "claim": "One-record cap preserves replay and reads",
+        "body_reviewed": "test_retained_caps_preserve_replay_reads_and_original_cancel:219-245"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "name": "test_retained_caps_preserve_replay_reads_and_original_cancel",
+        "start": 219,
+        "end": 245,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "D1-08",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "challenge.diagnosis",
+        "reason": "Make the diagnostic and evidence boundary useful: commit hooks are controlled tests, not an exhaustive network-failure simulation."
+      },
+      {
+        "field": "challenge.symptom",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_store.py",
+        "line": 123,
+        "claim": "Write transaction and uncertainty boundary",
+        "body_reviewed": "_write:123-178"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_store.py",
+        "line": 161,
+        "claim": "Flag before context exit and fixed error translation",
+        "body_reviewed": "_write:123-178"
+      },
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "line": 137,
+        "claim": "Before and after commit failpoints",
+        "body_reviewed": "test_before_commit_rolls_back_after_commit_unknown_reconciles:137-172"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "name": "test_before_commit_rolls_back_after_commit_unknown_reconciles",
+        "start": 137,
+        "end": 172,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "D1-09",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.0.answer",
+        "reason": "Separate late exception observation from cancellation propagation and commit knowledge."
+      },
+      {
+        "field": "alternatives",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/bounded_io.py",
+        "line": 56,
+        "claim": "Actual offload task owns pending slot",
+        "body_reviewed": "_run:46-66"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_public_api.py",
+        "line": 237,
+        "claim": "Cancelled waiter retains slot and incomplete close",
+        "body_reviewed": "test_cancelled_waiter_keeps_slot_and_close_timeout_until_actual_work_finishes:237-262"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "projects/agent-continuity/tests/test_public_api.py",
+        "name": "test_cancelled_waiter_keeps_slot_and_close_timeout_until_actual_work_finishes",
+        "start": 237,
+        "end": 262,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "D1-10",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.1.answer",
+        "reason": "State the actual narrow catch and repeated-cancellation limitation instead of implying every closure failure preserves the original error."
+      },
+      {
+        "field": "alternatives",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/bounded_io.py",
+        "line": 88,
+        "claim": "Specific timeout precedence in context exit",
+        "body_reviewed": "__aexit__:82-95"
+      },
+      {
+        "path": "projects/agent-continuity/tests/test_public_api.py",
+        "line": 264,
+        "claim": "Original exception identity and pending owner preserved",
+        "body_reviewed": "test_context_preserves_body_error_when_close_is_incomplete:264-282"
+      },
+      {
+        "path": "tests/test_async_execution.py",
+        "line": 338,
+        "claim": "Body cancellation survives cleanup timeout",
+        "body_reviewed": "test_body_cancellation_survives_cleanup_timeout_with_safe_incomplete_note:338-339"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "projects/agent-continuity/tests/test_public_api.py",
+        "name": "test_context_preserves_body_error_when_close_is_incomplete",
+        "start": 264,
+        "end": 282,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/test_async_execution.py",
+        "name": "test_body_cancellation_survives_cleanup_timeout_with_safe_incomplete_note",
+        "start": 338,
+        "end": 339,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "D1-11",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.1",
+        "reason": "Correct the actor that releases resources and distinguish the single directly tested due interval from additional code-derived behavior."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+        "line": 768,
+        "claim": "Conditions before paced retry",
+        "body_reviewed": "finish_failure:761-840"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+        "line": 784,
+        "claim": "Delay cap and persisted due",
+        "body_reviewed": "finish_failure:761-840"
+      },
+      {
+        "path": "tests/postgres/pg_upgrade_v5_cases.py",
+        "line": 340,
+        "claim": "Wait until first due instant then useful success",
+        "body_reviewed": "test_paced_dependency_retry_waits_for_its_persisted_due_time:340-356"
+      },
+      {
+        "path": "tests/postgres/pg_upgrade_v5_cases.py",
+        "line": 358,
+        "claim": "Cancellation bypasses pacing",
+        "body_reviewed": "test_cancellation_is_not_held_behind_a_paced_retry:358-374"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_upgrade_v5_cases.py",
+        "name": "test_paced_dependency_retry_waits_for_its_persisted_due_time",
+        "start": 340,
+        "end": 356,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_upgrade_v5_cases.py",
+        "name": "test_cancellation_is_not_held_behind_a_paced_retry",
+        "start": 358,
+        "end": 374,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed.",
+      "Post-reservation outage pacing remains open; terminal uncertainty is not automatically promoted by the illustrated path."
+    ]
+  },
+  {
+    "id": "D1-12",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.1.answer",
+        "reason": "Use the concrete supplier/result divergence and avoid implying terminal uncertainty automatically reconciles when new evidence appears."
+      },
+      {
+        "field": "alternatives",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+        "line": 614,
+        "claim": "Prior reservation before definite prevention",
+        "body_reviewed": "prepare_dispatch:605-674"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "line": 255,
+        "claim": "Paused-call cancellation regression",
+        "body_reviewed": "test_cancel_during_paused_old_call_is_uncertain_not_prevented_after_takeover:255-264"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "line": 266,
+        "claim": "Equivalent deadline regression",
+        "body_reviewed": "test_deadline_during_paused_old_call_is_uncertain_not_failed_after_takeover:266-275"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "name": "test_cancel_during_paused_old_call_is_uncertain_not_prevented_after_takeover",
+        "start": 255,
+        "end": 264,
+        "status": "read, not run"
+      },
+      {
+        "path": "tests/postgres/pg_coordination_cases.py",
+        "name": "test_deadline_during_paused_old_call_is_uncertain_not_failed_after_takeover",
+        "start": 266,
+        "end": 275,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed.",
+      "Post-reservation outage pacing remains open; terminal uncertainty is not automatically promoted by the illustrated path."
+    ]
+  },
+  {
+    "id": "D1-13",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "answer.0",
+        "reason": "Describe retained producer bytes as evidence, and clarify ordered disposition versus semantic truth."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+        "line": 224,
+        "claim": "Exact grant and original result replay first",
+        "body_reviewed": "complete:224-274"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+        "line": 235,
+        "claim": "Ordered disposition with retained result",
+        "body_reviewed": "complete:224-274"
+      },
+      {
+        "path": "tests/postgres/pg_issued_execution_cases.py",
+        "line": 384,
+        "claim": "Superseded and lease-expired bytes retained",
+        "body_reviewed": "test_attempt_cap_and_superseded_results_are_retained_without_current_promotion:384-433"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_issued_execution_cases.py",
+        "name": "test_attempt_cap_and_superseded_results_are_retained_without_current_promotion",
+        "start": 384,
+        "end": 433,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "D1-14",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.0.answer",
+        "reason": "Explicitly state the copied-source limitation; a stable UUID is not proof that divergent restored profiles cannot share an incarnation."
+      },
+      {
+        "field": "alternatives",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_store.py",
+        "line": 61,
+        "claim": "Existing admission and same-transaction append precondition",
+        "body_reviewed": "append_result_event:61-95"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_store.py",
+        "line": 72,
+        "claim": "Locked conditional scope-head advance",
+        "body_reviewed": "append_result_event:61-95"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+        "line": 266,
+        "claim": "Append called in result insertion transaction",
+        "body_reviewed": "complete:224-274"
+      },
+      {
+        "path": "tests/postgres/pg_result_feed_cases.py",
+        "line": 429,
+        "claim": "Actual blocked concurrent completion",
+        "body_reviewed": "test_uncommitted_lower_event_cannot_be_skipped_by_later_completion:429-476"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_result_feed_cases.py",
+        "name": "test_uncommitted_lower_event_cannot_be_skipped_by_later_completion",
+        "start": 429,
+        "end": 476,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed.",
+      "Divergent restored-branch source incarnation rotation is not qualified."
+    ]
+  },
+  {
+    "id": "D1-15",
+    "verdict": "corrected",
+    "changes": [
+      {
+        "field": "counterfactual",
+        "reason": "Correct the false partial-DDL implication: moving statements inside the same transaction would still roll back on rejection. Removing the guard supplies the actual broken case."
+      },
+      {
+        "field": "followups.0.answer",
+        "reason": "Keep legacy inquiry recovery distinct from mutating supplier uncertainty."
+      },
+      {
+        "field": "alternatives",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py",
+        "line": 1349,
+        "claim": "Owner and active schema checks before upgrade",
+        "body_reviewed": "upgrade_v4:1326-1458"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py",
+        "line": 1370,
+        "claim": "Refuse unmanaged running work before DDL",
+        "body_reviewed": "upgrade_v4:1326-1458"
+      },
+      {
+        "path": "tests/postgres/pg_upgrade_v4_cases.py",
+        "line": 251,
+        "claim": "Refusal then original v3 reconciliation and upgrade",
+        "body_reviewed": "test_running_unmanaged_inquiry_refuses_upgrade_until_v3_reconciliation:251-278"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_upgrade_v4_cases.py",
+        "name": "test_running_unmanaged_inquiry_refuses_upgrade_until_v3_reconciliation",
+        "start": 251,
+        "end": 278,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  },
+  {
+    "id": "D1-16",
+    "verdict": "strengthened",
+    "changes": [
+      {
+        "field": "followups.1.answer",
+        "reason": "Explain the exact nontransactional observation and avoid generalizing one malicious-view fixture to arbitrary database administration."
+      },
+      {
+        "field": "alternatives",
+        "reason": "Remove repeated framing while retaining the specific mechanism, evidence or alternative; keep revised page prose within its original budget where practical."
+      }
+    ],
+    "evidence_checked": [
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_schema.py",
+        "line": 120,
+        "claim": "Catalog preflight before reading metadata",
+        "body_reviewed": "_metadata_preflight:120-201"
+      },
+      {
+        "path": "projects/agent-continuity/python/src/continuity_lab/work_schema.py",
+        "line": 136,
+        "claim": "Column behavior validated next",
+        "body_reviewed": "_metadata_preflight:120-201"
+      },
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "line": 294,
+        "claim": "Side-effecting metadata view never evaluated",
+        "body_reviewed": "test_metadata_view_is_rejected_before_nontransactional_side_effect:294-307"
+      }
+    ],
+    "followups_reviewed": 3,
+    "count": 3,
+    "tests_read": [
+      {
+        "path": "tests/postgres/pg_readonly_work_cases.py",
+        "name": "test_metadata_view_is_rejected_before_nontransactional_side_effect",
+        "start": 294,
+        "end": 307,
+        "status": "read, not run"
+      }
+    ],
+    "remaining_limitations": [
+      "Review reads implementation and tests; no gates were executed."
+    ]
+  }
+]

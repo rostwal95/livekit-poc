@@ -1,0 +1,534 @@
+1Pipeline selection & latency budgets
+
+2STT, LLM & TTS provider comparison
+
+3Cost analysis & use case recommendations
+
+STT, LLM & TTS provider comparison
+
+STT, LLM, and TTS provider comparison
+
+Now that you understand the pipeline architecture, it is time to evaluate the providers you can plug into each stage. This chapter is your reference guide: for every STT, LLM, and TTS provider supported by LiveKit — whether through LiveKit Inference or the open source plugin ecosystem — you will see the actual code, key configuration options, and how they compare on latency, accuracy, and cost. By the end, you will know exactly which providers to reach for — and how to benchmark them by swapping plugins.
+
+What you will learn
+
+How LiveKit Inference provides a unified interface to the best voice AI models without managing API keys per provider
+
+How every STT provider compares and how to configure each — via Inference or plugins
+
+How every LLM provider compares for voice AI, including function calling quality
+
+How every TTS provider compares on latency, voice quality, and cost
+
+The "swap test" pattern for benchmarking providers head-to-head
+
+LiveKit Inference: the unified model interface
+
+Before diving into individual providers, you should know about LiveKit Inference — a unified model interface included in LiveKit Cloud. It provides access to many of the best STT, LLM, and TTS models from providers like OpenAI, Google, Deepgram, AssemblyAI, Cartesia, ElevenLabs, Rime, Inworld, xAI, and more — without needing to manage separate API keys or plugin installations for each provider.
+
+from livekit.agents import AgentSession, inference
+
+# LiveKit Inference — no per-provider API keys needed
+session = AgentSession(
+  stt=inference.STT(model="deepgram/nova-3", language="en"),
+  llm=inference.LLM(model="openai/gpt-4.1-mini"),
+  tts=inference.TTS(model="cartesia/sonic-3", voice="9626c31c-bec5-4cca-baa8-f8ba9e84c8bc"),
+)
+
+# Or use string descriptors as a shortcut
+session = AgentSession(
+  stt="deepgram/nova-3:en",
+  llm="openai/gpt-4.1-mini",
+  tts="cartesia/sonic-3:9626c31c-bec5-4cca-baa8-f8ba9e84c8bc",
+)
+
+LiveKit Inference handles billing, routing, and connection management automatically. Swapping models is as simple as changing the model string. For providers not yet available in Inference, or when you need provider-specific features like custom endpoints or voice cloning, use the open source plugins described below.
+
+When to use Inference vs plugins
+
+Use LiveKit Inference when you want the simplest setup — one billing relationship, no per-provider API keys, and automatic connection management. Use plugins when you need provider-specific features (voice cloning, custom endpoints, Azure compliance), self-hosted models, or providers not yet in Inference.
+
+STT providers
+
+Speech-to-text is the first pipeline stage and sets the ceiling for everything downstream. A slow or inaccurate STT means your LLM works with bad input and your user waits longer.
+
+STT comparison table
+
+Provider | Plugin | Inference | Latency (first result) | Accuracy (WER) | Streaming | Languages
+Deepgram Nova-3 | livekit-plugins-deepgram | deepgram/nova-3 | ~100ms | ~8% | Excellent | 44
+Deepgram Flux | livekit-plugins-deepgram | deepgram/flux-general | ~80ms | ~7% | Excellent | English
+AssemblyAI Universal-3 Pro | livekit-plugins-assemblyai | assemblyai/universal-3-pro | ~150ms | ~7-9% | Good | 6
+ElevenLabs Scribe v2 | livekit-plugins-elevenlabs | elevenlabs/scribe-v2-rt | ~120ms | ~7% | Good | 190
+Cartesia Ink Whisper | livekit-plugins-cartesia | cartesia/ink-whisper | ~150ms | ~7-8% | Good | 100
+OpenAI Whisper / gpt-4o-transcribe | livekit-plugins-openai | — | ~500-1000ms | ~5-8% | Limited | 50+
+Google Cloud Speech | livekit-plugins-google | — | ~200ms | ~8-10% | Good | 125+
+Azure Speech | livekit-plugins-azure | — | ~200ms | ~8-10% | Good | 100+
+Speechmatics | livekit-plugins-speechmatics | — | ~150ms | ~7-9% | Good | 50+
+Fal | livekit-plugins-fal | — | ~200ms | ~7-9% | Good | Multi
+NVIDIA Parakeet | livekit-plugins-nvidia | — | ~150ms | ~8% | Good | English
+Groq (Whisper) | livekit-plugins-groq | — | ~100ms | ~7% | Good | Multi
+
+Word Error Rate (WER)
+
+WER measures the percentage of words transcribed incorrectly. Lower is better. A WER of 8% means roughly 1 in 12 words is wrong. In practice, most errors occur on uncommon words, names, or jargon — common conversational speech transcribes much more accurately.
+
+Deepgram Nova-3 and Flux
+
+The most popular STT choice for real-time voice AI. Deepgram delivers the fastest streaming transcription available, with partial transcripts arriving within 100ms. Nova-3 improves accuracy on accented speech and noisy audio compared to Nova-2. Deepgram Flux is their newest model optimized for conversational AI with even lower latency.
+
+Key strengths: ultra-low streaming latency, accurate endpointing detection, smart formatting (punctuation, capitalization, numbers). Available through both LiveKit Inference and the Deepgram plugin.
+
+# Via LiveKit Inference (recommended)
+from livekit.agents import inference
+stt = inference.STT(model="deepgram/nova-3", language="en")
+
+# Or via plugin for provider-specific features
+from livekit.plugins import deepgram
+stt = deepgram.STT(model="nova-3", language="en")
+
+AssemblyAI
+
+Universal-3 Pro Streaming offers competitive real-time accuracy with built-in turn detection support. Available in LiveKit Inference and as a plugin.
+
+Key strengths: good streaming latency, automatic language detection, built-in turn detection, competitive accuracy.
+
+# Via LiveKit Inference
+from livekit.agents import inference
+stt = inference.STT(model="assemblyai/universal-3-pro-streaming")
+
+# Or via plugin
+from livekit.plugins import assemblyai
+stt = assemblyai.STT()
+
+ElevenLabs Scribe v2
+
+ElevenLabs' Scribe v2 Realtime supports an impressive 190 languages — the widest language coverage of any STT option in LiveKit Inference. Available via Inference and the ElevenLabs plugin.
+
+Key strengths: widest language coverage (190 languages), good streaming latency, real-time capable.
+
+# Via LiveKit Inference
+from livekit.agents import inference
+stt = inference.STT(model="elevenlabs/scribe-v2-rt")
+
+# Or via plugin
+from livekit.plugins import elevenlabs
+stt = elevenlabs.STT()
+
+Cartesia Ink Whisper
+
+Cartesia, known for TTS, also offers the Ink Whisper STT model with 100-language support. Available in LiveKit Inference.
+
+Key strengths: broad language support, good accuracy, available via Inference.
+
+# Via LiveKit Inference
+from livekit.agents import inference
+stt = inference.STT(model="cartesia/ink-whisper")
+
+# Or via plugin
+from livekit.plugins import cartesia
+stt = cartesia.STT()
+
+OpenAI Whisper and gpt-4o-transcribe
+
+Exceptionally accurate across diverse audio conditions and accents, but designed primarily for batch transcription. Streaming latency is significantly higher than purpose-built streaming providers, making Whisper a poor fit for real-time voice AI. The newer gpt-4o-transcribe model is better for streaming use cases.
+
+Key strengths: high accuracy across diverse audio, strong multilingual performance, simple API.
+
+from livekit.plugins import openai
+
+stt = openai.STT(model="gpt-4o-transcribe")
+
+Whisper latency
+
+Whisper's 500-1000ms latency for first results makes it unsuitable for real-time conversational voice AI. Use it for offline transcription or post-call analysis. For real-time use, choose Deepgram, AssemblyAI, or ElevenLabs Scribe.
+
+Google Cloud Speech-to-Text
+
+Wide language coverage with 125+ languages. Reliable streaming API with model adaptation for boosting recognition of specific phrases.
+
+Key strengths: wide language coverage, reliable streaming, phrase boosting, speaker diarization.
+
+from livekit.plugins import google
+
+stt = google.STT(model="latest_long", language="en-US")
+
+Azure Speech Services
+
+Enterprise-grade STT with custom model training, compliance certifications (HIPAA, SOC 2, GDPR), and private endpoints. A natural fit for organizations in the Microsoft ecosystem.
+
+Key strengths: custom speech models, enterprise compliance, private endpoints, 100+ languages.
+
+from livekit.plugins import azure
+
+stt = azure.STT(
+  speech_key="your-azure-key",
+  speech_region="eastus",
+  language="en-US",
+)
+
+Additional STT plugins
+
+LiveKit also offers plugins for additional STT providers:
+
+Plugin | Provider | Key feature
+livekit-plugins-speechmatics | Speechmatics | High accuracy, 50+ languages, custom dictionaries
+livekit-plugins-fal | Fal | Cloud-hosted transcription
+livekit-plugins-nvidia | NVIDIA Parakeet | On-premise/GPU inference, diarization
+livekit-plugins-groq | Groq (Whisper) | Ultra-fast Whisper inference on LPU hardware
+
+STT selection guide
+
+Priority | Recommended | Why
+Lowest latency | Deepgram Flux / Nova-3 | Fastest streaming, purpose-built for real-time
+Highest accuracy | Deepgram Nova-3 or AssemblyAI | Top-tier WER on English
+Most languages | ElevenLabs Scribe v2 | 190 languages via Inference
+Enterprise compliance | Azure Speech | HIPAA, SOC 2, custom models
+Simplest setup | LiveKit Inference (any STT) | No per-provider API keys
+Batch transcription | OpenAI Whisper | Best accuracy for non-realtime
+
+LLM providers
+
+The LLM is the brain of your voice agent. It determines reasoning quality, instruction following, and tool use reliability. Voice AI places unique demands on an LLM: it must stream tokens quickly, follow conversational instructions, call functions reliably, and be concise.
+
+LLM comparison table
+
+LiveKit Inference provides access to LLMs from OpenAI, Google, DeepSeek, Groq, Cerebras, and more. For providers not in Inference (like Anthropic), use the dedicated plugin.
+
+Provider | Plugin | Inference | TTFT | Function calling | Context window | Realtime model
+OpenAI GPT-4.1 | livekit-plugins-openai | openai/gpt-4.1 | ~200ms | Excellent | 1M | —
+OpenAI GPT-4.1 mini | livekit-plugins-openai | openai/gpt-4.1-mini | ~100ms | Good | 1M | —
+OpenAI GPT-4o | livekit-plugins-openai | openai/gpt-4o | ~200ms | Excellent | 128K | Yes
+Anthropic Claude | livekit-plugins-anthropic | — | ~200ms | Good | 200K | —
+Google Gemini 2.5 Flash | livekit-plugins-google | google/gemini-2.5-flash | ~150ms | Good | 1M | —
+Google Gemini 2.5 Pro | livekit-plugins-google | google/gemini-2.5-pro | ~200ms | Good | 1M | —
+DeepSeek V3 | via OpenAI plugin | deepseek/deepseek-v3 | ~150ms | Good | 128K | —
+xAI Grok | livekit-plugins-xai | — | ~150ms | Good | 128K | Yes
+Groq (GPT OSS 120B) | livekit-plugins-groq | groq/gpt-oss-120b | ~50ms | Moderate | 128K | —
+Cerebras | via OpenAI plugin | cerebras/gpt-oss-120b | ~60ms | Moderate | 128K | —
+Qwen3 235B | via OpenAI plugin | qwen/qwen3-235b-a22b | ~150ms | Good | 128K | —
+
+Pricing changes frequently
+
+LLM pricing is a moving target. These costs are approximate as of early 2026. The relative ordering tends to be stable even as absolute prices drop. Always check the provider's current pricing page or the LiveKit Inference pricing page.
+
+OpenAI (GPT-4.1, GPT-4o, and more)
+
+OpenAI models are the most broadly used for voice AI. GPT-4.1 is the latest generation with a 1M token context window and improved function calling. GPT-4.1 mini and nano variants offer lower cost for simpler agents. All are available via LiveKit Inference and the OpenAI plugin.
+
+# Via LiveKit Inference (recommended)
+from livekit.agents import inference
+llm = inference.LLM(model="openai/gpt-4.1-mini")
+
+# Or via plugin
+from livekit.plugins import openai
+llm = openai.LLM(model="gpt-4.1-mini")
+
+Key strengths: best function calling reliability, fast streaming, realtime model available, broad ecosystem.
+
+Anthropic Claude
+
+Claude Sonnet excels at following complex, nuanced instructions and producing natural conversational responses. If your agent handles sensitive conversations (healthcare, legal, financial) or needs a very specific personality, Claude is an excellent choice. Use the Anthropic plugin directly.
+
+from livekit.plugins import anthropic
+
+llm = anthropic.LLM(model="claude-sonnet-4-20250514")
+
+Key strengths: excellent instruction following, strong reasoning, natural conversational style, 200K context, strong safety properties.
+
+Claude for sensitive domains
+
+If your voice agent operates in healthcare, legal, or financial services, Claude's safety properties and instruction following make it a particularly strong fit.
+
+Google Gemini
+
+Gemini models are fast and extremely cost-effective with up to 1M token context windows. Gemini 2.5 Flash is ideal for high-volume deployments. Google also offers Gemini Live for speech-to-speech interactions. Available through both LiveKit Inference and the Google plugin.
+
+# Via LiveKit Inference
+from livekit.agents import inference
+llm = inference.LLM(model="google/gemini-2.5-flash")
+
+# Or via plugin
+from livekit.plugins import google
+llm = google.LLM(model="gemini-2.5-flash")
+
+Key strengths: very low cost, 1M token context, multimodal (text, images, audio, video), realtime model available.
+
+xAI Grok
+
+xAI's Grok models are available through the dedicated xAI plugin, with support for LLM, TTS, and realtime speech-to-speech.
+
+from livekit.plugins import xai
+
+llm = xai.LLM(model="grok-3")
+
+Key strengths: strong reasoning, realtime model available, TTS support in the same plugin.
+
+DeepSeek
+
+DeepSeek V3 is a high-quality open model available through LiveKit Inference (via Baseten and DeepSeek). Competitive reasoning at lower cost.
+
+# Via LiveKit Inference
+from livekit.agents import inference
+llm = inference.LLM(model="deepseek/deepseek-v3")
+
+Key strengths: strong reasoning, competitive pricing, available via Inference.
+
+Groq and Cerebras
+
+Both Groq and Cerebras offer ultra-fast inference on custom hardware, achieving extremely low time-to-first-token. Best for use cases where raw speed matters most. Both are available through LiveKit Inference for models like GPT OSS 120B.
+
+# Via LiveKit Inference
+from livekit.agents import inference
+llm = inference.LLM(model="groq/gpt-oss-120b")
+
+# Or via Groq plugin
+from livekit.plugins import groq
+llm = groq.LLM(model="llama-3.3-70b-versatile")
+
+Key strengths: fastest TTFT available (~50ms), competitive pricing, open source model support.
+
+OpenAI-compatible providers and self-hosting
+
+Many providers (Together AI, Fireworks, vLLM, etc.) expose an OpenAI-compatible API. LiveKit's OpenAI plugin supports custom base_url for any of these. For strict data residency or very high volume, you can self-host models via vLLM or TGI.
+
+from livekit.plugins import openai
+
+# Any OpenAI-compatible provider
+llm = openai.LLM(
+  model="meta-llama/Llama-3-70b-chat-hf",
+  base_url="https://api.together.xyz/v1",
+  api_key="your-together-key",
+)
+
+# Self-hosted via vLLM
+llm = openai.LLM(
+  model="meta-llama/Llama-3-70b-chat",
+  base_url="http://your-vllm-server:8000/v1",
+  api_key="not-needed",
+)
+
+Self-hosting is not free
+
+GPU hosting costs $1-3 per hour per A100. For most teams, API-based models or LiveKit Inference are cheaper until you reach thousands of concurrent conversations. Do the math before committing.
+
+Function calling comparison
+
+For agentic voice AI, function calling reliability is the most critical LLM capability. A failure leaves the user in awkward silence with no way to retry.
+
+Provider | Reliability | Parallel calls | Structured output
+OpenAI GPT-4.1 / GPT-4o | Excellent | Yes | Yes
+OpenAI GPT-4.1 mini | Good | Yes | Yes
+Claude Sonnet | Good | Yes | Yes
+Gemini 2.5 Flash / Pro | Good | Yes | Yes
+xAI Grok | Good | Yes | Yes
+DeepSeek V3 | Good | Yes | Yes
+Groq (open models) | Moderate | Limited | Limited
+
+LLM selection guide
+
+Priority | Recommended | Why
+Best all-around | OpenAI GPT-4.1 | Excellent at everything, best function calling
+Lowest cost | Gemini 2.5 Flash or GPT-4.1 mini | Fraction of the cost, still very capable
+Best reasoning | Claude Sonnet | Handles complex logic and nuanced instructions
+Fastest TTFT | Groq or Cerebras | Custom hardware for ultra-fast inference
+Simplest setup | LiveKit Inference (any LLM) | No per-provider API keys
+Data privacy | Self-hosted via OpenAI plugin | No data leaves your infrastructure
+Largest context | Gemini 2.5 Flash or GPT-4.1 | 1M tokens
+
+TTS providers
+
+Text-to-speech is the final stage and the one users notice most. The voice is the direct experience — a robotic voice undermines even the best AI reasoning. Two metrics matter most: time-to-first-byte (TTFB) for latency and Mean Opinion Score (MOS) for voice naturalness.
+
+TTS comparison table
+
+LiveKit Inference provides access to TTS from Cartesia, ElevenLabs, Deepgram, Inworld, Rime, and xAI. Additional providers are available through plugins.
+
+Provider | Plugin | Inference | TTFB | Quality (MOS) | Voice variety | Languages
+Cartesia Sonic 3 | livekit-plugins-cartesia | cartesia/sonic-3 | ~80ms | ~4.2 | 20+ preset | 40+
+ElevenLabs | livekit-plugins-elevenlabs | elevenlabs/* | ~150-250ms | ~4.4 | 1000+ + cloning | 30+
+Deepgram Aura 2 | livekit-plugins-deepgram | deepgram/aura-2 | ~100ms | ~4.0 | Multiple | 10+
+Inworld | livekit-plugins-inworld | inworld/inworld-tts-1.5-max | ~120ms | ~4.1 | Multiple | 15
+Rime Arcana | livekit-plugins-rime | rime/arcana | ~100ms | ~4.1 | Multiple | 9
+xAI TTS | livekit-plugins-xai | xai/tts-1 | ~150ms | ~4.1 | Multiple | 20+
+OpenAI TTS | livekit-plugins-openai | — | ~200ms | ~4.2 | 6 preset | Multi
+Google Cloud TTS | livekit-plugins-google | — | ~150ms | ~4.0 | 200+ neural | 60+
+Azure Neural TTS | livekit-plugins-azure | — | ~150ms | ~4.0 | 400+ neural | 100+
+PlayHT | livekit-plugins-playht | — | ~150-200ms | ~4.1 | 600+ + cloning | Multi
+NVIDIA | livekit-plugins-nvidia | — | ~100ms | ~4.0 | Multiple | Multi
+Speechmatics | livekit-plugins-speechmatics | — | ~150ms | ~4.0 | Multiple | Multi
+Groq (PlayAI) | livekit-plugins-groq | — | ~100ms | ~4.1 | Multiple | 3
+
+MOS scores are averages from human evaluations and vary by voice, language, and content. Differences between top providers are often subtle. Test your specific use case with 2-3 providers before committing — what sounds best for customer service may not be ideal for an entertainment character.
+
+Cartesia Sonic
+
+Built specifically for real-time voice AI. Ultra-low latency at ~80ms TTFB — the fastest of any major provider. Sonic 3 is the latest model with 40+ language support. Available through both LiveKit Inference and the plugin.
+
+# Via LiveKit Inference (recommended)
+from livekit.agents import inference
+tts = inference.TTS(model="cartesia/sonic-3", voice="9626c31c-bec5-4cca-baa8-f8ba9e84c8bc")
+
+# Or via plugin
+from livekit.plugins import cartesia
+tts = cartesia.TTS(model="sonic-3", voice="warm-professional")
+
+Key strengths: lowest latency (80ms TTFB), emotion control, speed adjustment, consistent quality, 40+ languages.
+
+ElevenLabs
+
+Arguably the most natural-sounding voices available. Industry-leading voice cloning and the largest voice library. Multiple model tiers available in Inference — from eleven_flash_v2_5 for speed to eleven_multilingual_v2 for quality.
+
+# Via LiveKit Inference
+from livekit.agents import inference
+tts = inference.TTS(model="elevenlabs/eleven_flash_v2_5", voice="your-voice-id")
+
+# Or via plugin for voice cloning and advanced features
+from livekit.plugins import elevenlabs
+tts = elevenlabs.TTS(model="eleven_turbo_v2", voice_id="your-voice-id")
+
+Key strengths: highest voice quality, voice cloning, 1000+ voices, fine-grained style control (stability, similarity, clarity).
+
+ElevenLabs model tiers
+
+Use eleven_flash_v2_5 for the lowest latency or eleven_turbo_v2_5 for a balance of speed and multilingual quality. Use eleven_multilingual_v2 only when you need maximum quality and can tolerate higher latency.
+
+Deepgram Aura
+
+Deepgram's TTS offering with low latency and clean voice quality. Aura 2 supports 10+ languages. Available through Inference and the plugin.
+
+# Via LiveKit Inference
+from livekit.agents import inference
+tts = inference.TTS(model="deepgram/aura-2", voice="asteria")
+
+# Or via plugin
+from livekit.plugins import deepgram
+tts = deepgram.TTS(model="aura-2", voice="asteria")
+
+Key strengths: low latency, clean voice quality, simple integration, competitive pricing.
+
+Inworld
+
+Inworld provides TTS models optimized for gaming and interactive characters. Multiple tiers available in Inference — from inworld-tts-1 to inworld-tts-1.5-max.
+
+# Via LiveKit Inference
+from livekit.agents import inference
+tts = inference.TTS(model="inworld/inworld-tts-1.5-max", voice="your-voice-id")
+
+# Or via plugin
+from livekit.plugins import inworld
+tts = inworld.TTS(voice="your-voice-id")
+
+Key strengths: character-oriented voices, 15 languages, gaming-optimized, available via Inference.
+
+Rime
+
+Rime offers the Arcana and Mist TTS models with competitive latency. Available through Inference and the plugin.
+
+# Via LiveKit Inference
+from livekit.agents import inference
+tts = inference.TTS(model="rime/arcana", voice="kai")
+
+# Or via plugin
+from livekit.plugins import rime
+tts = rime.TTS(model="arcana", speaker="kai")
+
+Key strengths: good latency, competitive pricing, 9 languages, available via Inference.
+
+xAI TTS
+
+xAI provides text-to-speech alongside their Grok LLM and realtime model. Available through Inference and the xAI plugin.
+
+# Via LiveKit Inference
+from livekit.agents import inference
+tts = inference.TTS(model="xai/tts-1", voice="Ash")
+
+# Or via plugin
+from livekit.plugins import xai
+tts = xai.TTS(voice="Ash")
+
+Key strengths: 20+ languages, integrated with Grok LLM ecosystem, available via Inference.
+
+OpenAI TTS
+
+Good quality with the simplest API. The newer gpt-4o-mini-tts model provides improved quality. Limited voice options but natural-sounding.
+
+from livekit.plugins import openai
+
+tts = openai.TTS(model="gpt-4o-mini-tts", voice="alloy")
+
+Key strengths: simplest integration, good quality defaults, improving model lineup.
+
+Additional TTS plugins
+
+Plugin | Provider | Key feature
+livekit-plugins-google | Google Cloud TTS | 200+ neural voices, SSML, 60+ languages
+livekit-plugins-azure | Azure Neural TTS | 400+ voices, HIPAA/SOC 2, custom voice training
+livekit-plugins-playht | PlayHT | Voice cloning, emotion control, competitive pricing
+livekit-plugins-nvidia | NVIDIA | On-premise/GPU TTS inference
+livekit-plugins-speechmatics | Speechmatics | Streaming TTS
+livekit-plugins-groq | Groq (PlayAI) | Ultra-fast TTS on LPU hardware
+
+TTS selection guide
+
+Priority | Recommended | Why
+Lowest latency | Cartesia Sonic 3 | 80ms TTFB, built for real-time
+Highest quality | ElevenLabs | Most natural voices, best cloning
+Best value | Deepgram Aura 2 or Rime | Good quality at competitive price
+Most languages | Azure Neural TTS or Cartesia Sonic 3 | 100+ / 40+ languages
+Simplest setup | LiveKit Inference (any TTS) | No per-provider API keys
+Custom brand voice | ElevenLabs (via plugin) | Best voice cloning technology
+Gaming / characters | Inworld | Character-optimized voices
+
+The swap test: benchmarking providers
+
+LiveKit's plugin architecture makes it trivial to benchmark providers head-to-head. The pattern is simple: keep two components fixed and swap the third, then compare latency and quality.
+
+Pick a starting stack — for example, Deepgram + GPT-4o + Cartesia. Run 20-30 test conversations and measure end-to-end latency, response quality, and subjective voice experience.
+
+Change only one plugin — for example, swap Cartesia for ElevenLabs. Run the same test conversations and compare. The only variable is the component you swapped.
+
+Track time-to-first-audio, voice quality subjective ratings, and cost per conversation. After testing each alternative, you have a clear comparison table for your specific use case.
+
+from livekit.agents import AgentSession, inference
+
+# Baseline: Cartesia TTS via Inference
+baseline_session = AgentSession(
+  stt=inference.STT(model="deepgram/nova-3", language="en"),
+  llm=inference.LLM(model="openai/gpt-4.1-mini"),
+  tts=inference.TTS(model="cartesia/sonic-3", voice="9626c31c-bec5-4cca-baa8-f8ba9e84c8bc"),
+)
+
+# Swap test: ElevenLabs TTS (only this line changes)
+test_session = AgentSession(
+  stt=inference.STT(model="deepgram/nova-3", language="en"),
+  llm=inference.LLM(model="openai/gpt-4.1-mini"),
+  tts=inference.TTS(model="elevenlabs/eleven_flash_v2_5", voice="test-voice"),
+)
+
+Test with real conversations
+
+Scripted inputs miss the edge cases that reveal real-world issues — accented speech, background noise, interruptions, and unexpected questions. Always benchmark with real or realistic conversations, not canned prompts.
+
+Test your knowledge
+
+Question 1 of 4
+
+Why is OpenAI Whisper generally a poor choice for real-time voice AI despite its excellent accuracy?
+
+What you learned
+
+LiveKit Inference provides a unified interface to the best voice AI models — no per-provider API keys needed for models from OpenAI, Google, Deepgram, AssemblyAI, Cartesia, ElevenLabs, Rime, Inworld, xAI, DeepSeek, Groq, Cerebras, and more
+
+LiveKit's open source plugin ecosystem covers 15+ providers — including Anthropic, Azure, Google Cloud, Speechmatics, NVIDIA, Fal, and PlayHT — for when you need provider-specific features or self-hosted models
+
+Deepgram Nova-3/Flux is the top STT choice for real-time voice AI; ElevenLabs Scribe leads for language coverage
+
+OpenAI GPT-4.1 offers the best all-around LLM performance; Gemini 2.5 Flash and GPT-4.1 mini are best for cost; Groq and Cerebras are fastest
+
+Cartesia Sonic 3 has the lowest TTS latency; ElevenLabs has the highest voice quality; Deepgram Aura, Rime, and Inworld provide solid alternatives
+
+The swap test pattern lets you benchmark any provider by changing one model string (Inference) or one plugin while keeping everything else fixed
+
+Next up
+
+With all providers mapped, the final chapter brings everything together: cost modeling for real conversations, optimization strategies, and ready-made stack recommendations for common use cases.

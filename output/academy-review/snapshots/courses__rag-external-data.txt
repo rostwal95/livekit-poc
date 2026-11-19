@@ -1,0 +1,27 @@
+RAG for Voice Agents
+
+Knowledge retrieval fast enough for conversation
+
+Build retrieval-augmented generation for voice agents where latency is the constraint. Learn voice-optimized retrieval patterns, context injection timing, MCP tool integration, citation in spoken conversation, and production monitoring.
+
+What You Build
+
+Voice agent with RAG that retrieves and cites knowledge within a 400ms latency budget.
+
+Prerequisites
+
+->Course 1.1
+
+->Course 2.1
+
+Why voice RAG is different from chat RAG: the 400ms latency budget, when to retrieve (on_user_turn_completed hook), how to inject context, and when RAG is the right pattern versus tools or static instructions.
+
+Use MCP (Model Context Protocol) to connect agents to external APIs and databases. Combine MCP tools for structured data with RAG for unstructured knowledge.
+
+Cite sources naturally in speech — 'According to section 3 of your policy...' not '[1]'. Track source metadata through the pipeline and build audit trails.
+
+Optimize production RAG with semantic caching for frequent queries, monitor retrieval quality (relevance scores, hit rates, latency), and evaluate answer accuracy with LLM-as-judge.
+
+What You Walk Away With
+
+RAG architecture optimized for voice AI: fast retrieval, proper context injection timing, natural spoken citations, MCP tools for structured data, and production monitoring.

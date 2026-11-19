@@ -1,0 +1,57 @@
+[
+  {
+    "question": "A client's agent gives long, rambling responses that feel unnatural in voice. What is wrong with the agent instructions and how do you fix it?",
+    "options": [
+      "The instructions lack voice-specific constraints. Add explicit guidance: 'Keep responses to 1-2 sentences. Never use markdown, bullet points, or emojis. Speak conversationally \u2014 you are a voice agent, not a chatbot.' Voice agents need instructions optimized for spoken delivery, not text output.",
+      "Set max_tokens on the LLM to 50-80 tokens per response. This hard limit forces the model to produce concise output regardless of instructions. Combine with a temperature of 0.2 to reduce verbosity. The instructions themselves are less important than the model parameters for controlling response length.",
+      "Enable the TTS provider's sentence chunking mode, which breaks long responses into individual sentences and only synthesizes the first 1-2 sentences. The remaining text is discarded before it reaches the audio pipeline. This approach works with any LLM instructions and requires no prompt engineering.",
+      "Configure the pipeline's response_filter middleware to truncate LLM output at 2 sentences before passing it to TTS. This is more reliable than instructions because LLMs do not consistently follow length constraints. The filter uses punctuation detection to find natural sentence boundaries."
+    ],
+    "correctIndex": 0,
+    "explanation": "Voice agent instructions must be optimized for spoken delivery. Long text responses that work in chat are painful to listen to. Instructions should specify concise responses (1-2 sentences per turn), ban text formatting (markdown, bullets, emojis), and emphasize conversational tone. Hard token limits and post-processing filters are unreliable \u2014 the LLM needs to understand it is a voice agent."
+  },
+  {
+    "question": "How does @function_tool work in LiveKit, and what makes a well-designed tool?",
+    "options": [
+      "@function_tool decorates an async function, registering it as a callable tool. The function's docstring becomes the tool description, and typed parameters become the JSON schema. A well-designed tool has a clear docstring explaining when to use it, specific typed parameters with descriptions, and returns a string result the LLM can incorporate into its response.",
+      "@function_tool registers the function as a webhook endpoint that the LLM provider calls via HTTP POST when tool use is needed. The function receives the raw JSON from the provider's API, processes it, and returns a JSON response. This webhook pattern means tools can run on any server, not just the agent process.",
+      "@function_tool creates a tool definition from the function signature and registers it with the session's tool router. The router matches LLM tool calls to registered functions using fuzzy name matching. The function must return a structured ToolResult object with status, data, and an optional display message for the frontend.",
+      "@function_tool decorates a function and wraps it in an automatic retry handler with exponential backoff. The decorator extracts the JSON schema from type hints and adds validation middleware. If the LLM passes invalid arguments, the decorator automatically re-prompts the LLM with the validation error."
+    ],
+    "correctIndex": 0,
+    "explanation": "The @function_tool decorator converts a Python/TypeScript function into an LLM-callable tool. The docstring is critical \u2014 it tells the LLM when and how to use the tool. Typed parameters with Args descriptions become the JSON schema the LLM uses to construct calls. The return value (a string) is fed back to the LLM as the tool result. There is no webhook, fuzzy matching, or automatic retry mechanism."
+  },
+  {
+    "question": "In a multi-agent system, how does conversation context flow between agents during a handoff?",
+    "options": [
+      "The session stores the full LLM chat history (all messages, tool calls, and results) and passes it to the new agent's LLM context when update_agent() is called. This means the new agent has complete visibility into the previous conversation. The chat history is the primary mechanism for context transfer between agents.",
+      "The CallContext (or userdata) object is passed through the session and persists across agent transitions. It carries shared state like caller ID, account number, intent history, and previous states. When session.update_agent() swaps to a new agent, the userdata remains available to the new agent via RunContext.",
+      "Each agent writes a structured handoff summary to a shared Redis store keyed by session ID. The next agent reads this summary on initialization. This decoupled approach allows agents to run in different processes or even different services while maintaining context continuity.",
+      "The outgoing agent generates a natural language summary of the conversation using an LLM call, and this summary is prepended to the incoming agent's system prompt as context. This approach ensures the new agent understands the situation without needing access to raw conversation data or shared state objects."
+    ],
+    "correctIndex": 1,
+    "explanation": "The userdata pattern is central to multi-agent orchestration. A CallContext dataclass (or plain dict) is set as userdata when starting the session. Every agent accesses it via context.userdata in their tools. When the session swaps agents via update_agent(), the userdata persists \u2014 this is how caller identity, account information, and intent history flow seamlessly across agent transitions."
+  },
+  {
+    "question": "A client wants to build an agent that handles both billing and support. Should they use one agent or two?",
+    "options": [
+      "One agent with all tools, but structure the instructions with clear sections: a billing section and a support section. The LLM selects the appropriate section based on user intent. This avoids the complexity of multi-agent handoffs while keeping tools organized. Add a 'current_mode' field to userdata so the agent tracks which domain it is operating in.",
+      "Two specialized agents with a greeting agent that routes between them. Each agent has focused instructions and only the tools it needs. This separation of concerns means the billing agent never attempts tech support (and vice versa), each agent is independently testable, and you can update one without risking the other.",
+      "One agent with dynamic tool loading \u2014 start with a base set of tools and use a tool_filter callback to load billing or support tools based on detected intent. This gives you the simplicity of a single agent with the tool isolation of multiple agents. The agent's instructions stay focused because irrelevant tools are hidden.",
+      "Two agents that share a common base agent class with shared tools (like account lookup and authentication), plus domain-specific tools for each. Use inheritance to avoid duplicating common functionality. The session manages routing through a state machine that tracks conversation phase."
+    ],
+    "correctIndex": 1,
+    "explanation": "Separation of concerns is the key principle. A billing agent with only billing tools cannot accidentally try to troubleshoot a product issue. Each agent is small, focused, and independently testable \u2014 you measure billing resolution rate separately from support resolution rate. A greeting agent handles routing based on natural language intent detection."
+  },
+  {
+    "question": "What is the agent state machine, and why must the frontend understand it?",
+    "options": [
+      "Every agent follows a lifecycle: connecting -> listening -> thinking -> speaking -> (loops back to listening) -> disconnected/failed. The agent publishes its current state as a participant attribute. The frontend reads this to drive UI \u2014 showing a loading indicator during connecting, a passive visualizer during listening, a pulse during thinking, an active visualizer during speaking, and an error/end screen for terminal states.",
+      "The agent state machine tracks the conversation phase: greeting -> intent_detection -> task_execution -> confirmation -> farewell. Each state determines which tools are available and what instructions are active. The frontend reads the current phase to display appropriate UI \u2014 for example, showing a form during task_execution or a summary during confirmation.",
+      "The state machine is a server-side construct that tracks the pipeline's processing state: idle -> stt_processing -> llm_generating -> tts_synthesizing -> playing. The frontend polls a REST endpoint every 100ms to check the current state and update the UI. This polling model ensures the frontend always reflects the true server-side state.",
+      "The state machine manages WebRTC connection lifecycle: initializing -> negotiating -> connected -> reconnecting -> disconnected. The frontend SDK exposes these states via the Room object's connectionState property. The agent state is derived from the connection state \u2014 if connected, the agent is active; if reconnecting, the frontend shows a loading indicator."
+    ],
+    "correctIndex": 0,
+    "explanation": "The agent state machine (connecting, listening, thinking, speaking, disconnected, failed) is published via participant attributes and drives the frontend UI. The frontend reads session.agent.agentState and renders accordingly. This reactive model means no polling \u2014 the UI updates automatically on every state transition."
+  }
+]

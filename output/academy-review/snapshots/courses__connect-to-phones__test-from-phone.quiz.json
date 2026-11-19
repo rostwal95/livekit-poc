@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Why is testing from a real phone essential even if the agent works perfectly in a browser-based test?",
+    "options": [
+      "Browsers do not support voice agents",
+      "Phone testing is required by LiveKit's terms of service",
+      "Real phone calls involve codec negotiation, DTMF handling, SIP-specific timing, and PSTN audio quality that browser testing cannot replicate",
+      "Browser tests do not use the STT model"
+    ],
+    "correctIndex": 2,
+    "explanation": "Many issues only surface during real phone calls: codec negotiation failures, DTMF event handling, SIP-specific timing, and audio quality degradation from the PSTN. Browser testing uses WebRTC directly, bypassing the entire SIP bridge layer where telephony-specific problems occur."
+  },
+  {
+    "question": "In Cloud Insights, what does the latency breakdown help you identify when callers report slow agent responses?",
+    "options": [
+      "Which phone network carrier is causing delays",
+      "Whether the caller's phone supports HD voice",
+      "Which specific pipeline stage (STT, LLM, TTS, or transport) is the bottleneck contributing most to the delay",
+      "The total number of calls processed that day"
+    ],
+    "correctIndex": 2,
+    "explanation": "Cloud Insights breaks down round-trip audio latency by stage, so you can pinpoint whether the bottleneck is STT processing, LLM response time, TTS synthesis, or network transport. This guides targeted optimization \u2014 for example, switching to a faster LLM or enabling region pinning."
+  }
+]

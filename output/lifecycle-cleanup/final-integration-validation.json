@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "toolchain": {
+    "python": "/Users/rostwal/Downloads/livekit-poc/.venv/bin/python",
+    "node": "/private/tmp/livekit-academy-node-24.22.2-n1rqgu__/node-v24.22.2-darwin-arm64/bin/node",
+    "nodeVersion": "24.22.2"
+  },
+  "checks": {
+    "standalone": {
+      "command": ".venv/bin/python local-setup/scripts/p2_postgres_check.py --example",
+      "report": "final-pg-example.log",
+      "sha256": "7e519c57dd294ba9bd412f676a9ead88bdf4cbc3d050cafcbf0fe0c4d9658934",
+      "tests": 2,
+      "durationSeconds": 0.4825288340000001,
+      "cleanupComplete": true,
+      "skipped": 0,
+      "scope": "local_synthetic_postgres_example"
+    },
+    "dispatch": {
+      "command": ".venv/bin/python local-setup/scripts/p2_postgres_check.py --dispatch",
+      "report": "final-pg-dispatch.log",
+      "sha256": "2e58c196aaf50f2f2556f61f02ec4c390229e8474b09a5d7c9e95633ec610f88",
+      "tests": 5,
+      "durationSeconds": 3.180376292,
+      "cleanupComplete": true,
+      "skipped": 0,
+      "scope": "local_synthetic_postgres_dispatch"
+    },
+    "gateway": {
+      "command": ".venv/bin/python local-setup/scripts/p2_postgres_check.py --gateway",
+      "report": "final-pg-gateway.log",
+      "sha256": "a06164de48f202f06fee7f1b7fa024d1032f4a99ed6e969eea10f63335e5a6cd",
+      "tests": 3,
+      "durationSeconds": 1.484705542,
+      "cleanupComplete": true,
+      "skipped": 0,
+      "scope": "local_synthetic_postgres_gateway"
+    },
+    "agent": {
+      "command": ".venv/bin/python local-setup/scripts/p2_postgres_check.py --agent",
+      "report": "final-pg-agent.log",
+      "sha256": "2d5aeae019ff422bacb1211ba5ef6ad0887f993e62f9d0bcb690745024ebc4df",
+      "tests": 1,
+      "durationSeconds": 1.446495875,
+      "cleanupComplete": true,
+      "skipped": 0,
+      "scope": "local_synthetic_postgres_agent"
+    },
+    "native": {
+      "command": ".venv/bin/python local-setup/scripts/p2_native_check.py",
+      "report": "final-p2-native.log",
+      "sha256": "c0b46adbac31c844d24902c52f49cd2cf83d54537aa272a61f299ba232c822b6",
+      "tests": 6,
+      "durationSeconds": 32.220377333000215,
+      "cleanupComplete": true,
+      "skipped": 0,
+      "scope": "local_scripted_p2_native"
+    },
+    "channelOrigin": {
+      "command": ".venv/bin/python local-setup/scripts/p2_channel_origin_check.py",
+      "report": "final-channel-origin.log",
+      "sha256": "99276f5ed2469e8de39d2ed859c350e86027127eaa6d776436a1b994eb2ea4b4",
+      "tests": 14,
+      "durationSeconds": 10.617615291997936,
+      "cleanupComplete": true,
+      "skipped": 0,
+      "scope": "original channel source assertions"
+    }
+  },
+  "sourceAndInstalledScope": "Existing source PostgreSQL/process/native/SDK/browser gates; installed fake-port compatibility is separate in installed-package-review.json.",
+  "limits": [
+    "No paid provider, physical microphone, complete room resumption or full joined45B/C/D qualification.",
+    "Each gate retains its own case/group units and required cleanup; counts are not summed into a new acceptance gate."
+  ]
+}

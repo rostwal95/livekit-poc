@@ -76,6 +76,11 @@ into the native container. The 0047 runs used the image trust store and recorded
 zero speech-to-text (STT), language-model (LLM) and text-to-speech (TTS) usage
 before the agent's reply timed out.
 
+Qualification is tied to the recorded source and execution profile. The later
+[0048 review](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md)
+records five errors in its last full PostgreSQL run under host load, followed by
+a passing 27-test targeted rerun. That targeted result is not a new full-lane pass.
+
 ### Standalone package
 
 The standalone Python 3.14 distribution exposes typed synchronous and asynchronous
@@ -99,6 +104,11 @@ The owner-only v5 upgrade adds a persisted retry due time for mutation effects t
 fail with `dependency_unavailable` before dispatch. On v5 such an effect waits until
 its due time: 1 s, doubling to 30 s, never past the deadline. Cancellation is never
 held behind it, and v4 keeps immediate retry.
+
+This pacing applies only before any dispatch reservation. Dependency outages
+after a possible supplier call retain their uncertainty, but do not yet receive
+the same persisted pacing; see the open P1-A2 finding in
+[0048](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md).
 
 Supplier cooperation or explicit uncertainty governs external effects. A database
 lease epoch alone cannot fence a remote call. Current runtime gates prove that
@@ -422,7 +432,7 @@ shutdown.
 | --- | --- | --- | --- |
 | P1 fast lane | `HARNESS_PYTHON=.venv/bin/python sh scripts/harness-check.sh --module p1` | Root and standalone package Python suites; a structural pass alone does not qualify product behavior | Implemented |
 | P1 acceptance runners | `.venv/bin/python -m harness run --project p1` | Required service, browser and live lanes for the P1 rows; P1-20 defaults to unqualified local_real | Qualified with provider_real v2 |
-| Real PostgreSQL gate | `make postgres-check` | Complete cutover protocol and worker recovery on isolated synthetic schemas | Qualified; passed after v5 in [0047](../../docs/work-items/0047-open-findings-schema-upgrades-and-landing.md) |
+| Real PostgreSQL gate | `make postgres-check` | Complete cutover protocol and worker recovery on isolated synthetic schemas | Passed after v5 in [0047](../../docs/work-items/0047-open-findings-schema-upgrades-and-landing.md); the later full run in [0048](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md) was not clean |
 | Phase E recovery demo | `make phase-e-demo` | Same effect and event recovery after a stop before local acknowledgement, plus pre-dispatch cancellation | Qualified in the [Phase E work item](../../docs/work-items/0011-p1-phase-e-effects-and-completion.md) |
 | Phase F worker demo | `make phase-f-demo` | Leased worker, restart and shutdown evidence without resetting retained state | Qualified: final gate in the [Phase F work item](../../docs/work-items/0012-p1-phase-f-leases-and-deployment.md) |
 | Local stack readiness and transport smoke | See the [local setup guide](../../local-setup/README.md) | Actual diagnostic text and audio; not configured STT, LLM or TTS quality or the product V1 release | Implemented |
@@ -457,6 +467,8 @@ The P1 V1 scope is complete for the local POC. Remaining P1 work:
 | Step | Outcome | Gate |
 | --- | --- | --- |
 | Maintain the completed P1 scope | The scope keeps its source-bound evidence | Source-bound acceptance, artifact and runtime gates |
+| Close the current PostgreSQL validation gap | A complete run establishes the current source's storage and recovery result | Full PostgreSQL lane; targeted reruns remain separate evidence |
+| Define post-dispatch reconciliation pacing | Temporary outages retain possible-effect truth while avoiding rapid attempt exhaustion | Separate design and actual outage/recovery qualification for P1-A2 |
 | Rerun P1-20 with `P1_PROVIDER_CA_BUNDLE` pointing at the owner's approved bundle | Closes the open P1-20 requalification finding | P1-20 provider_real deep-gate row |
 | Preserve historical H1 and phase evidence | No historical evidence is relabelled as a new measurement | Not applicable |
 | Qualify the local engine profile in future | local_real gains its own qualification | Its own declared run; provider evidence cannot qualify it |

@@ -1,0 +1,42 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, TurnHandlingOptions, MultilingualModel\n\nagent = Agent(\n  instructions=\"You are a dental clinic receptionist...\",\n  turn_handling=TurnHandlingOptions(\n      turn_detection=MultilingualModel(),\n  ),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, TurnHandlingOptions, MultilingualModel\n\nagent = Agent(\n  instructions=\"You are a dental clinic receptionist...\",\n  turn_handling=TurnHandlingOptions(\n      turn_detection=MultilingualModel(),\n      min_endpointing_delay=0.5,\n      max_endpointing_delay=1.5,\n  ),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, TurnHandlingOptions, MultilingualModel\n\nagent = Agent(\n  instructions=\"You are a dental clinic receptionist...\",\n  turn_handling=TurnHandlingOptions(\n      turn_detection=MultilingualModel(),\n      min_endpointing_delay=0.5,\n      max_endpointing_delay=1.5,\n      interruption_mode=\"adaptive\",\n  ),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, TurnHandlingOptions, MultilingualModel\n\nagent = Agent(\n  instructions=\"You are a dental clinic receptionist...\",\n  turn_handling=TurnHandlingOptions(\n      turn_detection=MultilingualModel(),\n      min_endpointing_delay=0.5,\n      max_endpointing_delay=1.5,\n      interruption_mode=\"adaptive\",\n      false_interruption_timeout=0.6,\n      resume_false_interruption=True,\n  ),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, TurnHandlingOptions, MultilingualModel\n\nclass DentalReceptionist(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are a friendly receptionist at Bright Smile Dental Clinic.\n          Help patients check availability and book appointments.\n          Be patient \u2014 callers may be nervous or distracted.\"\"\",\n          turn_handling=TurnHandlingOptions(\n              turn_detection=MultilingualModel(),\n              min_endpointing_delay=0.5,\n              max_endpointing_delay=1.5,\n              interruption_mode=\"adaptive\",\n              false_interruption_timeout=0.6,\n              resume_false_interruption=True,\n          ),\n      )\n\n  async def on_enter(self):\n      await self.session.generate_reply(\n          instructions=\"Greet the caller warmly and ask how you can help.\"\n      )"
+  }
+]

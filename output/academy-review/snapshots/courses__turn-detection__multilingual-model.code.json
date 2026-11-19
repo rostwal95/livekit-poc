@@ -1,0 +1,50 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, TurnDetectionOptions\n\nsession = AgentSession(\n  turn_detection=TurnDetectionOptions(\n      multilingual_model=True,\n      # Optional: hint the expected language\n      language=\"ja\",\n  ),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession } from \"@livekit/agents\";\n\nconst session = new AgentSession({\nturnDetection: {\n  multilingualModel: true,\n  // Optional: hint the expected language\n  language: \"ja\",\n},\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import TurnDetectionOptions\n\n# English \u2014 standard timing\nenglish_config = TurnDetectionOptions(\n  multilingual_model=True,\n  language=\"en\",\n  min_endpointing_delay=0.5,\n  max_endpointing_delay=1.0,\n)\n\n# Japanese \u2014 longer natural pauses\njapanese_config = TurnDetectionOptions(\n  multilingual_model=True,\n  language=\"ja\",\n  min_endpointing_delay=0.8,\n  max_endpointing_delay=1.5,\n)\n\n# Spanish \u2014 faster turn-taking\nspanish_config = TurnDetectionOptions(\n  multilingual_model=True,\n  language=\"es\",\n  min_endpointing_delay=0.3,\n  max_endpointing_delay=0.8,\n)\n\n# Arabic \u2014 moderate pauses, different conversational pacing\narabic_config = TurnDetectionOptions(\n  multilingual_model=True,\n  language=\"ar\",\n  min_endpointing_delay=0.6,\n  max_endpointing_delay=1.2,\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "// English \u2014 standard timing\nconst englishConfig = {\nmultilingualModel: true,\nlanguage: \"en\",\nminEndpointingDelay: 0.5,\nmaxEndpointingDelay: 1.0,\n};\n\n// Japanese \u2014 longer natural pauses\nconst japaneseConfig = {\nmultilingualModel: true,\nlanguage: \"ja\",\nminEndpointingDelay: 0.8,\nmaxEndpointingDelay: 1.5,\n};\n\n// Spanish \u2014 faster turn-taking\nconst spanishConfig = {\nmultilingualModel: true,\nlanguage: \"es\",\nminEndpointingDelay: 0.3,\nmaxEndpointingDelay: 0.8,\n};\n\n// Arabic \u2014 moderate pauses\nconst arabicConfig = {\nmultilingualModel: true,\nlanguage: \"ar\",\nminEndpointingDelay: 0.6,\nmaxEndpointingDelay: 1.2,\n};"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, TurnDetectionOptions\n\n# Do not set a language hint \u2014 let the model adapt\nsession = AgentSession(\n  turn_detection=TurnDetectionOptions(\n      multilingual_model=True,\n      # No language hint \u2014 model adapts dynamically\n  ),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.plugins.silero import VAD\nfrom livekit.agents import AgentSession, TurnDetectionOptions\n\n# Tune VAD for noisy environment\nvad = VAD.load(\n  min_speaking_duration=0.3,\n  padding_duration=0.4,\n)\n\n# Enable multilingual turn detection\nsession = AgentSession(\n  vad=vad,\n  turn_detection=TurnDetectionOptions(\n      multilingual_model=True,\n      language=\"ja\",\n      min_endpointing_delay=0.8,\n      max_endpointing_delay=1.5,\n  ),\n)"
+  }
+]

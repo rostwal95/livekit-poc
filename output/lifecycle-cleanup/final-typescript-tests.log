@@ -1,0 +1,42 @@
+$ pnpm --fail-if-no-match --filter @livekit-ecosystem/local-console test && pnpm --fail-if-no-match --filter @livekit-ecosystem/channel-continuity test && pnpm --fail-if-no-match --filter @livekit-ecosystem/delegation-specialist test && pnpm --fail-if-no-match --filter @livekit-ecosystem/channel-policy-gateway test
+$ pnpm --filter @livekit-ecosystem/channel-continuity build && vitest run
+$ tsc --project tsconfig.json && tsc --project tsconfig.examples.json && tsc --project tsconfig.starter.json
+
+ RUN  v5.1.0 /Users/rostwal/Downloads/livekit-poc/apps/local-console
+
+
+ Test Files  25 passed (25)
+      Tests  729 passed (729)
+   Start at  16:24:36
+   Duration  1.98s (tests 56%, transform 22%, import 17%, worker 5%)
+
+$ vitest run
+
+ RUN  v5.1.0 /Users/rostwal/Downloads/livekit-poc/projects/channel-continuity
+
+
+ Test Files  44 passed (44)
+      Tests  912 passed (912)
+   Start at  16:24:38
+   Duration  5.60s (tests 61%, import 25%, transform 14%)
+
+$ vitest run
+
+ RUN  v5.1.0 /Users/rostwal/Downloads/livekit-poc/projects/delegation-reliability/specialist-ts
+
+
+ Test Files  11 passed (11)
+      Tests  188 passed (188)
+   Start at  16:24:44
+   Duration  2.73s (tests 86%, transform 10%, import 4%)
+
+$ vitest run
+
+ RUN  v5.1.0 /Users/rostwal/Downloads/livekit-poc/services/channel-policy-gateway
+
+
+ Test Files  17 passed (17)
+      Tests  243 passed (243)
+   Start at  16:24:47
+   Duration  3.44s (tests 61%, transform 30%, import 9%)
+

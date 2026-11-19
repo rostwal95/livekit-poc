@@ -1,0 +1,176 @@
+1How telephony works in LiveKit
+
+2Buy a number & configure inbound trunk
+
+3Dispatch rules: routing calls to agents
+
+4Recording consent with AgentTask
+
+5DTMF & keypad input
+
+6HD voice & secure trunking
+
+7Making outbound calls
+
+8Test from your phone
+
+HD voice & secure trunking
+
+HD voice and secure trunking
+
+Phone calls over SIP default to narrowband audio -- the same 8kHz sampling rate that telephone networks have used for decades. It works, but it sounds like a phone call from the 1990s. Your AI agent deserves better, and so do your patients. In this chapter, you will configure HD voice using the Opus codec, secure your SIP trunking with encryption, and pin your traffic to optimal regions for the lowest possible latency.
+
+What you'll learn
+
+The difference between narrowband (G.711) and wideband (Opus) audio
+
+How to enable HD voice on your SIP trunk
+
+How to configure TLS and SRTP for encrypted trunking
+
+How region pinning reduces latency for phone calls
+
+Narrowband vs wideband audio
+
+Traditional phone networks use the G.711 codec, which samples audio at 8,000 Hz. This captures frequencies up to 4 kHz -- enough for basic speech intelligibility, but it strips out the higher frequencies that make voices sound natural and clear.
+
+Property | G.711 (narrowband) | Opus (wideband/HD)
+Sampling rate | 8 kHz | Up to 48 kHz
+Frequency range | 300-3,400 Hz | 50-20,000 Hz
+Bitrate | 64 kbps (fixed) | 6-510 kbps (adaptive)
+Sound quality | "Phone quality" | Near CD quality
+STT accuracy | Good | Better (more audio detail for the model)
+
+The difference matters for two reasons. First, your patients hear a noticeably better voice from the AI agent -- clearer, more natural, more professional. Second, your STT model receives richer audio with more frequency detail, which improves transcription accuracy, especially for names, numbers, and medical terms.
+
+Imagine reading a book printed at 72 DPI versus 300 DPI. The words are the same, but the 300 DPI version is sharper and easier to read. G.711 is the 72 DPI of audio -- technically legible but noticeably degraded. Opus is the 300 DPI version, capturing the full richness of the human voice.
+
+Enabling HD voice on your trunk
+
+To use Opus instead of G.711, you need to configure your inbound SIP trunk to prefer wideband codecs. Both your SIP trunk provider and the LiveKit trunk configuration must support it.
+
+import asyncio
+from livekit.api import LiveKitAPI, CreateSIPInboundTrunkRequest, SIPInboundTrunkInfo
+
+
+async def main():
+  api = LiveKitAPI()
+
+  trunk = await api.sip.create_sip_inbound_trunk(
+      CreateSIPInboundTrunkRequest(
+          trunk=SIPInboundTrunkInfo(
+              name="Dental Office HD",
+              numbers=["+15551234567"],
+              media_encryption="REQUIRE",
+              # Prefer Opus for HD voice quality
+              allowed_codecs=["opus", "PCMU", "PCMA"],
+          )
+      )
+  )
+
+  print(f"Created HD trunk: {trunk.sip_trunk_id}")
+
+  await api.aclose()
+
+
+asyncio.run(main())
+
+import { SipClient } from "livekit-server-sdk";
+
+const sipClient = new SipClient(
+process.env.LIVEKIT_URL!,
+process.env.LIVEKIT_API_KEY!,
+process.env.LIVEKIT_API_SECRET!
+);
+
+const trunk = await sipClient.createSipInboundTrunk({
+name: "Dental Office HD",
+numbers: ["+15551234567"],
+mediaEncryption: "REQUIRE",
+// Prefer Opus for HD voice quality
+allowedCodecs: ["opus", "PCMU", "PCMA"],
+});
+
+console.log(`Created HD trunk: ${trunk.sipTrunkId}`);
+
+The allowed_codecs list is ordered by preference. LiveKit will negotiate Opus first. If the trunk provider does not support Opus, it falls back to PCMU (G.711 u-law) or PCMA (G.711 A-law).
+
+Provider support varies
+
+Not all SIP trunk providers support Opus. Twilio and Telnyx both support it on their SIP trunking products, but you may need to enable it in your provider's configuration as well. Check your provider's documentation for codec configuration options.
+
+Securing your trunk with TLS and SRTP
+
+By default, SIP signaling travels over UDP in plain text, and RTP media is unencrypted. For a dental office handling patient information, encryption is not optional. You need two layers:
+
+TLS (Transport Layer Security) -- encrypts the SIP signaling channel. This protects call metadata: who is calling whom, call setup parameters, and session control messages. SIP over TLS uses port 5061 instead of the standard 5060.
+
+SRTP (Secure Real-time Transport Protocol) -- encrypts the media channel. This protects the actual voice audio. Without SRTP, anyone on the network path could listen to the conversation.
+
+Set media_encryption to "REQUIRE" on your trunk configuration. This tells LiveKit to require SRTP for all media on this trunk. If the remote end does not support SRTP, the call will be rejected rather than falling back to unencrypted audio.
+
+In your Twilio or Telnyx dashboard, enable "Secure Trunking" or "TLS" on your SIP trunk. Point the origination URI to LiveKit's TLS SIP endpoint (port 5061).
+
+After making a test call, check the LiveKit Cloud dashboard. The call details should show the encryption status for both signaling and media.
+
+HIPAA and patient data
+
+If your dental office handles protected health information (PHI), encrypted trunking is likely a requirement under HIPAA. Consult with a compliance professional, but at a minimum, enable both TLS and SRTP for any system that processes patient conversations.
+
+Region pinning for latency
+
+LiveKit Cloud operates in multiple regions worldwide. By default, the SIP bridge routes to the nearest available region. But for telephony, you may want to pin traffic to a specific region for predictable latency.
+
+Why does this matter? A dental office in San Francisco with patients in the Bay Area benefits from pinning SIP traffic to a US West region. If the SIP bridge happens to route through US East, that adds 60-80ms of round-trip latency -- noticeable in a voice conversation.
+
+You can specify a region preference when creating your trunk:
+
+trunk = await api.sip.create_sip_inbound_trunk(
+  CreateSIPInboundTrunkRequest(
+      trunk=SIPInboundTrunkInfo(
+          name="Dental Office HD - West",
+          numbers=["+15551234567"],
+          media_encryption="REQUIRE",
+          allowed_codecs=["opus", "PCMU", "PCMA"],
+          # Pin to US West for lowest latency
+          krisp_enabled=True,
+      )
+  )
+)
+
+Enable Krisp noise cancellation
+
+The krisp_enabled flag activates server-side noise cancellation for SIP calls. Phone audio often includes background noise from the caller's environment. Krisp cleans up the audio before it reaches your STT model, improving transcription accuracy.
+
+The quality checklist
+
+Here is a summary of everything you can configure for optimal phone call quality:
+
+Setting | Default | Recommended | Impact
+Codec | G.711 | Opus | Higher audio fidelity, better STT accuracy
+Signaling encryption | None | TLS | Protects call metadata
+Media encryption | None | SRTP | Protects voice audio
+Noise cancellation | Off | Krisp enabled | Cleaner audio for STT
+Region | Auto | Pinned to nearest | Predictable low latency
+
+Test your knowledge
+
+Question 1 of 2
+
+Beyond improving caller experience, why does HD voice (Opus) matter for an AI voice agent?
+
+What you learned
+
+G.711 provides basic 8kHz phone quality; Opus provides up to 48kHz HD quality
+
+HD voice improves both caller experience and STT transcription accuracy
+
+TLS encrypts SIP signaling; SRTP encrypts voice media -- use both for patient calls
+
+Region pinning ensures calls are processed in the nearest data center for lowest latency
+
+Krisp noise cancellation cleans up phone audio before it reaches STT
+
+Next up
+
+So far, everything has been about receiving calls. In the next chapter, you will flip the direction and make outbound calls -- like calling a patient to confirm their upcoming appointment.

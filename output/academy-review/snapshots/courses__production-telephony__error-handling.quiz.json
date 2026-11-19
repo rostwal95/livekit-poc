@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why should retry logic use exponential backoff with jitter instead of fixed-interval retries?",
+    "options": [
+      "Because fixed-interval retries from many simultaneous failures create thundering herd problems that worsen overload, while backoff with jitter spreads retries out",
+      "Because it reduces API costs by spacing out retries",
+      "Because SIP trunks reject fixed-interval retry patterns",
+      "Because exponential backoff is faster than fixed intervals"
+    ],
+    "correctIndex": 0,
+    "explanation": "When many calls fail simultaneously (e.g., during a trunk overload), fixed-interval retries cause all calls to retry at the same moment, creating a thundering herd that makes the overload worse. Exponential backoff increases the wait between attempts, and jitter adds randomness so retries are spread over time."
+  },
+  {
+    "question": "What is the purpose of the circuit breaker pattern in fallback routing?",
+    "options": [
+      "To limit the total number of calls placed per day",
+      "To encrypt SIP traffic between trunks",
+      "To reduce the latency of individual call attempts",
+      "To mark a trunk as unhealthy after consecutive failures so no calls are wasted on a known-bad route, routing to a backup trunk instead"
+    ],
+    "correctIndex": 3,
+    "explanation": "The circuit breaker pattern tracks consecutive failures per trunk. After a configurable threshold (e.g., 3 failures), the trunk is marked unhealthy and removed from routing. This prevents wasting time and trunk capacity on a known-bad route, allowing calls to immediately route through a healthy backup trunk."
+  },
+  {
+    "question": "A SIP trunk returns a 486 Busy Here error. How should your system handle this differently from a 503 Service Unavailable?",
+    "options": [
+      "Neither error should trigger any retry \u2014 both are permanent failures",
+      "Both errors should be handled identically with immediate retries",
+      "486 should switch to a fallback trunk, while 503 should retry the same trunk",
+      "486 means the specific callee is busy (retry may work soon), while 503 means the trunk or carrier has a systemic problem (switch to a fallback trunk)"
+    ],
+    "correctIndex": 3,
+    "explanation": "A 486 Busy is a per-callee status meaning the specific person is on another call \u2014 retrying after a delay might succeed. A 503 Service Unavailable indicates the entire trunk or carrier is overloaded or down \u2014 retrying the same trunk will fail again. The correct response to 503 is to switch to a fallback trunk."
+  }
+]

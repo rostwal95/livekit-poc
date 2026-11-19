@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why is packet loss ratio the most critical metric for a self-hosted LiveKit deployment?",
+    "options": [
+      "It directly measures server CPU utilization",
+      "It counts the number of active rooms on each node",
+      "It measures Redis connection latency between nodes",
+      "It is the earliest indicator of problems -- rising before CPU saturation and before participants notice degraded quality"
+    ],
+    "correctIndex": 3,
+    "explanation": "Packet loss starts increasing before CPU maxes out and before participants notice quality issues. It reflects both network problems and server overload, making it the most actionable early warning signal."
+  },
+  {
+    "question": "How does LiveKit support API key rotation without downtime?",
+    "options": [
+      "It automatically generates new keys and distributes them via Redis",
+      "It supports multiple active key pairs simultaneously -- add the new key, deploy, then remove the old key after existing tokens expire",
+      "It uses a key escrow service that manages rotation transparently",
+      "Old tokens are automatically re-signed with the new key on first use"
+    ],
+    "correctIndex": 1,
+    "explanation": "LiveKit allows multiple API key/secret pairs in the config simultaneously. During rotation, add the new pair, deploy, migrate your token server to use the new key, then remove the old pair once existing tokens have expired. Zero downtime throughout."
+  },
+  {
+    "question": "Why does WebRTC media not require additional TLS configuration in a LiveKit deployment?",
+    "options": [
+      "WebRTC mandates DTLS-SRTP encryption at the protocol level, so media is always encrypted between client and server",
+      "The reverse proxy handles media encryption automatically",
+      "Media packets are too small to encrypt efficiently",
+      "UDP traffic cannot use TLS"
+    ],
+    "correctIndex": 0,
+    "explanation": "WebRTC requires DTLS-SRTP as part of the protocol specification. Audio and video packets are always encrypted between the client and LiveKit server, regardless of your TLS configuration. Even captured UDP packets cannot be decoded without session keys."
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why are participant attributes better suited for agent state (like 'greeting' or 'booking') than text streams?",
+    "options": [
+      "Attributes can hold larger payloads than streams",
+      "Attributes persist for the session duration and are visible to all participants, while streams are fire-and-forget messages",
+      "Attributes are encrypted while streams are not",
+      "Attributes are faster than text streams"
+    ],
+    "correctIndex": 1,
+    "explanation": "Participant attributes persist and are visible to all room participants for the life of the session, making them ideal for ongoing state like UI mode. Text streams are one-time messages that are consumed when received -- they don't persist for late-joining participants or continuous display."
+  },
+  {
+    "question": "What is the architectural benefit of the agent sending data via streams and attributes rather than encoding everything in the audio response?",
+    "options": [
+      "Audio cannot carry structured data under any circumstances",
+      "Streams are required for the LLM to generate responses",
+      "Audio responses have a maximum length limit",
+      "It enables separation of concerns -- the agent handles logic, the frontend handles presentation, and neither needs to know the other's implementation"
+    ],
+    "correctIndex": 3,
+    "explanation": "The data plane enables separation of concerns. The agent publishes streams and attributes without knowing whether the frontend is React, mobile, or a CLI. The frontend subscribes to the topics it needs. This decoupling means either side can change independently."
+  },
+  {
+    "question": "When sending a booking confirmation, why does the agent use stream_text() with a topic rather than just speaking the confirmation?",
+    "options": [
+      "Text streams are required before the agent can speak",
+      "Text streams provide a written record that the frontend can display, save, or process -- audio alone is ephemeral and cannot be easily rendered as persistent UI",
+      "The TTS engine cannot handle booking details",
+      "Speaking confirmations violates HIPAA regulations"
+    ],
+    "correctIndex": 1,
+    "explanation": "Audio is ephemeral -- once spoken, it's gone. A text stream delivers structured data that the frontend can render as a card, save to the user's device, or persist for later reference. The agent can do both: speak the confirmation AND send the data stream."
+  }
+]

@@ -64,28 +64,32 @@ and an independently verified release index.
 ### Implemented behavior
 
 - The original SQLite M1 investigation contract remains preserved.
-- The PostgreSQL v4 path implements exact case, quote and confirmation handling,
+- The PostgreSQL v4/v5 path implements exact case, quote and confirmation handling,
   continuation, supplier-effect reconciliation, cancellation, completion delivery,
-  leases and bounded worker deployment.
+  leases and bounded worker deployment. The explicit v5 upgrade adds persisted
+  mutation retry due time.
 - Native and controller consumers share that single authority through the
   standalone typed Python package.
 
 ### Qualification evidence
 
-The final 20-case index, the current P1-18, P1-14 and P1-20 runs, full H2, real
+The final 20-case index, the then-current P1-18, P1-14 and P1-20 runs, full H2, real
 PostgreSQL, installed host/Linux artifacts and shared quality gates passed with
 independent reviews. The registered scripted, reliability and provider-media gates
 also passed.
 
 The [release work item](../work-items/0019-p1-phase-h-release-qualification.md)
-owns the exact current evidence. Earlier phase and H1 snapshots, like other
-historical checkpoints, retain their original scope.
+owns that release evidence. The later
+[v5 requalification](../work-items/0047-open-findings-schema-upgrades-and-landing.md)
+passed BASE-01 and P1-01 through P1-19. Its fresh P1-20 provider rerun remains open
+with the approved certificate bundle prerequisite. Earlier passing reports retain
+their original source and profile scope.
 
 ### Remaining work and limits
 
 - The independent local_real profile remains unqualified.
-- P2, P3 and the integrated three-project release remain planned. Complete P2/P3
-  acceptance remains pending.
+- P2 and P3 are partially implemented; their complete acceptance and the
+  integrated three-project release remain pending.
 - Hosted continuous integration (CI) and publication are outside this local proof
   of concept (POC).
 

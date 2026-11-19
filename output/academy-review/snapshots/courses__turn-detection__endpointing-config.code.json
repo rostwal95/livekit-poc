@@ -1,0 +1,34 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, TurnDetectionOptions\n\nsession = AgentSession(\n  turn_detection=TurnDetectionOptions(\n      min_endpointing_delay=0.5,\n      max_endpointing_delay=1.0,\n  ),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession } from \"@livekit/agents\";\n\nconst session = new AgentSession({\nturnDetection: {\n  minEndpointingDelay: 0.5,\n  maxEndpointingDelay: 1.0,\n},\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import TurnDetectionOptions\n\n# Quick Q&A bot \u2014 speed is everything\nquick_qa = TurnDetectionOptions(\n  min_endpointing_delay=0.3,\n  max_endpointing_delay=0.6,\n)\n\n# Customer service \u2014 balanced responsiveness\ncustomer_service = TurnDetectionOptions(\n  min_endpointing_delay=0.5,\n  max_endpointing_delay=1.0,\n)\n\n# Medical intake \u2014 never rush the patient\nmedical_intake = TurnDetectionOptions(\n  min_endpointing_delay=0.8,\n  max_endpointing_delay=1.5,\n)\n\n# Elderly users \u2014 extra patience for slower speech\nelderly_friendly = TurnDetectionOptions(\n  min_endpointing_delay=1.0,\n  max_endpointing_delay=2.0,\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "// Quick Q&A bot \u2014 speed is everything\nconst quickQa = {\nminEndpointingDelay: 0.3,\nmaxEndpointingDelay: 0.6,\n};\n\n// Customer service \u2014 balanced responsiveness\nconst customerService = {\nminEndpointingDelay: 0.5,\nmaxEndpointingDelay: 1.0,\n};\n\n// Medical intake \u2014 never rush the patient\nconst medicalIntake = {\nminEndpointingDelay: 0.8,\nmaxEndpointingDelay: 1.5,\n};\n\n// Elderly users \u2014 extra patience for slower speech\nconst elderlyFriendly = {\nminEndpointingDelay: 1.0,\nmaxEndpointingDelay: 2.0,\n};"
+  }
+]

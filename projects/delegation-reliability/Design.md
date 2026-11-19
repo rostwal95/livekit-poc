@@ -2063,7 +2063,9 @@ playback path.
 - The one run_once task is shielded from the SDK tool. SDK CANCELLABLE ends a
   waiter, not P1 work. Tool termination or a done wrapper cannot free the
   reservation while public pending counts remain nonzero.
-- After actual settlement, repeat calls only inspect the original facts.
+- Once acceptance may have succeeded, repeat calls inspect the original facts.
+  A definite initial submit-capacity rejection permits a later explicit call with
+  the same frozen request and command; it creates no automatic retry.
 - There is no background queue, retry, source ACK or automatic polling loop.
 
 #### Observation

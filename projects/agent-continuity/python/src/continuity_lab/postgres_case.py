@@ -55,7 +55,10 @@ Connection = psycopg.Connection[dict[str, Any]]
 
 
 def _event(event: str) -> None:
-    LOGGER.info(event, extra={"event": event, "code": "ok"})
+    try:
+        LOGGER.info(event, extra={"event": event, "code": "ok"})
+    except Exception:  # noqa: BLE001 - telemetry cannot alter committed state or failures
+        return
 
 
 def _actor(actor: AuthenticatedActor) -> AuthenticatedActor:

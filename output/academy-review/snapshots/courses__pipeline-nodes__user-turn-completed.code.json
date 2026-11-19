@@ -1,0 +1,66 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent\n\n\nclass MyAgent(Agent):\n  async def on_user_turn_completed(self, turn_ctx):\n      \"\"\"Called after the user finishes speaking, before LLM processing.\"\"\"\n      # Access the user's message\n      user_message = turn_ctx.user_message\n\n      # Add context, modify the message, or block the response\n      # ...\n\n      # Call the default to continue the pipeline\n      await Agent.default.on_user_turn_completed(self, turn_ctx)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent } from \"@livekit/agents\";\n\nclass MyAgent extends Agent {\nasync onUserTurnCompleted(turnCtx: TurnContext) {\n  // Access the user's message\n  const userMessage = turnCtx.userMessage;\n\n  // Add context, modify the message, or block the response\n  // ...\n\n  // Call the default to continue the pipeline\n  await Agent.default.onUserTurnCompleted(this, turnCtx);\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent\nimport logging\nimport numpy as np\n\nlogger = logging.getLogger(\"rag-agent\")\n\n\nclass RAGAgent(Agent):\n  def __init__(self, knowledge_base):\n      super().__init__(\n          instructions=\"\"\"You are a knowledgeable support assistant.\nWhen context is provided, use it to answer accurately.\nIf the context does not contain the answer, say so honestly.\nDo not make up information.\"\"\",\n      )\n      self.knowledge_base = knowledge_base\n\n  async def on_user_turn_completed(self, turn_ctx):\n      \"\"\"Inject relevant context from the knowledge base.\"\"\"\n      user_message = turn_ctx.user_message\n      logger.info(f\"User message: {user_message}\")\n\n      # Search for relevant documents\n      results = await self.search_knowledge_base(user_message)\n\n      if results:\n          # Format the context for injection\n          context_text = self.format_context(results)\n          logger.info(f\"Injecting {len(results)} context chunks\")\n\n          # Add as a system message \u2014 LLM sees it, user does not\n          turn_ctx.add_system_message(\n              f\"Relevant context from the knowledge base:\\n\\n{context_text}\"\n          )\n      else:\n          logger.info(\"No relevant context found\")\n\n      # Continue the pipeline\n      await Agent.default.on_user_turn_completed(self, turn_ctx)\n\n  async def search_knowledge_base(\n      self, query: str, top_k: int = 3, threshold: float = 0.7\n  ) -> list[dict]:\n      \"\"\"Search the vector database for relevant documents.\"\"\"\n      # Generate embedding for the query\n      query_embedding = await self.knowledge_base.embed(query)\n\n      # Search for similar documents\n      results = await self.knowledge_base.search(\n          embedding=query_embedding,\n          top_k=top_k,\n      )\n\n      # Filter by similarity threshold\n      return [r for r in results if r[\"score\"] >= threshold]\n\n  def format_context(self, results: list[dict]) -> str:\n      \"\"\"Format search results into a context string.\"\"\"\n      chunks = []\n      for i, result in enumerate(results, 1):\n          source = result.get(\"source\", \"unknown\")\n          text = result[\"text\"]\n          score = result[\"score\"]\n          chunks.append(\n              f\"[Source {i}: {source} (relevance: {score:.2f})]\\n{text}\"\n          )\n      return \"\\n\\n\".join(chunks)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent } from \"@livekit/agents\";\n\nclass RAGAgent extends Agent {\nprivate knowledgeBase: KnowledgeBase;\n\nconstructor(knowledgeBase: KnowledgeBase) {\n  super({\n    instructions: `You are a knowledgeable support assistant.\nWhen context is provided, use it to answer accurately.\nIf the context does not contain the answer, say so honestly.\nDo not make up information.`,\n  });\n  this.knowledgeBase = knowledgeBase;\n}\n\nasync onUserTurnCompleted(turnCtx: TurnContext) {\n  const userMessage = turnCtx.userMessage;\n  console.log(`User message: ${userMessage}`);\n\n  const results = await this.searchKnowledgeBase(userMessage);\n\n  if (results.length > 0) {\n    const contextText = this.formatContext(results);\n    console.log(`Injecting ${results.length} context chunks`);\n\n    turnCtx.addSystemMessage(\n      `Relevant context from the knowledge base:\\n\\n${contextText}`\n    );\n  } else {\n    console.log(\"No relevant context found\");\n  }\n\n  await Agent.default.onUserTurnCompleted(this, turnCtx);\n}\n\nprivate async searchKnowledgeBase(\n  query: string,\n  topK = 3,\n  threshold = 0.7\n): Promise<SearchResult[]> {\n  const queryEmbedding = await this.knowledgeBase.embed(query);\n\n  const results = await this.knowledgeBase.search({\n    embedding: queryEmbedding,\n    topK,\n  });\n\n  return results.filter((r) => r.score >= threshold);\n}\n\nprivate formatContext(results: SearchResult[]): string {\n  return results\n    .map(\n      (r, i) =>\n        `[Source ${i + 1}: ${r.source ?? \"unknown\"} (relevance: ${r.score.toFixed(2)})]\\n${r.text}`\n    )\n    .join(\"\\n\\n\");\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.plugins import openai\nimport aiohttp\n\n\nclass KnowledgeBase:\n  def __init__(self, vector_store_url: str):\n      self.vector_store_url = vector_store_url\n      self.embedder = openai.Embeddings(model=\"text-embedding-3-small\")\n\n  async def embed(self, text: str) -> list[float]:\n      \"\"\"Generate an embedding vector for the given text.\"\"\"\n      result = await self.embedder.embed(text)\n      return result\n\n  async def search(\n      self, embedding: list[float], top_k: int = 3\n  ) -> list[dict]:\n      \"\"\"Search the vector store for similar documents.\"\"\"\n      async with aiohttp.ClientSession() as session:\n          async with session.post(\n              f\"{self.vector_store_url}/search\",\n              json={\"embedding\": embedding, \"top_k\": top_k},\n          ) as resp:\n              data = await resp.json()\n              return data[\"results\"]"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { openai } from \"@livekit/plugins-openai\";\n\nclass KnowledgeBase {\nprivate vectorStoreUrl: string;\nprivate embedder: openai.Embeddings;\n\nconstructor(vectorStoreUrl: string) {\n  this.vectorStoreUrl = vectorStoreUrl;\n  this.embedder = new openai.Embeddings({ model: \"text-embedding-3-small\" });\n}\n\nasync embed(text: string): Promise<number[]> {\n  return await this.embedder.embed(text);\n}\n\nasync search(params: {\n  embedding: number[];\n  topK: number;\n}): Promise<SearchResult[]> {\n  const resp = await fetch(`${this.vectorStoreUrl}/search`, {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    body: JSON.stringify({\n      embedding: params.embedding,\n      top_k: params.topK,\n    }),\n  });\n  const data = await resp.json();\n  return data.results;\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, StopResponse\nimport logging\n\nlogger = logging.getLogger(\"gated-agent\")\n\n\nclass GatedRAGAgent(Agent):\n  \"\"\"Only responds when relevant context is found.\"\"\"\n\n  def __init__(self, knowledge_base):\n      super().__init__(\n          instructions=\"You are a product support assistant. Only answer questions about our product.\",\n      )\n      self.knowledge_base = knowledge_base\n\n  async def on_user_turn_completed(self, turn_ctx):\n      user_message = turn_ctx.user_message\n\n      results = await self.search_knowledge_base(user_message)\n\n      if not results:\n          logger.info(f\"No context found for: {user_message}\")\n          # Option 1: Stop the response entirely\n          # raise StopResponse()\n\n          # Option 2: Let the LLM respond but without context\n          turn_ctx.add_system_message(\n              \"No relevant context was found in the knowledge base. \"\n              \"Politely let the user know you can only answer questions \"\n              \"about our product, and suggest they rephrase their question.\"\n          )\n      else:\n          context_text = self.format_context(results)\n          turn_ctx.add_system_message(\n              f\"Relevant context:\\n\\n{context_text}\"\n          )\n\n      await Agent.default.on_user_turn_completed(self, turn_ctx)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, StopResponse } from \"@livekit/agents\";\n\nclass GatedRAGAgent extends Agent {\nprivate knowledgeBase: KnowledgeBase;\n\nconstructor(knowledgeBase: KnowledgeBase) {\n  super({\n    instructions:\n      \"You are a product support assistant. Only answer questions about our product.\",\n  });\n  this.knowledgeBase = knowledgeBase;\n}\n\nasync onUserTurnCompleted(turnCtx: TurnContext) {\n  const userMessage = turnCtx.userMessage;\n  const results = await this.searchKnowledgeBase(userMessage);\n\n  if (results.length === 0) {\n    console.log(`No context found for: ${userMessage}`);\n    // Option 1: Stop the response entirely\n    // throw new StopResponse();\n\n    // Option 2: Let the LLM respond but without context\n    turnCtx.addSystemMessage(\n      \"No relevant context was found in the knowledge base. \" +\n        \"Politely let the user know you can only answer questions \" +\n        \"about our product, and suggest they rephrase their question.\"\n    );\n  } else {\n    const contextText = this.formatContext(results);\n    turnCtx.addSystemMessage(`Relevant context:\\n\\n${contextText}`);\n  }\n\n  await Agent.default.onUserTurnCompleted(this, turnCtx);\n}\n}"
+  }
+]

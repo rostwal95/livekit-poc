@@ -1,0 +1,31 @@
+1Architecture & fundamentals
+
+2Voice pipeline mastery
+
+3Agent design & tools
+
+4Telephony & contact centers
+
+5Frontend SDK & client integration
+
+6Production, deployment & scaling
+
+7Integrations & ecosystem
+
+8Scenario-based consulting
+
+Architecture & fundamentals
+
+Certification: Architecture & Fundamentals
+
+This section tests your understanding of LiveKit's core architecture — the infrastructure layer that powers every voice agent, video call, and real-time application. You must understand WebRTC, the SFU model, rooms, participants, tracks, and how they compose to build real-time systems.
+
+Certification exam
+
+Each question tests a concept you would need to explain to a client or use in a system design discussion. There are no trick questions — the goal is to verify deep understanding, not memorization.
+
+Test your knowledge
+
+Question 1 of 5
+
+A client asks: 'Why does LiveKit use an SFU instead of peer-to-peer WebRTC for voice agents?' What is the correct explanation?

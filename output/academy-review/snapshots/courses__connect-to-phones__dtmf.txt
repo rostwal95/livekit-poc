@@ -1,0 +1,272 @@
+1How telephony works in LiveKit
+
+2Buy a number & configure inbound trunk
+
+3Dispatch rules: routing calls to agents
+
+4Recording consent with AgentTask
+
+5DTMF & keypad input
+
+6HD voice & secure trunking
+
+7Making outbound calls
+
+8Test from your phone
+
+DTMF & keypad input
+
+DTMF and keypad input
+
+Your dental receptionist handles everything through voice conversation, and that works well for most interactions. But phone callers also expect to interact by pressing keys -- "Press 1 for appointments, press 2 for office hours." In this chapter, you will learn how DTMF tones work, how to receive keypad input from SIP participants, and how to build a phone menu using the GetDtmfTask prebuilt task.
+
+What you'll learn
+
+What DTMF is and how it works on the phone network
+
+How to enable DTMF event forwarding for SIP participants
+
+How to use the GetDtmfTask prebuilt task to collect keypad input
+
+How to build a phone menu with numbered options
+
+What is DTMF?
+
+DTMF stands for Dual-Tone Multi-Frequency. When you press a key on a phone keypad, the phone generates two simultaneous tones -- one from a low-frequency group and one from a high-frequency group. The combination uniquely identifies which key was pressed.
+
+ | 1209 Hz | 1336 Hz | 1477 Hz | 1633 Hz
+697 Hz | 1 | 2 | 3 | A
+770 Hz | 4 | 5 | 6 | B
+852 Hz | 7 | 8 | 9 | C
+941 Hz | * | 0 | # | D
+
+When a phone caller presses "1" during a SIP call, the tone is detected by the SIP infrastructure and converted into a DTMF event. LiveKit can forward these events to your agent so you can react to keypad input programmatically.
+
+DTMF is a 60-year-old technology that still powers phone menus everywhere. When you call your bank and hear "Press 1 for account balance," you are using DTMF. Even though your dental receptionist is a conversational AI, supporting DTMF gives callers a familiar backup interaction method and enables specific workflows like PIN entry where voice is impractical.
+
+Enabling DTMF event forwarding
+
+By default, DTMF tones from SIP participants are not forwarded to the room as events. You need to enable this in your dispatch rule or trunk configuration so the agent can receive keypad input.
+
+When creating a dispatch rule, enable DTMF forwarding:
+
+from livekit.api import (
+  LiveKitAPI,
+  CreateSIPDispatchRuleRequest,
+  SIPDispatchRule,
+  SIPDispatchRuleIndividual,
+)
+
+api = LiveKitAPI()
+
+rule = await api.sip.create_sip_dispatch_rule(
+  CreateSIPDispatchRuleRequest(
+      rule=SIPDispatchRule(
+          dispatch_rule_individual=SIPDispatchRuleIndividual(
+              room_prefix="dental-"
+          ),
+          trunk_ids=["ST_xxxxxxxxxxxx"],
+      ),
+      attributes={"sip.sendDtmf": "true"},
+  )
+)
+
+import { SipClient } from "livekit-server-sdk";
+
+const sipClient = new SipClient(
+process.env.LIVEKIT_URL!,
+process.env.LIVEKIT_API_KEY!,
+process.env.LIVEKIT_API_SECRET!
+);
+
+const rule = await sipClient.createSipDispatchRule({
+rule: {
+  dispatchRuleIndividual: {
+    roomPrefix: "dental-",
+  },
+},
+trunkIds: ["ST_xxxxxxxxxxxx"],
+attributes: { "sip.sendDtmf": "true" },
+});
+
+DTMF events are room data messages
+
+When DTMF forwarding is enabled, each keypress arrives as a data message in the room. The GetDtmfTask prebuilt task handles parsing these events for you, so you do not need to listen for raw data messages manually.
+
+The GetDtmfTask prebuilt task
+
+LiveKit's Agents framework includes a prebuilt GetDtmfTask that handles the common pattern of prompting a caller for keypad input and collecting their response. It combines voice prompting with DTMF listening.
+
+Here is a simple phone menu:
+
+from livekit.agents import Agent, AgentSession, AgentServer
+from livekit.agents.prebuilt.tasks import GetDtmfTask
+from livekit.plugins import openai, deepgram, cartesia
+
+server = AgentServer()
+
+
+phone_menu = GetDtmfTask(
+  instructions="""Ask the caller to press 1 for appointments or 2 for office hours.
+  Wait for their keypad input. If they press 1, respond that you are transferring
+  them to appointment scheduling. If they press 2, tell them the office hours are
+  Monday through Friday, 8 AM to 5 PM.""",
+  send_dtmf_events=True,
+)
+
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  await session.start(
+      agent=Agent(
+          instructions="""You are a friendly receptionist at Bright Smile Dental clinic.
+          Keep responses brief and conversational.""",
+          tasks=[phone_menu],
+      ),
+      room=session.room,
+      stt=deepgram.STT(model="nova-3"),
+      llm=openai.LLM(model="gpt-4o-mini"),
+      tts=cartesia.TTS(voice="<voice-id>"),
+  )
+
+
+if __name__ == "__main__":
+  server.run()
+
+import { Agent, AgentSession, AgentServer } from "@livekit/agents";
+import { GetDtmfTask } from "@livekit/agents/prebuilt";
+import { DeepgramSTT } from "@livekit/agents-plugin-deepgram";
+import { OpenAILLM } from "@livekit/agents-plugin-openai";
+import { CartesiaTTS } from "@livekit/agents-plugin-cartesia";
+
+const phoneMenu = new GetDtmfTask({
+instructions: `Ask the caller to press 1 for appointments or 2 for office hours.
+  Wait for their keypad input. If they press 1, respond that you are transferring
+  them to appointment scheduling. If they press 2, tell them the office hours are
+  Monday through Friday, 8 AM to 5 PM.`,
+sendDtmfEvents: true,
+});
+
+const server = new AgentServer();
+
+server.rtcSession(async (session: AgentSession) => {
+await session.start({
+  agent: new Agent({
+    instructions: `You are a friendly receptionist at Bright Smile Dental clinic.
+      Keep responses brief and conversational.`,
+    tasks: [phoneMenu],
+  }),
+  room: session.room,
+  stt: new DeepgramSTT({ model: "nova-3" }),
+  llm: new OpenAILLM({ model: "gpt-4o-mini" }),
+  tts: new CartesiaTTS({ voice: "<voice-id>" }),
+});
+});
+
+server.run();
+
+The GetDtmfTask handles the mechanics: it prompts the caller using the instructions you provide, listens for DTMF events, and makes the pressed digit available to the LLM so it can respond appropriately.
+
+Combining consent and DTMF menu
+
+In a real dental office phone system, you might chain the consent task from the previous chapter with a DTMF menu. The caller first consents to recording, then navigates the phone menu, and finally reaches the main agent.
+
+from livekit.agents import Agent, AgentTask, AgentSession, AgentServer, function_tool
+from livekit.agents.prebuilt.tasks import GetDtmfTask
+from livekit.plugins import openai, deepgram, cartesia
+
+server = AgentServer()
+
+
+class CollectConsent(AgentTask):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are collecting recording consent from a caller.
+          Ask if they consent to being recorded. If they agree, call the
+          consent_given tool. If they refuse, call the consent_refused tool."""
+      )
+
+  @function_tool
+  async def consent_given(self, context):
+      """Called when the caller gives consent to recording."""
+      self.complete()
+
+  @function_tool
+  async def consent_refused(self, context):
+      """Called when the caller refuses consent to recording."""
+      await self.session.say("I understand. Goodbye.")
+      await self.session.room.disconnect()
+
+  async def on_enter(self):
+      await self.session.say(
+          "Thank you for calling Bright Smile Dental. "
+          "This call may be recorded. Do you consent?"
+      )
+
+
+phone_menu = GetDtmfTask(
+  instructions="""Ask the caller to press 1 for appointments or 2 for office hours.
+  Wait for their keypad input and respond accordingly.""",
+  send_dtmf_events=True,
+)
+
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  await session.start(
+      agent=Agent(
+          instructions="""You are a friendly receptionist at Bright Smile Dental.
+          Help callers with appointment inquiries and general questions.""",
+          tasks=[CollectConsent(), phone_menu],
+      ),
+      room=session.room,
+      stt=deepgram.STT(model="nova-3"),
+      llm=openai.LLM(model="gpt-4o-mini"),
+      tts=cartesia.TTS(voice="<voice-id>"),
+  )
+
+
+if __name__ == "__main__":
+  server.run()
+
+The task chain runs in order: CollectConsent -> GetDtmfTask -> main agent. Each task completes and hands off to the next.
+
+Voice and DTMF together
+
+The GetDtmfTask supports both voice and keypad input. If a caller says "appointments" instead of pressing 1, the LLM can still understand the intent and respond appropriately. DTMF is an additional input method, not a replacement for voice.
+
+Handling multi-digit input
+
+Sometimes you need more than a single keypress -- for example, collecting a patient ID number or a PIN. You can configure the task to wait for multiple digits:
+
+collect_patient_id = GetDtmfTask(
+  instructions="""Ask the caller to enter their 4-digit patient ID using their keypad,
+  followed by the pound key. Read back the number they entered to confirm.""",
+  send_dtmf_events=True,
+)
+
+Multi-digit DTMF input uses the # (pound/hash) key as a terminator, which is the standard convention on phone systems. The caller enters their digits and presses # to signal they are done. The task collects all digits and makes the full sequence available.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why must DTMF event forwarding be explicitly enabled on your dispatch rule or trunk configuration?
+
+What you learned
+
+DTMF (Dual-Tone Multi-Frequency) is the standard for phone keypad input
+
+DTMF event forwarding must be enabled on your dispatch rule or trunk configuration
+
+The GetDtmfTask prebuilt task handles prompting and collecting keypad input
+
+Tasks can be chained: consent -> phone menu -> main agent
+
+DTMF and voice input work together -- callers can speak or press keys
+
+Multi-digit input uses # as a terminator
+
+Next up
+
+Your phone system works, but the audio quality might not match what you are used to from WebRTC. In the next chapter, you will learn about HD voice, Opus codec configuration, and secure trunking to get the best possible call quality.

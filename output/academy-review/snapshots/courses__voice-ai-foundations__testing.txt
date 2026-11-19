@@ -1,0 +1,342 @@
+1What is voice AI? Why WebRTC matters
+
+2Project setup & your first agent
+
+3Understanding AgentSession
+
+4Writing great agent instructions
+
+5Adding your first tool: check availability
+
+6RunContext, state & the booking tool
+
+7Noise cancellation & room configuration
+
+8Testing your agent
+
+9Turn detection deep dive
+
+10Conversation context & multi-turn state
+
+11Beyond audio: the data plane
+
+12Deploy to LiveKit Cloud
+
+13Polish & production readiness
+
+Testing your agent
+
+Testing your agent
+
+You have been testing your dental receptionist by talking to it. That works for exploration, but it does not scale. Every time you change instructions, add a tool, or update a prompt, you would need to manually walk through every conversation path to make sure nothing broke. In this chapter, you will write automated behavioral tests using pytest that verify your agent greets callers correctly, calls the right tools, handles errors gracefully, and responds with appropriate intent — all without a microphone or a LiveKit room.
+
+How agent testing works
+
+LiveKit Agents can run in test mode. Instead of connecting to a room and processing real audio, you create an AgentSession, give it text input (simulating what the STT would produce), and inspect the output: what the agent said, what tools it called, and what arguments it used. No room, no audio, no network — just your agent logic running in a pytest function.
+
+The core flow is:
+
+Use AgentSession with session.run() to execute the agent against simulated user input. This returns a RunResult object containing everything the agent did.
+
+The RunResult provides an expect interface for asserting on the sequence of events: messages, function calls, and tool results. You chain assertions to describe the expected behavior.
+
+Exact string matching is brittle for LLM output — the agent might say "How can I help you?" or "What can I do for you today?" Instead, you use judge() with an LLM to evaluate whether the response matches an intent. This is behavioral testing, not string testing.
+
+Agent testing is closer to integration testing than unit testing. You are not testing that a function returns the right value — you are testing that a conversation produces the right behavior. The LLM is part of the system under test. This means tests are nondeterministic by nature, which is why judge() uses fuzzy intent matching rather than exact string comparison.
+
+Setting up pytest
+
+Install pytest and the async plugin if you have not already:
+
+pip install pytest pytest-asyncio
+
+Create a test file alongside your agent:
+
+touch test_agent.py
+
+Test 1: the agent greets and offers help
+
+The most basic test — does the agent respond to a greeting with something helpful?
+
+import pytest
+from livekit.agents import AgentSession, Agent
+from livekit.plugins import openai
+
+llm = openai.LLM(model="gpt-4o-mini")
+
+INSTRUCTIONS = """You are a friendly receptionist at Bright Smile Dental clinic.
+Keep responses brief and conversational. Never use markdown or emojis.
+
+When a caller asks about availability, use check_availability to look up
+real slots. Never guess or make up times.
+
+When a caller wants to book, collect their full name, preferred date, and
+preferred time slot. Then use book_appointment to complete the booking.
+
+After booking, ask if there is anything else you can help with."""
+
+
+@pytest.mark.asyncio
+async def test_greeting():
+  session = AgentSession()
+  result = await session.run(
+      agent=Agent(instructions=INSTRUCTIONS),
+      user_input="Hi, I'd like to schedule an appointment.",
+  )
+
+  await result.expect.next_event() \
+      .is_message(role="assistant") \
+      .judge(llm, intent="greets the user and asks how they can help or asks for details about the appointment")
+
+Let's break this down. session.run() simulates a single conversational turn: the user says "Hi, I'd like to schedule an appointment" and the agent responds. The result.expect chain asserts that the next event is an assistant message, and then judge() asks an LLM whether that message matches the intent "greets the user and asks how they can help or asks for details about the appointment."
+
+The judge() call is the key innovation. Instead of asserting response == "Hello! I'd be happy to help you schedule an appointment. What date works for you?", you describe the intent. The LLM evaluator decides whether the actual response matches. This makes tests resilient to phrasing variations while still catching behavioral regressions.
+
+judge() uses a real LLM call
+
+Every judge() assertion makes an LLM API call to evaluate the response. This means tests cost a small amount per run and are slower than pure unit tests. For a typical test suite of 10-20 tests, the cost is negligible and the runtime is a few seconds.
+
+Test 2: the agent calls check_availability
+
+Does the agent use the check_availability tool when asked about openings?
+
+from agent import check_availability, book_appointment
+
+
+@pytest.mark.asyncio
+async def test_check_availability_tool_called():
+  session = AgentSession()
+  result = await session.run(
+      agent=Agent(
+          instructions=INSTRUCTIONS,
+          tools=[check_availability, book_appointment],
+      ),
+      user_input="Do you have any openings next Tuesday?",
+  )
+
+  await result.expect.next_event() \
+      .is_function_call(name="check_availability")
+
+This test does not care what the agent says — it only checks that the agent decided to call check_availability. The .is_function_call(name="check_availability") assertion verifies the tool name. If the agent hallucinated an answer instead of calling the tool, this test fails.
+
+You can also assert on the arguments the LLM chose:
+
+@pytest.mark.asyncio
+async def test_check_availability_extracts_date():
+  session = AgentSession()
+  result = await session.run(
+      agent=Agent(
+          instructions=INSTRUCTIONS,
+          tools=[check_availability, book_appointment],
+      ),
+      user_input="What's available on March 15th?",
+  )
+
+  event = await result.expect.next_event() \
+      .is_function_call(name="check_availability")
+
+  assert "march" in event.arguments["date"].lower() or "15" in event.arguments["date"]
+
+Here you check that the LLM correctly extracted the date from the user's speech and passed it to the tool. The assertion is flexible — the LLM might pass "March 15th", "March 15", or "march 15" — but it should contain the relevant date information.
+
+Test 3: the agent handles ToolError gracefully
+
+What happens when a caller requests an invalid time slot? The book_appointment tool raises a ToolError, and the agent should communicate the failure helpfully.
+
+@pytest.mark.asyncio
+async def test_invalid_time_slot():
+  session = AgentSession()
+  result = await session.run(
+      agent=Agent(
+          instructions=INSTRUCTIONS,
+          tools=[check_availability, book_appointment],
+      ),
+      user_input="Book an appointment for Alex Rivera on next Tuesday at 10 AM.",
+  )
+
+  # The agent should attempt to book
+  await result.expect.next_event() \
+      .is_function_call(name="book_appointment")
+
+  # After the ToolError, the agent should suggest valid alternatives
+  await result.expect.next_event() \
+      .is_message(role="assistant") \
+      .judge(llm, intent="informs the user that 10 AM is not available and suggests alternative time slots")
+
+This test verifies the complete error recovery flow: the agent calls the tool, the tool fails with a ToolError, and the agent communicates the failure with helpful alternatives. If you changed your ToolError message to omit the available slots, this test would catch the regression.
+
+Test 4: mock tools for controlled scenarios
+
+Sometimes you want to test how the agent handles specific tool outcomes without running the real tool logic. mock_tools() lets you replace tool implementations for a single test:
+
+from livekit.agents import mock_tools, ToolError
+
+
+@pytest.mark.asyncio
+async def test_no_availability():
+  mocked = mock_tools({
+      "check_availability": lambda context, date: "No available slots for that date.",
+  })
+
+  session = AgentSession()
+  result = await session.run(
+      agent=Agent(
+          instructions=INSTRUCTIONS,
+          tools=mocked([check_availability, book_appointment]),
+      ),
+      user_input="Do you have anything next Friday?",
+  )
+
+  await result.expect.next_event() \
+      .is_function_call(name="check_availability")
+
+  await result.expect.next_event() \
+      .is_message(role="assistant") \
+      .judge(llm, intent="tells the user there are no available slots and suggests trying another date")
+
+With mock_tools, the check_availability function returns "No available slots for that date" regardless of input. This lets you test how the agent handles the no-availability scenario without modifying your real tool code. You can mock any tool to return specific values, raise ToolError, or simulate slow responses.
+
+Mock for edge cases, real tools for happy paths
+
+Use real tool implementations for testing the normal booking flow — it validates both the agent behavior and the tool logic. Use mocks for edge cases that are hard to trigger naturally: no availability, database errors, rate limits, or unusual input formats.
+
+Running your tests
+
+Execute the test suite with pytest:
+
+pytest test_agent.py -v
+
+For detailed output showing exactly what the agent said and what tools it called, set the verbose environment variable:
+
+LIVEKIT_EVALS_VERBOSE=1 pytest test_agent.py -v
+
+With verbose mode enabled, each test prints the full conversation trace: the user input, the agent's response, any tool calls with arguments and return values, and the judge() evaluation result. This is invaluable for debugging test failures — you can see exactly why the LLM evaluator rejected a response.
+
+Tests are nondeterministic
+
+Because an LLM powers both the agent and the judge, tests can occasionally fail due to natural variation in LLM output. A test that fails once out of twenty runs is not necessarily broken — the LLM might have phrased its response in an unusual way. If a test fails consistently, there is a real behavioral issue. If it fails intermittently, consider broadening the intent description in judge().
+
+The complete test file
+
+Here is the full test suite for the dental receptionist:
+
+import pytest
+from livekit.agents import AgentSession, Agent, mock_tools, ToolError
+from livekit.plugins import openai
+from agent import check_availability, book_appointment
+
+llm = openai.LLM(model="gpt-4o-mini")
+
+INSTRUCTIONS = """You are a friendly receptionist at Bright Smile Dental clinic.
+Keep responses brief and conversational. Never use markdown or emojis.
+
+When a caller asks about availability, use check_availability to look up
+real slots. Never guess or make up times.
+
+When a caller wants to book, collect their full name, preferred date, and
+preferred time slot. Then use book_appointment to complete the booking.
+
+After booking, ask if there is anything else you can help with."""
+
+
+@pytest.mark.asyncio
+async def test_greeting():
+  session = AgentSession()
+  result = await session.run(
+      agent=Agent(instructions=INSTRUCTIONS),
+      user_input="Hi, I'd like to schedule an appointment.",
+  )
+
+  await result.expect.next_event() \
+      .is_message(role="assistant") \
+      .judge(llm, intent="greets the user and asks how they can help or asks for appointment details")
+
+
+@pytest.mark.asyncio
+async def test_check_availability_tool_called():
+  session = AgentSession()
+  result = await session.run(
+      agent=Agent(
+          instructions=INSTRUCTIONS,
+          tools=[check_availability, book_appointment],
+      ),
+      user_input="Do you have any openings next Tuesday?",
+  )
+
+  await result.expect.next_event() \
+      .is_function_call(name="check_availability")
+
+
+@pytest.mark.asyncio
+async def test_invalid_time_slot():
+  session = AgentSession()
+  result = await session.run(
+      agent=Agent(
+          instructions=INSTRUCTIONS,
+          tools=[check_availability, book_appointment],
+      ),
+      user_input="Book an appointment for Alex Rivera on next Tuesday at 10 AM.",
+  )
+
+  await result.expect.next_event() \
+      .is_function_call(name="book_appointment")
+
+  await result.expect.next_event() \
+      .is_message(role="assistant") \
+      .judge(llm, intent="informs the user that 10 AM is not available and suggests alternative time slots")
+
+
+@pytest.mark.asyncio
+async def test_no_availability():
+  mocked = mock_tools({
+      "check_availability": lambda context, date: "No available slots for that date.",
+  })
+
+  session = AgentSession()
+  result = await session.run(
+      agent=Agent(
+          instructions=INSTRUCTIONS,
+          tools=mocked([check_availability, book_appointment]),
+      ),
+      user_input="Do you have anything next Friday?",
+  )
+
+  await result.expect.next_event() \
+      .is_function_call(name="check_availability")
+
+  await result.expect.next_event() \
+      .is_message(role="assistant") \
+      .judge(llm, intent="tells the user there are no available slots and suggests trying another date")
+
+CI integration
+
+These tests run anywhere pytest runs — your laptop, GitHub Actions, GitLab CI. Here is a minimal GitHub Actions workflow:
+
+name: Test dental receptionist
+on: [push, pull_request]
+
+jobs:
+test:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - run: pip install -r requirements.txt
+    - run: pip install pytest pytest-asyncio
+    - run: pytest test_agent.py -v
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+The only secret needed is your LLM API key — the tests do not require a LiveKit server, a room, or any audio infrastructure. They run in seconds and catch behavioral regressions before they reach production.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why does the agent testing framework use judge() with intent descriptions rather than exact string matching on the agent's response?
+
+Looking ahead
+
+You now have a dental receptionist that checks availability, books appointments, handles noise, and has automated tests. In the next chapter, you will dive deep into turn detection — configuring endpointing delays, adaptive interruptions, and backchanneling so your agent feels natural in conversation.

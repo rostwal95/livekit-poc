@@ -1,0 +1,616 @@
+{
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.action_intents": [
+    "intent_id",
+    "task_id",
+    "scope_id",
+    "actor_id",
+    "revision",
+    "quote_id",
+    "confirmation_id",
+    "effect_id",
+    "payload_json",
+    "created_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.business_outcomes": [
+    "task_id",
+    "payload_json",
+    "created_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.cancellation_commands": [
+    "cancellation_id",
+    "scope_id",
+    "task_id",
+    "actor_id",
+    "command_id",
+    "payload_json",
+    "disposition",
+    "created_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.cases": [
+    "task_id",
+    "case_id",
+    "scope_id",
+    "actor_id",
+    "revision",
+    "request_json",
+    "current_quote_id",
+    "cancelled",
+    "created_at",
+    "updated_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.completion_deliveries": [
+    "event_id",
+    "target_id",
+    "state",
+    "generation",
+    "attempts",
+    "policy_json",
+    "next_attempt_at",
+    "error_code",
+    "updated_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.completion_events": [
+    "event_id",
+    "task_id",
+    "payload_json",
+    "created_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.confirmations": [
+    "confirmation_id",
+    "task_id",
+    "scope_id",
+    "actor_id",
+    "command_id",
+    "payload_json",
+    "created_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.execution_attempts": [
+    "attempt_id",
+    "task_id",
+    "attempt_no",
+    "status",
+    "started_at",
+    "finished_at",
+    "error_code"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.execution_controls": [
+    "task_id",
+    "state",
+    "policy_json",
+    "deadline",
+    "next_attempt_at",
+    "version",
+    "last_failure",
+    "error_code",
+    "updated_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.execution_leases": [
+    "task_id",
+    "scope_id",
+    "owner_id",
+    "epoch",
+    "expires_at",
+    "claimed_at",
+    "renewed_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.execution_limits": [
+    "singleton",
+    "maximum_pending",
+    "maximum_active",
+    "maximum_records",
+    "lease_seconds"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.execution_signal_consumptions": [
+    "signal_id",
+    "wait_id",
+    "task_id",
+    "created_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.execution_signals": [
+    "signal_id",
+    "scope_id",
+    "task_id",
+    "actor_id",
+    "event_id",
+    "payload_json",
+    "created_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.execution_waits": [
+    "wait_id",
+    "task_id",
+    "quote_json",
+    "deadline",
+    "state",
+    "created_at",
+    "finished_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.executions": [
+    "task_id",
+    "operation",
+    "status",
+    "effect_id",
+    "version",
+    "created_at",
+    "updated_at",
+    "result_json",
+    "error_code"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.intent_dispatch": [
+    "event_id",
+    "intent_id",
+    "payload_json",
+    "created_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.mutation_attempts": [
+    "attempt_id",
+    "intent_id",
+    "attempt_no",
+    "state",
+    "started_at",
+    "finished_at",
+    "error_code"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.mutation_effects": [
+    "intent_id",
+    "task_id",
+    "state",
+    "generation",
+    "attempt_no",
+    "dispatch_count",
+    "active_attempt_id",
+    "result_json",
+    "error_code",
+    "dispatched_at",
+    "updated_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.quotes": [
+    "quote_id",
+    "task_id",
+    "revision",
+    "payload_json",
+    "created_at"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.schema_metadata": [
+    "singleton",
+    "version",
+    "state",
+    "migration_id",
+    "source_digest"
+  ],
+  "cp45_case_e6cc988b6d66449eae2e3582fb08e404.tasks": [
+    "task_id",
+    "scope_id",
+    "idempotency_key",
+    "payload",
+    "status",
+    "created_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.admission": [
+    "singleton",
+    "inbox_count",
+    "challenge_count",
+    "association_count",
+    "sender_count"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.associations": [
+    "tenant_id",
+    "provider",
+    "provider_account_id",
+    "sender_id",
+    "epoch",
+    "account_id",
+    "conversation_id",
+    "case_id",
+    "activated_at",
+    "revoked_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.callback_admission": [
+    "singleton",
+    "callback_count"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.callback_observations": [
+    "tenant_id",
+    "provider",
+    "provider_account_id",
+    "event_id",
+    "receipt_id",
+    "attempt_id",
+    "ordinal",
+    "canonical_payload",
+    "payload_digest",
+    "first_wire",
+    "accepted_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.callback_settings": [
+    "singleton",
+    "rule_version",
+    "max_global",
+    "max_per_attempt"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.challenges": [
+    "challenge_id",
+    "secret_digest",
+    "tenant_id",
+    "provider",
+    "provider_account_id",
+    "sender_id",
+    "account_id",
+    "conversation_id",
+    "case_id",
+    "expected_epoch",
+    "issued_at",
+    "expires_at",
+    "attempts",
+    "consumed_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.communication_settings": [
+    "singleton",
+    "profile_id",
+    "max_responses",
+    "max_observations",
+    "max_observations_per_response",
+    "response_count",
+    "observation_count"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.conversations": [
+    "tenant_id",
+    "account_id",
+    "conversation_id",
+    "last_sequence"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.dispatch_attempts": [
+    "receipt_id",
+    "epoch",
+    "owner_id",
+    "started_at",
+    "finished_at",
+    "disposition"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.dispatch_plans": [
+    "receipt_id",
+    "operation_key",
+    "payload_json",
+    "payload_digest",
+    "prepared_at",
+    "association_epoch"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.dispatch_settings": [
+    "singleton",
+    "max_active",
+    "max_attempts",
+    "lease_ms",
+    "retry_delay_ms"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.inbox": [
+    "receipt_id",
+    "tenant_id",
+    "provider",
+    "provider_account_id",
+    "event_id",
+    "message_id",
+    "account_id",
+    "conversation_id",
+    "association_epoch",
+    "canonical_payload",
+    "wire_json",
+    "acceptance_sequence",
+    "accepted_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.native_bindings": [
+    "binding_id",
+    "tenant_id",
+    "provider",
+    "provider_account_id",
+    "account_id",
+    "conversation_id",
+    "case_id",
+    "room_id",
+    "participant_id",
+    "bearer_digest",
+    "canonical_binding",
+    "binding_digest",
+    "published_at",
+    "expires_at",
+    "revoked_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.native_observations": [
+    "binding_id",
+    "source",
+    "event_id",
+    "response_id",
+    "canonical_payload",
+    "payload_digest",
+    "receipt_id",
+    "observation_sequence",
+    "accepted_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.native_responses": [
+    "response_id",
+    "generation_id",
+    "sdk_speech_id",
+    "binding_id",
+    "input_receipt_id",
+    "operation_key",
+    "tenant_id",
+    "account_id",
+    "conversation_id",
+    "case_id",
+    "canonical_anchor",
+    "anchor_digest",
+    "receipt_id",
+    "response_sequence",
+    "accepted_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.native_settings": [
+    "singleton",
+    "max_bindings",
+    "binding_count"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.outbound_routes": [
+    "tenant_id",
+    "account_id",
+    "conversation_id",
+    "case_id",
+    "provider",
+    "provider_account_id",
+    "version",
+    "sender_id",
+    "association_epoch",
+    "suppressed"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.outbox_admission": [
+    "singleton",
+    "reply_count",
+    "route_count"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.outbox_settings": [
+    "singleton",
+    "receiver_id",
+    "max_replies",
+    "max_routes",
+    "max_attempts"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.processing_intents": [
+    "receipt_id",
+    "operation_key",
+    "state",
+    "claim_epoch",
+    "claim_owner",
+    "claim_until",
+    "claim_kind",
+    "attempt_count",
+    "next_attempt_at",
+    "possible_external",
+    "external_receipt_id",
+    "last_code"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.reply_intents": [
+    "tenant_id",
+    "account_id",
+    "outbound_id",
+    "receipt_id",
+    "conversation_id",
+    "case_id",
+    "response_id",
+    "canonical_payload",
+    "intent_digest",
+    "body_digest",
+    "accepted_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.result_receipts": [
+    "delivery_id",
+    "tenant_id",
+    "account_id",
+    "work_id",
+    "attempt_id",
+    "result_sha256",
+    "recipient_id",
+    "case_id",
+    "conversation_id",
+    "outbound_id",
+    "canonical_intent"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.schema_metadata": [
+    "singleton",
+    "version",
+    "runtime_role",
+    "definition_digest",
+    "catalog_snapshot",
+    "max_inbox",
+    "max_challenges",
+    "max_associations",
+    "max_senders"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.send_attempts": [
+    "attempt_id",
+    "tenant_id",
+    "account_id",
+    "outbound_id",
+    "ordinal",
+    "provider_operation_key",
+    "canonical_request",
+    "request_digest",
+    "reserved_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.send_operations": [
+    "provider_operation_key",
+    "tenant_id",
+    "account_id",
+    "outbound_id",
+    "provider",
+    "provider_account_id",
+    "first_attempt_id",
+    "capability",
+    "canonical_operation",
+    "operation_digest",
+    "first_request_digest",
+    "admission_proof",
+    "admission_digest",
+    "created_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.send_policy_settings": [
+    "singleton",
+    "ordinary_unknown",
+    "idempotent_unknown",
+    "max_recovery_commands",
+    "max_per_operation",
+    "recovery_count"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.send_recovery_commands": [
+    "command_id",
+    "provider_operation_key",
+    "tenant_id",
+    "account_id",
+    "outbound_id",
+    "source_attempt_id",
+    "kind",
+    "canonical_command",
+    "command_digest",
+    "receipt_json",
+    "receipt_digest",
+    "new_attempt_id",
+    "accepted_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.send_recovery_observations": [
+    "command_id",
+    "canonical_observation",
+    "observation_digest",
+    "observed_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.send_results": [
+    "attempt_id",
+    "canonical_result",
+    "observed_at"
+  ],
+  "cp45_channel_c3051c9b6ad04e6297f518099ac149e1.sender_heads": [
+    "tenant_id",
+    "provider",
+    "provider_account_id",
+    "sender_id",
+    "epoch",
+    "active_epoch"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.accepted_work": [
+    "work_id",
+    "tenant_id",
+    "account_id",
+    "idempotency_key",
+    "operation",
+    "body",
+    "sha256",
+    "deadline_at_ms",
+    "accepted_at_ms"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.admission": [
+    "singleton",
+    "record_count",
+    "cancel_count"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.attempt_results": [
+    "attempt_id",
+    "tenant_id",
+    "account_id",
+    "work_id",
+    "body",
+    "sha256",
+    "recorded_at_ms",
+    "disposition"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.cancellation_commands": [
+    "cancellation_id",
+    "tenant_id",
+    "account_id",
+    "work_id",
+    "command_id",
+    "requested_at_ms"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.execution_limits": [
+    "singleton",
+    "max_active",
+    "max_attempts",
+    "lease_ms"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.issued_attempts": [
+    "attempt_id",
+    "tenant_id",
+    "account_id",
+    "work_id",
+    "command_id",
+    "number",
+    "owner_id",
+    "epoch",
+    "issued_at_ms",
+    "lease_until_ms"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.result_actions": [
+    "action_id",
+    "tenant_id",
+    "account_id",
+    "work_id",
+    "attempt_id",
+    "result_sha256",
+    "case_schema",
+    "case_scope_id",
+    "case_actor_id",
+    "case_task_id",
+    "case_id",
+    "expected_revision",
+    "command_id",
+    "confirmation_json",
+    "intent_id",
+    "intent_json",
+    "committed_at_ms"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.result_delivery_intents": [
+    "delivery_id",
+    "tenant_id",
+    "account_id",
+    "work_id",
+    "attempt_id",
+    "result_sha256",
+    "receiver_id",
+    "recipient_id",
+    "prepared_at_ms"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.result_delivery_possible": [
+    "delivery_id",
+    "marked_at_ms"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.result_delivery_receipts": [
+    "delivery_id",
+    "receipt_id",
+    "receiver_id",
+    "recipient_id",
+    "result_sha256",
+    "accepted_at_ms",
+    "recorded_at_ms"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.result_feed_events": [
+    "event_id",
+    "tenant_id",
+    "account_id",
+    "sequence",
+    "work_id",
+    "attempt_id",
+    "origin"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.result_feed_heads": [
+    "tenant_id",
+    "account_id",
+    "anchor_work_id",
+    "last_sequence"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.result_feed_source": [
+    "singleton",
+    "source_id",
+    "adopted_at_ms"
+  ],
+  "p1_work_cp45_c911df00d6214038aa1700edfc4e0212.schema_metadata": [
+    "singleton",
+    "version",
+    "definition_sha256",
+    "catalog_sha256",
+    "max_records",
+    "max_cancel_commands"
+  ]
+}

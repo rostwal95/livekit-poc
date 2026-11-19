@@ -1,0 +1,24 @@
+[
+  {
+    "question": "How does a phone caller connect to a LiveKit room via SIP?",
+    "options": [
+      "The phone audio is recorded and played back to an agent asynchronously",
+      "The phone caller must install a special app that supports WebRTC",
+      "LiveKit converts the phone call into a WebSocket connection",
+      "A SIP trunk bridges the phone network to LiveKit, and dispatch rules route the call to a room where the caller becomes a participant with ParticipantKind.SIP"
+    ],
+    "correctIndex": 3,
+    "explanation": "A SIP trunk connects LiveKit to a telephony provider (like Twilio or Telnyx). When someone dials a phone number, dispatch rules determine which room to place them in. The caller becomes a participant with ParticipantKind.SIP, and their telephone audio becomes an audio track published into the room \u2014 just like a microphone track from a browser. The caller has no awareness of rooms or participants; from their perspective, they just dialed a phone number."
+  },
+  {
+    "question": "What is egress in the LiveKit architecture?",
+    "options": [
+      "The process of extracting media from a room \u2014 recording it to a file or streaming it to an external platform",
+      "The process of bringing external media sources into a room",
+      "The process of encrypting media for secure transport",
+      "The process of routing media between SFU nodes"
+    ],
+    "correctIndex": 0,
+    "explanation": "Egress extracts media from a room for recording or external streaming. It works by having a hidden participant join the room, subscribe to relevant tracks, and process them into outputs like MP4 files (saved to S3/GCS), HLS streams, or RTMP streams (pushed to YouTube/Twitch). Ingress is the inverse \u2014 bringing external media into a room. Both map onto the same rooms/participants/tracks primitives."
+  }
+]

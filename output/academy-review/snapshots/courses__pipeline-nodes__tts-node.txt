@@ -1,0 +1,374 @@
+1The voice pipeline architecture
+
+2stt_node: audio preprocessing
+
+3llm_node: structured output
+
+4tts_node: emotional speech
+
+5on_user_turn_completed: RAG injection
+
+6Content filtering
+
+7Realtime model nodes
+
+8Full assembly
+
+tts_node: emotional speech
+
+tts_node: emotional speech
+
+The tts_node is the last processing stage before audio reaches the user. By default, it takes text from the LLM and synthesizes speech with a fixed voice. In this chapter, you will override it to dynamically adjust the voice based on the emotion tag from the previous chapter's structured output — making the agent sound excited, empathetic, or serious depending on the context.
+
+What you'll learn
+
+How to override tts_node to control speech synthesis
+
+How to set TTS instructions dynamically based on emotion
+
+How to control pronunciation for domain-specific terms
+
+How to adjust volume and speed per response
+
+The tts_node signature
+
+The tts_node receives a text string (the LLM's response, or the portion of it destined for speech) and yields SynthesizedAudio chunks as the TTS engine produces them.
+
+from livekit.agents import Agent, tts
+import typing
+
+
+class MyAgent(Agent):
+  async def tts_node(
+      self, text: str
+  ) -> typing.AsyncGenerator[tts.SynthesizedAudio, None]:
+      async for audio in Agent.default.tts_node(self, text):
+          yield audio
+
+import { Agent, tts } from "@livekit/agents";
+
+class MyAgent extends Agent {
+async *ttsNode(
+  text: string
+): AsyncGenerator<tts.SynthesizedAudio> {
+  for await (const audio of Agent.default.ttsNode(this, text)) {
+    yield audio;
+  }
+}
+}
+
+The text parameter arrives as the LLM streams its response. The pipeline collects tokens into sentence-length chunks and calls tts_node for each chunk, so tts_node may be called multiple times per response.
+
+Dynamic TTS instructions based on emotion
+
+The chain-of-thought agent from the previous chapter stores an emotion field on self.last_emotion. You can read that value in tts_node and set the TTS instructions accordingly.
+
+from livekit.agents import Agent, tts
+from livekit.plugins import cartesia
+import typing
+
+# Map emotions to TTS voice instructions
+EMOTION_INSTRUCTIONS = {
+  "neutral": "Speak in a calm, professional tone.",
+  "excited": "Speak with enthusiasm and energy. Slightly faster pace.",
+  "empathetic": "Speak gently and warmly, with a caring tone.",
+  "concerned": "Speak with a serious, attentive tone. Slightly slower pace.",
+  "cheerful": "Speak with a bright, upbeat tone and a smile in your voice.",
+  "serious": "Speak with gravity and authority. Measured pace.",
+}
+
+
+class EmotionalTTSAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="You are a thoughtful assistant.",
+          tts=cartesia.TTS(model="sonic-2"),
+      )
+      self.last_emotion = "neutral"
+
+  async def tts_node(
+      self, text: str
+  ) -> typing.AsyncGenerator[tts.SynthesizedAudio, None]:
+      """Adjust TTS voice based on the current emotion."""
+      emotion = self.last_emotion
+      instruction = EMOTION_INSTRUCTIONS.get(emotion, EMOTION_INSTRUCTIONS["neutral"])
+
+      # Update TTS with emotion-specific instructions
+      self.tts = cartesia.TTS(
+          model="sonic-2",
+          instructions=instruction,
+      )
+
+      async for audio in Agent.default.tts_node(self, text):
+          yield audio
+
+import { Agent, tts } from "@livekit/agents";
+import { cartesia } from "@livekit/plugins-cartesia";
+
+const EMOTION_INSTRUCTIONS: Record<string, string> = {
+neutral: "Speak in a calm, professional tone.",
+excited: "Speak with enthusiasm and energy. Slightly faster pace.",
+empathetic: "Speak gently and warmly, with a caring tone.",
+concerned: "Speak with a serious, attentive tone. Slightly slower pace.",
+cheerful: "Speak with a bright, upbeat tone and a smile in your voice.",
+serious: "Speak with gravity and authority. Measured pace.",
+};
+
+class EmotionalTTSAgent extends Agent {
+private lastEmotion = "neutral";
+
+constructor() {
+  super({
+    instructions: "You are a thoughtful assistant.",
+    tts: new cartesia.TTS({ model: "sonic-2" }),
+  });
+}
+
+async *ttsNode(
+  text: string
+): AsyncGenerator<tts.SynthesizedAudio> {
+  const emotion = this.lastEmotion;
+  const instruction =
+    EMOTION_INSTRUCTIONS[emotion] ?? EMOTION_INSTRUCTIONS.neutral;
+
+  this.tts = new cartesia.TTS({
+    model: "sonic-2",
+    instructions: instruction,
+  });
+
+  for await (const audio of Agent.default.ttsNode(this, text)) {
+    yield audio;
+  }
+}
+}
+
+The TTS instructions field is a natural-language description of how the voice should sound. It is not SSML — you do not need angle brackets or XML. Modern TTS engines like Cartesia interpret plain English descriptions and adjust prosody, pitch, and pacing accordingly. This is far more flexible than preset voice styles.
+
+Pronunciation control
+
+Domain-specific terms, product names, and acronyms often trip up TTS engines. You can intercept the text in tts_node and apply pronunciation corrections before synthesis.
+
+import re
+
+# Pronunciation dictionary: maps written form to phonetic hint
+PRONUNCIATIONS = {
+  "LiveKit": "Live Kit",
+  "WebRTC": "Web R T C",
+  "STT": "S T T",
+  "TTS": "T T S",
+  "LLM": "L L M",
+  "DTMF": "D T M F",
+  "API": "A P I",
+  "OAuth": "Oh Auth",
+  "nginx": "engine X",
+  "kubectl": "kube control",
+}
+
+
+class PronunciationAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="You are a technical assistant.",
+          tts=cartesia.TTS(model="sonic-2"),
+      )
+
+  async def tts_node(
+      self, text: str
+  ) -> typing.AsyncGenerator[tts.SynthesizedAudio, None]:
+      # Apply pronunciation corrections
+      corrected = self.fix_pronunciation(text)
+
+      # Temporarily replace the text for TTS
+      async for audio in Agent.default.tts_node(self, corrected):
+          yield audio
+
+  def fix_pronunciation(self, text: str) -> str:
+      """Replace terms with pronunciation-friendly versions."""
+      result = text
+      for term, pronunciation in PRONUNCIATIONS.items():
+          # Case-insensitive replacement preserving word boundaries
+          pattern = re.compile(rf"\b{re.escape(term)}\b", re.IGNORECASE)
+          result = pattern.sub(pronunciation, result)
+      return result
+
+const PRONUNCIATIONS: Record<string, string> = {
+LiveKit: "Live Kit",
+WebRTC: "Web R T C",
+STT: "S T T",
+TTS: "T T S",
+LLM: "L L M",
+DTMF: "D T M F",
+API: "A P I",
+OAuth: "Oh Auth",
+nginx: "engine X",
+kubectl: "kube control",
+};
+
+class PronunciationAgent extends Agent {
+constructor() {
+  super({
+    instructions: "You are a technical assistant.",
+    tts: new cartesia.TTS({ model: "sonic-2" }),
+  });
+}
+
+async *ttsNode(
+  text: string
+): AsyncGenerator<tts.SynthesizedAudio> {
+  const corrected = this.fixPronunciation(text);
+
+  for await (const audio of Agent.default.ttsNode(this, corrected)) {
+    yield audio;
+  }
+}
+
+private fixPronunciation(text: string): string {
+  let result = text;
+  for (const [term, pronunciation] of Object.entries(PRONUNCIATIONS)) {
+    const pattern = new RegExp(`\\b${term}\\b`, "gi");
+    result = result.replace(pattern, pronunciation);
+  }
+  return result;
+}
+}
+
+Pronunciation corrections are invisible to the user
+
+The corrected text is only used for audio synthesis. The original text still appears in any text-based UI or transcript logs. You are transforming the input to the TTS engine, not the conversational record.
+
+Volume and speed adjustments
+
+Some TTS providers expose parameters for volume and speed. You can adjust these dynamically based on context — for example, speaking more slowly for complex instructions or more quietly for sensitive topics.
+
+EMOTION_SPEED = {
+  "neutral": 1.0,
+  "excited": 1.15,
+  "empathetic": 0.9,
+  "concerned": 0.85,
+  "cheerful": 1.1,
+  "serious": 0.9,
+}
+
+
+class FullEmotionalAgent(Agent):
+  """Combines emotion instructions, pronunciation, and speed control."""
+
+  def __init__(self):
+      super().__init__(
+          instructions="""You are a thoughtful assistant. Respond with JSON:
+{"thinking": "...", "response": "...", "emotion": "..."}""",
+          tts=cartesia.TTS(model="sonic-2"),
+      )
+      self.last_emotion = "neutral"
+
+  async def tts_node(
+      self, text: str
+  ) -> typing.AsyncGenerator[tts.SynthesizedAudio, None]:
+      emotion = self.last_emotion
+      instruction = EMOTION_INSTRUCTIONS.get(emotion, EMOTION_INSTRUCTIONS["neutral"])
+      speed = EMOTION_SPEED.get(emotion, 1.0)
+
+      # Configure TTS with emotion-aware settings
+      self.tts = cartesia.TTS(
+          model="sonic-2",
+          instructions=instruction,
+          speed=speed,
+      )
+
+      # Apply pronunciation fixes
+      corrected = self.fix_pronunciation(text)
+
+      async for audio in Agent.default.tts_node(self, corrected):
+          yield audio
+
+  def fix_pronunciation(self, text: str) -> str:
+      result = text
+      for term, pronunciation in PRONUNCIATIONS.items():
+          pattern = re.compile(rf"\b{re.escape(term)}\b", re.IGNORECASE)
+          result = pattern.sub(pronunciation, result)
+      return result
+
+const EMOTION_SPEED: Record<string, number> = {
+neutral: 1.0,
+excited: 1.15,
+empathetic: 0.9,
+concerned: 0.85,
+cheerful: 1.1,
+serious: 0.9,
+};
+
+class FullEmotionalAgent extends Agent {
+private lastEmotion = "neutral";
+
+constructor() {
+  super({
+    instructions: `You are a thoughtful assistant. Respond with JSON:
+{"thinking": "...", "response": "...", "emotion": "..."}`,
+    tts: new cartesia.TTS({ model: "sonic-2" }),
+  });
+}
+
+async *ttsNode(
+  text: string
+): AsyncGenerator<tts.SynthesizedAudio> {
+  const emotion = this.lastEmotion;
+  const instruction =
+    EMOTION_INSTRUCTIONS[emotion] ?? EMOTION_INSTRUCTIONS.neutral;
+  const speed = EMOTION_SPEED[emotion] ?? 1.0;
+
+  this.tts = new cartesia.TTS({
+    model: "sonic-2",
+    instructions: instruction,
+    speed,
+  });
+
+  const corrected = this.fixPronunciation(text);
+
+  for await (const audio of Agent.default.ttsNode(this, corrected)) {
+    yield audio;
+  }
+}
+
+private fixPronunciation(text: string): string {
+  let result = text;
+  for (const [term, pronunciation] of Object.entries(PRONUNCIATIONS)) {
+    const pattern = new RegExp(`\\b${term}\\b`, "gi");
+    result = result.replace(pattern, pronunciation);
+  }
+  return result;
+}
+}
+
+The last_emotion field was set during llm_node processing in the previous chapter. The tts_node reads it to determine voice configuration.
+
+Each emotion maps to a natural-language instruction and a speed multiplier. The instruction tells the TTS engine how to speak; the speed adjusts the pacing.
+
+Before sending text to the TTS engine, domain-specific terms are replaced with phonetically friendly versions.
+
+The TTS instance is reconfigured with the new parameters before calling Agent.default.tts_node. Each response chunk can have different emotional delivery.
+
+Recreating the TTS instance has overhead
+
+In the examples above, a new cartesia.TTS instance is created for each TTS call. Some TTS providers support updating parameters on an existing instance, which avoids the overhead of creating a new connection. Check your provider's documentation for an update or set_options method.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why are pronunciation corrections in tts_node invisible to the user in text-based interfaces?
+
+What you learned
+
+The tts_node receives text and yields SynthesizedAudio chunks
+
+TTS instructions are natural-language descriptions that control voice prosody and tone
+
+Pronunciation dictionaries let you fix how domain-specific terms are spoken
+
+Speed and volume can be adjusted dynamically per emotion or context
+
+The emotion field from llm_node drives the entire voice configuration
+
+Next up
+
+In the next chapter, you will override on_user_turn_completed — the hook that fires after the user finishes speaking but before the LLM processes the message. You will use it to inject RAG context from a vector database, giving your agent access to external knowledge.

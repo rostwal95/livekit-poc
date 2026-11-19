@@ -1,0 +1,35 @@
+[
+  {
+    "question": "How do the three pipeline stages (STT, LLM, TTS) achieve sub-second total latency despite each stage taking 100-300ms?",
+    "options": [
+      "Each stage streams its output, so downstream stages begin processing before upstream stages finish",
+      "Only one stage runs at a time to avoid resource conflicts",
+      "The stages are combined into a single model",
+      "They run in parallel on different threads"
+    ],
+    "correctIndex": 0,
+    "explanation": "Because each stage streams its output, they overlap in execution. The LLM starts processing before STT fully finishes, and TTS starts synthesizing before the LLM is done. This streaming overlap is what makes sub-second end-to-end responses possible."
+  },
+  {
+    "question": "What is the primary advantage of LiveKit's plugin architecture for voice AI development?",
+    "options": [
+      "It eliminates the need for provider API keys",
+      "It reduces API costs by batching requests across providers",
+      "It lets you swap any provider with a single line of code, preventing vendor lock-in",
+      "It automatically selects the best provider for your use case"
+    ],
+    "correctIndex": 2,
+    "explanation": "Each provider is a separate plugin passed to AgentSession. Changing from OpenAI to Anthropic for LLM, or Cartesia to ElevenLabs for TTS, requires changing only one line. This plug-and-play design prevents vendor lock-in and enables easy A/B testing."
+  },
+  {
+    "question": "When should you choose pipeline mode (STT + LLM + TTS) over realtime mode (speech-to-speech) for a production voice agent?",
+    "options": [
+      "When you need function calling, custom voice selection, or the ability to swap individual providers",
+      "When you want the absolute lowest possible latency",
+      "When you only need a simple conversational agent with no tools",
+      "When you want to minimize the number of API keys required"
+    ],
+    "correctIndex": 0,
+    "explanation": "Pipeline mode gives you full control: swap any provider independently, use any TTS voice including cloned voices, and get full function calling support via your LLM of choice. Realtime mode trades this flexibility for potentially lower latency but locks you to one provider with limited function calling and voice options."
+  }
+]

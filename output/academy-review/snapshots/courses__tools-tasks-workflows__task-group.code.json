@@ -1,0 +1,98 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from pydantic import BaseModel\n\n\nclass OrderItem(BaseModel):\n  name: str\n  quantity: int\n  modifications: list[str] = []\n  unit_price: float = 0.0\n\n\nclass PaymentInfo(BaseModel):\n  method: str  # \"card\", \"cash\", \"mobile\"\n  tip_percentage: float = 0.0"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { z } from \"zod\";\n\nconst OrderItemSchema = z.object({\nname: z.string(),\nquantity: z.number().int().min(1),\nmodifications: z.array(z.string()).default([]),\nunitPrice: z.number().default(0),\n});\n\nconst PaymentInfoSchema = z.object({\nmethod: z.enum([\"card\", \"cash\", \"mobile\"]),\ntipPercentage: z.number().default(0),\n});\n\ntype OrderItem = z.infer<typeof OrderItemSchema>;\ntype PaymentInfo = z.infer<typeof PaymentInfoSchema>;"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentTask, function_tool, RunContext\nfrom models import PaymentInfo\n\n\nclass CollectPayment(AgentTask[PaymentInfo]):\n  def __init__(self, total: float):\n      super().__init__(\n          instructions=f\"\"\"Collect payment information from the customer.\n          Their order total is ${total:.2f}.\n          Ask how they would like to pay: card, cash, or mobile payment.\n          Then ask if they would like to add a tip (suggest 15%, 18%, or 20%).\n          Confirm the payment details before submitting.\"\"\",\n          output_type=PaymentInfo,\n      )\n\n  @function_tool\n  async def confirm_payment(\n      self,\n      context: RunContext,\n      method: str,\n      tip_percentage: float = 0.0,\n  ) -> None:\n      \"\"\"Confirm the payment method and tip.\"\"\"\n      self.complete(PaymentInfo(method=method, tip_percentage=tip_percentage))"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentTask, functionTool, RunContext } from \"@livekit/agents\";\nimport { z } from \"zod\";\n\nconst PaymentInfoSchema = z.object({\nmethod: z.enum([\"card\", \"cash\", \"mobile\"]),\ntipPercentage: z.number().default(0),\n});\n\ntype PaymentInfo = z.infer<typeof PaymentInfoSchema>;\n\nclass CollectPayment extends AgentTask<PaymentInfo> {\nconstructor(total: number) {\n  super({\n    instructions: `Collect payment information from the customer.\n      Their order total is $${total.toFixed(2)}.\n      Ask how they would like to pay: card, cash, or mobile payment.\n      Then ask if they would like to add a tip (suggest 15%, 18%, or 20%).\n      Confirm the payment details before submitting.`,\n    outputType: PaymentInfoSchema,\n  });\n}\n\n@functionTool({ description: \"Confirm the payment method and tip.\" })\nasync confirmPayment(\n  context: RunContext,\n  method: string,\n  tipPercentage: number = 0\n): Promise<void> {\n  this.complete({ method: method as any, tipPercentage });\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, TaskGroup, function_tool, RunContext\nfrom collect_order_item import CollectOrderItem\nfrom collect_payment import CollectPayment\nfrom models import OrderItem\n\n\nclass OrderTakerAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are the order taker at Bella Vista.\n          Help customers build their complete order.\n          Use the take_order tool to start the ordering process.\"\"\",\n      )\n\n  async def on_enter(self):\n      self.session.generate_reply(\n          instructions=\"Welcome the guest and let them know you are ready to take their order.\"\n      )\n\n  @function_tool\n  async def take_order(self, context: RunContext) -> str:\n      \"\"\"Start the full ordering process: collect items then payment.\"\"\"\n      group = TaskGroup()\n\n      # Add the first item task\n      group.add(CollectOrderItem())\n\n      # Run the group \u2014 this processes tasks in sequence\n      results = await group.run(self.session)\n\n      # Separate item results from payment\n      items = [r for r in results if isinstance(r, OrderItem)]\n      total = sum(item.unit_price * item.quantity for item in items)\n\n      item_summary = \", \".join(\n          f\"{item.quantity}x {item.name}\" for item in items\n      )\n      return f\"Order complete: {item_summary}. Total: ${total:.2f}\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, TaskGroup, functionTool, RunContext } from \"@livekit/agents\";\nimport { CollectOrderItem } from \"./collectOrderItem\";\nimport { CollectPayment } from \"./collectPayment\";\n\nclass OrderTakerAgent extends Agent {\nconstructor() {\n  super({\n    instructions: `You are the order taker at Bella Vista.\n      Help customers build their complete order.\n      Use the take_order tool to start the ordering process.`,\n  });\n}\n\nasync onEnter() {\n  this.session.generateReply({\n    instructions: \"Welcome the guest and let them know you are ready to take their order.\",\n  });\n}\n\n@functionTool({ description: \"Start the full ordering process: collect items then payment.\" })\nasync takeOrder(context: RunContext): Promise<string> {\n  const group = new TaskGroup();\n\n  group.add(new CollectOrderItem());\n\n  const results = await group.run(this.session);\n\n  const items = results.filter((r): r is any => r?.name !== undefined);\n  const total = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);\n\n  const itemSummary = items.map((item) => `${item.quantity}x ${item.name}`).join(\", \");\n  return `Order complete: ${itemSummary}. Total: $${total.toFixed(2)}`;\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, TaskGroup, function_tool, RunContext\nfrom collect_order_item import CollectOrderItem\nfrom collect_payment import CollectPayment\nfrom models import OrderItem\n\n\nclass OrderTakerAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are the order taker at Bella Vista.\n          Use take_order to start collecting items.\n          After each item, ask if they want to add more.\"\"\",\n      )\n      self.task_group = None\n      self.order_items = []\n\n  @function_tool\n  async def take_order(self, context: RunContext) -> str:\n      \"\"\"Start collecting order items.\"\"\"\n      self.task_group = TaskGroup()\n      self.task_group.add(CollectOrderItem())\n\n      results = await self.task_group.run(self.session)\n\n      self.order_items = [r for r in results if isinstance(r, OrderItem) and r is not None]\n      total = sum(item.unit_price * item.quantity for item in self.order_items)\n      return f\"Collected {len(self.order_items)} items. Total: ${total:.2f}\"\n\n  @function_tool\n  async def add_another_item(self, context: RunContext) -> str:\n      \"\"\"Add another item to the order.\"\"\"\n      if self.task_group is None:\n          return \"No active order. Use take_order first.\"\n      self.task_group.add(CollectOrderItem())\n      return \"Ready to collect another item.\"\n\n  @function_tool\n  async def finish_order(self, context: RunContext) -> str:\n      \"\"\"Finish the order and proceed to payment.\"\"\"\n      if not self.order_items:\n          return \"No items in the order yet.\"\n      total = sum(item.unit_price * item.quantity for item in self.order_items)\n\n      payment_task = CollectPayment(total=total)\n      payment = await payment_task.run(self.session)\n\n      summary = \", \".join(f\"{i.quantity}x {i.name}\" for i in self.order_items)\n      return f\"Order finalized: {summary}. Total: ${total:.2f}. Payment: {payment.method}.\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, TaskGroup, functionTool, RunContext } from \"@livekit/agents\";\nimport { CollectOrderItem } from \"./collectOrderItem\";\nimport { CollectPayment } from \"./collectPayment\";\n\nclass OrderTakerAgent extends Agent {\nprivate taskGroup: TaskGroup | null = null;\nprivate orderItems: any[] = [];\n\nconstructor() {\n  super({\n    instructions: `You are the order taker at Bella Vista.\n      Use take_order to start collecting items.\n      After each item, ask if they want to add more.`,\n  });\n}\n\n@functionTool({ description: \"Start collecting order items.\" })\nasync takeOrder(context: RunContext): Promise<string> {\n  this.taskGroup = new TaskGroup();\n  this.taskGroup.add(new CollectOrderItem());\n\n  const results = await this.taskGroup.run(this.session);\n\n  this.orderItems = results.filter((r) => r !== null && r?.name !== undefined);\n  const total = this.orderItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);\n  return `Collected ${this.orderItems.length} items. Total: $${total.toFixed(2)}`;\n}\n\n@functionTool({ description: \"Add another item to the order.\" })\nasync addAnotherItem(context: RunContext): Promise<string> {\n  if (!this.taskGroup) return \"No active order. Use take_order first.\";\n  this.taskGroup.add(new CollectOrderItem());\n  return \"Ready to collect another item.\";\n}\n\n@functionTool({ description: \"Finish the order and proceed to payment.\" })\nasync finishOrder(context: RunContext): Promise<string> {\n  if (this.orderItems.length === 0) return \"No items in the order yet.\";\n  const total = this.orderItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);\n\n  const paymentTask = new CollectPayment(total);\n  const payment = await paymentTask.run(this.session);\n\n  const summary = this.orderItems.map((i) => `${i.quantity}x ${i.name}`).join(\", \");\n  return `Order finalized: ${summary}. Total: $${total.toFixed(2)}. Payment: ${payment.method}.`;\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, TaskGroup, function_tool, RunContext\nfrom collect_order_item import CollectOrderItem\n\n\nclass OrderTakerAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are the order taker at Bella Vista.\n          If the customer wants to change a previous item,\n          use the change_item tool with the item number.\"\"\",\n      )\n\n  @function_tool\n  async def change_item(self, context: RunContext, item_number: int) -> str:\n      \"\"\"Go back and change a previously ordered item.\"\"\"\n      if self.task_group is None:\n          return \"No active order.\"\n      # Regress to the specified step (0-indexed)\n      self.task_group.regress(item_number - 1)\n      return f\"Going back to item {item_number}. Let's redo that one.\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, TaskGroup, functionTool, RunContext } from \"@livekit/agents\";\n\nclass OrderTakerAgent extends Agent {\nprivate taskGroup: TaskGroup | null = null;\n\nconstructor() {\n  super({\n    instructions: `You are the order taker at Bella Vista.\n      If the customer wants to change a previous item,\n      use the change_item tool with the item number.`,\n  });\n}\n\n@functionTool({ description: \"Go back and change a previously ordered item.\" })\nasync changeItem(context: RunContext, itemNumber: number): Promise<string> {\n  if (!this.taskGroup) return \"No active order.\";\n  this.taskGroup.regress(itemNumber - 1);\n  return `Going back to item ${itemNumber}. Let's redo that one.`;\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import TaskGroup\nfrom collect_order_item import CollectOrderItem\nfrom collect_payment import CollectPayment\n\n\n# Context summarization is enabled by default\ngroup = TaskGroup(\n  summarize_between_tasks=True,  # This is the default\n  summary_instructions=\"Summarize what has been ordered so far, including item names, quantities, and modifications.\",\n)\n\ngroup.add(CollectOrderItem())\ngroup.add(CollectOrderItem())\ngroup.add(CollectPayment(total=0))  # Total will be calculated from results"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { TaskGroup } from \"@livekit/agents\";\nimport { CollectOrderItem } from \"./collectOrderItem\";\nimport { CollectPayment } from \"./collectPayment\";\n\nconst group = new TaskGroup({\nsummarizeBetweenTasks: true,\nsummaryInstructions: \"Summarize what has been ordered so far, including item names, quantities, and modifications.\",\n});\n\ngroup.add(new CollectOrderItem());\ngroup.add(new CollectOrderItem());\ngroup.add(new CollectPayment(0));"
+  }
+]

@@ -1,0 +1,178 @@
+1Production telephony patterns overview
+
+2Warm transfers
+
+3Cold transfers
+
+4Call recording & compliance
+
+5Building the outbound system
+
+6Queue management
+
+7Error handling & retries
+
+8Monitoring & analytics
+
+9Load testing
+
+Monitoring & analytics
+
+Telephony monitoring and dashboards
+
+You cannot improve what you do not measure. A production telephony system generates a constant stream of signals — call starts, call ends, failures, transfers, queue entries, agent handle times. This chapter shows you how to capture those signals as Call Detail Records, compute the metrics that matter, and build dashboards that give your operations team real-time visibility.
+
+What you'll learn
+
+How to generate Call Detail Records (CDR) from LiveKit webhook events
+
+The key telephony metrics: answer rate, handle time, abandonment rate, and more
+
+How to structure a monitoring dashboard for operations teams
+
+How to set up alerts for anomalous conditions
+
+Call Detail Records
+
+A Call Detail Record captures everything that happened during a single call: who called, when, how long the call lasted, what the outcome was, and whether any transfers or errors occurred. CDRs are the foundation of all telephony analytics.
+
+from dataclasses import dataclass, field
+from datetime import datetime
+
+@dataclass
+class CallDetailRecord:
+  call_id: str
+  direction: str                  # inbound or outbound
+  caller_number: str
+  callee_number: str
+  trunk_id: str
+  room_name: str
+  start_time: datetime
+  answer_time: datetime | None = None
+  end_time: datetime | None = None
+  duration_seconds: float = 0.0
+  ring_duration_seconds: float = 0.0
+  outcome: str = "in_progress"    # answered, no_answer, busy, failed, abandoned
+  transfer_type: str | None = None
+  transfer_target: str | None = None
+  queue_wait_seconds: float = 0.0
+  recording_url: str | None = None
+  sip_error_code: int | None = None
+  agent_id: str | None = None
+  metadata: dict = field(default_factory=dict)
+
+class CDRManager:
+  def __init__(self, storage):
+      self.storage = storage
+      self.active_calls: dict[str, CallDetailRecord] = {}
+
+  async def on_call_start(self, call_id: str, direction: str, caller: str, callee: str, trunk_id: str, room_name: str):
+      cdr = CallDetailRecord(
+          call_id=call_id,
+          direction=direction,
+          caller_number=caller,
+          callee_number=callee,
+          trunk_id=trunk_id,
+          room_name=room_name,
+          start_time=datetime.utcnow(),
+      )
+      self.active_calls[call_id] = cdr
+
+  async def on_call_answered(self, call_id: str):
+      cdr = self.active_calls.get(call_id)
+      if cdr:
+          cdr.answer_time = datetime.utcnow()
+          cdr.ring_duration_seconds = (cdr.answer_time - cdr.start_time).total_seconds()
+          cdr.outcome = "answered"
+
+  async def on_call_end(self, call_id: str):
+      cdr = self.active_calls.pop(call_id, None)
+      if cdr:
+          cdr.end_time = datetime.utcnow()
+          if cdr.answer_time:
+              cdr.duration_seconds = (cdr.end_time - cdr.answer_time).total_seconds()
+          await self.storage.save(cdr)
+
+CDRs should be generated from LiveKit webhook events — participant_joined, participant_left, room_finished, and SIP-specific events. Each event updates the CDR in memory, and the complete record is persisted when the call ends. Store CDRs in a database that supports fast aggregation queries — PostgreSQL with time-based partitioning or a time-series database like TimescaleDB.
+
+Key telephony metrics
+
+These are the metrics your operations team will check every day:
+
+Metric | Formula | Target
+Answer rate | Answered calls / Total inbound calls | > 95%
+Average handle time | Sum of call durations / Answered calls | Varies by use case
+Abandonment rate | Callers who hung up in queue / Total queued calls | Under 5%
+Average speed of answer | Sum of ring + queue time / Answered calls | Under 30 seconds
+Transfer rate | Transferred calls / Answered calls | Depends on agent capability
+Error rate | Failed calls (SIP errors) / Total calls | Under 1%
+
+from datetime import datetime, timedelta
+
+class TelephonyMetrics:
+  def __init__(self, cdr_storage):
+      self.storage = cdr_storage
+
+  async def compute_metrics(self, start: datetime, end: datetime) -> dict:
+      cdrs = await self.storage.query(start=start, end=end)
+      total = len(cdrs)
+      if total == 0:
+          return {}
+
+      answered = [c for c in cdrs if c.outcome == "answered"]
+      abandoned = [c for c in cdrs if c.outcome == "abandoned"]
+      failed = [c for c in cdrs if c.outcome == "failed"]
+
+      avg_handle_time = (
+          sum(c.duration_seconds for c in answered) / len(answered)
+          if answered else 0.0
+      )
+      avg_speed_of_answer = (
+          sum(c.ring_duration_seconds + c.queue_wait_seconds for c in answered) / len(answered)
+          if answered else 0.0
+      )
+
+      return {
+          "total_calls": total,
+          "answer_rate": len(answered) / total,
+          "abandonment_rate": len(abandoned) / total,
+          "error_rate": len(failed) / total,
+          "avg_handle_time_seconds": avg_handle_time,
+          "avg_speed_of_answer_seconds": avg_speed_of_answer,
+      }
+
+Dashboard patterns
+
+A telephony dashboard should answer three questions at a glance: "Is the system healthy right now?", "How did we perform today?", and "Are there any trends I should worry about?"
+
+Show current active calls, agents available, callers in queue, and any active alerts. This panel updates every few seconds. Use WebSocket connections to push updates rather than polling.
+
+Display today's key metrics compared to the same day last week. Answer rate, handle time, abandonment rate, and total call volume. Highlight any metrics that are outside normal ranges in red.
+
+Line charts showing metrics over the past 7 and 30 days. Look for gradual degradation — a slowly rising abandonment rate often indicates a staffing problem before it becomes a crisis.
+
+Configure alerts for conditions that need immediate attention: error rate above 5%, abandonment rate above 10%, zero available agents, or a SIP trunk marked unhealthy. Route alerts to your on-call channel.
+
+Start with the basics
+
+You do not need a custom dashboard on day one. Export CDRs to a database and use Grafana or a similar tool to build dashboards. The important thing is that the data is being captured correctly. Visualization can be refined over time.
+
+Test your knowledge
+
+Question 1 of 2
+
+Why should Call Detail Records (CDRs) be generated from webhook events rather than constructed after the call ends?
+
+What you learned
+
+Call Detail Records capture the full lifecycle of every call and are the foundation of telephony analytics.
+
+The key metrics — answer rate, handle time, abandonment rate, speed of answer, and error rate — tell you whether your system is healthy.
+
+Dashboards should show real-time status, daily summaries, and multi-day trends.
+
+Alerting on key thresholds catches problems before they affect large numbers of callers.
+
+Next up
+
+In the final chapter, you will load test your telephony system to find its limits before your callers do.

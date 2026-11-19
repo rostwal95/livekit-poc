@@ -1,0 +1,23 @@
+Competitive Landscape
+
+How LiveKit Agents compares to frameworks and managed platforms
+
+A technical comparison of LiveKit Agents against open-source frameworks like Pipecat and managed voice AI platforms like Vapi, Retell, and ElevenLabs. Understand the architectural tradeoffs, pricing models, and when each approach makes sense for your project.
+
+What You Build
+
+Evaluate the voice AI landscape and make an informed platform decision based on your use case, team, and scale requirements.
+
+Prerequisites
+
+->Basic understanding of voice AI concepts
+
+A deep technical comparison of LiveKit Agents and Pipecat — two open-source frameworks for building voice AI. Covers architecture, code patterns, transport, telephony, observability, and client ecosystem.
+
+How LiveKit Agents compares to managed voice AI platforms like Vapi, Retell, and ElevenLabs Agents. Architectural differences, pricing breakdown, flexibility tradeoffs, and what you give up for convenience.
+
+A practical decision framework for choosing between open-source frameworks and managed platforms. When to build, when to buy, and when to start with one and migrate to the other.
+
+What You Walk Away With
+
+Clear understanding of how LiveKit Agents differs from Pipecat, Vapi, Retell, and ElevenLabs Agents across architecture, pricing, developer experience, and production readiness. A decision framework for choosing the right approach.

@@ -1,0 +1,20 @@
+.venv/bin/ruff format --check projects/agent-continuity/python/src/continuity_lab projects/channel-continuity/python/src/channel_continuity projects/delegation-reliability/python/src/delegation_reliability services harness local-setup tests projects/agent-continuity/tests projects/agent-continuity/examples projects/channel-continuity/tests projects/channel-continuity/examples projects/delegation-reliability/tests projects/delegation-reliability/examples
+unformatted: File would be reformatted
+   --> tests/test_inquiry_worker.py:497:68
+    |
+496 |             patch(
+    -                 "continuity_lab.managed_inquiry_worker.LOGGER.log", side_effect=OSError("private sink")
+497 +                 "continuity_lab.managed_inquiry_worker.LOGGER.log",
+498 +                 side_effect=OSError("private sink"),
+499 |             ),
+--------------------------------------------------------------------------------
+506 |
+    -     def test_inquiry_worker_preserves_primary_domain_failure_with_hostile_code_and_failed_logger(self):
+507 +     def test_inquiry_worker_preserves_primary_domain_failure_with_hostile_code_and_failed_logger(
+508 +         self,
+509 +     ):
+510 |         from contextlib import nullcontext
+    |
+
+1 file would be reformatted, 567 files already formatted
+make: *** [format-check] Error 1

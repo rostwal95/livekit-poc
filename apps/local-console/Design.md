@@ -32,8 +32,9 @@ accessible below it. M1 is the original confirmed-investigation intake.
 The native voice profile defaults to deterministic local scripted speech. The
 explicit local_real profile uses prepared local Whisper/Qwen/Piper engines. Its
 actual model/media qualification remains separate. The optional P2 native page
-has its own implemented profile. Default integrated P2/P3 workspaces remain
-planned.
+has its own implemented profile. The default P1 page does not embed the optional
+P2/P3 workspaces; those pages and the separate joined showcase have their own
+builds and qualification boundaries.
 
 ### Pages and where this design describes them
 
@@ -73,7 +74,7 @@ observations under [Observability](#observability).
 | UI-02 | Technical | Preserve original request/key after unknown admission | Immutable client snapshot; matching original inquiry request resolves replay |
 | UI-03 | Business | Resume a scoped current task after reload | Token/task re-entry and authenticated GET; no browser identity storage |
 | UI-04 | Business | Prepare a read-only supplier quote and explicitly approve that exact proposal | Separate quote and signal commands with unchanged opaque confirmation bytes |
-| UI-05 | Technical | Inspect current inquiry, lease, attempts, effects, outcome and delivery | Full validated snapshot on every page; bounded recent history with honest limits |
+| UI-05 | Technical | Inspect current inquiry, lease, attempts, effects, outcome and delivery | Each business read returns a full validated snapshot plus bounded recent history |
 | UI-06 | Business | Request business cancellation independently of conversation controls | Explicit HTTP cancellation control; end/interrupt never cancel accepted work |
 | UI-07 | Technical | Join a verified task using native real-time communication (RTC) and user-selected scripted/physical audio input | Native software development kit (SDK) adapter and manual start/commit remote procedure calls (RPCs) |
 | UI-08 | Business | Distinguish native speech state, browser playback and durable progress | Separate status fields and actual observed output |
@@ -419,6 +420,11 @@ or establish automatic speech recognition (ASR) quality.
 #### Media acknowledgement deadline and cleanup barrier
 
 - Native microphone and disconnect acknowledgements have a 5-second deadline.
+- That microphone deadline currently includes the permission prompt. A slow
+  human response can therefore produce an unknown observation; it does not
+  prove the capture operation stopped. UI-A4 in
+  [0048](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md)
+  remains open.
 - A timed-out microphone operation retains its single reservation until the
   real SDK call settles. New operations cannot accumulate behind it.
 - Timeout or End stops owned published tracks. Late capture completion is
@@ -473,10 +479,12 @@ result or blanket zero-retention claim is made.
 
 The [provider operations guide](../../docs/provider-demo.md) owns strict key
 setup, explicit lifecycle, fixed model/voice/transports, bounded execution and
-the fresh P1-20 selector. The selected provider_real v2 gate passed both actual
-browser cases with cleanup. P1 V1 is qualified for the local proof of concept
-(POC) using provider_real v2. A passing provider scenario cannot qualify the
-separate local-engine declaration. See the
+the fresh P1-20 selector. The recorded provider_real v2 gate passed both actual
+browser cases with cleanup on its source snapshot. The post-v5 P1-20 rerun
+remains open in
+[0047](../../docs/work-items/0047-open-findings-schema-upgrades-and-landing.md).
+A passing provider scenario cannot qualify the separate local-engine
+declaration. See the
 [local-real operations guide](../../docs/local-real-inference.md) for actual
 local_real qualification.
 
@@ -734,10 +742,10 @@ combined voice/SMS return route.
 The optional `channel-policy.html` implementation composes a strict Parent wire,
 a retained HTTP client, a pure activation controller, one lazy SDK room adapter
 and a compact panel. The Parent is the joined application's process that owns
-room Start and End commands. The page's isolated source/build/responsive checks
-do not establish a joined database, media or real-provider journey. The active
-[0045 work item](../../docs/work-items/0045-joined-native-channel-policy.md)
-owns that qualification.
+room Start and End commands. Isolated source/build/responsive checks retain
+their component scope. Selected joined provider journeys and recordings are
+recorded separately; complete joined qualification remains with the active
+[0045 work item](../../docs/work-items/0045-joined-native-channel-policy.md).
 [0046](../../docs/work-items/0046-joined-showcase-providers-and-demo.md)
 records the selected provider journeys and the demo.
 
@@ -785,6 +793,9 @@ The sections below explain each limit.
   All are required before the next room.
 - General authorization is cleared immediately on Forget. The captured cleanup
   key is discarded at settlement.
+- Browser page exit is best-effort cleanup, not an observed remote End receipt.
+  The known page-exit abort limitation remains UI-A6 in
+  [0048](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md).
 
 #### Join deferral behind routine reads
 
@@ -859,7 +870,7 @@ timestamp
 | Boundary or threat | Control | Test or evidence |
 | --- | --- | --- |
 | Operator token in the page | The token appears only in a private input or page closure and in same-origin HTTP headers; the input clears on use | Real browser gate scoped reload |
-| Credential persistence and export | Browser storage, URLs, DOM logs and diagnostic exports contain no credentials; Forget and pagehide release credentials and media resources | Reload/storage browser assertion |
+| Credential persistence and export | Browser storage, URLs, DOM logs and diagnostic exports contain no credentials; Forget and pagehide clear credentials and initiate owned-resource cleanup | Reload/storage browser assertion; explicit cleanup barriers remain separate |
 | Optional page credentials | Kept in memory and out of builds, URLs and browser storage in the same way | Each page section and its selected gate |
 | Untrusted server and agent text | Dynamic text uses textContent | Coding rule in [AGENTS.md](AGENTS.md) |
 | Client-side validation | UI schema checks are additional client validation; server scope and authority checks remain mandatory | Strict wire-schema unit tests and negative schema/read/RPC tests |

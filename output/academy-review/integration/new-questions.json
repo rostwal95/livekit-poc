@@ -1,0 +1,659 @@
+{
+  "questions": [
+    {
+      "id": "LK-09",
+      "title": "Conversational tasks and durable work",
+      "question": "When would you use AgentTask, the conversational TaskGroup, asyncio.TaskGroup, or P1 accepted work?",
+      "answer": [
+        "Use AgentTask for focused multi-turn collection that temporarily controls the current session and returns a value. In pinned Python 1.8.11, await the task instance directly. complete(result) settles its future; a generic annotation does not validate that result. The beta conversational TaskGroup sequences factories with stable task IDs and returns keyed results. Revisiting a step changes collected conversational data; it does not undo a supplier receipt.",
+        "asyncio.TaskGroup instead owns related Python tasks within a process, including failure propagation and scope exit. Neither construct alone survives process loss. P1 supplies this project’s persisted acceptance, issued execution authority and reconciliation receipts. For an address-collection example, the SDK can manage the dialogue, while a narrow public domain command validates the collected address and commits any permitted operation. Keep one recovering business owner, and distinguish agent-specific tools from session-scoped tools that remain available across transitions."
+      ],
+      "followups": [
+        {
+          "question": "What is rolled back when an address is corrected?",
+          "answer": "The conversational group can collect the address again and replace its derived result. An already committed external operation retains its identity and receipt. Changing that operation requires the domain’s revision and authorization protocol; restarting the dialogue cannot reverse history."
+        },
+        {
+          "question": "Does AgentTask[Address] validate complete(value)?",
+          "answer": "No. This pin stores the supplied result or exception. Construct a validated runtime model or check it at the consuming boundary. Custom dialogue code may explicitly complete(None); declare an optional result for that contract. AgentTask.cancel() itself settles with ToolError."
+        }
+      ],
+      "watch_for": "Do not equate conversational backtracking, process-local concurrency and durable business recovery.",
+      "sources": [
+        "A01",
+        "A02"
+      ],
+      "evidence": [],
+      "related": [
+        "ROLE-02",
+        "P1-09",
+        "P1-20",
+        "P1-29"
+      ],
+      "integration": {
+        "proposal_id": "REC-P1-01",
+        "chapter_index": 9
+      }
+    },
+    {
+      "id": "LK-10",
+      "title": "Signals that end a turn",
+      "question": "How do VAD, streaming STT, text end-of-turn detection and realtime provider turn control differ?",
+      "answer": [
+        "VAD estimates whether audio contains speech. Streaming STT produces provisional and final text while speech arrives. The text MultilingualModel uses STT conversation context and STT-reported language to estimate whether a turn is complete. It is different from adaptive audio interruption detection. Endpointing applies a wait policy whose timing anchor depends on the selected mode; adding every configured silence delay can double count waiting.",
+        "A realtime provider can own turn control, or a supported integration can supply separate STT and select the framework detector. Choose a controlling path deliberately so competing handlers do not generate duplicate replies. The POC’s manual P2 adapter additionally requires durable input acceptance before its dispatched generation. A final recognition event is an observation, not that acceptance. Diagnose a cutoff with the actual detector, transcript timing, selected thresholds and generation source before changing settings. Measure interruption errors and response latency together on representative audio."
+      ],
+      "followups": [
+        {
+          "question": "What changed in newer turn-detector guidance?",
+          "answer": "Current official documentation describes an audio detector, marks the text detector deprecated and plans its removal in SDK 2.0. Name the chosen plugin and release. Do not assign an audio model's inputs or timing behavior to the text MultilingualModel used in another configuration."
+        },
+        {
+          "question": "Does maximum endpointing delay cap response latency?",
+          "answer": "No. It controls a turn-ending policy in its selected mode. Transcript availability, model/tool calls, synthesis, transport and playout have separate timing boundaries. Budget and observe those stages rather than treating one endpointing setting as a whole-call deadline."
+        }
+      ],
+      "watch_for": "Recognition finality, semantic turn completion and durable admission establish different facts.",
+      "sources": [
+        "A03",
+        "A04"
+      ],
+      "evidence": [],
+      "related": [
+        "LK-03",
+        "LK-04",
+        "D2-07",
+        "D2-08"
+      ],
+      "integration": {
+        "proposal_id": "REC-P1-03",
+        "chapter_index": 9
+      }
+    },
+    {
+      "id": "LK-11",
+      "title": "Preserve the hook and node contract",
+      "question": "Where would you add RAG before generation and pronunciation fixes before synthesis, and what must those extensions preserve?",
+      "answer": [
+        "Use on_user_turn_completed(self, turn_ctx, new_message) for bounded enrichment before the automatic reply. In pinned Python 1.8.11 its default body is pass: returning normally continues, while StopResponse explicitly suppresses automatic reply generation. Read the new message separately from preceding history. Keep retrieved material scoped, bounded and untrusted; adding it to context cannot grant mutation authority.",
+        "For pronunciation, transform the asynchronous text stream in tts_node, forward ModelSettings to the default implementation, and yield AudioFrames. Other nodes have distinct audio, context, tool and chunk contracts. Preserve cancellation and close independently created streams, clients and tasks. Lazy iteration does not prove that buffers are bounded or resources have settled. In the P2 manual adapter, retain the existing accepted-input-first ordering; a hook must not introduce another intake or speculative side-effect path. This is an extension design example, not an implemented general RAG feature of the POC."
+      ],
+      "followups": [
+        {
+          "question": "Can skipping a default hook call suppress the reply?",
+          "answer": "The default user-turn hook is a no-op, and Agent.default does not supply the imagined continuation hook. Use StopResponse for that documented control path. It suppresses automatic generation; it does not cancel accepted business work or fence a possible supplier request."
+        },
+        {
+          "question": "What should a pass-through test assert?",
+          "answer": "Use the real signature and realistic frames, speech events or chunks, including settings. Assert preserved output order, cancellation and owned-resource closure. A mock matching an invented interface cannot establish SDK compatibility; user-audible claims still require actual media evidence."
+        }
+      ],
+      "watch_for": "Hooks mutate turn context; stream nodes transform data. Match the selected SDK contract.",
+      "sources": [
+        "A05",
+        "A18"
+      ],
+      "evidence": [],
+      "related": [
+        "D2-08",
+        "LK-03",
+        "ROLE-01",
+        "ROLE-03"
+      ],
+      "integration": {
+        "proposal_id": "REC-P1-05",
+        "chapter_index": 9
+      }
+    },
+    {
+      "id": "LK-12",
+      "title": "Release only approved output",
+      "question": "How would you review a node that extracts JSON response text for TTS while filtering disallowed content?",
+      "answer": [
+        "Trace every yield and buffer. If original chunks escape before a sentence is approved, replacing the completed sentence later cannot retract speech. Choose a release unit, bound retained bytes and waiting time, and hold that unit until the required checks succeed. Handle malformed or incomplete output explicitly. Parsing JSON establishes syntax, not the intended schema, supported facts or permission to act.",
+        "Respect the actual ChatChunk structure, including tool calls and required metadata. Bind emotion and rendering settings to the response that produced them; a shared last_emotion field can be stale when streams overlap or metadata arrives after speech. Preserve cancellation and own the underlying stream through settlement. Test forbidden phrases split across chunks, escaped strings, oversized output, delayed moderation and cancellation. Keep sensitive generated reasoning out of logs. Display filtering, model ingress protection and audio release are separate boundaries. This is a proposed SDK review exercise; the POC does not implement this general filtering pipeline."
+      ],
+      "followups": [
+        {
+          "question": "Is fail-open always wrong on moderation failure?",
+          "answer": "The policy depends on the product, but it must be explicit and truthful. A parse failure is unknown, not a positive safe verdict. Decide whether to withhold, use a constrained fallback or escalate, and test that branch independently of successful moderation."
+        },
+        {
+          "question": "Can transcript filtering keep original audio private from a realtime model?",
+          "answer": "Not after that audio has already reached the provider. Apply the required protection before the ingress boundary or choose another architecture. Likewise, editing a transcript after synthesis cannot retract audio already published or establish that an earlier utterance was safe."
+        }
+      ],
+      "watch_for": "A later clean transcript cannot prove that unapproved speech never escaped.",
+      "sources": [
+        "A05"
+      ],
+      "evidence": [],
+      "related": [
+        "SYS-08",
+        "ROLE-03",
+        "ROLE-07",
+        "LK-03"
+      ],
+      "integration": {
+        "proposal_id": "REC-P1-06",
+        "chapter_index": 9
+      }
+    },
+    {
+      "id": "LK-13",
+      "title": "Configure a real hybrid pipeline",
+      "question": "How would you combine realtime audio understanding with controlled speech output and verify that a handoff changed model paths?",
+      "answer": [
+        "For a supported turn-based realtime model, configure text-only output and separate TTS to control voice and scripted wording. Verify the exact model/plugin capability; current full-duplex models follow a different contract. A parallel STT observer can provide timely text where needed, but it must not create competing turn authority. Include the extra provider, buffering and lifecycle costs in the design.",
+        "For a realtime-to-cascade handoff, explicitly configure the target agent’s STT, text LLM, TTS and turn policy. In pinned Python 1.8.11 unspecified agent models inherit the session configuration, so changing persona alone does not change the pipeline. Observe which model path produces output and close resources according to their owners. Successful client construction may precede the actual network connection, so it is not provider-health evidence. This is an architecture exercise, not a claim that the POC implements automatic hybrid switching; its configured inference modes remain explicit and separately qualified."
+      ],
+      "followups": [
+        {
+          "question": "Would separate TTS guarantee lower latency?",
+          "answer": "No. It changes output control, streaming, buffering and cost, while adding a component to operate. Compare the same workload and audible timing boundary. Provider load, response length and turn policy can outweigh the architectural change in either direction."
+        },
+        {
+          "question": "How should fallback interact with durable work?",
+          "answer": "Use an explicit permitted model/provider transition and preserve the accepted operation and receipts. Retrying generation is not permission to repeat an uncertain business effect. Qualification must observe actual output on the replacement path, rather than only a selected-mode badge."
+        }
+      ],
+      "watch_for": "A persona transition, client construction and successful new-path inference are separate observations.",
+      "sources": [
+        "A06",
+        "A07"
+      ],
+      "evidence": [],
+      "related": [
+        "LK-01",
+        "LK-03",
+        "LK-08",
+        "FAIL-08"
+      ],
+      "integration": {
+        "proposal_id": "REC-P1-07",
+        "chapter_index": 9
+      }
+    },
+    {
+      "id": "LK-14",
+      "title": "Authorize the token issuer",
+      "question": "A frontend requests a token with roomName and participantName. Which values may the server trust, and what must it decide?",
+      "answer": [
+        "A valid room JWT proves that a server signed particular claims, not that the token requester was entitled to them. Authenticate the application user, resolve their permitted account and conversation on the server, choose an allowed participant identity, and issue only the required room/media/data capabilities. A display name can be user supplied without selecting another customer’s room or case. Signing credentials remain server-side.",
+        "Also authorize agent selection and bound dispatch metadata. A room grant permits its documented realtime operations; it does not let a browser or model confirm a booking. Keep consequential business commands behind their authenticated authority. For a proposed negative test, use a valid application login to request another account’s room, then verify rejection before token issuance or dispatch. Test modified agent names, oversized metadata and repeated requests separately. The POC’s trusted P2 construction and exact confirmation illustrate related boundaries; they do not demonstrate an implementation of this hypothetical frontend token service."
+      ],
+      "followups": [
+        {
+          "question": "Does a short token lifetime replace endpoint authentication?",
+          "answer": "No. An attacker can request another fresh token while issuance remains open. Lifetime limits one credential’s validity; the issuer still needs application authentication, authorization, bounded admission and a documented revocation/recovery policy. Expiry also does not automatically eject an already connected participant."
+        },
+        {
+          "question": "Can a participant attribute safely contain a role?",
+          "answer": "It can convey a backend-issued claim if its trusted origin is verified and the participant cannot rewrite it. A mutable self-asserted attribute cannot grant authority. Bind consequential operations to the authenticated server-side principal and its current permitted scope."
+        }
+      ],
+      "watch_for": "Protecting the signing secret is necessary; it does not authorize the token requester.",
+      "sources": [
+        "A08",
+        "A09",
+        "A10"
+      ],
+      "evidence": [],
+      "related": [
+        "P2-11",
+        "ROLE-05",
+        "LK-02"
+      ],
+      "integration": {
+        "proposal_id": "AC-P2-01",
+        "chapter_index": 9
+      }
+    },
+    {
+      "id": "LK-15",
+      "title": "Realtime APIs and durable commands",
+      "question": "How would you use availability RPCs and confirmation cards without turning them into an unsafe booking protocol?",
+      "answer": [
+        "Use bounded RPC for an immediately useful permitted request, such as reading availability. Check caller identity, application scope, schema, size and deadline; a room connection is not general business authorization. Low-frequency attributes can expose compact current UI state, and text streams can carry incremental messages. These interfaces improve responsiveness but do not supply a durable command or immutable receipt.",
+        "A booking click should submit an exact approved proposal through the authenticated case authority, with its stable command identity and expected revision. After a response timeout, reconcile that original command rather than announce failure or mint a replacement booking. Recover a missing confirmation card with an authorized backend read. A proposed failure test would commit successfully, drop the response, reconnect and verify one original result. The POC’s quote confirmation and retained P2 evidence demonstrate the authority boundary; adding an RPC facade would be a separate adapter requiring its own tests."
+      ],
+      "followups": [
+        {
+          "question": "Where is Python room RPC registered?",
+          "answer": "Use room.local_participant.register_rpc_method(method_name, handler), directly or as a decorator. The handler receives RpcInvocationData, including caller_identity, and returns str; perform_rpc calls the remote method. Python response_timeout uses seconds. This interface is separate from AgentSession observation events."
+        },
+        {
+          "question": "Would synchronized attributes make confirmation durable?",
+          "answer": "They help participants see current room-visible state, including late joiners where supported. They do not provide an atomic business transaction, command receipt or cross-session recovery identity. Render them as projections and reconcile important outcomes through the case authority after an ambiguous response."
+        }
+      ],
+      "watch_for": "An RPC timeout does not prove that its handler or external work stopped.",
+      "sources": [
+        "A11",
+        "A10"
+      ],
+      "evidence": [],
+      "related": [
+        "RTC-06",
+        "P2-19",
+        "P2-24",
+        "ROLE-05"
+      ],
+      "integration": {
+        "proposal_id": "AC-P2-02",
+        "chapter_index": 9
+      }
+    },
+    {
+      "id": "LK-16",
+      "title": "Separate the two dispatch decisions",
+      "question": "A SIP caller reaches the expected room, but the named agent never joins. What is established, and what would you inspect?",
+      "answer": [
+        "The caller has crossed the SIP-to-room placement boundary, but named agent dispatch is not established. The SIP dispatch rule selects the caller’s room. Room agent configuration selects the registered agent job that should enter it. A room prefix is a naming rule, not a subscription pattern that registers a worker. Inspect the matched trunk/rule, room configuration, agent_name, job acceptance and application readiness separately.",
+        "Correlate the SIP participant’s original call identifiers with provider and room observations. If the agent joins but the caller hears silence, investigate media direction, negotiated codec, subscriptions and inference readiness before changing dispatch rules. For a proposed test matrix, vary one boundary at a time: wrong agent name, missing dispatch entry, unavailable worker, then blocked media after successful join. Preserve enough identities to distinguish job readiness from actual conversation. This is preparation for a telephony extension; the POC’s native rooms and signed SMS simulation do not establish a working PSTN integration."
+      ],
+      "followups": [
+        {
+          "question": "Can token dispatch repair an existing room?",
+          "answer": "Current documentation applies token room configuration when the room is created. If the room already exists, use an explicitly authorized dispatch API path rather than assuming a joining participant’s token reapplies creation settings. Check the selected server/API release before implementing the recovery."
+        },
+        {
+          "question": "What changes when collecting keypad digits?",
+          "answer": "Bind collection to the intended caller and supported room DTMF events, cap digits and waiting time, and define termination/cancellation. SDK participants can also publish DTMF messages. Do not log PIN-like values or infer authentication merely because digits arrived from a participant."
+        }
+      ],
+      "watch_for": "Room placement, worker dispatch, participant readiness and audible media need separate evidence.",
+      "sources": [
+        "A12",
+        "A13",
+        "A14",
+        "A26"
+      ],
+      "evidence": [],
+      "related": [
+        "LK-02",
+        "FAIL-01",
+        "RTC-01"
+      ],
+      "integration": {
+        "proposal_id": "AC-P2-03",
+        "chapter_index": 9
+      }
+    },
+    {
+      "id": "LK-17",
+      "title": "Transfer without inventing acceptance",
+      "question": "How would you choose a cold transfer, warm transfer or specialist handoff, and recover when the human never answers?",
+      "answer": [
+        "A cold phone transfer forwards the SIP caller through the provider using REFER and ends the caller’s LiveKit session. A warm workflow keeps control while the caller waits, dials the intended human into private consultation, supplies bounded context and then connects them. A conversational agent handoff changes active behavior; P3 delegation instead produces a separately validated asynchronous result. These operations have different ownership and evidence boundaries.",
+        "For a warm workflow, track caller hold, destination dial, answer, consultation, connection and cleanup explicitly. Keep the briefing private, bind the original caller identity and independently authorize the destination. On no answer, return to the caller with a truthful fallback instead of leaving them on hold. A generated summary aids the human but cannot approve a refund or replace consent. Test caller disconnect and late destination answer as distinct races. This is a proposed telephony exercise, not a feature demonstrated by the POC’s durable receiver or specialist HTTP adapter."
+      ],
+      "followups": [
+        {
+          "question": "Does successful REFER prove human ownership?",
+          "answer": "No. Provider-reported forwarding success can include voicemail, an IVR or another answering endpoint. After successful forwarding LiveKit no longer observes that call. Record the supported transfer result and obtain a separate application acknowledgement if a human taking responsibility matters."
+        },
+        {
+          "question": "What if the caller leaves during briefing?",
+          "answer": "Close or cancel owned consultation/dial work through the supported workflow, observe resource termination and prevent an orphaned merge. Preserve the original transfer facts and reconcile late events. A cancelled local waiter alone does not prove the external phone leg stopped."
+        }
+      ],
+      "watch_for": "Dial success, human answer, completed transfer and business acknowledgement are different facts.",
+      "sources": [
+        "A15",
+        "A16"
+      ],
+      "evidence": [],
+      "related": [
+        "P3-01",
+        "P3-13",
+        "ROLE-02"
+      ],
+      "integration": {
+        "proposal_id": "AC-P2-05",
+        "chapter_index": 9
+      }
+    },
+    {
+      "id": "ROLE-13",
+      "title": "Evaluate language and correctness separately",
+      "question": "A prompt change raises average judge scores but occasionally repeats a booking. How would you evaluate and release it?",
+      "answer": [
+        "Keep the no-duplicate-effect assertion as a deterministic release requirement against authoritative receipts and independent supplier observations. A better tone or relevance score cannot compensate for an unauthorized or repeated action. Evaluate language quality alongside those invariants with separate outcomes, rather than blending them into one score that can hide a severe failure.",
+        "Freeze representative scenarios, source data, prompt/model/tool versions, judge rubric and judge version. Include ambiguous acknowledgement, refusal, incorrect arguments, interruption, conflicting evidence and no-source cases. Compare baseline and candidate on the same inputs, repeat stochastic cases where justified, and inspect severity and subgroup failures. Calibrate a held-out sample against human labels and retain disagreements. AgentSession.run can expose messages, tool calls and handoffs, while a model judge supplements those structural observations. Provider-backed generation/judging belongs in an explicit lane. This proposed evaluation adds language-behavior evidence; it does not establish physical playback, resource closure or production capacity."
+      ],
+      "followups": [
+        {
+          "question": "Can a judge determine whether mutation happened?",
+          "answer": "No. Use the judge for language against a declared rubric; read the business authority and independent supplier records for execution truth. A fluent confirmation can be false, and an acknowledgement loss can conceal a committed operation. Grade those facts through deterministic observations."
+        },
+        {
+          "question": "When may a baseline change?",
+          "answer": "After an intentional reviewed change, retaining the old manifest and explaining the expected differences. Do not replace it just to make failures disappear. Investigate judge disagreement separately from hard invariant failures; required checks that were skipped or unobserved remain nonpassing."
+        }
+      ],
+      "watch_for": "Conversational quality supplements correctness evidence; a high average score cannot waive a failed invariant.",
+      "sources": [
+        "A17"
+      ],
+      "evidence": [],
+      "related": [
+        "ROLE-07",
+        "P3-11",
+        "LK-08"
+      ],
+      "integration": {
+        "proposal_id": "AC-P3-01",
+        "chapter_index": 14
+      }
+    },
+    {
+      "id": "LK-18",
+      "title": "Bind retrieval to the original turn",
+      "question": "Where would you retrieve private knowledge for a voice reply, and what if the lookup returns after interruption?",
+      "answer": [
+        "Choose initial context, an explicit retrieval tool or a turn-completion hook according to whether information is stable, optional or required before generation. The pinned Python hook receives turn_ctx and new_message. Capture the original message and trusted caller scope before awaiting a lookup; avoid querying a mutable global transcript. Bound asynchronous requests, retrieved bytes/chunks and concurrent work. Own any blocking offload through its actual completion.",
+        "Barge-in or a local timeout changes the waiting conversation, not necessarily a running database operation. Retain ownership until settlement, then validate the original generation/lifecycle binding before incorporating a result. Never inject late data into whichever turn is now current. Cancel supported work, and discard or retain late evidence according to an explicit policy. Return a truthful pending or no-source response and measure the chosen latency boundary; there is no universal retrieval budget. Retrieved content remains untrusted evidence and cannot authorize P1 action. The POC’s fixed-policy records are not a general RAG implementation."
+      ],
+      "followups": [
+        {
+          "question": "Should retrieval run for every utterance?",
+          "answer": "Only under a deliberate design. Greetings may need no lookup, while account facts may belong behind an authenticated tool. Unnecessary retrieval adds exposure, cost and delay. Compare the alternatives on representative tasks, including failures and the actual voice-response budget."
+        },
+        {
+          "question": "May a policy document instruct approval?",
+          "answer": "No. Source text cannot grant permissions or replace exact human confirmation. Enforce access at the source, preserve provenance and keep trusted application instructions separate. Test a valid retrieved document containing malicious instructions and require the exact action guard to remain authoritative."
+        }
+      ],
+      "watch_for": "Relevance does not establish current permission, turn ownership or mutation consent.",
+      "sources": [
+        "A18",
+        "A05"
+      ],
+      "evidence": [],
+      "related": [
+        "LK-03",
+        "LK-04",
+        "P3-08",
+        "SYS-08"
+      ],
+      "integration": {
+        "proposal_id": "AC-P3-04",
+        "chapter_index": 9
+      }
+    },
+    {
+      "id": "LK-19",
+      "title": "Cache sources within their permitted scope",
+      "question": "Two users ask the same policy question. When may you reuse cached retrieval and cite it?",
+      "answer": [
+        "Equivalent wording is only one input. Authorize the second user independently and bind reuse to the permitted tenant/account/document set, source/index version, retrieval configuration and any other answer-changing context. Store original chunk/source/version identifiers and revalidate when access or evidence changes. Bound entries and bytes. A TTL limits age; it does not establish current access, correct source scope or a complete memory bound.",
+        "Distinguish exact normalized-key reuse from semantic similarity search. A real semantic cache needs a retrieval/validation rule and measured false-hit behavior, especially for negation, quantities and nearly identical policies. Preserve protected citation metadata. Speak a concise attribution suited to audio, while retaining an inspectable passage/version in an authorized text view where available. A model naming a document does not prove support. Test conflicting, stale and unanswerable cases, including the same wording from another account. This is a proposed RAG design; P3’s fixed-policy verifier establishes only its bounded synthetic rule and does not qualify arbitrary prose retrieval."
+      ],
+      "followups": [
+        {
+          "question": "Does a matching title establish support?",
+          "answer": "No. The retained version and relevant passage must support the claim. A title match or similarity score establishes neither entailment nor current applicability. Arbitrary prose needs its own retrieval and faithfulness evaluation, uncertainty handling and an abstention path when sources do not support an answer."
+        },
+        {
+          "question": "Why not clear only the answer card?",
+          "answer": "Presentation state is not the source-access contract or protected identity ledger. Cached chunks, retained receipts and unresolved processing have different lifetimes. Define invalidation separately, preserve replay protection and prevent a hidden card from being treated as deleted business authority."
+        }
+      ],
+      "watch_for": "A semantic match is not a permission check or a citation proof.",
+      "sources": [
+        "A18"
+      ],
+      "evidence": [],
+      "related": [
+        "P3-11",
+        "P3-21",
+        "D3-03",
+        "P3-04"
+      ],
+      "integration": {
+        "proposal_id": "AC-P3-05",
+        "chapter_index": 9
+      }
+    },
+    {
+      "id": "LK-20",
+      "title": "One authority across graphs and tools",
+      "question": "Can LangGraph checkpoints or MCP tools replace P1’s durable work and exact confirmation?",
+      "answer": [
+        "Only through an explicit redesign that proves the required contracts. A checkpointer preserves the graph state defined by its implementation; MCP exposes tool interfaces. Neither automatically supplies this project’s original accepted bytes, exact confirmation, issued execution authority, effect uncertainty and receipt reconciliation. Choose the owner of each fact and retain one recovering owner for an accepted business obligation.",
+        "For an experiment, route graph/MCP actions through narrow public adapters carrying stable original command identities. Bind graph thread lookup to authenticated conversation scope and own the checkpointer, clients and remote work. After crash recovery, reconcile the original operation before any permitted invocation; timeout does not prove an effect stopped. Current LiveKit LangChain documentation describes a Python LLMAdapter over a compiled graph. Check the selected plugin/core release and its tool integration instead of assuming TypeScript parity or transparent function calling. This composition is not implemented by the POC, and framework persistence must not create a second recovery queue beside P1."
+      ],
+      "followups": [
+        {
+          "question": "Could the graph be the sole durable authority?",
+          "answer": "Yes, as a separate architecture with a defined fault model and demonstrated acceptance, consent, idempotency and effect protocol. Select a persistent checkpointer where required; an in-memory saver does not survive restart. Demonstrate recovery rather than inferring it from a checkpoint API."
+        },
+        {
+          "question": "Does a typed MCP tool carry consent?",
+          "answer": "No. Discovery and schemas describe the callable interface. Authenticate scope and bind exact approved intent at the server-owned boundary. Preserve the external operation’s reconciliation identity after an uncertain acknowledgement, even if graph replay or tool discovery presents a convenient fresh invocation."
+        }
+      ],
+      "watch_for": "Persistent graph state and tool discovery do not automatically implement business-effect guarantees.",
+      "sources": [
+        "A19",
+        "A20",
+        "A25"
+      ],
+      "evidence": [],
+      "related": [
+        "P1-20",
+        "P3-01",
+        "P3-02",
+        "ROLE-02",
+        "ROLE-06"
+      ],
+      "integration": {
+        "proposal_id": "AC-P3-06",
+        "chapter_index": 9
+      }
+    },
+    {
+      "id": "SCALE-09",
+      "title": "Choose providers with a repeatable experiment",
+      "question": "How would you choose an STT/LLM/TTS stack without relying on a provider ranking table?",
+      "answer": [
+        "Define the task, languages/accents, noise, interruption patterns, tool schemas, privacy constraints and acceptable failure behavior. Freeze audio/scenario inputs and model/plugin/prompt versions. Keep other components fixed while changing one, then compare recognition errors, task/tool correctness, first rendered audio, interruptions and useful completion under the same load and region. Retain failure cases and distributions rather than one attractive latency.",
+        "Price the actual billable units for the selected product and date. Audio time, characters, input/output/cache tokens and native audio tokens are different units. Include relevant transport, telephony, hosting, retry and unsuccessful-work costs. Compare cost per useful resolution alongside quality and privacy, and measure the complete pipeline again after selecting components. Do not infer that realtime always wins latency or costs a fixed multiple. Course tables are hypotheses rather than application measurements. In this checkout, scripted, local_real and provider_real qualification remain distinct, and no silent fallback is authorized. This experiment has not been executed by the book."
+      ],
+      "followups": [
+        {
+          "question": "How is word error rate calculated?",
+          "answer": "For a specified corpus, WER = (substitutions + deletions + insertions) / reference-word count. Declare normalization, reference quality and aggregation. Stratify critical entities and conditions; aggregate WER can hide dangerous errors on names, numbers or a minority language despite an improving average."
+        },
+        {
+          "question": "Why not sum three average stage timings?",
+          "answer": "Streaming and endpointing create dependencies and overlap, and different averages may describe different turns. Measure a defined end-to-end boundary directly and correlate compatible supporting spans. A provider’s first byte or model token is not necessarily the first audible output received by the caller."
+        }
+      ],
+      "watch_for": "Freeze the workload and measurement boundary before comparing quality, latency or cost.",
+      "sources": [
+        "A21",
+        "A06"
+      ],
+      "evidence": [],
+      "related": [
+        "LK-03",
+        "LK-08",
+        "FAIL-02",
+        "SCALE-07"
+      ],
+      "integration": {
+        "proposal_id": "AC-P3-07",
+        "chapter_index": 11
+      }
+    },
+    {
+      "id": "SCALE-10",
+      "title": "Restore each class of state",
+      "question": "If Redis and configuration backups are healthy, what can still be lost when a LiveKit node dies?",
+      "answer": [
+        "Backups and coordination state do not reproduce running WebRTC transports, live buffers, agent-local resources or application receipts. Public self-hosted LiveKit uses Redis for shared coordination, while an individual room must fit on one SFU node. Agent servers register through an outbound WebSocket and form a separate deployment/failure boundary. Healthy coordination does not prove conversation continuity.",
+        "Inventory protected configuration/secrets, cluster coordination, live media/session state, agent memory and P1 business state. Give each a recovery owner and justified RPO/RTO. A proposed drill should restore compatible configuration, establish a usable new connection and reconcile accepted work through original receipts and supplier identities. Graceful draining differs from forced node loss: a call may be interrupted while business reconciliation remains pending. Verify actual network and metrics configuration instead of assuming /metrics is exposed on the main API port. Preserve failed recovery evidence and test useful new progress after settlement. The current local POC has not demonstrated redundant SFUs or regional failover."
+      ],
+      "followups": [
+        {
+          "question": "Does a long termination grace prevent dropped calls?",
+          "answer": "No. It gives the process an opportunity to drain under the orchestrator’s contract. Calls can outlast it, dependencies can fail or a node can die abruptly. Define new admission, retained ownership and forced-loss recovery, then observe those behaviors with the chosen shutdown policy."
+        },
+        {
+          "question": "What does a healthy endpoint establish?",
+          "answer": "Only its configured checks. Demonstrate authenticated connection, actual media on the selected paths and independently verified business progress for those stronger claims. Keep media-server health, worker registration, provider readiness and durable-work recovery separately observable; a single green probe cannot substitute for them."
+        }
+      ],
+      "watch_for": "Restoring configuration is not proof of transparent media continuation or recovered business effects.",
+      "sources": [
+        "A22",
+        "A23",
+        "A24"
+      ],
+      "evidence": [],
+      "related": [
+        "BUS-01",
+        "LK-02",
+        "SCALE-04",
+        "SCALE-06",
+        "SCALE-08"
+      ],
+      "integration": {
+        "proposal_id": "AC-P3-08",
+        "chapter_index": 11
+      }
+    }
+  ],
+  "sources": {
+    "A01": [
+      "LiveKit: Tasks and task groups",
+      "https://docs.livekit.io/agents/logic/tasks/"
+    ],
+    "A02": [
+      "LiveKit: Workflows",
+      "https://docs.livekit.io/agents/logic/workflows/"
+    ],
+    "A03": [
+      "LiveKit: Turn detector",
+      "https://docs.livekit.io/agents/logic/turns/turn-detector/"
+    ],
+    "A04": [
+      "LiveKit: Silero VAD",
+      "https://docs.livekit.io/agents/logic/turns/vad/"
+    ],
+    "A05": [
+      "LiveKit: Pipeline nodes and hooks",
+      "https://docs.livekit.io/agents/logic/nodes/"
+    ],
+    "A06": [
+      "LiveKit: Realtime models",
+      "https://docs.livekit.io/agents/models/realtime/"
+    ],
+    "A07": [
+      "LiveKit: OpenAI Realtime",
+      "https://docs.livekit.io/agents/models/realtime/openai/"
+    ],
+    "A08": [
+      "LiveKit: Frontend authentication",
+      "https://docs.livekit.io/frontends/build/authentication/"
+    ],
+    "A09": [
+      "LiveKit: Access tokens and grants",
+      "https://docs.livekit.io/frontends/reference/tokens-grants/"
+    ],
+    "A10": [
+      "LiveKit: Participant attributes",
+      "https://docs.livekit.io/transport/data/state/participant-attributes/"
+    ],
+    "A11": [
+      "LiveKit: Remote procedure calls",
+      "https://docs.livekit.io/transport/data/rpc/"
+    ],
+    "A12": [
+      "LiveKit: SIP dispatch rules",
+      "https://docs.livekit.io/telephony/accepting-calls/dispatch-rule/"
+    ],
+    "A13": [
+      "LiveKit: Agent dispatch",
+      "https://docs.livekit.io/agents/server/agent-dispatch/"
+    ],
+    "A14": [
+      "LiveKit: SIP participant attributes",
+      "https://docs.livekit.io/reference/telephony/sip-participant/"
+    ],
+    "A15": [
+      "LiveKit: Agent-assisted warm transfer",
+      "https://docs.livekit.io/telephony/features/transfers/warm/"
+    ],
+    "A16": [
+      "LiveKit: Call forwarding",
+      "https://docs.livekit.io/telephony/features/transfers/cold/"
+    ],
+    "A17": [
+      "LiveKit: Unit tests",
+      "https://docs.livekit.io/testing/unit-tests/"
+    ],
+    "A18": [
+      "LiveKit: External data and RAG",
+      "https://docs.livekit.io/agents/logic/external-data/"
+    ],
+    "A19": [
+      "LiveKit: LangChain integration",
+      "https://docs.livekit.io/agents/models/llm/langchain/"
+    ],
+    "A20": [
+      "LangGraph: Persistence",
+      "https://docs.langchain.com/oss/python/langgraph/persistence"
+    ],
+    "A21": [
+      "LiveKit: Session data hooks",
+      "https://docs.livekit.io/testing/observability/data/"
+    ],
+    "A22": [
+      "LiveKit: Self-hosted media server deployment",
+      "https://docs.livekit.io/transport/self-hosting/deployment/"
+    ],
+    "A23": [
+      "LiveKit: Self-hosted agent deployments",
+      "https://docs.livekit.io/deploy/custom/deployments/"
+    ],
+    "A24": [
+      "LiveKit: Distributed self-hosting",
+      "https://docs.livekit.io/transport/self-hosting/distributed/"
+    ],
+    "A25": [
+      "LiveKit: Model Context Protocol tools",
+      "https://docs.livekit.io/agents/logic/tools/mcp/"
+    ],
+    "A26": [
+      "LiveKit: Handling DTMF",
+      "https://docs.livekit.io/telephony/features/dtmf/"
+    ]
+  },
+  "integration_notes": {
+    "chapter_index_basis": "zero-based indices in audited-content.json; chapters are not renumbered",
+    "authorship": "Original interview scenarios adapted from the authorized audit recommendations; no course quiz text or answer key copied",
+    "proof_scope": "General SDK behavior and proposed exercises are distinguished from implemented POC authority. No provider, application test, SIP or RAG exercise was executed for this authoring.",
+    "version_scope": "Pinned Python core source checks use livekit-agents 1.8.11. Current official plugin/server capabilities require release-specific verification.",
+    "word_count_basis": "Whitespace-delimited title, question, answer paragraphs, follow-up questions/answers and watch_for; excludes source labels and hidden integration metadata.",
+    "word_counts": {
+      "LK-09": 261,
+      "LK-10": 267,
+      "LK-11": 270,
+      "LK-12": 282,
+      "LK-13": 273,
+      "LK-14": 286,
+      "LK-15": 272,
+      "LK-16": 288,
+      "LK-17": 282,
+      "ROLE-13": 277,
+      "LK-18": 283,
+      "LK-19": 287,
+      "LK-20": 285,
+      "SCALE-09": 283,
+      "SCALE-10": 290
+    }
+  }
+}

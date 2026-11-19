@@ -42,7 +42,7 @@ Contents:
 | Charter row | The table row for one acceptance ID in a project charter under `docs/projects`. The harness parses these rows into its catalog. |
 | Catalog | [catalog.json](catalog.json): the 55 case definitions and the runners registered for them. |
 | Registered runner | A catalog entry that executes a case's actual assertions. |
-| Selected phase gate | An explicit local check for one implementation slice. It never registers or passes a complete charter row. |
+| Selected phase gate | An explicit local check for one implementation slice. Complete charter registration still requires every normative row assertion. |
 | Task ID | An implementation task such as `P2-I14`, `P1-I27` or `S-I06` from the [granular roadmap](../docs/implementation-plan.md). |
 | Execution mode | offline, lab or live, as defined in the [portfolio scope](../docs/portfolio-scope.md). |
 | Inference profile | scripted (default), local_real or provider_real. |
@@ -88,7 +88,7 @@ owns current complete runner registrations. Full product coverage remains pendin
 | Baseline | 1 (`BASE-01`) | 1 | Implemented | Runs the [M1 intake tests](../tests/test_intake.py) |
 | P1 agent continuity | 20 (`P1-01` to `P1-20`) | 20 | Qualified | Retained P1-01 through P1-20 reports passed |
 | P2 channel continuity | 17 | 0 | Planned | No registered runner |
-| P3 delegation reliability | 17 | 3 (`P3-01`, `P3-03`, `P3-11`) | Partial: 14 rows planned | Complete lab runners with fresh passing reports |
+| P3 delegation reliability | 17 | 3 (`P3-01`, `P3-03`, `P3-11`) | Partial: 14 rows planned | Complete lab runners with retained passing reports |
 
 All 17 P2 rows and the remaining 14 P3 rows stay planned, so full aggregates remain
 incomplete.
@@ -108,6 +108,10 @@ suites, exact PostgreSQL assertion mappings and fresh infrastructure reports:
 
 P1 V1 is qualified for the local POC using provider_real v2. local_real remains
 unqualified.
+
+The [current P1 qualification summary](../docs/build-plan.md#p1-qualification)
+distinguishes that retained release from the later booking-v5 rerun, whose fresh
+P1-20 provider result remains open.
 
 ### Completed selected phase gates
 
@@ -579,8 +583,9 @@ schedule. See the
 [origin work item](../docs/work-items/0044-origin-bound-channel-policy.md) for exact
 scope, failures and evidence.
 
-Integrated browser voice/text/SMS, provider composition, restart discovery and the
-final demo video remain separately gated.
+Complete joined browser voice/text/SMS and restart/discovery qualification remain
+separate. Later [provider journeys and the recorded demo](../docs/work-items/0046-joined-showcase-providers-and-demo.md)
+retain their own scope and do not close those gates.
 
 ### Workload and document gates
 
@@ -943,4 +948,4 @@ Later work follows the [build plan](../docs/build-plan.md). Meanwhile:
 | Preserve historical source-bound evidence | Stays preserved | Retained work-item evidence |
 | Retain planned status for all 17 P2 rows and the remaining 14 P3 rows | Aggregates stay incomplete | Deep lane exit code 2 |
 | Retain unqualified status for local_real | No local_real qualification claim | Its own fresh evidence must pass first |
-| Pursue full P2/P3 acceptance, integrated browser voice/text/SMS and the final demo video | Each remains separately gated | Its own separate gate |
+| Pursue full P2/P3 acceptance and joined voice/text/SMS qualification | Recorded provider journeys/video do not close complete gates | Its own separate gate |

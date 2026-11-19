@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why does a LiveKit voice agent not need any code changes to handle phone callers compared to WebRTC browser callers?",
+    "options": [
+      "Phone audio is converted to text before reaching the agent, bypassing the audio pipeline entirely",
+      "The agent framework detects phone callers and automatically switches to a telephony mode",
+      "LiveKit's SIP bridge translates phone audio into standard Participant Tracks in a Room, so the agent just sees another participant with audio",
+      "Phone callers use the same WebRTC protocol as browser users"
+    ],
+    "correctIndex": 2,
+    "explanation": "LiveKit's SIP bridge handles all protocol translation. A phone caller becomes a Participant in a Room with their voice published as an audio Track -- exactly the same as a browser-based WebRTC caller. The agent subscribes to audio, runs STT/LLM/TTS, and publishes back. The transport difference is completely abstracted away."
+  },
+  {
+    "question": "In the SIP protocol, what is the relationship between signaling and media?",
+    "options": [
+      "Signaling (SIP messages) sets up and tears down calls while media (RTP packets) carries the actual voice audio on separate paths",
+      "Signaling and media are the same thing -- SIP messages carry both control information and audio data",
+      "Signaling encrypts the media stream before it is sent to the recipient",
+      "Signaling handles outbound calls while media handles inbound calls"
+    ],
+    "correctIndex": 0,
+    "explanation": "SIP strictly separates signaling and media. SIP signaling messages (similar to HTTP) negotiate call parameters -- who is calling, which codecs to use, where to send audio. Once the call is established, voice audio flows over RTP on a completely separate path. Signaling may traverse multiple proxies while media flows directly between endpoints."
+  },
+  {
+    "question": "What practical difference should you be aware of when your agent handles phone callers versus browser callers?",
+    "options": [
+      "Phone callers cannot hear TTS audio, only pre-recorded messages",
+      "Phone callers are limited to 30-second call durations",
+      "Phone audio defaults to narrowband codecs (8kHz) rather than Opus (48kHz), meaning the STT model receives lower-fidelity audio",
+      "The agent must use a different LLM model for phone-based conversations"
+    ],
+    "correctIndex": 2,
+    "explanation": "Phone calls typically use narrowband codecs like G.711 (8kHz sampling rate) compared to Opus (48kHz) in WebRTC. This lower fidelity can affect STT accuracy. Additionally, phone callers have no visual interface and are identified by phone number rather than username. The agent code itself stays the same, but these practical differences may influence design decisions."
+  }
+]

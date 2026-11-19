@@ -1,0 +1,248 @@
+1Production telephony patterns overview
+
+2Warm transfers
+
+3Cold transfers
+
+4Call recording & compliance
+
+5Building the outbound system
+
+6Queue management
+
+7Error handling & retries
+
+8Monitoring & analytics
+
+9Load testing
+
+Error handling & retries
+
+SIP error handling and fallback routing
+
+SIP trunks fail. Networks partition. Carriers have outages. A production telephony system cannot treat errors as exceptions — they are part of normal operation. This chapter covers the SIP errors you will encounter most often, how to implement retry logic with exponential backoff, and how to configure fallback routing so calls land somewhere even when your primary trunk is down.
+
+What you'll learn
+
+The most common SIP error codes and what they mean for your system
+
+How to implement retry logic with exponential backoff and jitter
+
+How to configure fallback routing when a primary trunk fails
+
+How to keep callers informed during error recovery
+
+Common SIP error codes
+
+SIP follows the HTTP model for status codes. The ones you will see most often in telephony:
+
+Code | Name | Meaning | Action
+408 | Request Timeout | The remote party did not respond in time | Retry after delay
+486 | Busy Here | The callee is on another call | Retry or route to voicemail
+487 | Request Terminated | The call was cancelled before being answered | Log and move on
+503 | Service Unavailable | The SIP trunk or carrier is overloaded or down | Switch to fallback trunk
+504 | Server Timeout | An intermediary timed out | Retry with fallback
+
+Not all errors are retryable. A 486 Busy means the specific person is unavailable right now — retrying in 30 seconds might work. A 503 Service Unavailable means the entire trunk or carrier has a problem — retrying the same trunk immediately will fail again. Your retry strategy must distinguish between transient and persistent failures.
+
+Retry logic with exponential backoff
+
+When a retryable error occurs, do not retry immediately. Each retry should wait longer than the last, with some randomness (jitter) to prevent thundering herd problems when many calls fail simultaneously.
+
+import asyncio
+import random
+from dataclasses import dataclass
+
+@dataclass
+class RetryConfig:
+  max_retries: int = 3
+  base_delay: float = 1.0      # seconds
+  max_delay: float = 30.0      # seconds
+  jitter_factor: float = 0.5   # 0 to 1
+
+RETRYABLE_CODES = {408, 480, 503, 504}
+
+class SIPCallError(Exception):
+  def __init__(self, sip_code: int, message: str):
+      self.sip_code = sip_code
+      super().__init__(f"SIP {sip_code}: {message}")
+
+async def place_outbound_call(phone_number: str, trunk_id: str, room_name: str):
+  """Place an outbound call via LiveKit SIP (from the outbound-system chapter)."""
+  from livekit.api import LiveKitAPI, CreateSIPParticipantRequest
+
+  api = LiveKitAPI()
+  return await api.sip.create_sip_participant(
+      CreateSIPParticipantRequest(
+          sip_trunk_id=trunk_id,
+          sip_call_to=phone_number,
+          room_name=room_name,
+          participant_identity=f"caller-{phone_number}",
+      )
+  )
+
+
+async def place_call_with_retry(
+  phone_number: str,
+  trunk_id: str,
+  room_name: str,
+  config: RetryConfig = RetryConfig(),
+):
+  last_error = None
+
+  for attempt in range(config.max_retries + 1):
+      try:
+          return await place_outbound_call(phone_number, trunk_id, room_name)
+      except SIPCallError as e:
+          last_error = e
+
+          if e.sip_code not in RETRYABLE_CODES:
+              raise  # Non-retryable error, fail immediately
+
+          if attempt == config.max_retries:
+              raise  # Exhausted retries
+
+          delay = min(
+              config.base_delay * (2 ** attempt),
+              config.max_delay,
+          )
+          jitter = delay * config.jitter_factor * random.random()
+          await asyncio.sleep(delay + jitter)
+
+  raise last_error
+
+interface RetryConfig {
+maxRetries: number;
+baseDelay: number;
+maxDelay: number;
+jitterFactor: number;
+}
+
+const DEFAULT_CONFIG: RetryConfig = {
+maxRetries: 3,
+baseDelay: 1.0,
+maxDelay: 30.0,
+jitterFactor: 0.5,
+};
+
+const RETRYABLE_CODES = new Set([408, 480, 503, 504]);
+
+async function placeCallWithRetry(
+phoneNumber: string,
+trunkId: string,
+roomName: string,
+config: RetryConfig = DEFAULT_CONFIG,
+) {
+let lastError: Error | undefined;
+
+for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
+  try {
+    return await placeOutboundCall(phoneNumber, trunkId, roomName);
+  } catch (error: any) {
+    lastError = error;
+
+    if (!RETRYABLE_CODES.has(error.sipCode)) {
+      throw error;
+    }
+    if (attempt === config.maxRetries) {
+      throw error;
+    }
+
+    const delay = Math.min(
+      config.baseDelay * 2 ** attempt,
+      config.maxDelay,
+    );
+    const jitter = delay * config.jitterFactor * Math.random();
+    await new Promise((r) => setTimeout(r, (delay + jitter) * 1000));
+  }
+}
+
+throw lastError;
+}
+
+Retries are not free
+
+Every retry consumes trunk capacity. If your trunk is overloaded (503), aggressive retries make the situation worse. Use conservative retry limits — 3 retries is usually enough — and switch to a fallback trunk rather than hammering the same one.
+
+Fallback routing
+
+When your primary SIP trunk is consistently failing, route calls through a backup trunk instead of continuing to retry. Fallback routing requires at least two configured trunks with different carriers.
+
+from dataclasses import dataclass
+
+@dataclass
+class TrunkConfig:
+  trunk_id: str
+  name: str
+  priority: int  # Lower is higher priority
+  healthy: bool = True
+  consecutive_failures: int = 0
+  failure_threshold: int = 3
+
+class TrunkRouter:
+  def __init__(self, trunks: list[TrunkConfig]):
+      self.trunks = sorted(trunks, key=lambda t: t.priority)
+
+  def get_active_trunk(self) -> TrunkConfig | None:
+      for trunk in self.trunks:
+          if trunk.healthy:
+              return trunk
+      return None  # All trunks are down
+
+  def record_success(self, trunk_id: str):
+      for trunk in self.trunks:
+          if trunk.trunk_id == trunk_id:
+              trunk.consecutive_failures = 0
+              trunk.healthy = True
+              break
+
+  def record_failure(self, trunk_id: str):
+      for trunk in self.trunks:
+          if trunk.trunk_id == trunk_id:
+              trunk.consecutive_failures += 1
+              if trunk.consecutive_failures >= trunk.failure_threshold:
+                  trunk.healthy = False
+              break
+
+async def place_call_with_fallback(
+  phone_number: str,
+  room_name: str,
+  router: TrunkRouter,
+):
+  trunk = router.get_active_trunk()
+  if trunk is None:
+      raise RuntimeError("All SIP trunks are unavailable")
+
+  try:
+      result = await place_call_with_retry(phone_number, trunk.trunk_id, room_name)
+      router.record_success(trunk.trunk_id)
+      return result
+  except SIPCallError:
+      router.record_failure(trunk.trunk_id)
+      # Try the next healthy trunk
+      next_trunk = router.get_active_trunk()
+      if next_trunk and next_trunk.trunk_id != trunk.trunk_id:
+          return await place_call_with_retry(phone_number, next_trunk.trunk_id, room_name)
+      raise
+
+The circuit breaker pattern marks a trunk as unhealthy after a configurable number of consecutive failures. Once marked unhealthy, no calls are routed to that trunk until a health check restores it. This prevents wasting time and trunk capacity on a known-bad route. In production, add a periodic health check that tests unhealthy trunks and restores them when the carrier recovers.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why should retry logic use exponential backoff with jitter instead of fixed-interval retries?
+
+What you learned
+
+SIP error codes tell you whether an error is retryable (408, 503) or permanent (486, 603).
+
+Exponential backoff with jitter prevents thundering herd problems during failures.
+
+Fallback routing with a circuit breaker pattern keeps calls flowing when a primary trunk fails.
+
+Callers should never be left in silence — always communicate what is happening during error recovery.
+
+Next up
+
+In the next chapter, you will set up monitoring and dashboards to track call metrics, generate Call Detail Records, and keep your operations team informed.

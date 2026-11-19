@@ -1,0 +1,3554 @@
+{
+  "review_date": "2026-11-19",
+  "reviewer_scope": "Courses 5.1, 5.2, 5.3, 6.1, 6.2, 6.3 and 7.1; 40 chapters total.",
+  "book": {
+    "path": "/Users/rostwal/Downloads/livekit-poc/output/book-audit/source/audited-content.json",
+    "sha256": "d863132580fa0325b8f1eea56ae14f5e3097bb408c1c228276edf8d241668245",
+    "existing_main_questions": 220,
+    "mutated": false
+  },
+  "method": {
+    "inventory_source": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/crawl-inventory.json",
+    "ordered_catalogue": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/course-catalogue.json",
+    "web_opened_all_course_and_lesson_links": true,
+    "accessible_lesson_articles_reviewed": 40,
+    "review_depth": "Read accessible article prose across all selected chapters, inspected relevant code blocks for API and ownership problems, compared the book answers and checked high-impact API claims against official docs and installed SDK source. This is not a line-by-line execution certification of every snippet.",
+    "code_execution": "None. No tests, providers, paid runs, deployment commands, exam submission or completion actions.",
+    "write_scope": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/p3-course-review.json"
+  },
+  "access_limits": [
+    "All seven course pages and all 40 lesson URLs returned HTTP 200 in the retained direct-GET crawl. Initial browser-tool failures for two course landing pages were retrieval failures, not proven course access restrictions.",
+    "No video was watched. The retained crawl reports zero video elements on these pages; linked or dynamically loaded media were not independently consumed.",
+    "Quiz pages initially render a first question and question counter. Later interactive questions, scoring, answers and credential issuance were not exercised.",
+    "The Academy is treated as a secondary educational source. Copyright/footer styling and outbound links do not independently establish an official certification or endorsed API."
+  ],
+  "recommendation": {
+    "decision": "Keep the audited book unchanged during this review. Add a small, separately reviewed advanced supplement from the eight original proposals after corrections, rather than importing course code or quiz questions.",
+    "highest_priority": [
+      "AC-P3-01",
+      "AC-P3-04",
+      "AC-P3-05",
+      "AC-P3-06",
+      "AC-P3-07"
+    ],
+    "retain_existing_strengths": [
+      "Exact acceptance/idempotency, separate business authority and media lifecycle.",
+      "Cancellation and real resource ownership, result truth versus fresh permission, independent fault evidence.",
+      "Explicit local/partial qualification and version-pinned source reading."
+    ],
+    "do_not_claim": [
+      "A course read or quiz pass qualifies the POC for production.",
+      "A model judge proves effect execution, permission, media delivery or cleanup.",
+      "Current Cloud/docs API examples are interchangeable with the pinned Python/TypeScript/browser artifacts.",
+      "A LiveKit Academy credential is official or recognized without separate verification."
+    ]
+  },
+  "course_chapter_inventory": [
+    {
+      "id": "5.1",
+      "title": "Testing & Evaluation",
+      "url": "https://www.livekit-academy.com/courses/testing-evaluation",
+      "advertised_minutes": 150,
+      "chapter_minutes": 140,
+      "course_http_status": 200,
+      "chapters": [
+        {
+          "title": "Testing strategy for voice AI",
+          "url": "https://www.livekit-academy.com/courses/testing-evaluation/testing-strategy",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__testing-strategy.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__testing-strategy.code.json",
+          "http_status": 200,
+          "code_blocks": 6,
+          "chapter_id": "5.1.1",
+          "judgment": "correct",
+          "existing_qids": [
+            "ROLE-07",
+            "P3-11"
+          ],
+          "assessment": "Keep the layered distinction between tool correctness, conversational behavior and quality; replace the unsupported harness API and the assertion that LLM judging is network-free.",
+          "caution_ids": [
+            "C01"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-01"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Behavioral tests deep dive",
+          "url": "https://www.livekit-academy.com/courses/testing-evaluation/behavioral-tests",
+          "minutes": 25,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__behavioral-tests.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__behavioral-tests.code.json",
+          "http_status": 200,
+          "code_blocks": 12,
+          "chapter_id": "5.1.2",
+          "judgment": "correct",
+          "existing_qids": [
+            "ROLE-07",
+            "LK-03"
+          ],
+          "assessment": "Preserve isolated scenarios and explicit rubrics; teach the pinned AgentSession.run/RunResult event assertions rather than AgentTest.say or a list-based session.run script.",
+          "caution_ids": [
+            "C01"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-01"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Testing tools & workflows",
+          "url": "https://www.livekit-academy.com/courses/testing-evaluation/tool-testing",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__tool-testing.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__tool-testing.code.json",
+          "http_status": 200,
+          "code_blocks": 9,
+          "chapter_id": "5.1.3",
+          "judgment": "correct",
+          "existing_qids": [
+            "ROLE-07",
+            "P3-01"
+          ],
+          "assessment": "Retain mocked success/failure and exact tool-argument checks; use the actual mock_tools context manager and real handoff-event assertions. Mocked tool tests do not qualify supplier effects or audio.",
+          "caution_ids": [
+            "C01"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-01"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Evaluation framework",
+          "url": "https://www.livekit-academy.com/courses/testing-evaluation/evaluation-framework",
+          "minutes": 25,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__evaluation-framework.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__evaluation-framework.code.json",
+          "http_status": 200,
+          "code_blocks": 7,
+          "chapter_id": "5.1.4",
+          "judgment": "expand",
+          "existing_qids": [
+            "ROLE-07",
+            "LK-08"
+          ],
+          "assessment": "Add a frozen evaluation manifest, anchored rubrics, held-out scenarios, calibrated human labels and uncertainty analysis; current book explains the proof boundary but not how to build quality evaluation.",
+          "caution_ids": [
+            "C02"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-01"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Regression testing",
+          "url": "https://www.livekit-academy.com/courses/testing-evaluation/regression-testing",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__regression-testing.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__regression-testing.code.json",
+          "http_status": 200,
+          "code_blocks": 8,
+          "chapter_id": "5.1.5",
+          "judgment": "expand",
+          "existing_qids": [
+            "ROLE-07",
+            "ROLE-09"
+          ],
+          "assessment": "Add paired candidate/baseline evaluation and approved baseline updates; keep hard safety assertions separate from a noisy average judge score.",
+          "caution_ids": [
+            "C02"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-01"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "CI/CD integration",
+          "url": "https://www.livekit-academy.com/courses/testing-evaluation/ci-integration",
+          "minutes": 15,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__ci-integration.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__ci-integration.code.json",
+          "http_status": 200,
+          "code_blocks": 6,
+          "chapter_id": "5.1.6",
+          "judgment": "correct",
+          "existing_qids": [
+            "ROLE-07",
+            "ROLE-08"
+          ],
+          "assessment": "Separate cheap offline checks from explicitly authorized model evaluations; required checks must execute. GitHub Actions is an optional design example, not a requirement to change this local POC delivery scope.",
+          "caution_ids": [
+            "C01",
+            "C02"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-01"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Production evaluation",
+          "url": "https://www.livekit-academy.com/courses/testing-evaluation/production-monitoring",
+          "minutes": 15,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__production-monitoring.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__production-monitoring.code.json",
+          "http_status": 200,
+          "code_blocks": 9,
+          "chapter_id": "5.1.7",
+          "judgment": "expand",
+          "existing_qids": [
+            "SCALE-07",
+            "LK-08"
+          ],
+          "assessment": "Add privacy-controlled sampling and stable randomized cohort evaluation; report sample sizes, errors and subgroup outcomes instead of treating 50–100 calls as universal evidence.",
+          "caution_ids": [
+            "C02",
+            "C04"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-02"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        }
+      ]
+    },
+    {
+      "id": "5.2",
+      "title": "Deploy, Monitor & Scale",
+      "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale",
+      "advertised_minutes": 210,
+      "chapter_minutes": 215,
+      "course_http_status": 200,
+      "chapters": [
+        {
+          "title": "Deployment architecture",
+          "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/deployment-overview",
+          "minutes": 15,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__deployment-overview.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__deployment-overview.code.json",
+          "http_status": 200,
+          "code_blocks": 2,
+          "chapter_id": "5.2.1",
+          "judgment": "retain",
+          "existing_qids": [
+            "SCALE-01",
+            "BUS-01",
+            "LK-02"
+          ],
+          "assessment": "Existing book already separates media deployment from application authority; retain Cloud/self-hosted/hybrid decision questions while qualifying residency and Cloud-feature generalizations.",
+          "caution_ids": [
+            "C06"
+          ],
+          "proposed_question_ids": [],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Docker configuration",
+          "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/docker-config",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__docker-config.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__docker-config.code.json",
+          "http_status": 200,
+          "code_blocks": 6,
+          "chapter_id": "5.2.2",
+          "judgment": "correct",
+          "existing_qids": [
+            "ROLE-08",
+            "P1-27",
+            "P3-29"
+          ],
+          "assessment": "Retain multi-stage builds, non-root execution, dependency caching and installed-consumer validation; replace agent.toml and mutable-tag-as-immutable-pin claims and verify native wheel/audio dependencies.",
+          "caution_ids": [
+            "C03"
+          ],
+          "proposed_question_ids": [],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "LiveKit Cloud deployment",
+          "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/cloud-deploy",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__cloud-deploy.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__cloud-deploy.code.json",
+          "http_status": 200,
+          "code_blocks": 8,
+          "chapter_id": "5.2.3",
+          "judgment": "correct",
+          "existing_qids": [
+            "LK-02",
+            "SCALE-06",
+            "LK-08"
+          ],
+          "assessment": "Use current livekit.toml and CLI reference; distinguish configured secrets, successful deployment, job readiness and an observed media/business interaction. Rollback changes new-session routing rather than undoing prior effects.",
+          "caution_ids": [
+            "C03",
+            "C06"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-02"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Monitoring setup",
+          "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/monitoring-setup",
+          "minutes": 25,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__monitoring-setup.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__monitoring-setup.code.json",
+          "http_status": 200,
+          "code_blocks": 5,
+          "chapter_id": "5.2.4",
+          "judgment": "expand",
+          "existing_qids": [
+            "FAIL-01",
+            "FAIL-02",
+            "LK-08",
+            "SCALE-07"
+          ],
+          "assessment": "Extend the book with per-component/turn/session correlation and recording/retention controls. Do not copy universal p95 thresholds or assume every session is transcribed and retained.",
+          "caution_ids": [
+            "C04",
+            "C11"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-03"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Custom metrics & data hooks",
+          "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/custom-metrics",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__custom-metrics.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__custom-metrics.code.json",
+          "http_status": 200,
+          "code_blocks": 5,
+          "chapter_id": "5.2.5",
+          "judgment": "correct",
+          "existing_qids": [
+            "P3-30",
+            "SCALE-07",
+            "LK-03"
+          ],
+          "assessment": "Correct metrics and lifecycle code before reuse. Component metrics are typed observations; LLM generation duration is not end-of-speech-to-browser-playout latency, and an Agent entry is not a unique business booking.",
+          "caution_ids": [
+            "C04"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-03"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Alerting & incident response",
+          "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/alerting",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__alerting.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__alerting.code.json",
+          "http_status": 200,
+          "code_blocks": 4,
+          "chapter_id": "5.2.6",
+          "judgment": "retain",
+          "existing_qids": [
+            "FAIL-08",
+            "SCALE-07"
+          ],
+          "assessment": "Retain symptom-based alerts, severity routing and runbook links; calibrate burn thresholds and error populations to the product rather than adopting example percentages. No messages or alerts were sent.",
+          "caution_ids": [
+            "C11"
+          ],
+          "proposed_question_ids": [],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Multi-tenant architecture",
+          "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/multi-tenant",
+          "minutes": 25,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__multi-tenant.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__multi-tenant.code.json",
+          "http_status": 200,
+          "code_blocks": 7,
+          "chapter_id": "5.2.7",
+          "judgment": "correct",
+          "existing_qids": [
+            "P1-26",
+            "P3-04",
+            "NATS-10"
+          ],
+          "assessment": "Namespacing helps routing but trusted grants and server-side scope checks enforce access. Treat participant metadata as data unless its trusted origin and update permissions are established; bound per-tenant admission and preserve replay.",
+          "caution_ids": [
+            "C12"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-05"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Auto-scaling",
+          "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/auto-scaling",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__auto-scaling.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__auto-scaling.code.json",
+          "http_status": 200,
+          "code_blocks": 4,
+          "chapter_id": "5.2.8",
+          "judgment": "expand",
+          "existing_qids": [
+            "SCALE-02",
+            "SCALE-03",
+            "SCALE-05"
+          ],
+          "assessment": "Add measured warm-capacity and reaction-time planning; active sessions, retained calls, memory and provider quota can constrain different pools. Treat Cloud YAML and sessions-per-worker figures as examples requiring current platform verification.",
+          "caution_ids": [
+            "C03",
+            "C11"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-02"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Cost optimization",
+          "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/cost-optimization",
+          "minutes": 15,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__cost-optimization.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__cost-optimization.code.json",
+          "http_status": 200,
+          "code_blocks": 4,
+          "chapter_id": "5.2.9",
+          "judgment": "correct",
+          "existing_qids": [
+            "LK-08",
+            "SCALE-07"
+          ],
+          "assessment": "Add explicit usage units and dated tariffs; separate provider cost from useful business completion. Cache text/audio only under complete model/voice/context/scope identities and bounded retention.",
+          "caution_ids": [
+            "C08",
+            "C11"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-03",
+            "AC-P3-07"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Blue-green deployments",
+          "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/blue-green",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__blue-green.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__blue-green.code.json",
+          "http_status": 200,
+          "code_blocks": 4,
+          "chapter_id": "5.2.10",
+          "judgment": "expand",
+          "existing_qids": [
+            "SCALE-06",
+            "FAIL-07"
+          ],
+          "assessment": "Add stable new-session version assignment, rollback triggers and a finite drain deadline. A rollout must preserve original accepted-work identities and reconcile possibly completed external calls.",
+          "caution_ids": [
+            "C06"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-02"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Operational runbook",
+          "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/operational-runbook",
+          "minutes": 15,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__operational-runbook.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__operational-runbook.code.json",
+          "http_status": 200,
+          "code_blocks": 1,
+          "chapter_id": "5.2.11",
+          "judgment": "retain",
+          "existing_qids": [
+            "FAIL-07",
+            "FAIL-08",
+            "ROLE-07"
+          ],
+          "assessment": "Use the operational runbook as a rehearsal format with observations, owner, safe recovery and last-verified date. Replace unconditional fallback advice with an explicit observable policy compatible with the selected inference mode.",
+          "caution_ids": [
+            "C06"
+          ],
+          "proposed_question_ids": [],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        }
+      ]
+    },
+    {
+      "id": "5.3",
+      "title": "Self-Hosting LiveKit",
+      "url": "https://www.livekit-academy.com/courses/self-hosting",
+      "advertised_minutes": 150,
+      "chapter_minutes": 100,
+      "course_http_status": 200,
+      "chapters": [
+        {
+          "title": "Self-hosting architecture & decision framework",
+          "url": "https://www.livekit-academy.com/courses/self-hosting/self-hosting-architecture",
+          "minutes": 25,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__self-hosting-architecture.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__self-hosting-architecture.code.json",
+          "http_status": 200,
+          "code_blocks": 2,
+          "chapter_id": "5.3.1",
+          "judgment": "correct",
+          "existing_qids": [
+            "BUS-01",
+            "SCALE-01",
+            "SCALE-08"
+          ],
+          "assessment": "Retain the operational ownership/cost decision. Do not import unsupported Cloud-only, SLA, hardware or regional-placement promises; distinguish documented service availability from physical impossibility claims.",
+          "caution_ids": [
+            "C05",
+            "C06",
+            "C11"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-08"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Kubernetes deployment & server configuration",
+          "url": "https://www.livekit-academy.com/courses/self-hosting/kubernetes-deployment",
+          "minutes": 30,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__kubernetes-deployment.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__kubernetes-deployment.code.json",
+          "http_status": 200,
+          "code_blocks": 10,
+          "chapter_id": "5.3.2",
+          "judgment": "correct",
+          "existing_qids": [
+            "RTC-03",
+            "BUS-01",
+            "LK-02"
+          ],
+          "assessment": "Correct worker registration, configuration and failover claims. Agent servers register over WebSocket; Redis coordinates the SFU cluster and is not a direct worker registration API. Validate versioned Helm/config keys and actual connectivity.",
+          "caution_ids": [
+            "C05",
+            "C06"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-08"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Monitoring & security hardening",
+          "url": "https://www.livekit-academy.com/courses/self-hosting/monitoring-security",
+          "minutes": 25,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__monitoring-security.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__monitoring-security.code.json",
+          "http_status": 200,
+          "code_blocks": 10,
+          "chapter_id": "5.3.3",
+          "judgment": "correct",
+          "existing_qids": [
+            "P3-30",
+            "SCALE-07",
+            "NATS-10"
+          ],
+          "assessment": "Correct the metrics endpoint/default, names and security simplifications; separate signaling TLS, DTLS-SRTP media, TURN and datastore transport. Verify the selected configuration rather than copy an untested scrape target.",
+          "caution_ids": [
+            "C04",
+            "C05",
+            "C06"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-03",
+            "AC-P3-08"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Upgrades, backup & operations",
+          "url": "https://www.livekit-academy.com/courses/self-hosting/upgrades-operations",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__upgrades-operations.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__upgrades-operations.code.json",
+          "http_status": 200,
+          "code_blocks": 7,
+          "chapter_id": "5.3.4",
+          "judgment": "correct",
+          "existing_qids": [
+            "SCALE-04",
+            "SCALE-06",
+            "SCALE-08"
+          ],
+          "assessment": "Retain tested restore/drain exercises but remove all-state-in-Redis/stateless-room and guaranteed reconnect claims. Backups cannot recreate live sockets, keys or the original business effect ledger by themselves.",
+          "caution_ids": [
+            "C05",
+            "C06"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-08"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        }
+      ]
+    },
+    {
+      "id": "6.1",
+      "title": "RAG for Voice Agents",
+      "url": "https://www.livekit-academy.com/courses/rag-external-data",
+      "advertised_minutes": 120,
+      "chapter_minutes": 85,
+      "course_http_status": 200,
+      "chapters": [
+        {
+          "title": "RAG architecture for voice",
+          "url": "https://www.livekit-academy.com/courses/rag-external-data/voice-rag-architecture",
+          "minutes": 25,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__voice-rag-architecture.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__voice-rag-architecture.code.json",
+          "http_status": 200,
+          "code_blocks": 9,
+          "chapter_id": "6.1.1",
+          "judgment": "correct",
+          "existing_qids": [
+            "LK-03",
+            "LK-04",
+            "P3-11"
+          ],
+          "assessment": "Add retrieval architecture as a missing subject; correct the hook signature, context mutation and blocking database example. Define a measured retrieval budget instead of a platform-wide 400 ms rule.",
+          "caution_ids": [
+            "C07",
+            "C11"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-04"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "MCP tools for structured data",
+          "url": "https://www.livekit-academy.com/courses/rag-external-data/mcp-tools",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__mcp-tools.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__mcp-tools.code.json",
+          "http_status": 200,
+          "code_blocks": 5,
+          "chapter_id": "6.1.2",
+          "judgment": "correct",
+          "existing_qids": [
+            "P3-01",
+            "P3-04",
+            "P3-15"
+          ],
+          "assessment": "MCP is worth an original boundary question; correct the plugin/provider API to the pinned mcp_servers/MCPServer surface. Tool discovery and a typed schema do not authenticate a customer or authorize a booking.",
+          "caution_ids": [
+            "C10",
+            "C12"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-06"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Citation in spoken conversation",
+          "url": "https://www.livekit-academy.com/courses/rag-external-data/citation-voice",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__citation-voice.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__citation-voice.code.json",
+          "http_status": 200,
+          "code_blocks": 7,
+          "chapter_id": "6.1.3",
+          "judgment": "expand",
+          "existing_qids": [
+            "P3-11",
+            "D3-03",
+            "SYS-08"
+          ],
+          "assessment": "Add spoken attribution plus a protected source/version/chunk ledger and no-source behavior. A citation label is a model claim until support is checked; avoid generic legal-compliance assertions.",
+          "caution_ids": [
+            "C07",
+            "C12"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-05"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Production RAG: caching, monitoring, evaluation",
+          "url": "https://www.livekit-academy.com/courses/rag-external-data/production-rag",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__production-rag.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__production-rag.code.json",
+          "http_status": 200,
+          "code_blocks": 5,
+          "chapter_id": "6.1.4",
+          "judgment": "correct",
+          "existing_qids": [
+            "P3-11",
+            "P3-21",
+            "SCALE-07"
+          ],
+          "assessment": "Add scoped retrieval-cache invalidation and separate retrieval/answer evaluation. The supplied SemanticCache performs normalized exact hashing, not semantic nearest-neighbor matching; its stored embedding and threshold are unused.",
+          "caution_ids": [
+            "C08",
+            "C02"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-01",
+            "AC-P3-05"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        }
+      ]
+    },
+    {
+      "id": "6.2",
+      "title": "LangChain & LangGraph",
+      "url": "https://www.livekit-academy.com/courses/langchain-langgraph",
+      "advertised_minutes": 90,
+      "chapter_minutes": 75,
+      "course_http_status": 200,
+      "chapters": [
+        {
+          "title": "LangChain as LLM provider",
+          "url": "https://www.livekit-academy.com/courses/langchain-langgraph/langchain-llm-provider",
+          "minutes": 25,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__langchain-llm-provider.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__langchain-llm-provider.code.json",
+          "http_status": 200,
+          "code_blocks": 5,
+          "chapter_id": "6.2.1",
+          "judgment": "correct",
+          "existing_qids": [
+            "P3-01",
+            "ROLE-08"
+          ],
+          "assessment": "Teach the optional adapter seam, not a mandatory framework layer. Current official docs use Python LLMAdapter(graph=...); do not promote the course LangChainLLM or TypeScript package/function-call parity without versioned evidence.",
+          "caution_ids": [
+            "C09"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-06"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "LangGraph conversation workflows",
+          "url": "https://www.livekit-academy.com/courses/langchain-langgraph/langgraph-workflows",
+          "minutes": 30,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__langgraph-workflows.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__langgraph-workflows.code.json",
+          "http_status": 200,
+          "code_blocks": 3,
+          "chapter_id": "6.2.2",
+          "judgment": "expand",
+          "existing_qids": [
+            "P1-20",
+            "P3-02",
+            "LK-07"
+          ],
+          "assessment": "Add a comparison of conversational graph checkpoint state and authoritative accepted business work. Use a trusted scoped conversation binding, not an unauthenticated phone number, as a thread lookup key. Manage the async saver lifecycle explicitly.",
+          "caution_ids": [
+            "C09",
+            "C12"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-06"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Production patterns",
+          "url": "https://www.livekit-academy.com/courses/langchain-langgraph/production-patterns",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__production-patterns.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__production-patterns.code.json",
+          "http_status": 200,
+          "code_blocks": 7,
+          "chapter_id": "6.2.3",
+          "judgment": "correct",
+          "existing_qids": [
+            "ROLE-01",
+            "ROLE-02",
+            "ROLE-06"
+          ],
+          "assessment": "Retain node/routing tests and async execution; qualify timeout as an observation boundary rather than a hard remote stop. Preserve actual owners, cancellation and safe diagnostics; do not log raw user queries or arbitrary exception strings.",
+          "caution_ids": [
+            "C09"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-06"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        }
+      ]
+    },
+    {
+      "id": "6.3",
+      "title": "Provider Selection Guide",
+      "url": "https://www.livekit-academy.com/courses/choosing-ai-stack",
+      "advertised_minutes": 60,
+      "chapter_minutes": 60,
+      "course_http_status": 200,
+      "chapters": [
+        {
+          "title": "Pipeline selection & latency budgets",
+          "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/pipeline-selection",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__pipeline-selection.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__pipeline-selection.code.json",
+          "http_status": 200,
+          "code_blocks": 6,
+          "chapter_id": "6.3.1",
+          "judgment": "correct",
+          "existing_qids": [
+            "LK-03",
+            "LK-04",
+            "LK-08"
+          ],
+          "assessment": "Retain component choice versus realtime architecture. Streaming does not mean every partial transcript is automatically a committed LLM turn; turn handling/preemption and first-rendered-audio measurement must be explicit.",
+          "caution_ids": [
+            "C11"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-07"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "STT, LLM & TTS provider comparison",
+          "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/provider-comparison",
+          "minutes": 25,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__provider-comparison.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__provider-comparison.code.json",
+          "http_status": 200,
+          "code_blocks": 23,
+          "chapter_id": "6.3.2",
+          "judgment": "correct",
+          "existing_qids": [
+            "LK-08",
+            "FAIL-02"
+          ],
+          "assessment": "Replace unsupported global WER/MOS/latency rankings and stale model lists with a reproducible corpus and one-variable comparison; verify capability, region and language constraints against current provider documents.",
+          "caution_ids": [
+            "C11"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-07"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Cost analysis & use case recommendations",
+          "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/cost-and-recommendations",
+          "minutes": 15,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__cost-and-recommendations.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__cost-and-recommendations.code.json",
+          "http_status": 200,
+          "code_blocks": 3,
+          "chapter_id": "6.3.3",
+          "judgment": "expand",
+          "existing_qids": [
+            "LK-08",
+            "SCALE-07"
+          ],
+          "assessment": "Add unit-correct cost per useful resolution, with dated price cards, all turns/retries and infrastructure charges. Treat the course numeric stack recommendations as illustrative; no paid benchmark or compliance qualification was run.",
+          "caution_ids": [
+            "C11"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-07"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        }
+      ]
+    },
+    {
+      "id": "7.1",
+      "title": "LiveKit Expert Certification",
+      "url": "https://www.livekit-academy.com/courses/livekit-certification",
+      "advertised_minutes": 120,
+      "chapter_minutes": 160,
+      "course_http_status": 200,
+      "chapters": [
+        {
+          "title": "Architecture & fundamentals",
+          "url": "https://www.livekit-academy.com/courses/livekit-certification/architecture-fundamentals",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__architecture-fundamentals.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__architecture-fundamentals.code.json",
+          "http_status": 200,
+          "code_blocks": 0,
+          "chapter_id": "7.1.1",
+          "judgment": "retain",
+          "existing_qids": [
+            "RTC-01",
+            "RTC-02",
+            "RTC-03",
+            "RTC-07",
+            "LK-01"
+          ],
+          "assessment": "Use the visible architecture scenario for oral practice; the book already covers the core. Do not copy quiz options or imply that the SFU eliminates NAT traversal or transcoding is the defining SFU operation.",
+          "caution_ids": [
+            "C13"
+          ],
+          "proposed_question_ids": [],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Voice pipeline mastery",
+          "url": "https://www.livekit-academy.com/courses/livekit-certification/voice-pipeline-mastery",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__voice-pipeline-mastery.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__voice-pipeline-mastery.code.json",
+          "http_status": 200,
+          "code_blocks": 0,
+          "chapter_id": "7.1.2",
+          "judgment": "correct",
+          "existing_qids": [
+            "LK-03",
+            "LK-04",
+            "FAIL-02"
+          ],
+          "assessment": "Practice a timing diagram with explicit boundaries and overlap instead of reciting a sum of generic stage timings. All five public quiz items and explanations were reviewed as data; no assessment was attempted.",
+          "caution_ids": [
+            "C11",
+            "C13"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-07"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Agent design & tools",
+          "url": "https://www.livekit-academy.com/courses/livekit-certification/agent-design-patterns",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__agent-design-patterns.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__agent-design-patterns.code.json",
+          "http_status": 200,
+          "code_blocks": 0,
+          "chapter_id": "7.1.3",
+          "judgment": "retain",
+          "existing_qids": [
+            "P3-01",
+            "P3-24",
+            "ROLE-08"
+          ],
+          "assessment": "Use the design prompt to rehearse concise instructions, tools versus handoff and session boundaries. Instruction style is not an authorization mechanism or proof of task completion.",
+          "caution_ids": [
+            "C13"
+          ],
+          "proposed_question_ids": [],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Telephony & contact centers",
+          "url": "https://www.livekit-academy.com/courses/livekit-certification/telephony-contact-center",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__telephony-contact-center.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__telephony-contact-center.code.json",
+          "http_status": 200,
+          "code_blocks": 0,
+          "chapter_id": "7.1.4",
+          "judgment": "defer",
+          "existing_qids": [],
+          "assessment": "Telephony/SIP/PSTN/warm transfer requires a dedicated evidence-backed addition from the telephony courses; the present P2 simulated SMS/native voice implementation does not demonstrate a SIP deployment.",
+          "caution_ids": [
+            "C13"
+          ],
+          "proposed_question_ids": [],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Frontend SDK & client integration",
+          "url": "https://www.livekit-academy.com/courses/livekit-certification/frontend-sdk",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__frontend-sdk.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__frontend-sdk.code.json",
+          "http_status": 200,
+          "code_blocks": 0,
+          "chapter_id": "7.1.5",
+          "judgment": "retain",
+          "existing_qids": [
+            "LK-01",
+            "LK-02",
+            "LK-06",
+            "LK-07",
+            "P2-11"
+          ],
+          "assessment": "Use the frontend topic as a version-aware review route. The book explains its pinned browser lifecycle; current frontend Session API specifics should come from the relevant official client documentation.",
+          "caution_ids": [
+            "C13"
+          ],
+          "proposed_question_ids": [],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Production, deployment & scaling",
+          "url": "https://www.livekit-academy.com/courses/livekit-certification/production-operations",
+          "minutes": 20,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__production-operations.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__production-operations.code.json",
+          "http_status": 200,
+          "code_blocks": 0,
+          "chapter_id": "7.1.6",
+          "judgment": "retain",
+          "existing_qids": [
+            "ROLE-07",
+            "SCALE-01",
+            "SCALE-06",
+            "SCALE-07"
+          ],
+          "assessment": "Use an original operational scenario and require evidence at each layer; a quiz pass cannot qualify the repository for production or measured scale.",
+          "caution_ids": [
+            "C13"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-01",
+            "AC-P3-02"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Integrations & ecosystem",
+          "url": "https://www.livekit-academy.com/courses/livekit-certification/integrations-ecosystem",
+          "minutes": 15,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__integrations-ecosystem.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__integrations-ecosystem.code.json",
+          "http_status": 200,
+          "code_blocks": 0,
+          "chapter_id": "7.1.7",
+          "judgment": "expand",
+          "existing_qids": [
+            "P3-01",
+            "LK-08"
+          ],
+          "assessment": "Map to the new retrieval/framework/provider questions rather than repeat existing transport material. Checkpointing, RAG and provider abstraction have separate proof and authority boundaries.",
+          "caution_ids": [
+            "C13"
+          ],
+          "proposed_question_ids": [
+            "AC-P3-04",
+            "AC-P3-05",
+            "AC-P3-06",
+            "AC-P3-07"
+          ],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        },
+        {
+          "title": "Scenario-based consulting",
+          "url": "https://www.livekit-academy.com/courses/livekit-certification/scenario-consulting",
+          "minutes": 25,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__scenario-consulting.txt",
+          "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__scenario-consulting.code.json",
+          "http_status": 200,
+          "code_blocks": 0,
+          "chapter_id": "7.1.8",
+          "judgment": "retain",
+          "existing_qids": [
+            "SYS-01",
+            "SYS-05",
+            "SCALE-01",
+            "ROLE-12"
+          ],
+          "assessment": "Retain scenario-based architecture defense with explicit budget, skills, failure model and scope. Product choice alone does not establish regulatory compliance or a universally correct solution.",
+          "caution_ids": [
+            "C06",
+            "C13"
+          ],
+          "proposed_question_ids": [],
+          "review_scope": "Accessible lesson article prose, visible first quiz question and relevant code snippets reviewed; snippets not executed; later interactive quiz questions and completion state not exercised.",
+          "access_limit": "HTTP 200 in retained crawl; no access paywall observed; no video watched."
+        }
+      ]
+    }
+  ],
+  "cautions": [
+    {
+      "id": "C01",
+      "severity": "high",
+      "topic": "Testing API and proof boundary",
+      "course_examples": [
+        "5.1.1",
+        "5.1.2",
+        "5.1.3",
+        "5.1.6"
+      ],
+      "finding": "Course uses AgentTest, say(), tool_was_called and list-style session.run rather than the inspected SDK surface. It also calls the harness network-free while teaching an LLM judge.",
+      "correction": "Use pinned AgentSession.run(user_input=...), RunResult assertions and the actual mock_tools helper. Label scripted, model-backed and real-audio lanes separately.",
+      "official_source_ids": [
+        "OFF-TEST"
+      ],
+      "evidence": [
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent_session.py",
+          "line": 866,
+          "claim": "run accepts keyword user_input and returns RunResult"
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/run_result.py",
+          "line": 1168,
+          "claim": "mock_tools is a helper with context-manager or session-scoped behavior"
+        }
+      ]
+    },
+    {
+      "id": "C02",
+      "severity": "medium",
+      "topic": "Quality evidence and release gates",
+      "course_examples": [
+        "5.1.1",
+        "5.1.4",
+        "5.1.5",
+        "5.1.6",
+        "5.1.7",
+        "6.1.4"
+      ],
+      "finding": "The strategy lesson discourages evaluation gates but later lessons gate deployment on regression evaluation. Example thresholds, repeat counts, sample percentages and cohort sizes are heuristics.",
+      "correction": "Define separately hard safety gates, calibrated quality criteria and exploratory scores; freeze corpus/rubric/judge versions, sample design and uncertainty before comparisons.",
+      "official_source_ids": [
+        "OFF-TEST"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "C03",
+      "severity": "high",
+      "topic": "Deployment commands and configuration",
+      "course_examples": [
+        "5.2.2",
+        "5.2.3",
+        "5.2.8"
+      ],
+      "finding": "Course examples use agent.toml, lk agent secret set/list and unverified Cloud scaling files; sibling lessons disagree about configurable scaling. A major/minor image tag is also mutable.",
+      "correction": "Use current livekit.toml and the current CLI/secret command reference, keep platform-managed scaling separate from self-hosted HPA proposals, and pin an immutable image digest for reproducibility.",
+      "official_source_ids": [
+        "OFF-DEPLOY",
+        "OFF-CLI",
+        "OFF-SECRETS"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "C04",
+      "severity": "high",
+      "topic": "Metric types, lifecycle and business truth",
+      "course_examples": [
+        "5.2.4",
+        "5.2.5",
+        "5.3.3"
+      ],
+      "finding": "Custom-metrics code iterates event.metrics, treats generation duration as end-to-end turn latency and uses Agent.on_close. The pinned event contains one AgentMetrics value; that event is deprecated, with usage and per-message latency surfaces identified explicitly.",
+      "correction": "Observe actual typed session/report events, choose a measured start/end, and count bookings from committed business receipts rather than an agent-local boolean. Preserve bounded labels and privacy.",
+      "official_source_ids": [
+        "OFF-DATA"
+      ],
+      "evidence": [
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/events.py",
+          "line": 416,
+          "claim": "MetricsCollectedEvent carries one AgentMetrics and documents replacement surfaces"
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+          "line": 336,
+          "claim": "Agent enter and exit hooks are explicit"
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/metrics/base.py",
+          "line": 61,
+          "claim": "STT timing/audio-duration units are explicit"
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/metrics/base.py",
+          "line": 96,
+          "claim": "TTS has audio, character and token fields"
+        }
+      ]
+    },
+    {
+      "id": "C05",
+      "severity": "high",
+      "topic": "Self-hosted media state and topology",
+      "course_examples": [
+        "5.3.1",
+        "5.3.2",
+        "5.3.3",
+        "5.3.4"
+      ],
+      "finding": "Lessons assert default metrics at 7880 without configuration, worker registration through Redis and all room state in Redis/stateless server. These claims collapse media, cluster routing and agent registration.",
+      "correction": "Configure and verify the metrics endpoint; agent servers register via WebSocket. Redis-backed routing does not serialize active WebRTC/media/process state or P1 business receipts.",
+      "official_source_ids": [
+        "OFF-SERVER",
+        "OFF-WORKER",
+        "OFF-CLUSTER"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "C06",
+      "severity": "medium",
+      "topic": "Scope of operational and product claims",
+      "course_examples": [
+        "5.2.1",
+        "5.2.3",
+        "5.2.10",
+        "5.2.11",
+        "5.3.1",
+        "5.3.2",
+        "5.3.4",
+        "7.1.8"
+      ],
+      "finding": "Cloud-only/physically-impossible feature wording, compliance shortcuts, transparent failover, instant rollback and unconditional zero-downtime language exceed the cited configuration and fault model. A grace period is a bound, not a guarantee every session ends in time.",
+      "correction": "Verify current feature availability and contract terms independently. Describe bounded routing/drain/restore behavior, tested failure modes and explicit fallback policy; do not infer compliance from provider or hosting choice.",
+      "official_source_ids": [
+        "OFF-DEPLOY",
+        "OFF-CLUSTER",
+        "OFF-WORKER"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "C07",
+      "severity": "high",
+      "topic": "Retrieval hook and untrusted data",
+      "course_examples": [
+        "6.1.1",
+        "6.1.3"
+      ],
+      "finding": "Course hook has one argument and invented context fields/default-hook forwarding; the pgvector example performs synchronous cursor work inside async search. RAG/citations are also described too strongly as a fix for hallucination.",
+      "correction": "Use the pinned two-argument hook and ChatContext operations; bound nonblocking I/O, source/context sizes and real ownership. Treat retrieved prose as evidence, require support checks and an abstention path.",
+      "official_source_ids": [
+        "OFF-RAG"
+      ],
+      "evidence": [
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+          "line": 344,
+          "claim": "Hook receives ChatContext and a new ChatMessage; default implementation is pass"
+        }
+      ]
+    },
+    {
+      "id": "C08",
+      "severity": "high",
+      "topic": "Cache identity and actual algorithm",
+      "course_examples": [
+        "5.2.9",
+        "6.1.4"
+      ],
+      "finding": "The Python and TypeScript SemanticCache examples key normalized query hashes. Python stores an embedding and threshold but never compares them. TTL alone neither bounds memory nor enforces tenant/ACL/document-version validity.",
+      "correction": "Call that an exact normalized cache, or implement and evaluate real semantic matching. Bound entries/bytes and bind authorization, document/index/model/prompt/voice dependencies as appropriate; invalidate on evidence changes.",
+      "official_source_ids": [
+        "OFF-RAG"
+      ],
+      "evidence": [
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__production-rag.code.json",
+          "block_index": 0,
+          "claim": "get derives SHA-256 normalized query key; query_embedding and threshold are not used to search."
+        }
+      ]
+    },
+    {
+      "id": "C09",
+      "severity": "high",
+      "topic": "LangChain integration and recovery ownership",
+      "course_examples": [
+        "6.2.1",
+        "6.2.2",
+        "6.2.3"
+      ],
+      "finding": "The course names LangChainLLM and a TypeScript plugin without establishing compatibility. Its timeout wrapper is labeled a hard limit, and saver construction/checkpoint identity need lifecycle and scope review.",
+      "correction": "Current official LiveKit guide documents Python LLMAdapter(graph=...). Manage the selected saver correctly, preserve real in-flight work and keep graph memory distinct from accepted-work/consent/effect authority.",
+      "official_source_ids": [
+        "OFF-LANG",
+        "OFF-GRAPH"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "C10",
+      "severity": "high",
+      "topic": "MCP API and authority",
+      "course_examples": [
+        "6.1.2"
+      ],
+      "finding": "Course imports livekit.plugins.mcp.MCPToolProvider and supplies tools to AgentSession; that is not the inspected pinned MCP surface. Model-visible descriptions cannot establish caller identity or exact human confirmation.",
+      "correction": "Use verified MCPServer implementations through mcp_servers in the pinned core and enforce authorization/idempotency at application boundaries. Do not treat tool discovery as durable business orchestration.",
+      "official_source_ids": [
+        "OFF-RAG"
+      ],
+      "evidence": [
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+          "line": 71,
+          "claim": "Agent constructor exposes mcp_servers"
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent_session.py",
+          "line": 453,
+          "claim": "Session constructor exposes mcp_servers"
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/llm/mcp.py",
+          "line": 347,
+          "claim": "MCPServerHTTP implementation"
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/llm/mcp.py",
+          "line": 511,
+          "claim": "MCPServerStdio implementation"
+        }
+      ]
+    },
+    {
+      "id": "C11",
+      "severity": "medium",
+      "topic": "Performance, cost and model recommendations",
+      "course_examples": [
+        "5.2.4",
+        "5.2.8",
+        "5.2.9",
+        "5.3.1",
+        "6.1.1",
+        "6.3.1",
+        "6.3.2",
+        "6.3.3",
+        "7.1.2"
+      ],
+      "finding": "Fixed retrieval budgets, worker capacities, WER/MOS rankings, prices and stack latency numbers lack a reproducible common workload. Claims that all partial STT immediately drives committed LLM output ignore configured turn handling.",
+      "correction": "Use dated capability/pricing sources and a frozen representative corpus; define measurement boundaries, model versions, language/noise conditions, retries and errors. Keep speculative generation and durable acceptance distinct.",
+      "official_source_ids": [
+        "OFF-DATA",
+        "OFF-RAG"
+      ],
+      "evidence": [
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/metrics/base.py",
+          "line": 68,
+          "claim": "Audio duration is in seconds, distinct from wall duration"
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/metrics/base.py",
+          "line": 105,
+          "claim": "Character billing and token billing are separate TTS quantities"
+        }
+      ]
+    },
+    {
+      "id": "C12",
+      "severity": "high",
+      "topic": "Trusted identity and access-aware retrieval",
+      "course_examples": [
+        "5.2.7",
+        "6.1.2",
+        "6.1.3",
+        "6.2.2"
+      ],
+      "finding": "Room prefixes, phone numbers, metadata, model citations and a prompt telling the model to verify identity are not independent application authorization. Raw query/error logging and unscoped reuse can disclose private context.",
+      "correction": "Derive scope from authenticated trusted bindings, authorize each source/result disclosure, and keep exact action confirmation at the existing authority. Scope persistent thread/cache keys and protect evaluation traces.",
+      "official_source_ids": [
+        "OFF-RAG",
+        "OFF-GRAPH"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "C13",
+      "severity": "medium",
+      "topic": "Certification and visible assessment scope",
+      "course_examples": [
+        "7.1.1",
+        "7.1.2",
+        "7.1.3",
+        "7.1.4",
+        "7.1.5",
+        "7.1.6",
+        "7.1.7",
+        "7.1.8"
+      ],
+      "finding": "The public pages show a first multiple-choice item and a 1-of-5 counter. Issuer endorsement, assessment integrity and credential recognition were not independently verified; footer branding is insufficient.",
+      "correction": "Use these as study prompts only. Do not claim an official LiveKit credential, exam completion or full question-bank review. Advertised 120 minutes differs from the 160-minute sum, a planning metadata issue.",
+      "official_source_ids": [],
+      "evidence": []
+    }
+  ],
+  "official_sources": [
+    {
+      "id": "OFF-TEST",
+      "url": "https://docs.livekit.io/testing/unit-tests/",
+      "supports": "AgentSession.run, result/event assertions, judge and tool mock patterns; live judging may invoke a model.",
+      "version_scope": "Current official docs, compared with installed Python 1.8.11; do not assume Python/Node signature parity."
+    },
+    {
+      "id": "OFF-RAG",
+      "url": "https://docs.livekit.io/agents/logic/external-data/",
+      "supports": "Initial context, tool retrieval, on_user_turn_completed with ChatContext and new_message; latency feedback patterns.",
+      "version_scope": "Current guide; pinned Python hook signature separately inspected."
+    },
+    {
+      "id": "OFF-LANG",
+      "url": "https://docs.livekit.io/agents/models/llm/langchain/",
+      "supports": "Python LangChain/LangGraph LLMAdapter with locally compiled graph and documented stream modes.",
+      "version_scope": "Current official integration, not a claim that the optional plugin is installed or used in this POC."
+    },
+    {
+      "id": "OFF-GRAPH",
+      "url": "https://docs.langchain.com/oss/python/langgraph/persistence",
+      "supports": "Checkpoint and store persistence are explicit graph mechanisms; useful framework contrast, not a P1 receipt implementation.",
+      "version_scope": "Current LangChain primary documentation; no LangGraph application executed."
+    },
+    {
+      "id": "OFF-DEPLOY",
+      "url": "https://docs.livekit.io/deploy/agents/managing-deployments/",
+      "supports": "livekit.toml, container deployment/version routing and finite old-session drain window.",
+      "version_scope": "Current Cloud platform behavior; not a qualified deployment of this checkout."
+    },
+    {
+      "id": "OFF-CLI",
+      "url": "https://docs.livekit.io/reference/developer-tools/livekit-cli/agent/deployment/",
+      "supports": "Current deploy/promote options and deployment identity.",
+      "version_scope": "Current CLI documentation; no CLI command executed."
+    },
+    {
+      "id": "OFF-SECRETS",
+      "url": "https://docs.livekit.io/deploy/agents/secrets/",
+      "supports": "create/update-secrets/secrets commands and injected LiveKit credentials.",
+      "version_scope": "Documentation only; no private file or secret value read."
+    },
+    {
+      "id": "OFF-WORKER",
+      "url": "https://docs.livekit.io/deploy/custom/deployments/",
+      "supports": "Agent server registration/acceptance uses outbound WebSocket; private health check is separate.",
+      "version_scope": "Current self-hosted agent guide."
+    },
+    {
+      "id": "OFF-SERVER",
+      "url": "https://docs.livekit.io/transport/self-hosting/deployment/",
+      "supports": "Explicit prometheus_port example on 6789, configured signaling/media/TURN paths, CPU and bandwidth sizing.",
+      "version_scope": "Current sample; verify chosen server version before applying configuration."
+    },
+    {
+      "id": "OFF-CLUSTER",
+      "url": "https://docs.livekit.io/transport/self-hosting/distributed/",
+      "supports": "Redis room-data/message bus, room hosted on one node, signaling bridge and media drain behavior.",
+      "version_scope": "Public self-hosted design only; no private Cloud topology or live-room backup guarantee."
+    },
+    {
+      "id": "OFF-DATA",
+      "url": "https://docs.livekit.io/testing/observability/data/",
+      "supports": "Session report lifecycle and component/turn/session observability; pipeline fields differ for realtime models.",
+      "version_scope": "Current docs; exact pinned event/metric types inspected separately."
+    }
+  ],
+  "pinned_sdk_evidence": {
+    "version": "1.8.11",
+    "version_evidence": {
+      "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit_agents-1.8.11.dist-info/METADATA",
+      "line": 3,
+      "claim": "Installed distribution Version: 1.8.11"
+    },
+    "declared_dependency": {
+      "path": "/Users/rostwal/Downloads/livekit-poc/pyproject.toml",
+      "line": 29,
+      "claim": "Root agent extra pins livekit-agents==1.8.11"
+    },
+    "note": "Read source only; optional LangChain plugin installation or execution was not established."
+  },
+  "proposed_questions": [
+    {
+      "id": "AC-P3-01",
+      "title": "Evaluate quality without voting away correctness",
+      "question": "A prompt change improves average judge scores but occasionally repeats a booking. How would you evaluate and release it?",
+      "answer": [
+        "Keep the no-duplicate-effect assertion as a deterministic release requirement against authoritative receipts and an independent supplier observation. A higher tone or relevance score cannot compensate for an unauthorized or repeated action. Run language-quality evaluation alongside those invariants, with separate outcomes rather than one blended score.",
+        "Freeze representative scenarios, source data, prompt/model/tool versions, judge rubric and judge version. Include ambiguity, refusal, wrong-tool arguments, interruption and no-source cases. Compare baseline and candidate on the same scenarios with repeated runs where justified; inspect uncertainty, severity and subgroup failures. Calibrate a held-out sample against human labels and retain disagreements. The proposed evaluation adds evidence about language behavior; it does not establish returned audio, physical cleanup or production capacity. Current book ROLE-07 states the boundary but does not teach this evaluation design."
+      ],
+      "followups": [
+        {
+          "question": "Can the LLM judge decide whether a supplier mutation happened?",
+          "answer": "No. Judge language against a rubric; read the business authority and independent supplier records for execution truth. A fluent confirmation sentence may be false, while an ACK loss may hide a committed action."
+        },
+        {
+          "question": "When may a baseline change?",
+          "answer": "After an intentional reviewed change, with a retained old manifest and an explanation of expected differences. Do not replace it simply to turn a failing run green. Unobserved or skipped required checks remain nonpassing."
+        }
+      ],
+      "existing_qids": [
+        "ROLE-07",
+        "P3-11",
+        "LK-08"
+      ],
+      "gap": "An operational plan for calibrated model-quality evaluation and regression evidence.",
+      "source_ids": [
+        "OFF-TEST"
+      ],
+      "inspired_by_chapters": [
+        "5.1.1",
+        "5.1.2",
+        "5.1.3",
+        "5.1.4",
+        "5.1.5",
+        "5.1.6",
+        "5.1.7"
+      ],
+      "status": "Proposed exercise; no model evaluation run."
+    },
+    {
+      "id": "AC-P3-02",
+      "title": "Canary new sessions while old work remains owned",
+      "question": "How would you compare a new agent version without disrupting an ongoing call or repeating background work?",
+      "answer": [
+        "Assign each new conversation to a recorded version/cohort at a trusted dispatch boundary, then keep that assignment stable for its defined lifetime. Record prompt, model, tools and application versions. Run the old and new populations with comparable workload and observe errors, usable first audio and useful task outcomes; explicitly account for timeouts and unresolved business work.",
+        "Stop new admission to an old owner before draining its sessions and actual I/O. Session shutdown, an SFU room drain and P1 business-worker recovery have distinct owners. A deployment change must not mint a fresh business identity for an ambiguous earlier command. Define a finite drain deadline and recovery behavior before rollout, plus rollback criteria based on measured harm. Current Cloud documentation describes a bounded old-session completion window; it is not permission to promise arbitrary calls finish forever. The POC has no measured Cloud canary, so this remains a design exercise extending SCALE-06."
+      ],
+      "followups": [
+        {
+          "question": "What does rollback actually undo?",
+          "answer": "It changes the selected version for eligible future work under the deployment contract. It does not retract spoken audio, reverse supplier effects or erase an accepted command. Reconcile original identities when earlier outcomes are uncertain."
+        },
+        {
+          "question": "Why avoid assigning each turn randomly?",
+          "answer": "It confounds evaluation with changing prompts, tools or memory within one conversation and can violate compatibility. Choose and record the experimental unit; if turn-level experiments are intentional, define their state and permission semantics explicitly."
+        }
+      ],
+      "existing_qids": [
+        "SCALE-06",
+        "FAIL-07",
+        "LK-08"
+      ],
+      "gap": "Version/cohort identity, experiment comparability and finite rollout recovery.",
+      "source_ids": [
+        "OFF-DEPLOY",
+        "OFF-CLI",
+        "OFF-WORKER",
+        "OFF-CLUSTER"
+      ],
+      "inspired_by_chapters": [
+        "5.1.7",
+        "5.2.3",
+        "5.2.8",
+        "5.2.10"
+      ],
+      "status": "Hypothetical deployment experiment; no deployment performed."
+    },
+    {
+      "id": "AC-P3-03",
+      "title": "Observe the conversation and count the committed outcome",
+      "question": "Why can a session have low model latency and high booking counts while users receive no useful result?",
+      "answer": [
+        "Those counters may measure the wrong facts. LLM generation duration excludes parts of the user-perceived path; an agent-local booked flag or tool attempt does not prove a committed supplier change or a delivered completion. Correlate a chosen user input with turn/media observations and the original durable business operation, then count outcomes from retained authoritative receipts.",
+        "Keep component, turn, session and business measures separately named. In the pinned Python SDK, metrics_collected contains one typed metric and is deprecated for usage tracking; inspect session usage updates, per-message latency and session-report lifecycle for the selected version. Collect numeric usage in its actual units, preserving missing/unknown values. Use finite aggregate labels and access-controlled sampled traces for identity joins. A replay can add a new observation without adding a new booking. The new exercise would test that distinction rather than repeat the book's general instruction to add observability."
+      ],
+      "followups": [
+        {
+          "question": "Can you estimate cost from a session's wall duration?",
+          "answer": "Not reliably. Reconcile the actual provider billing quantities: audio seconds or tokens, text tokens, generated characters and other charges under a dated tariff. Include retries and unsuccessful attempts; label estimates and reconcile them with billing."
+        },
+        {
+          "question": "Does a completed report prove the user heard the reply?",
+          "answer": "No. Pipeline and session observations describe their boundaries. Received/decoded/browser playout evidence is separate, and even playout does not establish human understanding or consent. Preserve that uncertainty in the dashboard and incident narrative."
+        }
+      ],
+      "existing_qids": [
+        "P3-30",
+        "LK-03",
+        "LK-08",
+        "SCALE-07"
+      ],
+      "gap": "A concrete telemetry-contract and duplicate-counting exercise.",
+      "source_ids": [
+        "OFF-DATA"
+      ],
+      "inspired_by_chapters": [
+        "5.2.4",
+        "5.2.5",
+        "5.2.9",
+        "5.3.3"
+      ],
+      "status": "Proposed instrumentation exercise; existing diagnostics are not a production monitoring service."
+    },
+    {
+      "id": "AC-P3-04",
+      "title": "Bound retrieval at the original turn",
+      "question": "Where would you retrieve private knowledge for a voice reply, and what if the lookup returns after interruption?",
+      "answer": [
+        "Choose between initial context, an explicit retrieval tool and a turn-completion hook based on whether information is stable, optional or needed before generation. The pinned Python hook receives turn_ctx and new_message; query the accepted message rather than a mutable global transcript. Use bounded asynchronous database/API clients or correctly owned offload, limit retrieved bytes/chunks and carry the original trusted scope and turn identity.",
+        "A local timeout or barge-in changes the waiting conversation, not necessarily the lifetime of a running database operation. Retain actual ownership until settlement, and recheck the original generation/lifecycle binding before incorporating the result. Never inject late data into whichever turn happens to be current. Use a truthful no-source or pending response and measure the selected latency boundary; 400 ms is an example budget, not a platform guarantee. Retrieval content remains untrusted evidence and cannot authorize P1 action. The repository's existing fixed-policy records are not a general RAG implementation."
+      ],
+      "followups": [
+        {
+          "question": "Should retrieval run for every utterance?",
+          "answer": "Only under a deliberate product design. Greetings may need no lookup; structured account facts may belong behind an authenticated tool. Unnecessary retrieval adds cost, exposure and delay. Compare approaches with a representative task and a measured budget."
+        },
+        {
+          "question": "May a retrieved policy instruct the agent to approve a change?",
+          "answer": "No. Source text cannot grant permissions or replace exact human confirmation. Keep trusted instructions and application authority separate, enforce scope at source access, and test adversarial documents as inert evidence."
+        }
+      ],
+      "existing_qids": [
+        "LK-03",
+        "LK-04",
+        "P3-08",
+        "SYS-08"
+      ],
+      "gap": "Version-correct retrieval timing and stale asynchronous result handling.",
+      "source_ids": [
+        "OFF-RAG"
+      ],
+      "inspired_by_chapters": [
+        "6.1.1"
+      ],
+      "status": "Proposed RAG extension; no vector store or retrieval provider installed/run."
+    },
+    {
+      "id": "AC-P3-05",
+      "title": "Cache evidence without leaking scope or inventing support",
+      "question": "Two users ask the same policy question. When may you reuse the cached retrieval and cite it?",
+      "answer": [
+        "Equivalent wording is only one input. Authorize the second user independently and bind reuse to the permitted tenant/account/document set, document/index version, retrieval configuration and other context that affects the answer. Store original chunk/source/version identifiers and invalidate or revalidate when access or evidence changes. Bound entries and bytes; a TTL is not a complete memory or access policy.",
+        "Distinguish an exact normalized-key cache from semantic similarity search. The inspected course's SemanticCache performs the former despite storing an unused embedding/threshold. A real semantic cache needs measured false-hit behavior, especially for negation, numbers and nearly identical policies. On output, carry protected source metadata and speak a concise attribution suited to audio, while retaining inspectable citations in an authorized text view if available. A model naming a document does not prove support. Test unanswerable and conflicting-source queries and keep action permission at the existing exact guard."
+      ],
+      "followups": [
+        {
+          "question": "Does a matching document title establish factual support?",
+          "answer": "No. Check that the retained version and relevant passage support the claim. The P3 fixed-policy verifier can recompute a small synthetic rule; arbitrary policy prose requires its own retrieval and faithfulness evaluation and an abstention path."
+        },
+        {
+          "question": "Why not clear only the visible answer card?",
+          "answer": "Presentation state is not the protected identity ledger or source-access contract. Cached retrieval, retained receipts and unresolved processing have different lifetimes. Define their invalidation separately instead of treating a hidden card as deleted authority."
+        }
+      ],
+      "existing_qids": [
+        "P3-11",
+        "P3-21",
+        "D3-03",
+        "P3-04"
+      ],
+      "gap": "Access-aware RAG caching and spoken citation verification.",
+      "source_ids": [
+        "OFF-RAG"
+      ],
+      "inspired_by_chapters": [
+        "5.2.7",
+        "6.1.3",
+        "6.1.4"
+      ],
+      "status": "Proposed cache/evidence exercise; no cache benchmark or arbitrary-prose truth guarantee."
+    },
+    {
+      "id": "AC-P3-06",
+      "title": "Compose graph or MCP logic with one business authority",
+      "question": "If you add LangGraph checkpoints or MCP tools, can they replace P1's durable work and exact confirmation?",
+      "answer": [
+        "Not merely by being present. A graph checkpoint preserves the state defined by its checkpointer; MCP standardizes tool exposure and invocation. Neither automatically implements this project's original accepted bytes, exact confirmation, issued execution permission, effect uncertainty and receipt reconciliation. Decide which component owns each fact and keep one recovering owner for the accepted business obligation.",
+        "For an experiment, make graph/MCP nodes call narrow public adapters with stable original command identities. Scope graph thread lookup to authenticated conversation bindings and own the checkpointer/client lifecycle. Replaying a node after a crash must reconcile the original operation before any permitted re-invocation. Waiter timeout does not prove a remote effect stopped. Use the selected supported API: current official LiveKit LangChain documentation describes a Python LLMAdapter over a compiled graph; the pinned core exposes MCP server objects through mcp_servers. Do not infer TypeScript plugin parity, transparent function-calling compatibility or general workflow durability from an illustrative wrapper."
+      ],
+      "followups": [
+        {
+          "question": "Can a graph be the sole durable workflow authority instead?",
+          "answer": "Yes, as a separate explicit architecture with a defined fault model and demonstrated acceptance, consent, idempotency and effect protocol. That is a redesign to evaluate, not permission to let two independent recovery mechanisms own the same operation."
+        },
+        {
+          "question": "Does a discovered typed MCP tool carry mutation consent?",
+          "answer": "No. Discovery and schema validation describe a callable interface. Bind authenticated scope and exact approved intent at the server-owned boundary, and preserve the external operation's reconciliation identity after uncertain acknowledgment."
+        }
+      ],
+      "existing_qids": [
+        "P1-20",
+        "P3-01",
+        "P3-02",
+        "ROLE-02",
+        "ROLE-06"
+      ],
+      "gap": "Framework persistence and tool-protocol semantics compared with the concrete P1/P3 authority boundary.",
+      "source_ids": [
+        "OFF-LANG",
+        "OFF-GRAPH",
+        "OFF-RAG"
+      ],
+      "inspired_by_chapters": [
+        "6.1.2",
+        "6.2.1",
+        "6.2.2",
+        "6.2.3"
+      ],
+      "status": "Proposed integration design; no LangGraph/MCP service launched."
+    },
+    {
+      "id": "AC-P3-07",
+      "title": "Choose providers from a reproducible voice experiment",
+      "question": "How would you choose an STT/LLM/TTS stack without trusting a provider ranking table?",
+      "answer": [
+        "Define the actual task, languages/accents, noise, interruption patterns, tool schemas, privacy constraints and acceptable failure behavior. Freeze audio/scenario inputs and model/plugin/prompt versions. Keep other components fixed while changing one, then compare transcription errors, task/tool correctness, first rendered audio, interrupted output and useful completion under the same load and region. Report distributions and failures, not one attractive latency.",
+        "Price actual billable units for the selected product and date: STT may charge audio time or tokens, LLMs distinguish input/output/cache/audio units, and TTS may use characters or tokens. Include transport, telephony, hosting, retries and unsuccessful work as relevant. Compare cost per useful resolution alongside quality and privacy. Do not infer that realtime always wins latency, loses tools or costs a fixed multiple. The course tables offer hypotheses; current official capability/pricing and observed evidence must decide. In this checkout, scripted, local_real and provider_real qualifications remain distinct and no silent fallback is authorized."
+      ],
+      "followups": [
+        {
+          "question": "How do you calculate word error rate?",
+          "answer": "For a specified transcript corpus, WER = (substitutions + deletions + insertions) / reference-word count. Declare normalization and stratify important entities and conditions; one aggregate WER can hide failures on names, numbers or a minority language."
+        },
+        {
+          "question": "Why not sum three average stage timings?",
+          "answer": "Streaming and endpointing create dependencies and overlap. Define the end-to-end start and finish directly, correlate supporting spans and compare compatible populations. A first provider byte or token is not necessarily first audible output to the caller."
+        }
+      ],
+      "existing_qids": [
+        "LK-03",
+        "LK-08",
+        "FAIL-02",
+        "SCALE-07"
+      ],
+      "gap": "A concrete quality/capability/cost selection method instead of unstable rankings.",
+      "source_ids": [
+        "OFF-DATA",
+        "OFF-RAG"
+      ],
+      "inspired_by_chapters": [
+        "6.3.1",
+        "6.3.2",
+        "6.3.3"
+      ],
+      "status": "Proposed benchmark plan; no paid provider comparison or current price recommendation."
+    },
+    {
+      "id": "AC-P3-08",
+      "title": "Restore the right state after a self-hosted failure",
+      "question": "If Redis and configuration backups are healthy, what can still be lost when a LiveKit node dies?",
+      "answer": [
+        "Backups and coordination state do not reproduce a running node's WebRTC transports, live media buffers, agent process resources or the application's business receipts. Public self-hosted LiveKit uses Redis for shared room/routing coordination, with a room hosted on a node. Agent servers register over an outbound WebSocket; they are a separate deployment and failure boundary.",
+        "Draw an inventory of durable configuration/secrets under protected backup, cluster coordination, live media/session state, agent-local memory and P1 business state. Give each an RPO/RTO and recovery owner. A proposed restore drill should recover configuration with compatible binaries, establish a new usable connection and reconcile accepted business work against original receipts and supplier identities. Graceful room draining is different from forced node loss; forced termination may interrupt calls and leave business recovery pending. Verify configured metrics and network paths instead of assuming default /metrics on 7880. The current local POC has not demonstrated a redundant SFU or regional failover."
+      ],
+      "followups": [
+        {
+          "question": "Does a long Kubernetes termination grace period guarantee no dropped call?",
+          "answer": "No. It supplies a maximum opportunity to drain under the orchestrator's contract. Active calls may outlast it, dependencies may fail or a node may die abruptly. Define what is admitted, what is retained and how forced-loss recovery is observed."
+        },
+        {
+          "question": "What does a successful health endpoint prove?",
+          "answer": "Only the endpoint's checks. Demonstrate authenticated connection, actual media in the selected paths and independently verified business progress for those claims. Keep media-server health, worker registration, provider readiness and durable-work recovery separately observable."
+        }
+      ],
+      "existing_qids": [
+        "BUS-01",
+        "LK-02",
+        "SCALE-04",
+        "SCALE-06",
+        "SCALE-08"
+      ],
+      "gap": "A state-by-state restore exercise spanning media, agents and business authority.",
+      "source_ids": [
+        "OFF-SERVER",
+        "OFF-WORKER",
+        "OFF-CLUSTER"
+      ],
+      "inspired_by_chapters": [
+        "5.3.1",
+        "5.3.2",
+        "5.3.3",
+        "5.3.4"
+      ],
+      "status": "Proposed restore design; no deployment, destructive action or failover performed."
+    }
+  ],
+  "coverage_validation": {
+    "courses": 7,
+    "chapters": 40,
+    "chapter_judgments": {
+      "retain": 8,
+      "expand": 10,
+      "correct": 21,
+      "defer": 1
+    },
+    "new_questions": 8,
+    "answered_followups": 16,
+    "all_existing_qids_verified": true,
+    "all_course_chapters_http_200": true
+  },
+  "quiz_audit": {
+    "review_date": "2026-11-19",
+    "scope": "Read-only review of public quiz props embedded in the already fetched lesson HTML. This is a learning-material audit, not an attempted or completed assessment.",
+    "count_reviewed": 134,
+    "courses_reviewed": 7,
+    "chapters_reviewed": 40,
+    "per_course": [
+      {
+        "course_id": "5.1",
+        "title": "Testing & Evaluation",
+        "chapters_reviewed": 7,
+        "items_reviewed": 21
+      },
+      {
+        "course_id": "5.2",
+        "title": "Deploy, Monitor & Scale",
+        "chapters_reviewed": 11,
+        "items_reviewed": 31
+      },
+      {
+        "course_id": "5.3",
+        "title": "Self-Hosting LiveKit",
+        "chapters_reviewed": 4,
+        "items_reviewed": 12
+      },
+      {
+        "course_id": "6.1",
+        "title": "RAG for Voice Agents",
+        "chapters_reviewed": 4,
+        "items_reviewed": 11
+      },
+      {
+        "course_id": "6.2",
+        "title": "LangChain & LangGraph",
+        "chapters_reviewed": 3,
+        "items_reviewed": 9
+      },
+      {
+        "course_id": "6.3",
+        "title": "Provider Selection Guide",
+        "chapters_reviewed": 3,
+        "items_reviewed": 10
+      },
+      {
+        "course_id": "7.1",
+        "title": "LiveKit Expert Certification",
+        "chapters_reviewed": 8,
+        "items_reviewed": 40
+      }
+    ],
+    "access_update": "This appended overlay supersedes the initial first-question-only SSR visibility limit in the main course review: all publicly embedded prompt, option, marked-selection and explanation props for these 40 lessons have now been read. No interactive quiz state, login, submission, scoring or completion was exercised.",
+    "publication_boundary": "No answer-key indices, option letters or copied quiz prompts are included in this report. Chapter and item ordinals identify issues without publishing assessment answers. The eight proposed book questions predate this overlay and were not rewritten from quiz prompts.",
+    "method": [
+      "Read all 134 prompts, all provided options, the embedded marked selection and every explanation from retained .quiz.json files.",
+      "Distinguished invalid distractors, which are expected in a multiple-choice quiz, from errors or unjustified guarantees in a marked answer or its explanation.",
+      "Cross-checked material API and behavior claims against official references and installed livekit-agents 1.8.11 source. No snippet was executed and no provider, deployment or assessment was invoked.",
+      "Used chapter/item ordinals only for traceability. A structurally valid key is not a guarantee of technical correctness. Architecture ambiguity is reported separately from a demonstrably false runtime/API claim."
+    ],
+    "structural_integrity": {
+      "items_checked": 134,
+      "all_marked_references_in_bounds": true,
+      "all_options_nonempty": true,
+      "duplicate_normalized_options": 0,
+      "missing_prompts_or_explanations": 0,
+      "issues": [],
+      "limit": "This is static data validation, not quiz execution or an endorsement of all marked answers."
+    },
+    "chapter_inventory": [
+      {
+        "chapter_id": "5.1.1",
+        "title": "Testing strategy for voice AI",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/testing-strategy",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__testing-strategy.quiz.json",
+        "sha256": "5781ce0f670382816fd6559be63bd299c7f46d0e15a37ead641f838cfe6b9351",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA01"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "ROLE-07",
+          "P3-11"
+        ]
+      },
+      {
+        "chapter_id": "5.1.2",
+        "title": "Behavioral tests deep dive",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/behavioral-tests",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__behavioral-tests.quiz.json",
+        "sha256": "359696c3cef1f5a0a4634108092ca718d3ec83cb54b65813b30dd09c61889b72",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA01",
+          "QA02"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "ROLE-07",
+          "LK-03"
+        ]
+      },
+      {
+        "chapter_id": "5.1.3",
+        "title": "Testing tools & workflows",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/tool-testing",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__tool-testing.quiz.json",
+        "sha256": "89fcda9f3f33a2e2b3efc2a9fa5db2c27179f80ec976f16f93636d7898b8ab1f",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [],
+        "judgment": "retain_as_recall_with_existing_course_cautions",
+        "existing_qids": [
+          "ROLE-07",
+          "P3-01"
+        ]
+      },
+      {
+        "chapter_id": "5.1.4",
+        "title": "Evaluation framework",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/evaluation-framework",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__evaluation-framework.quiz.json",
+        "sha256": "1c2a4d0e075a324a0599f8e6b332a42b3f9e96f21f54de577e075ae4f85250b1",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA02"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "ROLE-07",
+          "LK-08"
+        ]
+      },
+      {
+        "chapter_id": "5.1.5",
+        "title": "Regression testing",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/regression-testing",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__regression-testing.quiz.json",
+        "sha256": "0f5939c8e86d5c34a5629f89c55b44bd2c4bbc53a29baaefd92cad6f44fc49e8",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA02"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "ROLE-07",
+          "ROLE-09"
+        ]
+      },
+      {
+        "chapter_id": "5.1.6",
+        "title": "CI/CD integration",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/ci-integration",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__ci-integration.quiz.json",
+        "sha256": "fb80553650195b07e7e7bd60639e0745cb233f2013dff98dfbffaddd5a43c593",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [],
+        "judgment": "retain_as_recall_with_existing_course_cautions",
+        "existing_qids": [
+          "ROLE-07",
+          "ROLE-08"
+        ]
+      },
+      {
+        "chapter_id": "5.1.7",
+        "title": "Production evaluation",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/production-monitoring",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__production-monitoring.quiz.json",
+        "sha256": "57c24fb67b16c0d73dd62cc52772ce4a097b44cf92b0c8458577d0a802fe6dc6",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA02",
+          "QA03"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "SCALE-07",
+          "LK-08"
+        ]
+      },
+      {
+        "chapter_id": "5.2.1",
+        "title": "Deployment architecture",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/deployment-overview",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__deployment-overview.quiz.json",
+        "sha256": "bcf217d1796c4023cd5e2616c402f22cfeeac1669f46d35bdbac5f1cf4654918",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [],
+        "judgment": "retain_as_recall_with_existing_course_cautions",
+        "existing_qids": [
+          "SCALE-01",
+          "BUS-01",
+          "LK-02"
+        ]
+      },
+      {
+        "chapter_id": "5.2.2",
+        "title": "Docker configuration",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/docker-config",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__docker-config.quiz.json",
+        "sha256": "a86020720c2a31e39c40bcd244c0c18079f4fc6a1cb7aa5059ccf1c5979ebcb1",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [],
+        "judgment": "retain_as_recall_with_existing_course_cautions",
+        "existing_qids": [
+          "ROLE-08",
+          "P1-27",
+          "P3-29"
+        ]
+      },
+      {
+        "chapter_id": "5.2.3",
+        "title": "LiveKit Cloud deployment",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/cloud-deploy",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__cloud-deploy.quiz.json",
+        "sha256": "e694f6146f0990885ab379a8e0d346d7ba9c4a67cd15bd59d7e9622c11be71cf",
+        "items_reviewed": 2,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA04"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "LK-02",
+          "SCALE-06",
+          "LK-08"
+        ]
+      },
+      {
+        "chapter_id": "5.2.4",
+        "title": "Monitoring setup",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/monitoring-setup",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__monitoring-setup.quiz.json",
+        "sha256": "c19ca1ffec35ce68588cf5490bfa7ad86b84a3e06d570629fbdacf7751368f78",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [],
+        "judgment": "retain_as_recall_with_existing_course_cautions",
+        "existing_qids": [
+          "FAIL-01",
+          "FAIL-02",
+          "LK-08",
+          "SCALE-07"
+        ]
+      },
+      {
+        "chapter_id": "5.2.5",
+        "title": "Custom metrics & data hooks",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/custom-metrics",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__custom-metrics.quiz.json",
+        "sha256": "8dd33bcddacf5cf22172acd17bf93284630383794bc9dca529eed079bf64bcb5",
+        "items_reviewed": 2,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [],
+        "judgment": "retain_as_recall_with_existing_course_cautions",
+        "existing_qids": [
+          "P3-30",
+          "SCALE-07",
+          "LK-03"
+        ]
+      },
+      {
+        "chapter_id": "5.2.6",
+        "title": "Alerting & incident response",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/alerting",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__alerting.quiz.json",
+        "sha256": "301b4434c9e990b695852d467784de541b25240d6246475938caace60e10ba40",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [],
+        "judgment": "retain_as_recall_with_existing_course_cautions",
+        "existing_qids": [
+          "FAIL-08",
+          "SCALE-07"
+        ]
+      },
+      {
+        "chapter_id": "5.2.7",
+        "title": "Multi-tenant architecture",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/multi-tenant",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__multi-tenant.quiz.json",
+        "sha256": "a65898b03c8f45332e3a9f46204b73d7fb12bacc2398cf8d0510a51d1e209c4b",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [],
+        "judgment": "retain_as_recall_with_existing_course_cautions",
+        "existing_qids": [
+          "P1-26",
+          "P3-04",
+          "NATS-10"
+        ]
+      },
+      {
+        "chapter_id": "5.2.8",
+        "title": "Auto-scaling",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/auto-scaling",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__auto-scaling.quiz.json",
+        "sha256": "78d207365b85e11d560f075de47a3d7c3c885682121b94f99b57a81c1e885593",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA05"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "SCALE-02",
+          "SCALE-03",
+          "SCALE-05"
+        ]
+      },
+      {
+        "chapter_id": "5.2.9",
+        "title": "Cost optimization",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/cost-optimization",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__cost-optimization.quiz.json",
+        "sha256": "f71cd4a43f7a5fb08d5a0c498c26ba93c2b2b6f0b5f513f7a604bc0224458d69",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA06"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "LK-08",
+          "SCALE-07"
+        ]
+      },
+      {
+        "chapter_id": "5.2.10",
+        "title": "Blue-green deployments",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/blue-green",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__blue-green.quiz.json",
+        "sha256": "35a7555fb0ab9bbc7ec938175f41a08c7863094dbfecb75b2b9460e65fbc8e61",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA04"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "SCALE-06",
+          "FAIL-07"
+        ]
+      },
+      {
+        "chapter_id": "5.2.11",
+        "title": "Operational runbook",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/operational-runbook",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__operational-runbook.quiz.json",
+        "sha256": "e9347b674549b3d480ad05587b16b55c38173b1f2f459c69fd5043134142e883",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [],
+        "judgment": "retain_as_recall_with_existing_course_cautions",
+        "existing_qids": [
+          "FAIL-07",
+          "FAIL-08",
+          "ROLE-07"
+        ]
+      },
+      {
+        "chapter_id": "5.3.1",
+        "title": "Self-hosting architecture & decision framework",
+        "url": "https://www.livekit-academy.com/courses/self-hosting/self-hosting-architecture",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__self-hosting-architecture.quiz.json",
+        "sha256": "81bc3edcc9163c2c703f6181a257ef42ff8ca3c8945c7365284e808e43e7a91a",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [],
+        "judgment": "retain_as_recall_with_existing_course_cautions",
+        "existing_qids": [
+          "BUS-01",
+          "SCALE-01",
+          "SCALE-08"
+        ]
+      },
+      {
+        "chapter_id": "5.3.2",
+        "title": "Kubernetes deployment & server configuration",
+        "url": "https://www.livekit-academy.com/courses/self-hosting/kubernetes-deployment",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__kubernetes-deployment.quiz.json",
+        "sha256": "d271e27f9abc157c773c87cb45f3071e260721f2fa225c968700b9491a42b5ce",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA07"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "RTC-03",
+          "BUS-01",
+          "LK-02"
+        ]
+      },
+      {
+        "chapter_id": "5.3.3",
+        "title": "Monitoring & security hardening",
+        "url": "https://www.livekit-academy.com/courses/self-hosting/monitoring-security",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__monitoring-security.quiz.json",
+        "sha256": "889be640d507020d93f43debc752183f82f43a908f3d374e9bfc4ed2413784b9",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [],
+        "judgment": "retain_as_recall_with_existing_course_cautions",
+        "existing_qids": [
+          "P3-30",
+          "SCALE-07",
+          "NATS-10"
+        ]
+      },
+      {
+        "chapter_id": "5.3.4",
+        "title": "Upgrades, backup & operations",
+        "url": "https://www.livekit-academy.com/courses/self-hosting/upgrades-operations",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__upgrades-operations.quiz.json",
+        "sha256": "3540296c147c65f62cdcc45102e60d74c3d073a2ca0492146729c81913e884c4",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA08"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "SCALE-04",
+          "SCALE-06",
+          "SCALE-08"
+        ]
+      },
+      {
+        "chapter_id": "6.1.1",
+        "title": "RAG architecture for voice",
+        "url": "https://www.livekit-academy.com/courses/rag-external-data/voice-rag-architecture",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__voice-rag-architecture.quiz.json",
+        "sha256": "6f163e2212f65b4b68e8aa921ce7b14697f6ac5a772c19891f47605ebf0d6023",
+        "items_reviewed": 4,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA09"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "LK-03",
+          "LK-04",
+          "P3-11"
+        ]
+      },
+      {
+        "chapter_id": "6.1.2",
+        "title": "MCP tools for structured data",
+        "url": "https://www.livekit-academy.com/courses/rag-external-data/mcp-tools",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__mcp-tools.quiz.json",
+        "sha256": "d47e54b2bbfc6f2ec860aa6a62755431d2820908dbb2823483663d86aa338fbf",
+        "items_reviewed": 2,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA10"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "P3-01",
+          "P3-04",
+          "P3-15"
+        ]
+      },
+      {
+        "chapter_id": "6.1.3",
+        "title": "Citation in spoken conversation",
+        "url": "https://www.livekit-academy.com/courses/rag-external-data/citation-voice",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__citation-voice.quiz.json",
+        "sha256": "8c567297b0f3e02d5c65de1be1e141b32c04ce71b58926a1029bed8b3973f16f",
+        "items_reviewed": 2,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [],
+        "judgment": "retain_as_recall_with_existing_course_cautions",
+        "existing_qids": [
+          "P3-11",
+          "D3-03",
+          "SYS-08"
+        ]
+      },
+      {
+        "chapter_id": "6.1.4",
+        "title": "Production RAG: caching, monitoring, evaluation",
+        "url": "https://www.livekit-academy.com/courses/rag-external-data/production-rag",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__production-rag.quiz.json",
+        "sha256": "ed2e45a7cb07657ded925794339d3969446e9167010b67d25123f4ff76ad3b46",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA12"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "P3-11",
+          "P3-21",
+          "SCALE-07"
+        ]
+      },
+      {
+        "chapter_id": "6.2.1",
+        "title": "LangChain as LLM provider",
+        "url": "https://www.livekit-academy.com/courses/langchain-langgraph/langchain-llm-provider",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__langchain-llm-provider.quiz.json",
+        "sha256": "0bcac6bd2782e809805e950a5971a18e8c646ad2fa2ba6c53ad64a3176035063",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA13"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "P3-01",
+          "ROLE-08"
+        ]
+      },
+      {
+        "chapter_id": "6.2.2",
+        "title": "LangGraph conversation workflows",
+        "url": "https://www.livekit-academy.com/courses/langchain-langgraph/langgraph-workflows",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__langgraph-workflows.quiz.json",
+        "sha256": "b9122e135c095e24ac221719f89b5ee6bb0f327e4dfaed2c9b76fcde7f7b4f40",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA13"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "P1-20",
+          "P3-02",
+          "LK-07"
+        ]
+      },
+      {
+        "chapter_id": "6.2.3",
+        "title": "Production patterns",
+        "url": "https://www.livekit-academy.com/courses/langchain-langgraph/production-patterns",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__production-patterns.quiz.json",
+        "sha256": "3db504009b8f2c4b04becea0ec5d30097102884a6eb557fce30f7ae413862f30",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA11"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "ROLE-01",
+          "ROLE-02",
+          "ROLE-06"
+        ]
+      },
+      {
+        "chapter_id": "6.3.1",
+        "title": "Pipeline selection & latency budgets",
+        "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/pipeline-selection",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__pipeline-selection.quiz.json",
+        "sha256": "29404ccad475c1691dd826a7066ae3696c0a6d06393e76f2f05cb4062e346a26",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA13"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "LK-03",
+          "LK-04",
+          "LK-08"
+        ]
+      },
+      {
+        "chapter_id": "6.3.2",
+        "title": "STT, LLM & TTS provider comparison",
+        "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/provider-comparison",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__provider-comparison.quiz.json",
+        "sha256": "b359794ba845e001d0bc54ea8078093d6a2ac50154737dcafc936e4b794900d7",
+        "items_reviewed": 4,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA13"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "LK-08",
+          "FAIL-02"
+        ]
+      },
+      {
+        "chapter_id": "6.3.3",
+        "title": "Cost analysis & use case recommendations",
+        "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/cost-and-recommendations",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__cost-and-recommendations.quiz.json",
+        "sha256": "951d6297a13cca6bb80d93cbee401ab3f3d79bd822e5c116177f7ed8a24f7d01",
+        "items_reviewed": 3,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA13"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "LK-08",
+          "SCALE-07"
+        ]
+      },
+      {
+        "chapter_id": "7.1.1",
+        "title": "Architecture & fundamentals",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/architecture-fundamentals",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__architecture-fundamentals.quiz.json",
+        "sha256": "30ea625a8a2abec4a16edcddbd1132becc8a62ab7f68bdb3555be4063cbe1cdc",
+        "items_reviewed": 5,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA14"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "RTC-01",
+          "RTC-02",
+          "RTC-03",
+          "RTC-07",
+          "LK-01"
+        ]
+      },
+      {
+        "chapter_id": "7.1.2",
+        "title": "Voice pipeline mastery",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/voice-pipeline-mastery",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__voice-pipeline-mastery.quiz.json",
+        "sha256": "07fb815c9c4ba592852a677f93cc4c58bf988baa3cf5a3b6391dae60815818d6",
+        "items_reviewed": 5,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA13",
+          "QA15",
+          "QA22"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "LK-03",
+          "LK-04",
+          "FAIL-02"
+        ]
+      },
+      {
+        "chapter_id": "7.1.3",
+        "title": "Agent design & tools",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/agent-design-patterns",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__agent-design-patterns.quiz.json",
+        "sha256": "67fb487ace354f44a404995caed28d046b2d64548b31ccefe86a7e4a4c2eb59b",
+        "items_reviewed": 5,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA16",
+          "QA17",
+          "QA21"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "P3-01",
+          "P3-24",
+          "ROLE-08"
+        ]
+      },
+      {
+        "chapter_id": "7.1.4",
+        "title": "Telephony & contact centers",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/telephony-contact-center",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__telephony-contact-center.quiz.json",
+        "sha256": "89e5aa0c76fec8a4c916d688f90d6bf816e04e17a6f175cf37a31e79a40274d1",
+        "items_reviewed": 5,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA11",
+          "QA20",
+          "QA21"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": []
+      },
+      {
+        "chapter_id": "7.1.5",
+        "title": "Frontend SDK & client integration",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/frontend-sdk",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__frontend-sdk.quiz.json",
+        "sha256": "53bec9fa3eeb0e48f5426afacc782796ebbe7b3ac91881f138ef6647f7a0e699",
+        "items_reviewed": 5,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA18",
+          "QA19"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "LK-01",
+          "LK-02",
+          "LK-06",
+          "LK-07",
+          "P2-11"
+        ]
+      },
+      {
+        "chapter_id": "7.1.6",
+        "title": "Production, deployment & scaling",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/production-operations",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__production-operations.quiz.json",
+        "sha256": "4ef325c62eb5ede5c46e987e5da53c3545691fb7be0d110b51aef02c56188cc8",
+        "items_reviewed": 5,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA05"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "ROLE-07",
+          "SCALE-01",
+          "SCALE-06",
+          "SCALE-07"
+        ]
+      },
+      {
+        "chapter_id": "7.1.7",
+        "title": "Integrations & ecosystem",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/integrations-ecosystem",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__integrations-ecosystem.quiz.json",
+        "sha256": "bed718f658688f419a360c9c5089832bc1ba35471983a9b4bef71510215f5eac",
+        "items_reviewed": 5,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA10",
+          "QA13"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "P3-01",
+          "LK-08"
+        ]
+      },
+      {
+        "chapter_id": "7.1.8",
+        "title": "Scenario-based consulting",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/scenario-consulting",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__scenario-consulting.quiz.json",
+        "sha256": "fb229b5a892550a9bc14c9d8f343ad3428edcd438ee4733ebb96274eee02e580",
+        "items_reviewed": 5,
+        "reviewed_fields": [
+          "question",
+          "all options",
+          "marked selection",
+          "explanation"
+        ],
+        "finding_ids": [
+          "QA20",
+          "QA21"
+        ],
+        "judgment": "discuss_with_corrections",
+        "existing_qids": [
+          "SYS-01",
+          "SYS-05",
+          "SCALE-01",
+          "ROLE-12"
+        ]
+      }
+    ],
+    "findings": [
+      {
+        "id": "QA01",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "5.1.1",
+            "item_ordinal": 3,
+            "url": "https://www.livekit-academy.com/courses/testing-evaluation/testing-strategy"
+          },
+          {
+            "chapter_id": "5.1.2",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/testing-evaluation/behavioral-tests"
+          }
+        ],
+        "classification": "api_and_proof_mismatch",
+        "issue": "The quiz reinforces the unsupported AgentTest harness and equates removing media transport with a network-free, fully repeatable behavioral test.",
+        "recommended_learning_correction": "Separate deterministic mocked unit tests from model-dependent behavioral judgments. Teach the pinned AgentSession.run / RunResult and mock_tools interfaces; declare the model/judge, network use, seeds if supported, and repeatability limits.",
+        "verification": [
+          {
+            "source_id": "OFF-TEST"
+          },
+          {
+            "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent_session.py",
+            "line": 866,
+            "claim": "AgentSession.run takes a user_input string and returns RunResult."
+          },
+          {
+            "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/run_result.py",
+            "line": 1168,
+            "claim": "mock_tools is a distinct helper."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-01"
+        ]
+      },
+      {
+        "id": "QA02",
+        "severity": "medium",
+        "locations": [
+          {
+            "chapter_id": "5.1.2",
+            "item_ordinal": 3,
+            "url": "https://www.livekit-academy.com/courses/testing-evaluation/behavioral-tests"
+          },
+          {
+            "chapter_id": "5.1.4",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/testing-evaluation/evaluation-framework"
+          },
+          {
+            "chapter_id": "5.1.4",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/testing-evaluation/evaluation-framework"
+          },
+          {
+            "chapter_id": "5.1.5",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/testing-evaluation/regression-testing"
+          },
+          {
+            "chapter_id": "5.1.7",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/testing-evaluation/production-monitoring"
+          }
+        ],
+        "classification": "unsupported_generalization",
+        "issue": "Several explanations present judge consistency, a fixed regression-score delta and a sampling percentage as if they establish reliability or statistical significance. A low tone score is assigned a single prompt-related cause.",
+        "recommended_learning_correction": "Use anchored rubrics as a starting point, then calibrate against labeled cases and repeated judgments. Choose a threshold and sample size from observed variance, cohort size and acceptable error; inspect recordings, prompts and judge disagreement before diagnosing tone.",
+        "verification": [],
+        "related_proposed_questions": [
+          "AC-P3-01",
+          "AC-P3-02"
+        ]
+      },
+      {
+        "id": "QA03",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "5.1.7",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/testing-evaluation/production-monitoring"
+          }
+        ],
+        "classification": "concrete_identity_mismatch",
+        "issue": "The example assigns variants using a session identifier, but the marked explanation claims that a returning caller necessarily receives the same variant. A new session identifier can place that caller in another variant.",
+        "recommended_learning_correction": "Choose the assignment unit explicitly: session-level consistency uses a session ID; caller-level consistency needs an authorized stable identity or persisted assignment. Keep tenant scope and privacy requirements explicit.",
+        "verification": [
+          {
+            "course_evidence": "The production-evaluation lesson code hashes session_id; this is not a stable caller identity contract."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-02"
+        ]
+      },
+      {
+        "id": "QA04",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "5.2.3",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/cloud-deploy"
+          },
+          {
+            "chapter_id": "5.2.10",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/blue-green"
+          }
+        ],
+        "classification": "missing_failure_boundary",
+        "issue": "The explanations describe rolling or blue-green release as allowing every current caller to finish, without stating the drain budget.",
+        "recommended_learning_correction": "Explain admission cutover separately from finite draining and forced termination. LiveKit managed rolling deployments give old instances up to one hour for active sessions; a custom platform needs its own verified grace and recovery policy.",
+        "verification": [
+          {
+            "source_id": "OFF-DEPLOY",
+            "claim": "Managed old instances have a finite one-hour session-completion window."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-02",
+          "AC-P3-08"
+        ]
+      },
+      {
+        "id": "QA05",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "5.2.8",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/auto-scaling"
+          },
+          {
+            "chapter_id": "7.1.6",
+            "item_ordinal": 3,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/production-operations"
+          }
+        ],
+        "classification": "execution_model_mismatch",
+        "issue": "The autoscaling explanation treats an I/O-waiting session as occupying an entire worker that cannot accept another session. The certification explanation calls workers stateless and denies managed automatic scaling.",
+        "recommended_learning_correction": "Distinguish agent server capacity, isolated session/job processes and application durability. Scale using measured session counts plus CPU, memory, event-loop and provider limits; an idle CPU alone is insufficient. Managed Cloud deployment and custom worker orchestration are different operating modes.",
+        "verification": [
+          {
+            "source_id": "OFF-WORKER"
+          },
+          {
+            "source_id": "OFF-DEPLOY"
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-02",
+          "AC-P3-08"
+        ]
+      },
+      {
+        "id": "QA06",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "5.2.9",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/cost-optimization"
+          }
+        ],
+        "classification": "false_universal_and_unmeasured_result",
+        "issue": "The explanation claims identical text and voice always produce identical TTS audio and presents a fixed savings range without workload evidence.",
+        "recommended_learning_correction": "Caching an approved audio artifact can avoid another synthesis call even when the provider is nondeterministic. Key by all relevant rendering settings and model/version, enforce scope and retention, and measure hit rate, quality and net savings.",
+        "verification": [
+          {
+            "source_id": "QUIZ-TTS",
+            "claim": "Provider documentation explicitly declines a determinism guarantee, including when a seed is supplied."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-05",
+          "AC-P3-07"
+        ]
+      },
+      {
+        "id": "QA07",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "5.3.2",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/self-hosting/kubernetes-deployment"
+          }
+        ],
+        "classification": "transport_configuration_error",
+        "issue": "The question assumes a wide UDP range is always required; the explanation suggests separate allocation for each media track.",
+        "recommended_learning_correction": "Firewall rules follow the configured ICE transport. LiveKit supports a single UDP mux port instead of the range. Distinguish participant transport allocation from track count and include TCP/TURN fallbacks where configured.",
+        "verification": [
+          {
+            "source_id": "QUIZ-PORTS",
+            "claim": "Setting rtc.udp_port enables UDP mux and replaces use of the configured port range."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-08"
+        ]
+      },
+      {
+        "id": "QA08",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "5.3.4",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/self-hosting/upgrades-operations"
+          },
+          {
+            "chapter_id": "5.3.4",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/self-hosting/upgrades-operations"
+          }
+        ],
+        "classification": "unproven_recovery_guarantee",
+        "issue": "The upgrade explanation promises a short reconnect after forced node loss. The backup explanation can be read as saying media cannot be stored at all.",
+        "recommended_learning_correction": "Differentiate draining live rooms, abrupt media-node loss, SDK reconnect behavior and recovery of the application workflow. A healthy replacement does not prove restoration of the old session. Recordings can be retained, but a recording is not a backup that resumes the original live WebRTC transport.",
+        "verification": [
+          {
+            "source_id": "OFF-CLUSTER"
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-08"
+        ]
+      },
+      {
+        "id": "QA09",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "6.1.1",
+            "item_ordinal": 4,
+            "url": "https://www.livekit-academy.com/courses/rag-external-data/voice-rag-architecture"
+          }
+        ],
+        "classification": "pinned_api_behavior_error",
+        "issue": "The explanation says a custom turn hook must call a parent implementation or the augmented context will never reach generation. In the pinned Python SDK, that default hook is a no-op.",
+        "recommended_learning_correction": "Use the actual two-argument on_user_turn_completed hook, mutate its supplied ChatContext through supported methods, and follow the session pipeline. A parent call may be appropriate for a custom subclass, but is not the SDK generation switch described here.",
+        "verification": [
+          {
+            "source_id": "OFF-RAG"
+          },
+          {
+            "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+            "line": 344,
+            "claim": "The default on_user_turn_completed signature takes turn_ctx and new_message; its body is pass."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-04"
+        ]
+      },
+      {
+        "id": "QA10",
+        "severity": "medium",
+        "locations": [
+          {
+            "chapter_id": "6.1.2",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/rag-external-data/mcp-tools"
+          },
+          {
+            "chapter_id": "6.1.2",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/rag-external-data/mcp-tools"
+          },
+          {
+            "chapter_id": "7.1.7",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/integrations-ecosystem"
+          }
+        ],
+        "classification": "false_dichotomy",
+        "issue": "The explanations turn an example division of labor into an exclusive rule: RAG for unstructured data, MCP for structured data, and LiveKit RAG only through a model-invoked search tool.",
+        "recommended_learning_correction": "Separate retrieval technique from tool transport. MCP can expose retrieval, and RAG can use initial context, a turn hook or a tool. Select based on freshness, latency, access checks and when the information is needed; names and descriptions influence tool selection alongside other context and policy.",
+        "verification": [
+          {
+            "source_id": "OFF-RAG",
+            "claim": "The official guide describes initial-context, tool and turn-hook integration options."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-04",
+          "AC-P3-06"
+        ]
+      },
+      {
+        "id": "QA11",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "6.2.3",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/langchain-langgraph/production-patterns"
+          },
+          {
+            "chapter_id": "7.1.4",
+            "item_ordinal": 5,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/telephony-contact-center"
+          }
+        ],
+        "classification": "cancellation_and_deadline_error",
+        "issue": "The LangGraph item calls asyncio.wait_for a hard response-time guarantee. The CRM scenario similarly treats a timer as sufficient to guarantee a bounded response.",
+        "recommended_learning_correction": "A timeout initiates cooperative cancellation; wait_for can exceed its timeout while cancellation completes. Keep the actual task/client lifetime owned, set underlying I/O deadlines where supported, preserve late effect truth, and prevent stale background enrichment from entering a newer turn.",
+        "verification": [
+          {
+            "source_id": "QUIZ-ASYNC",
+            "claim": "Python documents that wait_for waits for cancellation and total wait time may exceed the timeout."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-04",
+          "AC-P3-06"
+        ]
+      },
+      {
+        "id": "QA12",
+        "severity": "medium",
+        "locations": [
+          {
+            "chapter_id": "6.1.4",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/rag-external-data/production-rag"
+          }
+        ],
+        "classification": "nonunique_diagnosis",
+        "issue": "A falling retrieval hit rate is diagnosed as a knowledge-coverage gap without considering other changes.",
+        "recommended_learning_correction": "Check query mix, tenant authorization filters, embedding/index versions, retrieval thresholds, cache changes and source freshness before concluding that documents are missing. Hit rate does not establish grounded answer correctness.",
+        "verification": [],
+        "related_proposed_questions": [
+          "AC-P3-01",
+          "AC-P3-05"
+        ]
+      },
+      {
+        "id": "QA13",
+        "severity": "medium",
+        "locations": [
+          {
+            "chapter_id": "6.2.1",
+            "item_ordinal": 3,
+            "url": "https://www.livekit-academy.com/courses/langchain-langgraph/langchain-llm-provider"
+          },
+          {
+            "chapter_id": "6.2.2",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/langchain-langgraph/langgraph-workflows"
+          },
+          {
+            "chapter_id": "6.3.1",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/pipeline-selection"
+          },
+          {
+            "chapter_id": "6.3.2",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/provider-comparison"
+          },
+          {
+            "chapter_id": "6.3.2",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/provider-comparison"
+          },
+          {
+            "chapter_id": "6.3.2",
+            "item_ordinal": 3,
+            "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/provider-comparison"
+          },
+          {
+            "chapter_id": "6.3.3",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/cost-and-recommendations"
+          },
+          {
+            "chapter_id": "6.3.3",
+            "item_ordinal": 3,
+            "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/cost-and-recommendations"
+          },
+          {
+            "chapter_id": "7.1.2",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/voice-pipeline-mastery"
+          },
+          {
+            "chapter_id": "7.1.2",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/voice-pipeline-mastery"
+          },
+          {
+            "chapter_id": "7.1.7",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/integrations-ecosystem"
+          },
+          {
+            "chapter_id": "7.1.7",
+            "item_ordinal": 3,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/integrations-ecosystem"
+          },
+          {
+            "chapter_id": "7.1.7",
+            "item_ordinal": 5,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/integrations-ecosystem"
+          }
+        ],
+        "classification": "version_and_measurement_scope",
+        "issue": "Provider latency/cost ratios, wrapper transparency and pipeline overlap are stated too broadly. The pipeline descriptions also conflict about whether LLM work can overlap the user/STT turn. One integration explanation reduces all chains to linear execution.",
+        "recommended_learning_correction": "Use the pinned adapter API and verify required model features. Describe preemptive generation, final turn commitment and TTS overlap separately. Benchmark the actual provider/model/region, language, audio corpus and tool workload; include cached-token pricing and billed units. Treat architecture families as patterns, not universal capability or timing claims.",
+        "verification": [
+          {
+            "source_id": "OFF-LANG"
+          },
+          {
+            "source_id": "OFF-GRAPH"
+          },
+          {
+            "source_id": "OFF-DATA"
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-06",
+          "AC-P3-07"
+        ]
+      },
+      {
+        "id": "QA14",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "7.1.1",
+            "item_ordinal": 5,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/architecture-fundamentals"
+          }
+        ],
+        "classification": "room_lifecycle_error",
+        "issue": "The room-lifecycle explanation states that rooms disappear as soon as the last participant leaves, omitting configurable departure retention and explicit creation.",
+        "recommended_learning_correction": "Rooms can be created explicitly or on demand. Explain empty_timeout and departure_timeout separately; use the actual configuration when reasoning about reconnect and dispatch-on-creation.",
+        "verification": [
+          {
+            "source_id": "QUIZ-ROOMS",
+            "claim": "CreateRoom supports empty_timeout and departure_timeout with distinct meanings."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-08"
+        ]
+      },
+      {
+        "id": "QA15",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "7.1.2",
+            "item_ordinal": 5,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/voice-pipeline-mastery"
+          }
+        ],
+        "classification": "pinned_behavior_error",
+        "issue": "The explanation says interrupted speech never resumes. The pinned SDK can pause and resume a false interruption when configured and supported by the audio output.",
+        "recommended_learning_correction": "Separate a genuine committed new user turn from noise/backchannel classified as false interruption. Trace the configured interruption policy, paused output capability and whether a newer response superseded the old one.",
+        "verification": [
+          {
+            "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/turn.py",
+            "line": 195,
+            "claim": "The interruption defaults enable resume_false_interruption."
+          },
+          {
+            "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/agent_activity.py",
+            "line": 5117,
+            "claim": "A configured false interruption can restore paused speech and call audio_output.resume when the guarded conditions hold."
+          }
+        ],
+        "related_proposed_questions": []
+      },
+      {
+        "id": "QA16",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "7.1.3",
+            "item_ordinal": 5,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/agent-design-patterns"
+          }
+        ],
+        "classification": "enum_and_state_plane_mismatch",
+        "issue": "The certification item labels connection and error screens as SDK agent activity states. That enum differs from the pinned SDK.",
+        "recommended_learning_correction": "Keep room/session connection state, agent activity state and application failure state separate in the frontend. Map them explicitly instead of assuming a single lifecycle or deriving business outcome from an animation.",
+        "verification": [
+          {
+            "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/voice/events.py",
+            "line": 328,
+            "claim": "Pinned AgentState contains initializing, idle, listening, thinking and speaking."
+          }
+        ],
+        "related_proposed_questions": []
+      },
+      {
+        "id": "QA17",
+        "severity": "medium",
+        "locations": [
+          {
+            "chapter_id": "7.1.3",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/agent-design-patterns"
+          }
+        ],
+        "classification": "language_api_overstatement",
+        "issue": "The tool explanation conflates the Python decorator with the TypeScript API and describes strings as the only tool result shape.",
+        "recommended_learning_correction": "Teach Python function_tool and Node llm.tool as separate language APIs. Results may be structured values converted for the model; speech-ready strings are a design preference, not a universal runtime restriction. Type/schema validation does not grant mutation authority.",
+        "verification": [
+          {
+            "source_id": "QUIZ-TOOLS",
+            "claim": "The official definition guide shows Python and Node APIs and structured return values."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-06"
+        ]
+      },
+      {
+        "id": "QA18",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "7.1.5",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/frontend-sdk"
+          }
+        ],
+        "classification": "token_dispatch_error",
+        "issue": "The token explanation says agent dispatch cannot be configured in a token, which contradicts the supported room configuration mechanism. It also treats data publishing as mandatory for every voice user.",
+        "recommended_learning_correction": "Protect server signing credentials and issue only the media/data grants a client actually needs. RoomConfiguration.agents can request dispatch when a token creates a new room; it does not redispatch into an existing room. Data permission depends on the chosen text/data features.",
+        "verification": [
+          {
+            "source_id": "QUIZ-DISPATCH",
+            "claim": "Official dispatch docs support RoomAgentDispatch entries in a participant access token, applied on room creation."
+          }
+        ],
+        "related_proposed_questions": []
+      },
+      {
+        "id": "QA19",
+        "severity": "medium",
+        "locations": [
+          {
+            "chapter_id": "7.1.5",
+            "item_ordinal": 4,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/frontend-sdk"
+          }
+        ],
+        "classification": "transport_vs_application_contract",
+        "issue": "The RPC option implies JSON schemas and typed responses are supplied by the transport. The distinction from model tools is otherwise useful.",
+        "recommended_learning_correction": "RPC carries application payload strings and returns a string or transport/application error. Define and validate your own request/response schema, authenticate the calling participant, and use the same business authority as other entry points; an RPC response still is not a durable effect receipt.",
+        "verification": [
+          {
+            "source_id": "QUIZ-RPC",
+            "claim": "The API accepts a payload string and returns a string; JSON is an application-selected format."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-06"
+        ]
+      },
+      {
+        "id": "QA20",
+        "severity": "high",
+        "locations": [
+          {
+            "chapter_id": "7.1.4",
+            "item_ordinal": 1,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/telephony-contact-center"
+          },
+          {
+            "chapter_id": "7.1.8",
+            "item_ordinal": 4,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/scenario-consulting"
+          }
+        ],
+        "classification": "channel_and_identity_scope_error",
+        "issue": "The telephony explanation calls the caller a STANDARD participant. The channel scenario says only the frontend differs and the agent need not consider the channel.",
+        "recommended_learning_correction": "A SIP caller is a room participant with SIP kind and SIP-specific attributes. Reuse core workflow/tools while handling DTMF, caller-identity trust, transfer semantics and channel presentation through explicit supported adapters and policy.",
+        "verification": [
+          {
+            "source_id": "QUIZ-SIP",
+            "claim": "Official participant documentation identifies telephony callers with Participant.Kind SIP."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-06"
+        ]
+      },
+      {
+        "id": "QA21",
+        "severity": "medium",
+        "locations": [
+          {
+            "chapter_id": "7.1.3",
+            "item_ordinal": 4,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/agent-design-patterns"
+          },
+          {
+            "chapter_id": "7.1.4",
+            "item_ordinal": 3,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/telephony-contact-center"
+          },
+          {
+            "chapter_id": "7.1.8",
+            "item_ordinal": 2,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/scenario-consulting"
+          },
+          {
+            "chapter_id": "7.1.8",
+            "item_ordinal": 4,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/scenario-consulting"
+          },
+          {
+            "chapter_id": "7.1.8",
+            "item_ordinal": 5,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/scenario-consulting"
+          }
+        ],
+        "classification": "ambiguous_single_best_design",
+        "issue": "Several architecture scenarios have multiple defensible designs, yet their explanations present one as universally superior without enough requirements. Specialization is also described as ensuring agents never cross domains.",
+        "recommended_learning_correction": "Treat these as design discussions: ask about workflow boundaries, access control, language coverage, operational cost and failure recovery. Single-agent tools, specialized agents, channel-aware variants, shadowing and language-specific configurations can each be appropriate. Prompt separation or a generated handoff summary does not enforce authority or prove facts.",
+        "verification": [],
+        "related_proposed_questions": [
+          "AC-P3-02",
+          "AC-P3-06"
+        ]
+      },
+      {
+        "id": "QA22",
+        "severity": "medium",
+        "locations": [
+          {
+            "chapter_id": "7.1.2",
+            "item_ordinal": 4,
+            "url": "https://www.livekit-academy.com/courses/livekit-certification/voice-pipeline-mastery"
+          }
+        ],
+        "classification": "pipeline_stage_conflation",
+        "issue": "The item equates a non-streaming TTS provider with waiting for the entire LLM response. It overlooks adapting an incoming text stream into sentence-sized synthesis calls.",
+        "recommended_learning_correction": "Distinguish LLM text streaming, a provider speech stream and the SDK stream adapter. A non-streaming provider can still synthesize completed chunks before the full model response, with different latency/prosody tradeoffs; interruption behavior is a separate output concern.",
+        "verification": [
+          {
+            "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/tts/stream_adapter.py",
+            "line": 40,
+            "claim": "StreamAdapter owns a sentence tokenizer."
+          },
+          {
+            "path": "/Users/rostwal/Downloads/livekit-poc/.venv/lib/python3.14/site-packages/livekit/agents/tts/stream_adapter.py",
+            "line": 184,
+            "claim": "The adapter synthesizes each incoming tokenized segment through the wrapped TTS and forwards frames."
+          }
+        ],
+        "related_proposed_questions": [
+          "AC-P3-07"
+        ]
+      }
+    ],
+    "additional_primary_sources": [
+      {
+        "id": "QUIZ-ASYNC",
+        "url": "https://docs.python.org/3.14/library/asyncio-task.html#asyncio.wait_for",
+        "authority": "Python 3.14 library reference",
+        "verified_claim": "Timeout cancellation may take longer than the requested wait; cancellation does not establish that external effects did not happen."
+      },
+      {
+        "id": "QUIZ-TTS",
+        "url": "https://elevenlabs.io/docs/api-reference/text-to-speech/stream",
+        "authority": "Provider API reference",
+        "verified_claim": "The seed parameter makes deterministic sampling a best effort; exact output determinism is not guaranteed."
+      },
+      {
+        "id": "QUIZ-PORTS",
+        "url": "https://docs.livekit.io/transport/self-hosting/ports-firewall/",
+        "authority": "LiveKit official reference",
+        "verified_claim": "Optional rtc.udp_port enables single-port UDP mux in place of the UDP range."
+      },
+      {
+        "id": "QUIZ-ROOMS",
+        "url": "https://docs.livekit.io/reference/other/roomservice-api/",
+        "authority": "LiveKit official API reference",
+        "verified_claim": "Room creation exposes separate empty and departure timeouts."
+      },
+      {
+        "id": "QUIZ-TOOLS",
+        "url": "https://docs.livekit.io/agents/logic/tools/definition/",
+        "authority": "LiveKit official guide",
+        "verified_claim": "Python uses function_tool; Node uses llm.tool. Structured return values are supported and converted for model consumption."
+      },
+      {
+        "id": "QUIZ-DISPATCH",
+        "url": "https://docs.livekit.io/agents/server/agent-dispatch/",
+        "authority": "LiveKit official guide",
+        "verified_claim": "Participant tokens can configure agent dispatch entries. This is applied when the token creates the room, not when it joins an existing room."
+      },
+      {
+        "id": "QUIZ-RPC",
+        "url": "https://docs.livekit.io/transport/data/rpc/",
+        "authority": "LiveKit official API guide",
+        "verified_claim": "RPC payload and response are strings; applications select formats such as JSON and own validation."
+      },
+      {
+        "id": "QUIZ-SIP",
+        "url": "https://docs.livekit.io/reference/telephony/sip-participant/",
+        "authority": "LiveKit official participant reference",
+        "verified_claim": "A telephony caller is a SIP-kind participant with SIP-specific attributes."
+      }
+    ],
+    "learning_recommendation": {
+      "overall": "Use the public quizzes as prompts for explaining and tracing behavior, with the corrected source register beside them. Do not memorize the marked responses as API authority or use a completion badge as production-readiness evidence.",
+      "highest_priority_corrections": [
+        "Separate session-cohort assignment from caller-cohort identity.",
+        "Treat timeout and drain budgets as finite operational boundaries, not proof that work stopped.",
+        "Replace the hook, agent-state and token-dispatch claims with pinned APIs.",
+        "Distinguish job state, application durability and the Cloud/custom deployment modes.",
+        "Use measured provider/rendering behavior instead of deterministic-TTS or fixed savings/latency claims."
+      ],
+      "certification_course": "All 40 public items in 7.1 were inspected. The practical scenarios are useful oral-design exercises, but several have requirement-dependent alternatives and several API/lifecycle explanations need correction. Official affiliation, accreditation or employer recognition of this certification was not established by this audit.",
+      "suggested_reading_route": [
+        {
+          "step": 1,
+          "task": "Read the existing project authority and failure-boundary questions, then explain one failure schedule without the quiz.",
+          "question_ids": [
+            "P3-04",
+            "P3-11",
+            "P3-24",
+            "ROLE-07"
+          ]
+        },
+        {
+          "step": 2,
+          "task": "Study the proposed model-evaluation, turn-bound retrieval and benchmark additions with pinned official examples.",
+          "question_ids": [
+            "AC-P3-01",
+            "AC-P3-04",
+            "AC-P3-07"
+          ]
+        },
+        {
+          "step": 3,
+          "task": "Compare deployment/drain, integration ownership and state-restore cases; state which outcomes remain unknown.",
+          "question_ids": [
+            "AC-P3-02",
+            "AC-P3-06",
+            "AC-P3-08"
+          ]
+        }
+      ],
+      "book_action": "Keep the current audited book unchanged until the user selects additions. The eight original proposals remain the recommended addition set; the quiz overlay strengthens their caveats rather than creating copied assessment questions."
+    },
+    "limits": [
+      "No video was watched and no live quiz or exam was attempted.",
+      "Static source review cannot qualify timing, cost savings, model quality, capacity, deployment safety or provider compatibility.",
+      "Only the installed Python Agents version was pinned; an optional LangChain integration installation and cross-language parity were not established.",
+      "No official certification status was inferred from the course name, footer, quiz data or claimed curriculum coverage."
+    ],
+    "preserved_main_review": {
+      "original_top_level_fields_unchanged": true,
+      "proposed_questions_unchanged": true,
+      "proposed_questions_sha256": "03c0c608f648d29972a82b8dab18f5dcfdf76496e145b6eb959cf2427cab9746"
+    }
+  }
+}

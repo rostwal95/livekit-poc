@@ -1,0 +1,210 @@
+1LangChain as LLM provider
+
+2LangGraph conversation workflows
+
+3Production patterns
+
+LangGraph conversation workflows
+
+LangGraph Conversation Workflows
+
+A simple voice agent responds to each user turn independently. But many real conversations require multi-step logic: identify the problem, look up account details, attempt a resolution, and escalate if needed — with different paths depending on what the agent finds. LangGraph models these flows as executable graphs with state, nodes, conditional edges, and memory.
+
+What you'll learn
+
+How LangGraph differs from simple LLM chains (branching, loops, shared state)
+
+How to define state, nodes, and edges in a StateGraph
+
+How conditional edges route execution based on intent or context
+
+How to integrate a LangGraph graph with a LiveKit voice agent
+
+How to add conversation memory with checkpointing for session resume
+
+The core model: state, nodes, edges
+
+LangGraph models workflows as directed graphs. You define a state object that holds all the data your workflow needs. You define nodes — functions that read the state, do work, and update it. You define edges — connections between nodes that determine execution order. Some edges are conditional, routing to different nodes based on the current state.
+
+A TypedDict that holds everything the graph needs to track. Every node receives the current state and returns updates.
+
+Functions that take state, perform work (LLM calls, database queries, any Python code), and return a dictionary of state updates.
+
+Static edges always go to the same next node. Conditional edges call a routing function that inspects state and returns the next node's name.
+
+Compile the graph into a runnable object. Invoke with initial state and it executes nodes following edges until it reaches END.
+
+Building a conversation graph with conditional routing
+
+This graph classifies user intent and routes to different handler nodes — a common pattern in voice agents.
+
+from typing import TypedDict
+from langgraph.graph import StateGraph, END
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-4o", streaming=True)
+
+
+class ConversationState(TypedDict):
+  user_message: str
+  intent: str
+  response: str
+
+
+def classify_intent(state: ConversationState) -> dict:
+  """Classify the user's intent from their message."""
+  message = state["user_message"]
+  result = llm.invoke(
+      f"Classify this message into one of: greeting, question, complaint, booking. "
+      f"Reply with only the category. Message: {message}"
+  )
+  return {"intent": result.content.strip().lower()}
+
+
+def handle_greeting(state: ConversationState) -> dict:
+  return {"response": "Hello! How can I help you today?"}
+
+
+def handle_question(state: ConversationState) -> dict:
+  result = llm.invoke(f"Answer this question helpfully: {state['user_message']}")
+  return {"response": result.content}
+
+
+def handle_complaint(state: ConversationState) -> dict:
+  result = llm.invoke(
+      f"Respond empathetically to this complaint and offer to help: {state['user_message']}"
+  )
+  return {"response": result.content}
+
+
+def handle_booking(state: ConversationState) -> dict:
+  result = llm.invoke(
+      f"Help the user with their booking request: {state['user_message']}"
+  )
+  return {"response": result.content}
+
+
+def route_by_intent(state: ConversationState) -> str:
+  """Route to the appropriate handler based on classified intent."""
+  intent = state["intent"]
+  if intent == "greeting":
+      return "handle_greeting"
+  elif intent == "complaint":
+      return "handle_complaint"
+  elif intent == "booking":
+      return "handle_booking"
+  return "handle_question"
+
+
+graph = StateGraph(ConversationState)
+graph.add_node("classify", classify_intent)
+graph.add_node("handle_greeting", handle_greeting)
+graph.add_node("handle_question", handle_question)
+graph.add_node("handle_complaint", handle_complaint)
+graph.add_node("handle_booking", handle_booking)
+
+graph.set_entry_point("classify")
+graph.add_conditional_edges("classify", route_by_intent)
+graph.add_edge("handle_greeting", END)
+graph.add_edge("handle_question", END)
+graph.add_edge("handle_complaint", END)
+graph.add_edge("handle_booking", END)
+
+compiled = graph.compile()
+
+The route_by_intent function receives the current state and returns the name of the next node as a string. LangGraph uses this to decide which edge to follow. A greeting goes to a simple handler. A complaint gets an empathetic response. A booking triggers a booking flow. Each path can be as complex as needed — you can nest graphs within graphs.
+
+Integrating with LiveKit
+
+To use a LangGraph graph inside a LiveKit voice agent, invoke the compiled graph within a tool function:
+
+from livekit.agents import AgentServer, Agent, AgentSession, function_tool, RunContext
+from livekit.plugins import deepgram, cartesia, openai
+
+server = AgentServer()
+
+
+@function_tool
+async def process_with_graph(context: RunContext, user_message: str) -> str:
+  """Process a user message through the conversation graph.
+
+  Args:
+      user_message: The user's message to process.
+  """
+  result = await compiled.ainvoke({"user_message": user_message})
+  return result["response"]
+
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  await session.start(
+      agent=Agent(
+          instructions="""You are a voice assistant. For every user message,
+          use the process_with_graph tool to generate your response.""",
+          tools=[process_with_graph],
+      ),
+      room=session.room,
+      stt=deepgram.STT(model="nova-3"),
+      llm=openai.LLM(model="gpt-4o"),
+      tts=cartesia.TTS(voice="<voice-id>"),
+  )
+
+Use ainvoke for async contexts
+
+LiveKit agents run in an async event loop. Always use compiled.ainvoke() (the async version) rather than compiled.invoke() to avoid blocking the event loop and degrading voice latency for all active connections.
+
+Adding memory with checkpointing
+
+By default, LangGraph state is ephemeral — it exists only for a single graph invocation. For conversations that span multiple turns or sessions, add a checkpointer that persists state.
+
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+
+# In-memory (development) — state survives across turns but not restarts
+memory = MemorySaver()
+compiled = graph.compile(checkpointer=memory)
+
+# SQLite (production) — state survives restarts
+async_saver = AsyncSqliteSaver.from_conn_string("checkpoints.db")
+compiled = graph.compile(checkpointer=async_saver)
+
+# Invoke with a thread_id to maintain state across calls
+config = {"configurable": {"thread_id": "caller-session-123"}}
+result = await compiled.ainvoke(
+  {"user_message": "I need to reschedule my appointment"},
+  config=config,
+)
+
+# Later in the same session — state is preserved
+result = await compiled.ainvoke(
+  {"user_message": "Make it Thursday instead"},
+  config=config,
+)
+
+The thread_id is the key. Each unique thread_id gets its own state history. For a voice agent, the natural thread_id is the room name or session ID — this way, the graph maintains context across all turns in a single call. For cross-session memory (e.g., a caller phones back the next day), use the caller's phone number or account ID as the thread_id with a persistent backend like SQLite or PostgreSQL.
+
+Memory window management
+
+Long conversations accumulate state. For production agents, implement a sliding window that keeps only the last N turns, or periodically summarize older turns into a condensed context. This prevents unbounded state growth and keeps LLM context windows manageable.
+
+Test your knowledge
+
+Question 1 of 3
+
+What is the fundamental difference between LangChain chains and LangGraph graphs?
+
+What you learned
+
+LangGraph models workflows as directed graphs with state, nodes, and conditional edges
+
+Conditional edges enable branching logic — the routing function inspects state and returns the next node name
+
+LangGraph graphs integrate with LiveKit agents through tool functions using ainvoke()
+
+Checkpointing with MemorySaver (dev) or AsyncSqliteSaver (prod) persists state across turns and sessions
+
+The thread_id is the key for maintaining conversation memory — use session ID for single-call context, caller ID for cross-session memory
+
+Next up
+
+In the final chapter, you will harden your LangGraph agent for production with error handling, timeout management, LangSmith monitoring, and automated testing.

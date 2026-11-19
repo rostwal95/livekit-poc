@@ -95,7 +95,10 @@ def _time(value: object) -> str:
 
 
 def _event(event: str, code: str = "ok") -> None:
-    LOGGER.info(event, extra={"event": event, "code": code})
+    try:
+        LOGGER.info(event, extra={"event": event, "code": code})
+    except Exception:  # noqa: BLE001 - telemetry cannot alter committed state or failures
+        return
 
 
 def _expect_one(cursor: psycopg.Cursor[dict[str, Any]]) -> psycopg.Cursor[dict[str, Any]]:

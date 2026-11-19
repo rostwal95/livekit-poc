@@ -26,7 +26,13 @@ FIXTURE = ROOT / "projects/delegation-reliability/tests/document_cases.py"
 NODE_FIXTURE = (
     ROOT / "projects/delegation-reliability/specialist-ts/tests/fixtures/document-cases.mjs"
 )
-NODE = Path("/opt/homebrew/Cellar/node@24/24.22.2_2/bin/node")
+# Use the selected runtime as an absolute child executable. A Homebrew cellar
+# location is not a portable installation contract; fixture version guards stay
+# unchanged and still qualify the actual runtime that executes the child.
+_node_command = shutil.which("node")
+if _node_command is None:
+    raise RuntimeError("A selected Node runtime is required for document fixture tests")
+NODE = Path(_node_command).resolve(strict=True)
 SPEC = importlib.util.spec_from_file_location("document_fixture_under_test", FIXTURE)
 assert SPEC is not None and SPEC.loader is not None
 CASES: ModuleType = importlib.util.module_from_spec(SPEC)

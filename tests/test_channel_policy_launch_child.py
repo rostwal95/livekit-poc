@@ -187,6 +187,32 @@ class Contracts(unittest.TestCase):
             with self.assertRaises(m.ChildError):
                 m.terminal_frame(changed, value, 1)
 
+    def test_quiescence_ack_requires_requested_ready_pid_profile_and_original_node_incarnation(
+        self,
+    ):
+        value = spec(self.directory, "gateway")
+        original = ready(value)
+        ack = {
+            "schemaVersion": 1,
+            "status": "dispatch_quiesced",
+            "mode": "scripted_readonly_policy",
+            "pid": 123,
+            "profileId": value.profile_id,
+            "nodeEpoch": original["roomControl"]["nodeEpoch"],
+        }
+        m.dispatch_quiesced_frame(ack, value, 123, original, True)
+        for changed, observed, requested in (
+            (ack, None, True),
+            (ack, original, False),
+            (ack | {"pid": 124}, original, True),
+            (ack | {"profileId": str(uuid4())}, original, True),
+            (ack | {"nodeEpoch": str(uuid4())}, original, True),
+            (ack | {"schemaVersion": True}, original, True),
+            (ack | {"log": "uncontrolled"}, original, True),
+        ):
+            with self.subTest(ack=changed, requested=requested), self.assertRaises(m.ChildError):
+                m.dispatch_quiesced_frame(changed, value, 123, observed, requested)
+
     def test_invalid_specs_fail_before_process_allocation(self):
         value = spec(self.directory)
         for values in (
@@ -243,6 +269,121 @@ class ActualChildren(unittest.IsolatedAsyncioTestCase):
             return await self.real_spawn(NODE, "-e", source, **kwargs)
 
         return patch.object(m.asyncio, "create_subprocess_exec", spawn)
+
+    def gateway_control(self, owner, *, before=None):
+        async def spawn(*argv, **kwargs):
+            self.assertEqual(argv, owner.spec.argv())
+            self.assertEqual(kwargs["env"], dict(owner.spec.environment))
+            self.executions.append(owner.spec.role)
+            if before is not None:
+                await before.wait()
+            row = ready(owner.spec)
+            source = (
+                "const ready=" + json.dumps(row) + ";ready.pid=process.pid;let sent=false;"
+                "process.on('SIGUSR1',()=>{if(sent)return;sent=true;setTimeout(()=>"
+                "process.stdout.write(JSON.stringify({schemaVersion:1,status:'dispatch_quiesced',"
+                "mode:ready.mode,pid:process.pid,profileId:ready.profileId,"
+                "nodeEpoch:ready.roomControl.nodeEpoch})+'\\n'),100);});"
+                "process.once('SIGTERM',()=>{process.stdout.write(JSON.stringify({schemaVersion:1,"
+                "status:'closed',cleanupComplete:true,metrics:{}})+'\\n');clearInterval(timer);});"
+                "const timer=setInterval(()=>{},1000);process.stdout.write(JSON.stringify(ready)+'\\n');"
+            )
+            kwargs["cwd"] = self.directory
+            return await self.real_spawn(NODE, "-e", source, **kwargs)
+
+        return patch.object(m.asyncio, "create_subprocess_exec", spawn)
+
+    async def test_actual_gateway_quiesce_survives_cancelled_waiter_and_keeps_control_process_live(
+        self,
+    ):
+        owner = self.owner("gateway")
+        with self.gateway_control(owner):
+            await owner.start()
+            await owner.wait_ready(asyncio.get_running_loop().time() + 2)
+            waiting = asyncio.create_task(owner.quiesce_dispatch())
+            async with asyncio.timeout(1):
+                while not owner._quiesce_requested:
+                    await asyncio.sleep(0)
+            waiting.cancel()
+            with self.assertRaises(asyncio.CancelledError):
+                await waiting
+            self.assertFalse(owner._quiesce.done())
+            await owner.quiesce_dispatch()
+            self.assertTrue(owner._quiesced.is_set())
+            self.assertFalse(owner._wait.done())
+            self.assertFalse(owner.facts()["reaped"])
+            await owner.close()
+        self.assertTrue(owner.facts()["gracefulClosed"])
+
+    async def test_quiesce_waits_for_late_spawn_then_proves_absence_if_no_ready_was_adopted(self):
+        owner, release = self.owner("gateway"), asyncio.Event()
+        with self.gateway_control(owner, before=release):
+            starting = asyncio.create_task(owner.start())
+            async with asyncio.timeout(1):
+                while not self.executions:
+                    await asyncio.sleep(0)
+            quiescing = asyncio.create_task(owner.quiesce_dispatch())
+            await asyncio.sleep(0)
+            self.assertFalse(owner._quiesce_requested)
+            self.assertFalse(quiescing.done())
+            release.set()
+            await starting
+            await quiescing
+            self.assertFalse(owner._quiesce_requested)
+            self.assertTrue(owner.facts()["reaped"])
+            self.assertTrue(owner.facts()["groupAbsent"])
+            await owner.close()
+
+    async def test_alive_gateway_without_ready_is_reaped_before_app_dependency_can_close(self):
+        owner = self.owner("gateway")
+        actual_spawn = self.real_spawn
+
+        async def quiet_gateway(*argv, **kwargs):
+            self.assertEqual(argv, owner.spec.argv())
+            kwargs["cwd"] = self.directory
+            return await actual_spawn(
+                NODE,
+                "-e",
+                "process.on('SIGTERM',()=>{clearInterval(timer)});"
+                "const timer=setInterval(()=>{},1000);",
+                **kwargs,
+            )
+
+        with patch.object(m.asyncio, "create_subprocess_exec", quiet_gateway):
+            await owner.start()
+            with self.assertRaises(m.ChildError):
+                await owner.wait_ready(asyncio.get_running_loop().time() + 0.1)
+            self.assertIsNone(owner._frame)
+            self.assertIsNone(owner._process.returncode)
+            # The launcher awaits this barrier before Parent.close/App cleanup.
+            async with asyncio.timeout(1):
+                await owner.quiesce_dispatch()
+            self.assertTrue(owner.facts()["reaped"])
+            self.assertTrue(owner.facts()["groupAbsent"])
+            self.assertFalse(owner._quiesce_requested)
+            self.assertFalse(owner._quiesced.is_set())
+            with self.assertRaises(ProcessLookupError):
+                os.killpg(owner.pid, 0)
+
+    async def test_gateway_quiesce_before_start_fences_later_spawn_without_an_ack(self):
+        owner = self.owner("gateway")
+        await owner.quiesce_dispatch()
+        self.assertIsNone(owner._process)
+        self.assertFalse(owner._quiesced.is_set())
+        with self.assertRaises(m.ChildError):
+            await owner.start()
+        self.assertIsNone(owner._spawn)
+
+    async def test_reaped_gateway_needs_no_quiesce_ack_to_prove_no_dispatch_owner(self):
+        owner = self.owner("gateway")
+        with self.gateway_control(owner):
+            await owner.start()
+            await owner.wait_ready(asyncio.get_running_loop().time() + 2)
+            await owner.close()
+            await owner.quiesce_dispatch()
+        self.assertFalse(owner._quiesce_requested)
+        self.assertTrue(owner.facts()["reaped"])
+        self.assertTrue(owner.facts()["groupAbsent"])
 
     async def test_real_node_ready_then_sigterm_reap_and_group_absence(self):
         owner = self.owner()

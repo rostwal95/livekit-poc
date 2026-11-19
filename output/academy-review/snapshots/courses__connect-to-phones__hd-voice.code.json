@@ -1,0 +1,26 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import asyncio\nfrom livekit.api import LiveKitAPI, CreateSIPInboundTrunkRequest, SIPInboundTrunkInfo\n\n\nasync def main():\n  api = LiveKitAPI()\n\n  trunk = await api.sip.create_sip_inbound_trunk(\n      CreateSIPInboundTrunkRequest(\n          trunk=SIPInboundTrunkInfo(\n              name=\"Dental Office HD\",\n              numbers=[\"+15551234567\"],\n              media_encryption=\"REQUIRE\",\n              # Prefer Opus for HD voice quality\n              allowed_codecs=[\"opus\", \"PCMU\", \"PCMA\"],\n          )\n      )\n  )\n\n  print(f\"Created HD trunk: {trunk.sip_trunk_id}\")\n\n  await api.aclose()\n\n\nasyncio.run(main())"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { SipClient } from \"livekit-server-sdk\";\n\nconst sipClient = new SipClient(\nprocess.env.LIVEKIT_URL!,\nprocess.env.LIVEKIT_API_KEY!,\nprocess.env.LIVEKIT_API_SECRET!\n);\n\nconst trunk = await sipClient.createSipInboundTrunk({\nname: \"Dental Office HD\",\nnumbers: [\"+15551234567\"],\nmediaEncryption: \"REQUIRE\",\n// Prefer Opus for HD voice quality\nallowedCodecs: [\"opus\", \"PCMU\", \"PCMA\"],\n});\n\nconsole.log(`Created HD trunk: ${trunk.sipTrunkId}`);"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "trunk = await api.sip.create_sip_inbound_trunk(\n  CreateSIPInboundTrunkRequest(\n      trunk=SIPInboundTrunkInfo(\n          name=\"Dental Office HD - West\",\n          numbers=[\"+15551234567\"],\n          media_encryption=\"REQUIRE\",\n          allowed_codecs=[\"opus\", \"PCMU\", \"PCMA\"],\n          # Pin to US West for lowest latency\n          krisp_enabled=True,\n      )\n  )\n)"
+  }
+]

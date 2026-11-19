@@ -1,0 +1,24 @@
+[
+  {
+    "question": "When Maya calls check_availability and the LLM is generating a response, what agent state is the frontend in?",
+    "options": [
+      "listening",
+      "thinking",
+      "speaking",
+      "connecting"
+    ],
+    "correctIndex": 1,
+    "explanation": "When the agent is processing the patient's speech and the LLM is generating a response (including making tool calls like check_availability), the agent state is 'thinking'. The frontend shows a thinking indicator so the patient knows Maya is working on their request."
+  },
+  {
+    "question": "How does the frontend know the patient's name during the conversation?",
+    "options": [
+      "It parses the name from the audio transcript",
+      "The agent publishes it as a participant attribute that the frontend reads reactively",
+      "The patient types it into a form before connecting",
+      "The token endpoint generates it from the URL"
+    ],
+    "correctIndex": 1,
+    "explanation": "The dental receptionist agent calls set_attributes({ patient_name: name }) after collecting the patient's name during the conversation. The frontend reads session.agent.attributes.patient_name reactively \u2014 no polling or parsing needed."
+  }
+]

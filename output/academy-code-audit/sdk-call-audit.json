@@ -1,0 +1,1598 @@
+{
+  "sdk_versions": {
+    "livekit-agents": "1.8.11",
+    "livekit": "1.2.0",
+    "livekit-api": "1.2.2"
+  },
+  "python_source_files_parsed": 209,
+  "constructor_sites_checked": 51,
+  "event_sites_inventoried": 21,
+  "errors": [],
+  "constructor_calls": [
+    {
+      "path": "services/channel_policy_demo/_native_models_sdk.py",
+      "line": 245,
+      "call": "rtc.AudioFrame",
+      "signature": "(data: bytes | bytearray | memoryview, sample_rate: int, num_channels: int, samples_per_channel: int, *, userdata: dict[str, Any] | None = None) -> None",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/channel_policy_demo/native_worker.py",
+      "line": 362,
+      "call": "rtc.RoomOptions",
+      "signature": "(auto_subscribe: 'bool' = True, dynacast: 'bool' = False, e2ee: 'E2EEOptions | None' = None, encryption: 'E2EEOptions | None' = None, rtc_config: 'RtcConfiguration | None' = None, connect_timeout: 'float | None' = None, single_peer_connection: 'bool | None' = None, data_stream: 'DataStreamOptions | None' = None) -> None",
+      "keywords": [
+        "connect_timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/inference_llm.py",
+      "line": 296,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/local_inference.py",
+      "line": 94,
+      "call": "AgentSession",
+      "signature": "(*, stt: 'NotGivenOr[stt.STT | STTModels | str]' = NOT_GIVEN, vad: 'NotGivenOr[vad.VAD | None]' = NOT_GIVEN, llm: 'NotGivenOr[llm.LLM | llm.RealtimeModel | llm.DuplexModel | LLMModels | RealtimeModels | str]' = NOT_GIVEN, tts: 'NotGivenOr[tts.TTS | TTSModels | str]' = NOT_GIVEN, turn_handling: 'NotGivenOr[TurnHandlingOptions]' = NOT_GIVEN, stt_context_options: 'NotGivenOr[STTContextOptions]' = NOT_GIVEN, tools: 'NotGivenOr[list[llm.Tool | llm.Toolset]]' = NOT_GIVEN, tool_handling: 'NotGivenOr[ToolHandlingOptions]' = NOT_GIVEN, max_tool_steps: 'int' = 3, use_tts_aligned_transcript: 'NotGivenOr[bool]' = NOT_GIVEN, tts_text_transforms: 'NotGivenOr[Sequence[TextTransforms] | None]' = NOT_GIVEN, min_consecutive_speech_delay: 'float' = 0.0, expressive: 'bool | ExpressiveOptions' = False, userdata: 'NotGivenOr[Userdata_T]' = NOT_GIVEN, video_sampler: 'NotGivenOr[_VideoSampler | None]' = NOT_GIVEN, aec_warmup_duration: 'NotGivenOr[float | None]' = NOT_GIVEN, ivr_detection: 'bool' = False, user_away_timeout: 'float | None' = 15.0, transcription_timeout: 'float | None' = None, session_close_transcript_timeout: 'float' = 2.0, conn_options: 'NotGivenOr[SessionConnectOptions]' = NOT_GIVEN, loop: 'asyncio.AbstractEventLoop | None' = None, preemptive_generation: 'NotGivenOr[bool | PreemptiveGenerationOptions]' = NOT_GIVEN, min_endpointing_delay: 'NotGivenOr[float]' = NOT_GIVEN, max_endpointing_delay: 'NotGivenOr[float]' = NOT_GIVEN, false_interruption_timeout: 'NotGivenOr[float | None]' = NOT_GIVEN, turn_detection: 'NotGivenOr[TurnDetectionMode]' = NOT_GIVEN, discard_audio_if_uninterruptible: 'NotGivenOr[bool]' = NOT_GIVEN, min_interruption_duration: 'NotGivenOr[float]' = NOT_GIVEN, min_interruption_words: 'NotGivenOr[int]' = NOT_GIVEN, allow_interruptions: 'NotGivenOr[bool]' = NOT_GIVEN, resume_false_interruption: 'NotGivenOr[bool]' = NOT_GIVEN, agent_false_interruption_timeout: 'NotGivenOr[float | None]' = NOT_GIVEN, mcp_servers: 'NotGivenOr[list[mcp.MCPServer]]' = NOT_GIVEN, keyterms_options: 'NotGivenOr[KeytermsOptions]' = NOT_GIVEN) -> 'None'",
+      "keywords": [
+        "stt",
+        "llm",
+        "tts",
+        "vad",
+        "turn_handling",
+        "max_tool_steps",
+        "user_away_timeout",
+        "conn_options"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/local_inference.py",
+      "line": 102,
+      "call": "SessionConnectOptions",
+      "signature": "(stt_conn_options: 'APIConnectOptions' = APIConnectOptions(max_retry=3, retry_interval=2.0, timeout=10.0, liveness_timeout=6.0), llm_conn_options: 'APIConnectOptions' = APIConnectOptions(max_retry=3, retry_interval=2.0, timeout=10.0, liveness_timeout=6.0), tts_conn_options: 'APIConnectOptions' = APIConnectOptions(max_retry=3, retry_interval=2.0, timeout=10.0, liveness_timeout=6.0), max_unrecoverable_errors: 'int' = 3) -> None",
+      "keywords": [
+        "stt_conn_options",
+        "llm_conn_options",
+        "tts_conn_options"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/local_inference.py",
+      "line": 103,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/local_inference.py",
+      "line": 104,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/local_inference.py",
+      "line": 105,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/provider_inference.py",
+      "line": 125,
+      "call": "AgentSession",
+      "signature": "(*, stt: 'NotGivenOr[stt.STT | STTModels | str]' = NOT_GIVEN, vad: 'NotGivenOr[vad.VAD | None]' = NOT_GIVEN, llm: 'NotGivenOr[llm.LLM | llm.RealtimeModel | llm.DuplexModel | LLMModels | RealtimeModels | str]' = NOT_GIVEN, tts: 'NotGivenOr[tts.TTS | TTSModels | str]' = NOT_GIVEN, turn_handling: 'NotGivenOr[TurnHandlingOptions]' = NOT_GIVEN, stt_context_options: 'NotGivenOr[STTContextOptions]' = NOT_GIVEN, tools: 'NotGivenOr[list[llm.Tool | llm.Toolset]]' = NOT_GIVEN, tool_handling: 'NotGivenOr[ToolHandlingOptions]' = NOT_GIVEN, max_tool_steps: 'int' = 3, use_tts_aligned_transcript: 'NotGivenOr[bool]' = NOT_GIVEN, tts_text_transforms: 'NotGivenOr[Sequence[TextTransforms] | None]' = NOT_GIVEN, min_consecutive_speech_delay: 'float' = 0.0, expressive: 'bool | ExpressiveOptions' = False, userdata: 'NotGivenOr[Userdata_T]' = NOT_GIVEN, video_sampler: 'NotGivenOr[_VideoSampler | None]' = NOT_GIVEN, aec_warmup_duration: 'NotGivenOr[float | None]' = NOT_GIVEN, ivr_detection: 'bool' = False, user_away_timeout: 'float | None' = 15.0, transcription_timeout: 'float | None' = None, session_close_transcript_timeout: 'float' = 2.0, conn_options: 'NotGivenOr[SessionConnectOptions]' = NOT_GIVEN, loop: 'asyncio.AbstractEventLoop | None' = None, preemptive_generation: 'NotGivenOr[bool | PreemptiveGenerationOptions]' = NOT_GIVEN, min_endpointing_delay: 'NotGivenOr[float]' = NOT_GIVEN, max_endpointing_delay: 'NotGivenOr[float]' = NOT_GIVEN, false_interruption_timeout: 'NotGivenOr[float | None]' = NOT_GIVEN, turn_detection: 'NotGivenOr[TurnDetectionMode]' = NOT_GIVEN, discard_audio_if_uninterruptible: 'NotGivenOr[bool]' = NOT_GIVEN, min_interruption_duration: 'NotGivenOr[float]' = NOT_GIVEN, min_interruption_words: 'NotGivenOr[int]' = NOT_GIVEN, allow_interruptions: 'NotGivenOr[bool]' = NOT_GIVEN, resume_false_interruption: 'NotGivenOr[bool]' = NOT_GIVEN, agent_false_interruption_timeout: 'NotGivenOr[float | None]' = NOT_GIVEN, mcp_servers: 'NotGivenOr[list[mcp.MCPServer]]' = NOT_GIVEN, keyterms_options: 'NotGivenOr[KeytermsOptions]' = NOT_GIVEN) -> 'None'",
+      "keywords": [
+        "stt",
+        "llm",
+        "tts",
+        "vad",
+        "turn_handling",
+        "max_tool_steps",
+        "user_away_timeout",
+        "conn_options"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/provider_inference.py",
+      "line": 133,
+      "call": "SessionConnectOptions",
+      "signature": "(stt_conn_options: 'APIConnectOptions' = APIConnectOptions(max_retry=3, retry_interval=2.0, timeout=10.0, liveness_timeout=6.0), llm_conn_options: 'APIConnectOptions' = APIConnectOptions(max_retry=3, retry_interval=2.0, timeout=10.0, liveness_timeout=6.0), tts_conn_options: 'APIConnectOptions' = APIConnectOptions(max_retry=3, retry_interval=2.0, timeout=10.0, liveness_timeout=6.0), max_unrecoverable_errors: 'int' = 3) -> None",
+      "keywords": [
+        "stt_conn_options",
+        "llm_conn_options",
+        "tts_conn_options"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/provider_inference.py",
+      "line": 134,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/provider_inference.py",
+      "line": 135,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/provider_inference.py",
+      "line": 136,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/provider_speech.py",
+      "line": 39,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/provider_speech.py",
+      "line": 147,
+      "call": "rtc.AudioFrame",
+      "signature": "(data: bytes | bytearray | memoryview, sample_rate: int, num_channels: int, samples_per_channel: int, *, userdata: dict[str, Any] | None = None) -> None",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 402,
+      "call": "AgentSession",
+      "signature": "(*, stt: 'NotGivenOr[stt.STT | STTModels | str]' = NOT_GIVEN, vad: 'NotGivenOr[vad.VAD | None]' = NOT_GIVEN, llm: 'NotGivenOr[llm.LLM | llm.RealtimeModel | llm.DuplexModel | LLMModels | RealtimeModels | str]' = NOT_GIVEN, tts: 'NotGivenOr[tts.TTS | TTSModels | str]' = NOT_GIVEN, turn_handling: 'NotGivenOr[TurnHandlingOptions]' = NOT_GIVEN, stt_context_options: 'NotGivenOr[STTContextOptions]' = NOT_GIVEN, tools: 'NotGivenOr[list[llm.Tool | llm.Toolset]]' = NOT_GIVEN, tool_handling: 'NotGivenOr[ToolHandlingOptions]' = NOT_GIVEN, max_tool_steps: 'int' = 3, use_tts_aligned_transcript: 'NotGivenOr[bool]' = NOT_GIVEN, tts_text_transforms: 'NotGivenOr[Sequence[TextTransforms] | None]' = NOT_GIVEN, min_consecutive_speech_delay: 'float' = 0.0, expressive: 'bool | ExpressiveOptions' = False, userdata: 'NotGivenOr[Userdata_T]' = NOT_GIVEN, video_sampler: 'NotGivenOr[_VideoSampler | None]' = NOT_GIVEN, aec_warmup_duration: 'NotGivenOr[float | None]' = NOT_GIVEN, ivr_detection: 'bool' = False, user_away_timeout: 'float | None' = 15.0, transcription_timeout: 'float | None' = None, session_close_transcript_timeout: 'float' = 2.0, conn_options: 'NotGivenOr[SessionConnectOptions]' = NOT_GIVEN, loop: 'asyncio.AbstractEventLoop | None' = None, preemptive_generation: 'NotGivenOr[bool | PreemptiveGenerationOptions]' = NOT_GIVEN, min_endpointing_delay: 'NotGivenOr[float]' = NOT_GIVEN, max_endpointing_delay: 'NotGivenOr[float]' = NOT_GIVEN, false_interruption_timeout: 'NotGivenOr[float | None]' = NOT_GIVEN, turn_detection: 'NotGivenOr[TurnDetectionMode]' = NOT_GIVEN, discard_audio_if_uninterruptible: 'NotGivenOr[bool]' = NOT_GIVEN, min_interruption_duration: 'NotGivenOr[float]' = NOT_GIVEN, min_interruption_words: 'NotGivenOr[int]' = NOT_GIVEN, allow_interruptions: 'NotGivenOr[bool]' = NOT_GIVEN, resume_false_interruption: 'NotGivenOr[bool]' = NOT_GIVEN, agent_false_interruption_timeout: 'NotGivenOr[float | None]' = NOT_GIVEN, mcp_servers: 'NotGivenOr[list[mcp.MCPServer]]' = NOT_GIVEN, keyterms_options: 'NotGivenOr[KeytermsOptions]' = NOT_GIVEN) -> 'None'",
+      "keywords": [
+        "stt",
+        "llm",
+        "tts",
+        "vad",
+        "turn_handling",
+        "max_tool_steps",
+        "user_away_timeout",
+        "conn_options"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 186,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 188,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 190,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 201,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 203,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 205,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 211,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 223,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 410,
+      "call": "SessionConnectOptions",
+      "signature": "(stt_conn_options: 'APIConnectOptions' = APIConnectOptions(max_retry=3, retry_interval=2.0, timeout=10.0, liveness_timeout=6.0), llm_conn_options: 'APIConnectOptions' = APIConnectOptions(max_retry=3, retry_interval=2.0, timeout=10.0, liveness_timeout=6.0), tts_conn_options: 'APIConnectOptions' = APIConnectOptions(max_retry=3, retry_interval=2.0, timeout=10.0, liveness_timeout=6.0), max_unrecoverable_errors: 'int' = 3) -> None",
+      "keywords": [
+        "stt_conn_options",
+        "llm_conn_options",
+        "tts_conn_options"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 194,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 354,
+      "call": "room_io.RoomOptions",
+      "signature": "(text_input: 'NotGivenOr[TextInputOptions | bool]' = NOT_GIVEN, audio_input: 'NotGivenOr[AudioInputOptions | bool]' = NOT_GIVEN, video_input: 'NotGivenOr[VideoInputOptions | bool]' = NOT_GIVEN, audio_output: 'NotGivenOr[AudioOutputOptions | bool]' = NOT_GIVEN, text_output: 'NotGivenOr[TextOutputOptions | bool]' = NOT_GIVEN, participant_kinds: 'NotGivenOr[list[rtc.ParticipantKind.ValueType]]' = NOT_GIVEN, participant_identity: 'NotGivenOr[str]' = NOT_GIVEN, close_on_disconnect: 'bool' = True, delete_room_on_close: 'bool' = False) -> None",
+      "keywords": [
+        "participant_identity",
+        "audio_input",
+        "text_input",
+        "audio_output",
+        "close_on_disconnect",
+        "delete_room_on_close"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 411,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 412,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 413,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 356,
+      "call": "room_io.AudioInputOptions",
+      "signature": "(sample_rate: 'int' = 24000, num_channels: 'int' = 1, frame_size_ms: 'int' = 50, noise_cancellation: 'rtc.NoiseCancellationOptions | NoiseCancellationSelector | rtc.FrameProcessor[rtc.AudioFrame] | None' = None, auto_gain_control: 'NotGivenOr[bool]' = NOT_GIVEN, pre_connect_audio: 'bool' = True, pre_connect_audio_timeout: 'float' = 3.0) -> None",
+      "keywords": [
+        "sample_rate",
+        "num_channels",
+        "frame_size_ms",
+        "pre_connect_audio"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "line": 360,
+      "call": "room_io.AudioOutputOptions",
+      "signature": "(sample_rate: 'int' = 24000, num_channels: 'int' = 1, track_publish_options: 'rtc.TrackPublishOptions' = <factory>, track_name: 'NotGivenOr[str]' = NOT_GIVEN) -> None",
+      "keywords": [
+        "sample_rate",
+        "num_channels"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 277,
+      "call": "AgentSession",
+      "signature": "(*, stt: 'NotGivenOr[stt.STT | STTModels | str]' = NOT_GIVEN, vad: 'NotGivenOr[vad.VAD | None]' = NOT_GIVEN, llm: 'NotGivenOr[llm.LLM | llm.RealtimeModel | llm.DuplexModel | LLMModels | RealtimeModels | str]' = NOT_GIVEN, tts: 'NotGivenOr[tts.TTS | TTSModels | str]' = NOT_GIVEN, turn_handling: 'NotGivenOr[TurnHandlingOptions]' = NOT_GIVEN, stt_context_options: 'NotGivenOr[STTContextOptions]' = NOT_GIVEN, tools: 'NotGivenOr[list[llm.Tool | llm.Toolset]]' = NOT_GIVEN, tool_handling: 'NotGivenOr[ToolHandlingOptions]' = NOT_GIVEN, max_tool_steps: 'int' = 3, use_tts_aligned_transcript: 'NotGivenOr[bool]' = NOT_GIVEN, tts_text_transforms: 'NotGivenOr[Sequence[TextTransforms] | None]' = NOT_GIVEN, min_consecutive_speech_delay: 'float' = 0.0, expressive: 'bool | ExpressiveOptions' = False, userdata: 'NotGivenOr[Userdata_T]' = NOT_GIVEN, video_sampler: 'NotGivenOr[_VideoSampler | None]' = NOT_GIVEN, aec_warmup_duration: 'NotGivenOr[float | None]' = NOT_GIVEN, ivr_detection: 'bool' = False, user_away_timeout: 'float | None' = 15.0, transcription_timeout: 'float | None' = None, session_close_transcript_timeout: 'float' = 2.0, conn_options: 'NotGivenOr[SessionConnectOptions]' = NOT_GIVEN, loop: 'asyncio.AbstractEventLoop | None' = None, preemptive_generation: 'NotGivenOr[bool | PreemptiveGenerationOptions]' = NOT_GIVEN, min_endpointing_delay: 'NotGivenOr[float]' = NOT_GIVEN, max_endpointing_delay: 'NotGivenOr[float]' = NOT_GIVEN, false_interruption_timeout: 'NotGivenOr[float | None]' = NOT_GIVEN, turn_detection: 'NotGivenOr[TurnDetectionMode]' = NOT_GIVEN, discard_audio_if_uninterruptible: 'NotGivenOr[bool]' = NOT_GIVEN, min_interruption_duration: 'NotGivenOr[float]' = NOT_GIVEN, min_interruption_words: 'NotGivenOr[int]' = NOT_GIVEN, allow_interruptions: 'NotGivenOr[bool]' = NOT_GIVEN, resume_false_interruption: 'NotGivenOr[bool]' = NOT_GIVEN, agent_false_interruption_timeout: 'NotGivenOr[float | None]' = NOT_GIVEN, mcp_servers: 'NotGivenOr[list[mcp.MCPServer]]' = NOT_GIVEN, keyterms_options: 'NotGivenOr[KeytermsOptions]' = NOT_GIVEN) -> 'None'",
+      "keywords": [
+        "stt",
+        "llm",
+        "tts",
+        "vad",
+        "turn_handling",
+        "max_tool_steps",
+        "user_away_timeout",
+        "conn_options"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 623,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 625,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 699,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 701,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 703,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 745,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 773,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 285,
+      "call": "SessionConnectOptions",
+      "signature": "(stt_conn_options: 'APIConnectOptions' = APIConnectOptions(max_retry=3, retry_interval=2.0, timeout=10.0, liveness_timeout=6.0), llm_conn_options: 'APIConnectOptions' = APIConnectOptions(max_retry=3, retry_interval=2.0, timeout=10.0, liveness_timeout=6.0), tts_conn_options: 'APIConnectOptions' = APIConnectOptions(max_retry=3, retry_interval=2.0, timeout=10.0, liveness_timeout=6.0), max_unrecoverable_errors: 'int' = 3) -> None",
+      "keywords": [
+        "stt_conn_options",
+        "llm_conn_options",
+        "tts_conn_options"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 634,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 691,
+      "call": "rtc.RpcError",
+      "signature": "(code: \"Union[int, 'RpcError.ErrorCode']\", message: 'str', data: 'Optional[str]' = None)",
+      "keywords": [],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 578,
+      "call": "room_io.RoomOptions",
+      "signature": "(text_input: 'NotGivenOr[TextInputOptions | bool]' = NOT_GIVEN, audio_input: 'NotGivenOr[AudioInputOptions | bool]' = NOT_GIVEN, video_input: 'NotGivenOr[VideoInputOptions | bool]' = NOT_GIVEN, audio_output: 'NotGivenOr[AudioOutputOptions | bool]' = NOT_GIVEN, text_output: 'NotGivenOr[TextOutputOptions | bool]' = NOT_GIVEN, participant_kinds: 'NotGivenOr[list[rtc.ParticipantKind.ValueType]]' = NOT_GIVEN, participant_identity: 'NotGivenOr[str]' = NOT_GIVEN, close_on_disconnect: 'bool' = True, delete_room_on_close: 'bool' = False) -> None",
+      "keywords": [
+        "participant_identity",
+        "text_input",
+        "audio_input",
+        "audio_output",
+        "close_on_disconnect",
+        "delete_room_on_close"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 286,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 287,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 288,
+      "call": "APIConnectOptions",
+      "signature": "(max_retry: int = 3, retry_interval: float = 2.0, timeout: float = 10.0, liveness_timeout: float = 6.0) -> None",
+      "keywords": [
+        "max_retry",
+        "timeout"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 581,
+      "call": "room_io.AudioInputOptions",
+      "signature": "(sample_rate: 'int' = 24000, num_channels: 'int' = 1, frame_size_ms: 'int' = 50, noise_cancellation: 'rtc.NoiseCancellationOptions | NoiseCancellationSelector | rtc.FrameProcessor[rtc.AudioFrame] | None' = None, auto_gain_control: 'NotGivenOr[bool]' = NOT_GIVEN, pre_connect_audio: 'bool' = True, pre_connect_audio_timeout: 'float' = 3.0) -> None",
+      "keywords": [
+        "sample_rate",
+        "num_channels",
+        "frame_size_ms",
+        "pre_connect_audio"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 584,
+      "call": "room_io.AudioOutputOptions",
+      "signature": "(sample_rate: 'int' = 24000, num_channels: 'int' = 1, track_publish_options: 'rtc.TrackPublishOptions' = <factory>, track_name: 'NotGivenOr[str]' = NOT_GIVEN) -> None",
+      "keywords": [
+        "sample_rate",
+        "num_channels"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/delegation-reliability/examples/native_fixed_policy.py",
+      "line": 36,
+      "call": "room_io.RoomOptions",
+      "signature": "(text_input: 'NotGivenOr[TextInputOptions | bool]' = NOT_GIVEN, audio_input: 'NotGivenOr[AudioInputOptions | bool]' = NOT_GIVEN, video_input: 'NotGivenOr[VideoInputOptions | bool]' = NOT_GIVEN, audio_output: 'NotGivenOr[AudioOutputOptions | bool]' = NOT_GIVEN, text_output: 'NotGivenOr[TextOutputOptions | bool]' = NOT_GIVEN, participant_kinds: 'NotGivenOr[list[rtc.ParticipantKind.ValueType]]' = NOT_GIVEN, participant_identity: 'NotGivenOr[str]' = NOT_GIVEN, close_on_disconnect: 'bool' = True, delete_room_on_close: 'bool' = False) -> None",
+      "keywords": [
+        "participant_identity",
+        "text_input",
+        "text_output",
+        "audio_input",
+        "audio_output",
+        "video_input",
+        "close_on_disconnect",
+        "delete_room_on_close"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/baseline.py",
+      "line": 224,
+      "call": "AgentSession",
+      "signature": "(*, stt: 'NotGivenOr[stt.STT | STTModels | str]' = NOT_GIVEN, vad: 'NotGivenOr[vad.VAD | None]' = NOT_GIVEN, llm: 'NotGivenOr[llm.LLM | llm.RealtimeModel | llm.DuplexModel | LLMModels | RealtimeModels | str]' = NOT_GIVEN, tts: 'NotGivenOr[tts.TTS | TTSModels | str]' = NOT_GIVEN, turn_handling: 'NotGivenOr[TurnHandlingOptions]' = NOT_GIVEN, stt_context_options: 'NotGivenOr[STTContextOptions]' = NOT_GIVEN, tools: 'NotGivenOr[list[llm.Tool | llm.Toolset]]' = NOT_GIVEN, tool_handling: 'NotGivenOr[ToolHandlingOptions]' = NOT_GIVEN, max_tool_steps: 'int' = 3, use_tts_aligned_transcript: 'NotGivenOr[bool]' = NOT_GIVEN, tts_text_transforms: 'NotGivenOr[Sequence[TextTransforms] | None]' = NOT_GIVEN, min_consecutive_speech_delay: 'float' = 0.0, expressive: 'bool | ExpressiveOptions' = False, userdata: 'NotGivenOr[Userdata_T]' = NOT_GIVEN, video_sampler: 'NotGivenOr[_VideoSampler | None]' = NOT_GIVEN, aec_warmup_duration: 'NotGivenOr[float | None]' = NOT_GIVEN, ivr_detection: 'bool' = False, user_away_timeout: 'float | None' = 15.0, transcription_timeout: 'float | None' = None, session_close_transcript_timeout: 'float' = 2.0, conn_options: 'NotGivenOr[SessionConnectOptions]' = NOT_GIVEN, loop: 'asyncio.AbstractEventLoop | None' = None, preemptive_generation: 'NotGivenOr[bool | PreemptiveGenerationOptions]' = NOT_GIVEN, min_endpointing_delay: 'NotGivenOr[float]' = NOT_GIVEN, max_endpointing_delay: 'NotGivenOr[float]' = NOT_GIVEN, false_interruption_timeout: 'NotGivenOr[float | None]' = NOT_GIVEN, turn_detection: 'NotGivenOr[TurnDetectionMode]' = NOT_GIVEN, discard_audio_if_uninterruptible: 'NotGivenOr[bool]' = NOT_GIVEN, min_interruption_duration: 'NotGivenOr[float]' = NOT_GIVEN, min_interruption_words: 'NotGivenOr[int]' = NOT_GIVEN, allow_interruptions: 'NotGivenOr[bool]' = NOT_GIVEN, resume_false_interruption: 'NotGivenOr[bool]' = NOT_GIVEN, agent_false_interruption_timeout: 'NotGivenOr[float | None]' = NOT_GIVEN, mcp_servers: 'NotGivenOr[list[mcp.MCPServer]]' = NOT_GIVEN, keyterms_options: 'NotGivenOr[KeytermsOptions]' = NOT_GIVEN) -> 'None'",
+      "keywords": [
+        "llm",
+        "max_tool_steps"
+      ],
+      "dynamic_kwargs": false,
+      "unexpected_keywords": []
+    }
+  ],
+  "event_sites": [
+    {
+      "path": "services/channel_policy_demo/native_worker.py",
+      "line": 101,
+      "receiver": "room",
+      "event": "participant_connected",
+      "registration": "on"
+    },
+    {
+      "path": "services/channel_policy_demo/native_worker.py",
+      "line": 108,
+      "receiver": "room",
+      "event": "participant_connected",
+      "registration": "off"
+    },
+    {
+      "path": "services/channel_policy_demo/native_worker.py",
+      "line": 320,
+      "receiver": "runtime.session",
+      "event": "close",
+      "registration": "on"
+    },
+    {
+      "path": "services/channel_policy_demo/native_worker.py",
+      "line": 433,
+      "receiver": "self._runtime.session",
+      "event": "close",
+      "registration": "off"
+    },
+    {
+      "path": "services/conversation_agent/observations.py",
+      "line": 59,
+      "receiver": "session",
+      "event": "session_usage_updated",
+      "registration": "on"
+    },
+    {
+      "path": "services/conversation_agent/observations.py",
+      "line": 129,
+      "receiver": "session",
+      "event": "session_usage_updated",
+      "registration": "off"
+    },
+    {
+      "path": "services/conversation_agent/worker.py",
+      "line": 230,
+      "receiver": "runtime.session",
+      "event": "close",
+      "registration": "on"
+    },
+    {
+      "path": "services/conversation_agent/worker.py",
+      "line": 231,
+      "receiver": "ctx.room",
+      "event": "disconnected",
+      "registration": "on"
+    },
+    {
+      "path": "services/rtc_agent/worker.py",
+      "line": 81,
+      "receiver": "room",
+      "event": "track_subscribed",
+      "registration": "on"
+    },
+    {
+      "path": "services/rtc_agent/worker.py",
+      "line": 88,
+      "receiver": "room",
+      "event": "track_unsubscribed",
+      "registration": "on"
+    },
+    {
+      "path": "services/rtc_agent/worker.py",
+      "line": 92,
+      "receiver": "room",
+      "event": "disconnected",
+      "registration": "on"
+    },
+    {
+      "path": "projects/channel-continuity/examples/native_lab.py",
+      "line": 123,
+      "receiver": "room",
+      "event": "participant_connected",
+      "registration": "on"
+    },
+    {
+      "path": "projects/channel-continuity/examples/native_lab.py",
+      "line": 133,
+      "receiver": "room",
+      "event": "participant_connected",
+      "registration": "off"
+    },
+    {
+      "path": "projects/channel-continuity/examples/rehydration_lab.py",
+      "line": 440,
+      "receiver": "self.room",
+      "event": "participant_disconnected",
+      "registration": "on"
+    },
+    {
+      "path": "projects/channel-continuity/examples/rehydration_lab.py",
+      "line": 611,
+      "receiver": "self.room",
+      "event": "participant_disconnected",
+      "registration": "off"
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 292,
+      "receiver": "self.session",
+      "event": "speech_created",
+      "registration": "on"
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "line": 293,
+      "receiver": "self.session",
+      "event": "close",
+      "registration": "on"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/baseline.py",
+      "line": 225,
+      "receiver": "session",
+      "event": "conversation_item_added",
+      "registration": "on"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/baseline.py",
+      "line": 226,
+      "receiver": "session",
+      "event": "tool_execution_updated",
+      "registration": "on"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/baseline.py",
+      "line": 265,
+      "receiver": "session",
+      "event": "conversation_item_added",
+      "registration": "off"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/baseline.py",
+      "line": 266,
+      "receiver": "session",
+      "event": "tool_execution_updated",
+      "registration": "off"
+    }
+  ],
+  "files": [
+    {
+      "path": "services/__init__.py",
+      "sha256": "ddf78c6bdd0ffa58669c8ecf2e70af7c7e19e73e55ba69d2b6f19023d13b1f45"
+    },
+    {
+      "path": "services/channel_policy_demo/__init__.py",
+      "sha256": "e71f84e728c53d9b4ee3ec7b3c074d927e4600100fdca2d1a51ef39a1428a2a6"
+    },
+    {
+      "path": "services/channel_policy_demo/__main__.py",
+      "sha256": "6abde2912e461cf3b4056929bc7d745e06701559af3721d4b8cc8edade999242"
+    },
+    {
+      "path": "services/channel_policy_demo/_bounded_loopback_http.py",
+      "sha256": "6b8c116642159d74dcc821764002592b3e2cbbf7066ba0a7b9b2a5fedaf5be3e"
+    },
+    {
+      "path": "services/channel_policy_demo/_loopback_json.py",
+      "sha256": "6334cb744fe94ad6c225fcf0abf9fca44d6de4dc03eb327a9db15ea50df074d1"
+    },
+    {
+      "path": "services/channel_policy_demo/_native_models_sdk.py",
+      "sha256": "cc96067a2dd834503465ad6a064992cc7d0a9e009315f598845c8414b06c1ebd"
+    },
+    {
+      "path": "services/channel_policy_demo/application.py",
+      "sha256": "124f86952bbaec699b52764c4c06329515f8ef68361735fa63e6177fe7d220b8"
+    },
+    {
+      "path": "services/channel_policy_demo/case_bridge.py",
+      "sha256": "72d1c528ff9240b44e3a0091221691536ef8cbfd3f2d28ee347248482c2c49b6"
+    },
+    {
+      "path": "services/channel_policy_demo/current_result.py",
+      "sha256": "0dfab6a0b97fd6ffd70b5f17c4bf2c015c4eee883050f036f4e1b1a8b0a1cc01"
+    },
+    {
+      "path": "services/channel_policy_demo/current_result_context.py",
+      "sha256": "a1abef6e4015b1bee079a80ea2df7ac9cffee53e60cce084dbe5c0743de8c39c"
+    },
+    {
+      "path": "services/channel_policy_demo/current_result_http.py",
+      "sha256": "3520ee935481e2bbfb8445260014cfba39e24880114d184dea2f48db3a9d99cf"
+    },
+    {
+      "path": "services/channel_policy_demo/current_result_producer.py",
+      "sha256": "6af8fa1a35bcee135aae858ed8f2fabf52d0a93ceda7c309520ede1288614e3f"
+    },
+    {
+      "path": "services/channel_policy_demo/discovery.py",
+      "sha256": "b5396d1149e05cc8879b649d6408e60950835acb60c1127007bfa9a9ba6476da"
+    },
+    {
+      "path": "services/channel_policy_demo/executor.py",
+      "sha256": "577d202338a0d03b9ce93478e69e846c60f017571d60887b91c65e1f18cb6e78"
+    },
+    {
+      "path": "services/channel_policy_demo/jobs.py",
+      "sha256": "5f2a514055cdbe421f3765e59f7950198f4bc4e12caf85c59922a1874e54d04e"
+    },
+    {
+      "path": "services/channel_policy_demo/native_models.py",
+      "sha256": "0e1e8faacaf0ade0b846e4de809d7ae5b973fe71e3da12699c8847894d7fee46"
+    },
+    {
+      "path": "services/channel_policy_demo/native_prepare_http.py",
+      "sha256": "b99c72fdac4f3a9c00acbda423c4701e4fbf874905cc24e729dd059e816c5717"
+    },
+    {
+      "path": "services/channel_policy_demo/native_provider_models.py",
+      "sha256": "5f4e0d57b6a3da6ef38dbe7c0345998c8f933018e87fc691796b71a1e1e13a18"
+    },
+    {
+      "path": "services/channel_policy_demo/native_room.py",
+      "sha256": "9287d78ea8909f4b6b3d7163cec110a5bf098649485b53172a6acbe192f69606"
+    },
+    {
+      "path": "services/channel_policy_demo/native_room_admin.py",
+      "sha256": "6d7f52a5376dd8b0752d873ef98a639365524eae02672d5721a1fa1abf84874f"
+    },
+    {
+      "path": "services/channel_policy_demo/native_room_state.py",
+      "sha256": "7f2a4e67149d60b73247fe55c1fed2c79b9f13ce46b8bc7cdd7b722e61fcf2c4"
+    },
+    {
+      "path": "services/channel_policy_demo/native_worker.py",
+      "sha256": "ece3ce339aa956babe6e33b92d3ddc7a8286a63bfe9cc35cd8c98f1608a91669"
+    },
+    {
+      "path": "services/channel_policy_demo/native_worker_config.py",
+      "sha256": "662ed786a7c5d0a67cd84ed984e1cf62138ef6ccbe8f0b08943f43ce3cdf5de3"
+    },
+    {
+      "path": "services/channel_policy_demo/native_worker_process.py",
+      "sha256": "d123824ff1fd68373445f4981c31d7fea29369a017ea559b9ed289839459b4b5"
+    },
+    {
+      "path": "services/channel_policy_demo/operator.py",
+      "sha256": "01627aa14d3a0faba3c4a95db0cefb616f1b8fd404ac21ae5ffe7e3f2b63190a"
+    },
+    {
+      "path": "services/channel_policy_demo/operator_contract.py",
+      "sha256": "7b2a8129063f4fc0b300fcd151043637585a1f7b24729895efd2a5598097dfa1"
+    },
+    {
+      "path": "services/channel_policy_demo/operator_http.py",
+      "sha256": "113e2b79843336969ed1a8135394632ecb8477fbf7451b9a269243db5fc2107a"
+    },
+    {
+      "path": "services/channel_policy_demo/operator_sms.py",
+      "sha256": "826fb30d953904d5df05a38e68d21bc0f168eb0f9593954a073c305176237933"
+    },
+    {
+      "path": "services/channel_policy_demo/origin.py",
+      "sha256": "ab63abbbc647c36dadc5e90917dfde2066027d156346e1ea76cbc4217af78460"
+    },
+    {
+      "path": "services/channel_policy_demo/origin_http.py",
+      "sha256": "615760bde0f8e9dd278c2df9b042db7021d1eebab1254d9c0ee191be897b32b6"
+    },
+    {
+      "path": "services/channel_policy_demo/origin_router.py",
+      "sha256": "33c3d9f587526f86ed1ed0441f61cba6c79604454ee3a8ef609e92c4dfa0e13f"
+    },
+    {
+      "path": "services/channel_policy_demo/owner_config.py",
+      "sha256": "e81627bdf9abc152ab180961b156776729026aa83aef0e8008cea6a5ad084eb2"
+    },
+    {
+      "path": "services/channel_policy_demo/parent.py",
+      "sha256": "02454fde2fbecae5d964d1556b99e3ee652790359130f7022c95459bb9366bf1"
+    },
+    {
+      "path": "services/channel_policy_demo/public_clients.py",
+      "sha256": "44e5be8c410693b98f1a52ed999c3296177086a1d2acf3ed751ca69abda6aa16"
+    },
+    {
+      "path": "services/channel_policy_demo/result_receiver.py",
+      "sha256": "a3ee6ff06f800ed65d33f7a19cf652300adf684c9e4cabfe2eddf272e8c0b049"
+    },
+    {
+      "path": "services/channel_policy_demo/room_control.py",
+      "sha256": "ea648484e57d383e355c00d592755e0331c5dfc203d95cd734657716a59bf55d"
+    },
+    {
+      "path": "services/channel_policy_demo/room_control_client.py",
+      "sha256": "322deea69824d94582549fba0f7e744529789740fd39a7c02b24342928b7eefc"
+    },
+    {
+      "path": "services/channel_policy_demo/room_result_client.py",
+      "sha256": "b04f961ee4f067f5e2ebec915f98aa5b8fe7d7cf2f154b40e89a07720bb931a1"
+    },
+    {
+      "path": "services/channel_policy_demo/wire.py",
+      "sha256": "63b00102396c7972f2be87e5faf93b593831e43a931e76c43056f5e8f99a3341"
+    },
+    {
+      "path": "services/channel_policy_demo/worker_client.py",
+      "sha256": "0d3564f1cca08c2b157054b92839750c765816b4b448d41b69577ca85fc5ee64"
+    },
+    {
+      "path": "services/channel_policy_demo/worker_current_result.py",
+      "sha256": "6600ec4205b5069c6c485a747fbdd6ed116a55c8f68067f493a567dd6d2a819c"
+    },
+    {
+      "path": "services/control_api/__init__.py",
+      "sha256": "c7f6ede10af6602100ec7a2ad498806394308cb53afa25849431e8f40da4b682"
+    },
+    {
+      "path": "services/control_api/app.py",
+      "sha256": "41821f012b376e2467ae54e06c3322c6a4ab81ee2d73b94c83f1c8f4a55a0dda"
+    },
+    {
+      "path": "services/control_api/business.py",
+      "sha256": "68c77fb702df07c1446e835b086d017bfa77b70ca2c55d3628f5c488c9ee5200"
+    },
+    {
+      "path": "services/control_api/business_availability.py",
+      "sha256": "45ecdc67b70070a1aff2503adddf72e14d0c1a17b19fdf484d57706719581459"
+    },
+    {
+      "path": "services/control_api/business_dispatch.py",
+      "sha256": "f82c61ffde93a0b5c09f9a4032189261824c49958cc3f33b136122c26959daf1"
+    },
+    {
+      "path": "services/control_api/settings.py",
+      "sha256": "3dbd5bce081569b5b715bdb353f817233bb6b2a2c3f089e4d19196c72db04fbe"
+    },
+    {
+      "path": "services/control_api/telemetry.py",
+      "sha256": "37479eba019751c3e30df8b5dd6d46cfe0ae42d4fa4e0ad53a157c07713617ad"
+    },
+    {
+      "path": "services/conversation_agent/__init__.py",
+      "sha256": "7cb56fb27852ccbd7d72f3a1d38e610a25aa5427fc0c67af287fbcd603615352"
+    },
+    {
+      "path": "services/conversation_agent/__main__.py",
+      "sha256": "bf0dc73111d988ddef36da70b03381c8cafe27fe239bb34c77896632b143cb82"
+    },
+    {
+      "path": "services/conversation_agent/composition.py",
+      "sha256": "0798bb0280c2bbde36f5553e736c9cf4eaa1061d3c055eb9bb5e3deec939d464"
+    },
+    {
+      "path": "services/conversation_agent/inference_http.py",
+      "sha256": "4e69f19a5da5d8aaf2dff54ab3a72867f4b969bb0c8edca95e42ebaab49a4566"
+    },
+    {
+      "path": "services/conversation_agent/inference_llm.py",
+      "sha256": "e4651bacb32f7c002a2011dca6668cf793d697c526690f129968644c4f893bc6"
+    },
+    {
+      "path": "services/conversation_agent/inference_settings.py",
+      "sha256": "33c0308194591b056f24c8018e3547d5dd3a404fa6c03f64865e37f0aec3f0e0"
+    },
+    {
+      "path": "services/conversation_agent/inference_speech.py",
+      "sha256": "38e0a9692b6cf6326da98c9f21859e69b53d081853aa4b04d9ba3915bc54c915"
+    },
+    {
+      "path": "services/conversation_agent/local_inference.py",
+      "sha256": "6567e52b2935eb80de9fc2f745d0d59890f17d35227eea3151796d8e5f25bea6"
+    },
+    {
+      "path": "services/conversation_agent/observations.py",
+      "sha256": "279519f551c88cc1a313336aa96f3a158a71963cede18979d7a8e048269beb73"
+    },
+    {
+      "path": "services/conversation_agent/provider_http.py",
+      "sha256": "a011357c6cba5af36f81ad615bca2775a0614dd3ec9774dd4493a3f4365b7627"
+    },
+    {
+      "path": "services/conversation_agent/provider_inference.py",
+      "sha256": "85306ed5b27781e29ace4796a73ccec272fd9f738eadecf5b38a45f3a026aac2"
+    },
+    {
+      "path": "services/conversation_agent/provider_llm.py",
+      "sha256": "f0756700c8177cbf42a6ac26a62747472bf2dac10794b8aa9b4d16ac7a277586"
+    },
+    {
+      "path": "services/conversation_agent/provider_settings.py",
+      "sha256": "475b4ca3814521cc8d68ddb6462f834d7a3eb3dfaad0695bdb05fc08a60130b3"
+    },
+    {
+      "path": "services/conversation_agent/provider_speech.py",
+      "sha256": "0065cd5ee66975db9be6f4372b7adf64c05fecec4aa710e5e0778126615dc1d2"
+    },
+    {
+      "path": "services/conversation_agent/scripted.py",
+      "sha256": "126dff8c3afcb01bc013abdd8dd8b85fb4f2180ddca70e5a078ac40161298222"
+    },
+    {
+      "path": "services/conversation_agent/session.py",
+      "sha256": "b5c9b10124f9cfd7ab5f18303fc3b4371a169e7b27ffa6589fa088127bff1f07"
+    },
+    {
+      "path": "services/conversation_agent/telemetry.py",
+      "sha256": "b3829a3f91f53fea479c905a12ac57b681468143e91a0a53e16ea8236020bbdd"
+    },
+    {
+      "path": "services/conversation_agent/worker.py",
+      "sha256": "83cbf48f4d93d22d624785632284e9db8e849d8ee545d0fbffd14cbe728c0beb"
+    },
+    {
+      "path": "services/rtc_agent/__init__.py",
+      "sha256": "2c86f5b25f982f8cb1c18b14d89967fadbb013825ea2def185985a3fb9e9c7c3"
+    },
+    {
+      "path": "services/rtc_agent/__main__.py",
+      "sha256": "fe6533f6df034bd0faf9b855dbe530616a2f69d7756c42a3153c6eed528455c4"
+    },
+    {
+      "path": "services/rtc_agent/telemetry.py",
+      "sha256": "51c41a23f9ddd0b25a90ce00373e3eddea6d07d48d9512cad3286e7814f6094c"
+    },
+    {
+      "path": "services/rtc_agent/transport.py",
+      "sha256": "e81026b76d498e2ca62a34ab9dbea73b0e0d528824b091921fb0aa31385ae3df"
+    },
+    {
+      "path": "services/rtc_agent/worker.py",
+      "sha256": "b6e7afc50cee957f45c33893f27f4dc7de2eec9c26bae6e6bf55bc722878667a"
+    },
+    {
+      "path": "projects/agent-continuity/examples/inquiry_consumer.py",
+      "sha256": "d00f62ffb1ece0c82130021151ae2b90dc7ee673dc8f77909f4477b4abb5f8bc"
+    },
+    {
+      "path": "projects/agent-continuity/examples/postgres_consumer.py",
+      "sha256": "042a39312128e96eac8f6f53e576df59c5a0ab342e11a0b96e5391bd82c1cca0"
+    },
+    {
+      "path": "projects/agent-continuity/examples/resource_consumer.py",
+      "sha256": "18cc3dd797ec96bc0608923023f4c8254dd313da8a31edc3a9335297a1a2bb4b"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/__init__.py",
+      "sha256": "f94cc7614242a7883f5e911cbe5747e99d1f10925addf596ee56901efde2e30a"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/__main__.py",
+      "sha256": "7799086ff8bb1b2d7210870131438c17b9f0c45cba2d6f738b256a13b25940f3"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/action_api.py",
+      "sha256": "b966d60b8fd0c8a6ee2c13294a2da37c8d4d4221a1912ee45a1f13967c073844"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/action_models.py",
+      "sha256": "66093dc4a7984d11fb2efd70d3ecb0a5566f436d60c93db7da835f8a0d3669d4"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/action_store.py",
+      "sha256": "acd8635f44e172b791905493248dd0a3d81482f0c629eda84b25f8716c27d807"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/api.py",
+      "sha256": "3bf8ab28e898bbb4fa5ce39abdffd843d8786b2a73b8ff010d7fc4682e130218"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/async_execution.py",
+      "sha256": "d73c91938be8246ac093482012827e03c7fb5934b9a0dc6af3b3f998a8a629a4"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/authorization.py",
+      "sha256": "51d0cbe8231ae0b12b8f382ab003cdf145609e34bbb8d440e1cdf137bc4a1088"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/bounded_io.py",
+      "sha256": "d8d611e4152e685131ed5c071de50eb6274939c4433bb2fc2c8252063db33178"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/case_control_api.py",
+      "sha256": "39a17f760c74e635d9272e1c2cfd8bded614a973b30fbc648919d9a99ed1cb8d"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/case_models.py",
+      "sha256": "b38199490d14597a364865d1b13e0f24b5854321fdcd8f4889773aa23a8100d9"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/case_projection.py",
+      "sha256": "47112ecdf401c175c7791dd4bd97d8852a19fb45c69524dbe2b1c9499597f965"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/case_service.py",
+      "sha256": "018ec83cd96f4e203c12f7e16a6f8cc764f5f7b641606f2e8017e09982b90c7a"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/case_telemetry.py",
+      "sha256": "c5732983d801cfdc12d0d86a83852cb425d7c8bbff5bedd0626a59e2ba30e2b5"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/completion_sink.py",
+      "sha256": "2fafb7d66c0aa380f9ce5368d8c8142e7e03165d692b4acadef7d6962d5ba299"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/conversation_composition.py",
+      "sha256": "1fb00aca1f5ead8459da823634cbf639d478aad17d8fd74f9c6e1ee812f04e8e"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/conversation_service.py",
+      "sha256": "656a45a45c32f53aee55cb420caef0e8efdc953e0f96ee33d977651fdb17207a"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/cutover.py",
+      "sha256": "bc38b997a36bce99ed742e5e3739c83b37c193923b0943e47354bc61995e6be6"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/delivery_api.py",
+      "sha256": "fb2e6269623e337fed669ad0769ba65ed5c93b8bfad768e8abfef7f681092e42"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/delivery_models.py",
+      "sha256": "cf3bc3e34271a872adcc4fb8d2122a1aa1ae1ab2a27f93324ef79311f446f7d7"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/delivery_store.py",
+      "sha256": "ae8c18d6cf6a0e43101d825384b8886197441d811adce5053340a6533a3d127d"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/effect_models.py",
+      "sha256": "ccc5c31a5102e81ec2581b28092895b6d25f8f8501292696ec640f102e4b2bbb"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/execution.py",
+      "sha256": "242e90e46218f87788695194965ea02bce804ed8be88fe81e0f0596524e9472f"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/execution_api.py",
+      "sha256": "650ae4a22ee549229e06e18426869bdf115da516efcc6d4fae487b6c08767ea8"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/execution_cli.py",
+      "sha256": "17f629a18022bc61a6ca33fce93932ee0dda88b59a9be8549b1a2e1bf298eec1"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/execution_codec.py",
+      "sha256": "4fdceca17bff1d07546e86d4bded937462dbc7fd737107fa53710158a5450085"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/execution_models.py",
+      "sha256": "4dac39c4330f275bfc907e4ccce7c0e823901d6bf48f6c5a1eb9b04c9d14704c"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+      "sha256": "223b12302a1059bc0ad9271b4a6d311172700614b248dfacfd18a43f40817546"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/inquiry_worker.py",
+      "sha256": "27b4c48cd459aaf4bb7944955cdc2d91c42318c4e559311121aac61790a83c88"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/issued_models.py",
+      "sha256": "08524a1aad7ea06037b2240516ceabbb0b2e057061477a5d73c5ec2fa7bbef9c"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/lease_models.py",
+      "sha256": "6137057ca77caafe84eead0b6a78d014ac6b47494d6c53b14e82273ebe9b74d6"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/lifecycle_models.py",
+      "sha256": "f03d64768535d6b41cdb4b18be193bd08f2ae1495850124127848120b59e15e3"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/managed_admission.py",
+      "sha256": "502f77812dc38448fdaa8d9b06197423388b50b9de0eafe2f1ecdd6c337ada7a"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/managed_inquiry_worker.py",
+      "sha256": "79a297a9e8939463bff792e82a3a680463c18409a3933edb9920346f889dc53b"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/migrations.py",
+      "sha256": "432b24bbbce568cdd7ca01eed4bab51e8355fd8082922ae8f0b63f9043e7e42b"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/models.py",
+      "sha256": "5677067779dbe1b5fae08a03c2f5724bb0f72013d873ac0d5415f39c451f9eb4"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/mutation_supplier.py",
+      "sha256": "310ed71349cf4297e428b13e79b9c3b36b5859a530b2cab9ec86eabf0fa6427c"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/mutation_worker.py",
+      "sha256": "20f6e0b24a312dd0f3e62a7f532468dd27fc2a7e5ae7f24ef636d9c48dfb43ee"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/outbox_delivery.py",
+      "sha256": "cdac5b6d7cbf962ca849adc1c230f0d033277ba098abe7fea130e23062ca5cc2"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_api.py",
+      "sha256": "5fd39300a1191d7bc3e28f5a43ec2f8883d6b7df7a2b4ea4a67614886223f0b5"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+      "sha256": "de4a6daf78cda50adf380a28ec95c1c14ab2c3c1e598f66b675813457e93470d"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_cli.py",
+      "sha256": "f9dfecfdfe329bae22f270f0de03bb9852b358c7da465a64375f890b7db51e4f"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+      "sha256": "fac6d5baef090365ea1411c23af8d274e9c07d0a8b84320d3ce1c362d1598065"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_leases.py",
+      "sha256": "5ee8a033d13168365ad1330f096bc75b71b19f546a47ad149ec30cfcc4600889"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_lifecycle.py",
+      "sha256": "9934277e5b43f8a2f1318bf162b3688bd9014a8e8c8a48d6149a45463c77bfe4"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py",
+      "sha256": "794ca777a9d0b1b2ebacf07d1a2c1176d5f5abde9252a0adee98fec96ad6e501"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_schema_v2.py",
+      "sha256": "4d576b4239b58031ed3de969b8715034f593c8c7b4c4a1574fe9420d83f6ce5b"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_schema_v3.py",
+      "sha256": "fd0cf024d6f93da7d98e073f32d63eea9ea8bf64c69fd5a02d4afb7f2ad940c1"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_schema_v4.py",
+      "sha256": "4958908442899d1bceb6054fb3ce5ecf01077c694c617682df5ee757fae11be1"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_schema_v5.py",
+      "sha256": "076f2280870ecafaade6b9ca98371f08c70c89ec066ebf750bd74b2d18bd7757"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_settings.py",
+      "sha256": "7f812217ab57dc7f1fbf333e739f977d4539f72458a267a083d9040d9b0d9c3a"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_store.py",
+      "sha256": "342005b503ca7bc5302062b26fafe2da12921921014bb386fb89cd283a1e6726"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_unit_of_work.py",
+      "sha256": "c89bbd1d9bb71081ec37e951c88f3ebb802a98bbf7248b0c8a92ae8b0d2852d3"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_work.py",
+      "sha256": "8cd5af94a730bbc60baa3ec6ee62e61e49ed3c2d94fe99c7460b4297f246fb5b"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/quote_producer.py",
+      "sha256": "4f66780a9e218b09d50efbbe47ed5fa560c9839f7c77f28d7b0a8568c0a0c5da"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/quote_reader.py",
+      "sha256": "cd86f2f160d82d2d23596d501cad11402251a9cf05ec10cec78e9993dea45080"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/receiver_api.py",
+      "sha256": "5771ca906b8b6c01671f8d8207db2f6155e6f2285e694555c0e62b4336254e69"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_api.py",
+      "sha256": "fd88548e7e7d4b6583c3418eb36c26ecccaabef593d1f424f84bf95d303f797e"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_models.py",
+      "sha256": "468e436a1056a5132cf09622b981b3d5123592fb929ba9243c5a101a2636926f"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_store.py",
+      "sha256": "e99bda329ba338297789439f352bc288079344b01f86ab2bbed123f4c407e3ac"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/retry_policy.py",
+      "sha256": "e4a85da2798aab0bc0a70f04165cdc0f89df83010816d918a24bf4eeed21d4b2"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/session_grants.py",
+      "sha256": "8fb9f71fa384933beeaadd1ec3273bdc4561e7a31c7031a37e01a0045e811521"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/source_transfer.py",
+      "sha256": "92d681b5374061145b5c47253a0ee8e1e4d96583fa245f49567267f3e3b48f5d"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/sqlite_admission.py",
+      "sha256": "22aa29da89e3282abfdb63110269c4d82d805a155f973fe687b8abe878e5a2ed"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/store.py",
+      "sha256": "069d6f7ebc24b64efff1e7174a65b5d637eb2b7229c50552d137a311954bec38"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/supplier.py",
+      "sha256": "1b50dbf17574743a04335f3bf200c2e00707620d41cd1323bada15db636a05e8"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/testing.py",
+      "sha256": "ca96a5e984a8f76e48a78839b681855504c40dcdff34cfcdb570a8ff8578c34c"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/tracing.py",
+      "sha256": "6ac9631d70d2a241d9e868e14b146de6a294e661da200dd7622ace401a57d1b6"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/transfer.py",
+      "sha256": "030dc86515f1c3f6b3d625cf28181cb10c07c3b8e9555b4ac04c415a6ac84423"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/work_admin.py",
+      "sha256": "daf383ad6e59353fa57da0a3cbc64149d2216c9da9d0e469b561740400699d8b"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/work_api.py",
+      "sha256": "37040a9c10d2e2e64438704d468273ef113bca8ee317915a237f868df77b4ace"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/work_models.py",
+      "sha256": "188f8193bfff4b55f85b8a251d8fcd742ea86917e819398024188032905a9e3f"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/work_schema.py",
+      "sha256": "94721d683bfa7d58346e743779291e5390cfef329c66d99a05ba822f8d565aab"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/work_store.py",
+      "sha256": "e1242e1f1c60fb61cac7505485b5e46b4d9d4d96ba2c041351a69903e346ca4e"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/worker_cli.py",
+      "sha256": "334a4097337b92382a9438b3ba86a2e99089e05c416e1bd12db7be39b282bf5f"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/worker_lock.py",
+      "sha256": "03a8a233db9b5d56592e883ba0e02c8b236ccf7f43cb99070ad1e55c4457f61f"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/worker_runtime.py",
+      "sha256": "864a801dd55be653d7d1ac3cad3b3aa8ff3b086abd03587e35794a1bd7b2a298"
+    },
+    {
+      "path": "projects/channel-continuity/examples/native_lab.py",
+      "sha256": "af9da9f0fd4b0fafa846f431b3e37c1e21de0fd44bc03ff88e33625195ea8cd6"
+    },
+    {
+      "path": "projects/channel-continuity/examples/native_scripted.py",
+      "sha256": "b475b3cc1b17f67981978ebd389ed63bfe929ffde12cd5ff6f7126a82265d58d"
+    },
+    {
+      "path": "projects/channel-continuity/examples/rehydration_lab.py",
+      "sha256": "5baef57b393686bedac980691538cf766f1bb8fdc9403d594291c10ee595e589"
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/__init__.py",
+      "sha256": "4d17cc94b22638f8abb62bbfa84a5fca8de7f89ccdb579bfbf39096f968c074b"
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/codec.py",
+      "sha256": "4cc3a6465132ee509a62595b6a1c8f9ba698d384f56f55e5d8c601c1d61e34d1"
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "sha256": "39e5a840ac4c269f00443445a14adcf82fdde3736dfc386f3e19010401b6095c"
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native_capture.py",
+      "sha256": "d3db23cd5117f8303dd75667f4b80feb7caa1c5103387f7323d1775f34db5053"
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native_communication.py",
+      "sha256": "065de20cf4645f98d9f32507b153c2c5f461b380d22917a5eb0065a8235b5343"
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native_http.py",
+      "sha256": "725c6314156512ce5e409f036e24f1b8ae6965adb9047bde39f2bab1ce81a41c"
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native_models.py",
+      "sha256": "fc3c9c9d3a5b016906f3241be5776c497df77129c3cd0921f47b67469c8b058e"
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native_rehydration.py",
+      "sha256": "1366a02d04ef5342b44985af947bfe4dda234e2e463fcad0c80f0e5828c53c86"
+    },
+    {
+      "path": "projects/delegation-reliability/examples/document_extraction.py",
+      "sha256": "ac7d98f1a7877624877a0e8170965e444eb9420ffdddf101c1f60af7ae95b335"
+    },
+    {
+      "path": "projects/delegation-reliability/examples/durable_fixed_policy.py",
+      "sha256": "f363ed9b6b49c9d1f109261fed934ff798b68c5b6cbf9e84fb1b41b85e429fad"
+    },
+    {
+      "path": "projects/delegation-reliability/examples/fixed_policy_evaluation.py",
+      "sha256": "a75ef36335d337dc344cea75c296c1d0a1033ec6bbce2256c02ceb9d36e56be5"
+    },
+    {
+      "path": "projects/delegation-reliability/examples/native_fixed_policy.py",
+      "sha256": "e9d160b20782d6baa6ccd2f6f8f9f424492aaaa4a8a2fc32b7dbef0e86f95059"
+    },
+    {
+      "path": "projects/delegation-reliability/examples/policy_completion.py",
+      "sha256": "1d178ec5a057f1f98f3ff6f7f772e3a4d9d4bb901bc83cb64e1399ac3fa84c5e"
+    },
+    {
+      "path": "projects/delegation-reliability/examples/result_applicability.py",
+      "sha256": "a16f98b4a24eaff388336ed91630742a7b966006a01934173c6c04eb425012da"
+    },
+    {
+      "path": "projects/delegation-reliability/examples/result_processing.py",
+      "sha256": "37f1e6fba0004eaa5bc730b1f9a7e2f2bbb23dc3d195e5f4684367cddeb01e51"
+    },
+    {
+      "path": "projects/delegation-reliability/examples/result_projection.py",
+      "sha256": "0581e446fba86e39a811b0f8c18a7b962832e5194ad2c85dbf2acafbb65539e7"
+    },
+    {
+      "path": "projects/delegation-reliability/examples/standalone_policy.py",
+      "sha256": "d51e2f90f31b32bfa88c1a8326c3250b0a61448185eee5d7f28c0ff0b4e1b8d7"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/__init__.py",
+      "sha256": "ebf392b1735dc45e1acd8ac859fff489bf8ce51fc2de0ba4689824b21ff855cf"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/__main__.py",
+      "sha256": "6d743c0cd0aee3fa33ebf5009e3ebc53eabaf13d887f64deedba7535aab7d681"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/_policy_codec.py",
+      "sha256": "5f94378f8ccfe1c64bee788297ef39895995752cbdf91f0a98d9a786c23d8ae9"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/action_adapter.py",
+      "sha256": "55353268f484870f5a9dc53af46860ba352f82151a5d5805eccbdba97673d6ac"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/applicability_api.py",
+      "sha256": "adc27de09a46ba7ba2556fd556ee5f79524663a57ca48e3f8b0d19fee268bbf4"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/applicability_models.py",
+      "sha256": "a7c133a527fa01b888f513b27e58db8a35eab3d1a2fe2348b1a36d5e73fe2118"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/applicability_refresher.py",
+      "sha256": "cf4e208141e830385c55019c9cb3ffb9a5aef46ef6afc536ca7760efdbb41bc8"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/applicability_schema.py",
+      "sha256": "ba8c0f3bcc6841bfe7c7e15cb9e64695b1cd6eb3c1f288ce9fc47a44ff6be028"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/applicability_store.py",
+      "sha256": "f61ccf49cc24a62011caaabcf2a918dc257f0a0681de0b2a4b5eaaaff1ba743d"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/baseline.py",
+      "sha256": "ce42047f34c236899247ecfc1073d1c8a578028a6d7de092dbee25da6141bb66"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/case_adapter.py",
+      "sha256": "451462662c03e9e6f06f4272eacae44e4cb31b729d8aecef8119866b83d9550f"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/channel_policy_contracts.py",
+      "sha256": "aaa0985fd2de3bbf15d28495e8b63b5f6e554bf1039eeeccf568b9d3850f1f14"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/channel_policy_execution.py",
+      "sha256": "bb1d5e5d058ddb8690383c13502becdcb12f4c1dc58263fd49907c6b8e732f08"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/completion.py",
+      "sha256": "19148afe544238c55526de57b88be774b368e2bc86d55f2d04c03723a9798852"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/completion_processor.py",
+      "sha256": "0ed54173b32a278a7a4fb9b3972ac8bf6a0f81c7b8e63c0d577902bd24fada53"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/contracts.py",
+      "sha256": "43c68dec01c9eaf8172b18664922768fde64a265100fb2587db217e2961b1a9e"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+      "sha256": "9260b135764851f3e463be54b956bf7c7f5909be3bacf408117f802dc56a3a33"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/delivery_contract.py",
+      "sha256": "56f8239f294c71834003dd6fe919bd2ce8cf1c150d6f094d4385472531bc1976"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/document.py",
+      "sha256": "44c8406311b52d7f7383a5ab6aa9e483e88584a1b17f715ce51c20b9d1b6c1f3"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/document_contracts.py",
+      "sha256": "60236a6e282630c277935b5b220d3a541ffcc43c241e7a1ccd15e6a0033e67fd"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy.py",
+      "sha256": "0fcf49c9feb90cd165a837e7aef7b2daaa975261f4b46ec91cc30a77546fb832"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy_contracts.py",
+      "sha256": "39046f8be6c9bd408bb602d9fc65e9c038087f366a4eca27edbc9c9d8efaebf0"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy_execution.py",
+      "sha256": "5dee8a436488479e05da92dd2b6a932b2cd3af697680c052b975836d5bf55254"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/http_client.py",
+      "sha256": "d9d67ce7d07956adebd9e91350ef73da46ecdb517fbf01ab1673c284678d5315"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/models.py",
+      "sha256": "2d908d2a53d83f1577006de5ef821667148a8a72371ec8b74a44def4f22ae98f"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/native_policy.py",
+      "sha256": "9e85c62449da69bff7c29a87be93415f71e634f5bb15812866b43c7d6ed8d604"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/processing_api.py",
+      "sha256": "5dc0b94686cff2e9c121f1a51248366b594b5de87ec5f9f30c0f617196843f5d"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/processing_models.py",
+      "sha256": "070565d3e6af2006b65b1cf4f90053757ee74c7431ed923f89452e85cda06a16"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/processing_schema.py",
+      "sha256": "ee025aa04e416f693d7fba5543176e6fbe62f56f2b29160dce70c9cf2cf56a94"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/processing_store.py",
+      "sha256": "e3b2dc5b400888439c6e729ab2965e63589f212f5922f5898b42d993361fc78e"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/projection_admin.py",
+      "sha256": "99f9290740dafe717e221772fc28cd1dbedf987bd48887a70b5f80ef32af07a0"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/projection_api.py",
+      "sha256": "0092a29d9b89a039df9750c75999176a30aec917cafcaf4fd0ba346fad22ca5d"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/projection_models.py",
+      "sha256": "0a80eadd0908863e67be02befdbea56bcf3aadedc9ca188823db581291ef8c12"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/projection_store.py",
+      "sha256": "84f1caa1fc426444ebdd8f41d1663103c483f5493bee9b714f9f5098a275f9dd"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/projector.py",
+      "sha256": "ebf1bdd10e8a5b5ec94a30511ed3f0401cd2015ed6870bc710318adfbe2837a6"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+      "sha256": "d616ab8c65c88d294b3a44fa6a48c79ffc52f6c10963be360834746bb361e8de"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/scripted.py",
+      "sha256": "48c0312034f45581eddf400d13298d103737eaef74efdcf7901e779e14aa2291"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/security.py",
+      "sha256": "e2b9998e3071c0bc34b14d13fa0641e65d1cf295e4ae30954b68dfdb79dcf35c"
+    }
+  ],
+  "limits": "AST and installed call-shape check only. Dynamic aliases, lifecycle semantics, actual SDK behavior and browser APIs need separate source/test review. No model/provider invoked."
+}

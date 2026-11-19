@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Why can't you filter user speech before processing when using a realtime model, unlike with a pipeline?",
+    "options": [
+      "Realtime models do not accept audio input",
+      "The realtime model processes audio directly \u2014 speech recognition, reasoning, and synthesis happen inside a single model inference with no intermediate text to intercept",
+      "You can filter it, but only after the response is generated",
+      "The framework disables stt_node for performance reasons"
+    ],
+    "correctIndex": 1,
+    "explanation": "In a pipeline, stt_node produces text that you can intercept before it reaches the LLM. Realtime models handle speech recognition, reasoning, and synthesis internally in a single pass. There is no intermediate text stage to intercept between these steps."
+  },
+  {
+    "question": "When would you choose a pipeline architecture over a realtime model for your voice agent?",
+    "options": [
+      "When you want native interruption handling",
+      "When you want the simplest possible setup",
+      "When you need structured output parsing, dynamic voice switching, or multi-layer content filtering",
+      "When you want the lowest possible latency"
+    ],
+    "correctIndex": 2,
+    "explanation": "Pipeline models offer fine-grained control through node overrides at every stage. If your application requires structured JSON output, dynamic voice switching per response, multi-layer content filtering, or best-in-class component selection, the pipeline architecture gives you the override points to implement these features."
+  }
+]

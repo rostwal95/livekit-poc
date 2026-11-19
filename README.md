@@ -106,7 +106,7 @@ stack.
 
 | Situation | What can go wrong | How the ecosystem handles it | Project |
 | --- | --- | --- | --- |
-| A caller hangs up mid-task and follows up by SMS | The context and the pending work are lost | Every input is durably accepted before any reply and dispatched once to the same case; a new session rehydrates it | P2, P1 |
+| A caller hangs up mid-task and follows up by SMS | The context and the pending work are lost | Accepted input is retained before its dispatched reply and routed to the same case using its original operation identity; a new session rehydrates it | P2, P1 |
 | A worker crashes during a supplier call | A duplicate booking, or one that is silently lost | Leased workers hold owner and epoch grants, and an uncertain external effect stays explicitly uncertain | P1 |
 | A delegated check answers late | A stale answer is applied to a changed case | Each result carries its as-of applicability against the case revision, and deadlines never erase a known result | P3 |
 | The model says "yes, go ahead" | Model text triggers a business change | Model output grants no authority; exact quote confirmation happens in an authenticated controller | P1 |
@@ -143,7 +143,7 @@ the operator console.
 | Step | What you see | What happens underneath | Projects |
 | --- | --- | --- | --- |
 | 1. Join | The agent reports readiness and the provider profile, `LOCAL / REAL PROVIDERS` | A native agent worker owns the LiveKit session for this room only | P2 |
-| 2. Ask by text | Live captions while the agent answers; the counters read "1 input observed · 1 linked to durable work" | P2 durably accepts the input and dispatches it once to P1 as work keyed by the original input | P2, P1 |
+| 2. Ask by text | Live captions while the agent answers; the counters read "1 input observed · 1 linked to durable work" | P2 durably accepts the input and dispatches it to P1 under its original stable identity; replay reconciles the same work | P2, P1 |
 | 3. The background check lands | "Eligible under the policy", as of its read time | P3's specialist evaluates the policy under a P1-issued grant, and P1 records the result | P3, P1 |
 | 4. Speak instead | The agent answers a recorded voice clip | The clip plays into the real-time communication (RTC) track, Deepgram transcribes it and the agent answers from the trusted current result | P2 |
 | 5. Leave and follow up by SMS | A simulated SMS arrives while no room is open | The verified SMS becomes new durable work on the same case | P2, P1 |
@@ -161,19 +161,19 @@ an authenticated controller outside the conversation, as step 7 shows.
 | Exact quote confirmation | A trusted quote bound to its case revision needs explicit approval in an authenticated controller | P1 | Qualified | [Case and continuation](docs/case-and-continuation.md) |
 | Supplier effects and cancellation | Effects preserve uncertainty at the external boundary; cancellation, business outcome, delivery and acknowledgement stay separate | P1 | Qualified | [Effects and completion](docs/effects-and-completion.md) |
 | Leased workers and restart recovery | Database leases with owner and epoch grants; accepted work resumes after a crash with no in-memory queue | P1 | Qualified | [Leases and workers](docs/leases-and-workers.md) |
-| Persisted retry pacing | An unavailable dependency holds an effect until its persisted due time, from 1 s doubling to 30 s | P1 | Implemented | [0047](docs/work-items/0047-open-findings-schema-upgrades-and-landing.md) |
+| Persisted retry pacing | A definite pre-dispatch dependency outage holds an effect until its persisted due time, from 1 s doubling to 30 s; post-reservation pacing remains an open audit finding | P1 | Implemented in the selected v5 scope | [0047](docs/work-items/0047-open-findings-schema-upgrades-and-landing.md) |
 | Native voice and text conversation | A LiveKit Agents session whose business tools may only submit, inspect and request cancellation | P1 | Qualified | [Conversation and showcase](docs/conversation-and-showcase.md) |
 | Operator console | Runs one business case from investigation to delivery, reading every state from storage | P1 | Qualified | [Local console](apps/local-console/README.md) |
 | Verified durable channel intake | Text, voice and HMAC-verified SMS inputs are durably accepted once before any reply | P2 | Qualified | [P2 README](projects/channel-continuity/README.md) |
-| Dispatch and gateway recovery | Each accepted input reaches P1 exactly once under bounded ownership, and restarts resume from persisted state | P2 | Qualified | [P2 README](projects/channel-continuity/README.md) |
+| Dispatch and gateway recovery | Bounded dispatch and reconciliation preserve the original input and work identity across retries and restarts; cooperating acceptance deduplicates logical work | P2 | Qualified | [P2 README](projects/channel-continuity/README.md) |
 | Case rehydration on rejoin | A new session loads earlier messages and the latest result as timed observations | P2 | Qualified | [Rehydration guide](projects/channel-continuity/REHYDRATION.md) |
-| Outbound replies and callback evidence | Guarded send reservations with immutable attempts; a callback is evidence, never permission to resend | P2 | Qualified | [Communication guide](projects/channel-continuity/COMMUNICATION.md) |
+| Outbound replies and callback evidence | Guarded send reservations with immutable attempts; a callback is evidence, never permission to resend | P2 | Qualified | [P2 design](projects/channel-continuity/Design.md) |
 | Revision routing and linked confirmation | Structured revisions route to the case, and a separate router binds the original input to an exact quote | P2 | Qualified | [0032](docs/work-items/0032-linked-confirmation-and-result-projections.md) |
 | Typed specialist contracts | Language-neutral contracts and a bounded HTTP specialist bound to verified service principals | P3 | Qualified | [P3 README](projects/delegation-reliability/README.md) |
-| P1-issued delegated execution | Delegated work runs only under P1-issued grants, and each result is delivered to an explicit receiver | P3 | Qualified | [P3 README](projects/delegation-reliability/README.md) |
+| P1-issued delegated execution | Delegated work runs only under P1-issued grants; explicit result delivery binds the original receiver | P3 | Qualified | [P3 README](projects/delegation-reliability/README.md) |
 | Result applicability and deadlines | Results carry as-of applicability; deadlines and cancellation never erase a known result | P3 | Qualified | [P3 Design](projects/delegation-reliability/Design.md) |
 | Fixed-policy checks with factual validation | Immutable, scoped policy and fact records; factual support is validated before a late result is kept | P3 | Qualified | [0041](docs/work-items/0041-standalone-channel-and-durable-policy.md) |
-| Read-only operations page | Scoped, signed cursors over channel and delegation state, with no write path | P2, P3 | Qualified | [0040](docs/work-items/0040-operations-ui-and-fixed-policy-evidence.md) |
+| Read-only operations page | Scoped, signed cursors over channel facts and separately observed current-case state, with no write path | P2 | Qualified | [0040](docs/work-items/0040-operations-ui-and-fixed-policy-evidence.md) |
 | Joined voice, chat and SMS showcase | One durable case across text, voice, SMS follow-up and rejoin, with a background policy check | P1, P2, P3 | Implemented | [0046](docs/work-items/0046-joined-showcase-providers-and-demo.md) |
 | Observability | OpenTelemetry traces with an optional local Jaeger, numeric usage reports and safe diagnostics | All | Implemented | [Observability](docs/observability.md) |
 | Isolated local stack | Docker Compose with pinned image digests and a per-checkout project name; a normal restart keeps state | Platform | Implemented | [Local setup guide](local-setup/README.md) |
@@ -217,7 +217,7 @@ STT is speech-to-text, LLM is the large language model and TTS is text-to-speech
 | --- | --- | --- |
 | Join | The browser joins a room on the self-hosted LiveKit server | One native agent worker (P2 `NativeRuntime`) owns the SDK session for that room only |
 | Accept | A text, voice or SMS input enters P2 | It is durably accepted before any reply |
-| Dispatch | P2 hands the input to P1 | Immutable work keyed by the original input, dispatched once |
+| Dispatch | P2 hands the input to P1 | Immutable work keyed by the original input; retries and reconciliation preserve that identity |
 | Execute | The application's bounded executor issues the work through P1 and calls the P3 specialist | P3 validates the facts, and P1 records the result |
 | Deliver and read | P1 delivers the result to P2's receiver; the agent and browser read the current result | The read is a timed observation, never permission to act |
 
@@ -295,8 +295,10 @@ make channel-policy-demo-start CHANNEL_POLICY_PROFILE=$PWD/.local/showcase-1
 | 4 | Stop with Ctrl+C; the launcher reaps every child process |
 
 Each profile holds sixteen inputs, so prepare a new profile directory for each
-fresh demonstration. If startup prints `"status":"unavailable"`, run the start
-command once more.
+fresh demonstration. If startup prints `"status":"unavailable"`, inspect its
+safe failure code and let the owned cleanup finish before starting again. An
+unresolved active marker must be investigated; it is not permission to reset
+accepted state.
 
 ## Implementation status
 
@@ -359,7 +361,7 @@ purpose. These are the most common next reads.
 | --- | --- | --- |
 | Docker Engine or Docker Desktop | Compose v2 or later, about 2 GB of free Docker memory | Needs internet access for the first image and dependency fetch |
 | Python | 3.14 (3.14.10 tested) | Every Python distribution supports 3.14 only |
-| Node.js with Corepack | 24.22.2, or 26.13 up to 27 | Corepack provides pnpm 12.18.0 |
+| Node.js with Corepack | 24.22.2 validated host; accepted engine range also includes 26.13 up to 27 | Corepack provides pnpm 12.18.0; an accepted engine range is separate from an executed host qualification |
 | uv | 0.13.7 | Creates the locked `.venv` during `make bootstrap` |
 | Provider accounts (optional) | Deepgram, OpenAI and ElevenLabs | Only for provider_real; every turn makes paid calls |
 | ffmpeg (optional) | Any recent build | Encodes the recorded demo as MP4; without it the recorder keeps raw WebM |

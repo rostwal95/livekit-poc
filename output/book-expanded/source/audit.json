@@ -1,0 +1,20 @@
+{
+  "rendered_content_checks": 2423,
+  "baseline_questions_retained": 220,
+  "new_questions_reviewed": 15,
+  "existing_questions_expanded": 10,
+  "pages": 423,
+  "questions": 235,
+  "answered_followups": 531,
+  "code_snippets": 60,
+  "repository_evidence_references": 686,
+  "vector_figures": 24,
+  "primary_sources": 70,
+  "chapters": 15,
+  "outline_entries": 250,
+  "minimum_body_font": 10.5,
+  "duplex_sheets": 212,
+  "sha256": "1a4eb79ee8134243b9d69775c21a569dfdb1b2680b8c097e85217d9aa91a389d",
+  "bytes": 2705301,
+  "errors": []
+}

@@ -1,0 +1,1029 @@
+diff --git a/README.md b/README.md
+index f5bc102..06a8e82 100644
+--- a/README.md
++++ b/README.md
+@@ -106,7 +106,7 @@ stack.
+ 
+ | Situation | What can go wrong | How the ecosystem handles it | Project |
+ | --- | --- | --- | --- |
+-| A caller hangs up mid-task and follows up by SMS | The context and the pending work are lost | Every input is durably accepted before any reply and dispatched once to the same case; a new session rehydrates it | P2, P1 |
++| A caller hangs up mid-task and follows up by SMS | The context and the pending work are lost | Accepted input is retained before its dispatched reply and routed to the same case using its original operation identity; a new session rehydrates it | P2, P1 |
+ | A worker crashes during a supplier call | A duplicate booking, or one that is silently lost | Leased workers hold owner and epoch grants, and an uncertain external effect stays explicitly uncertain | P1 |
+ | A delegated check answers late | A stale answer is applied to a changed case | Each result carries its as-of applicability against the case revision, and deadlines never erase a known result | P3 |
+ | The model says "yes, go ahead" | Model text triggers a business change | Model output grants no authority; exact quote confirmation happens in an authenticated controller | P1 |
+@@ -165,7 +165,7 @@ an authenticated controller outside the conversation, as step 7 shows.
+ | Native voice and text conversation | A LiveKit Agents session whose business tools may only submit, inspect and request cancellation | P1 | Qualified | [Conversation and showcase](docs/conversation-and-showcase.md) |
+ | Operator console | Runs one business case from investigation to delivery, reading every state from storage | P1 | Qualified | [Local console](apps/local-console/README.md) |
+ | Verified durable channel intake | Text, voice and HMAC-verified SMS inputs are durably accepted once before any reply | P2 | Qualified | [P2 README](projects/channel-continuity/README.md) |
+-| Dispatch and gateway recovery | Each accepted input reaches P1 exactly once under bounded ownership, and restarts resume from persisted state | P2 | Qualified | [P2 README](projects/channel-continuity/README.md) |
++| Dispatch and gateway recovery | Bounded dispatch and reconciliation preserve the original input and work identity across retries and restarts; cooperating acceptance deduplicates logical work | P2 | Qualified | [P2 README](projects/channel-continuity/README.md) |
+ | Case rehydration on rejoin | A new session loads earlier messages and the latest result as timed observations | P2 | Qualified | [Rehydration guide](projects/channel-continuity/REHYDRATION.md) |
+ | Outbound replies and callback evidence | Guarded send reservations with immutable attempts; a callback is evidence, never permission to resend | P2 | Qualified | [Communication guide](projects/channel-continuity/COMMUNICATION.md) |
+ | Revision routing and linked confirmation | Structured revisions route to the case, and a separate router binds the original input to an exact quote | P2 | Qualified | [0032](docs/work-items/0032-linked-confirmation-and-result-projections.md) |
+@@ -217,7 +217,7 @@ STT is speech-to-text, LLM is the large language model and TTS is text-to-speech
+ | --- | --- | --- |
+ | Join | The browser joins a room on the self-hosted LiveKit server | One native agent worker (P2 `NativeRuntime`) owns the SDK session for that room only |
+ | Accept | A text, voice or SMS input enters P2 | It is durably accepted before any reply |
+-| Dispatch | P2 hands the input to P1 | Immutable work keyed by the original input, dispatched once |
++| Dispatch | P2 hands the input to P1 | Immutable work keyed by the original input; retries and reconciliation preserve that identity |
+ | Execute | The application's bounded executor issues the work through P1 and calls the P3 specialist | P3 validates the facts, and P1 records the result |
+ | Deliver and read | P1 delivers the result to P2's receiver; the agent and browser read the current result | The read is a timed observation, never permission to act |
+ 
+diff --git a/docs/README.md b/docs/README.md
+index 786f388..195a3fa 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -224,3 +224,4 @@ Work items are the change plans, verification records and handoffs.
+ | [0046](work-items/0046-joined-showcase-providers-and-demo.md) | Joined showcase providers, hardening and demo |
+ | [0047](work-items/0047-open-findings-schema-upgrades-and-landing.md) | Open review findings, schema upgrades and landing page |
+ | [0048](work-items/0048-code-audit-fixes-and-documentation-cleanup.md) | Code audit fixes and documentation cleanup |
++| [0049](work-items/0049-academy-and-sdk-code-alignment-audit.md) | Academy and pinned SDK alignment, contained recovery fixes and remaining lifecycle findings |
+diff --git a/docs/conversation-and-showcase.md b/docs/conversation-and-showcase.md
+index 7f495b2..8ae56b0 100644
+--- a/docs/conversation-and-showcase.md
++++ b/docs/conversation-and-showcase.md
+@@ -1,7 +1,13 @@
+ # Conversation and durable-work showcase
+ 
+-Status: Active
+-Last reviewed: 15 November 2026
++| Field | Value |
++| --- | --- |
++| Status | Active |
++| Purpose | Explain how the Phase G native conversation and browser workspace use durable P1 work |
++| Audience | Engineers who run the showcase or change its conversation, console and controller boundaries |
++| Scope | Inference profiles, local setup, showcase flow, readiness and media evidence; excludes durable authority implementation |
++| Owns | Phase G showcase operation, component limits and media invocation reconciliation |
++| Related | [P1 guide](../projects/agent-continuity/README.md) · [Case and continuation](case-and-continuation.md) · [Demo plan](demo-plan.md) · [Phase G work item](work-items/0013-p1-phase-g-conversation-and-showcase.md) |
+ 
+ ## Overview
+ 
+diff --git a/docs/effects-and-completion.md b/docs/effects-and-completion.md
+index 27a3ef5..697185a 100644
+--- a/docs/effects-and-completion.md
++++ b/docs/effects-and-completion.md
+@@ -1,7 +1,13 @@
+ # Exact effects and durable completion guide
+ 
+-Status: Active
+-Last reviewed: 15 November 2026
++| Field | Value |
++| --- | --- |
++| Status | Active |
++| Purpose | Explain exact supplier effects, cancellation, reconciliation and durable completion delivery |
++| Audience | Engineers who change P1 mutation, cancellation, provider or receiver binding and outbox behavior |
++| Scope | P1 supplier effects and completion contracts, operations and evidence; excludes conversational and worker lifecycle detail |
++| Owns | Mutation reservation and reconciliation, cancellation dispositions, outcome commitment and completion delivery |
++| Related | [Case and continuation](case-and-continuation.md) · [Leases and workers](leases-and-workers.md) · [P1 guide](../projects/agent-continuity/README.md) · [Phase E work item](work-items/0011-p1-phase-e-effects-and-completion.md) |
+ 
+ ## Overview
+ 
+diff --git a/local-setup/Design.md b/local-setup/Design.md
+index 9083654..38de7a3 100644
+--- a/local-setup/Design.md
++++ b/local-setup/Design.md
+@@ -1,7 +1,13 @@
+ # Local setup design
+ 
+-Status: Active
+-Last reviewed: 15 November 2026
++| Field | Value |
++| --- | --- |
++| Status | Active |
++| Purpose | Define the local stack, resource ownership, trust boundaries and qualification gates |
++| Audience | Engineers and coding agents changing local orchestration or reviewing its evidence |
++| Scope | Local Compose, setup, lifecycle, credentials and validation; excludes product state authority |
++| Owns | Local setup topology, interfaces, failure handling and operational limits |
++| Related | [Setup guide](README.md) · [Coding instructions](AGENTS.md) · [Shared design](../Design.md) · [Validation plan](../docs/validation-plan.md) |
+ 
+ ## Overview
+ 
+@@ -816,6 +822,12 @@ qualification or production capacity.
+ 
+ ## Security and privacy
+ 
++| Boundary | Required control | Limit |
++| --- | --- | --- |
++| Configuration | Parse data, validate paths/endpoints and bind the stack to loopback | Remote TLS, TURN and multi-server networking require separate decisions |
++| Credentials | Separate administrator, migration and runtime credentials; redact diagnostic output | A local Docker administrator can inspect container environments |
++| Smoke evidence | Use synthetic media and bounded observations | Smoke never prints tokens or establishes a hardened secret platform |
++
+ ### Configuration and network exposure
+ 
+ - Parse dotenv values as data. Never source shell configuration.
+@@ -849,6 +861,13 @@ qualification or production capacity.
+ 
+ ## Observability
+ 
++| Producer | Observation | Qualification boundary |
++| --- | --- | --- |
++| Local manager | Bounded redacted command outcomes and diagnostic tails | Not unbounded log retention |
++| Application API | Structured request logs and protected finite metrics | Other infrastructure producers retain their own formats |
++| Workload runner | Declared raw timings, resource samples and independent results | A local workload is not production capacity |
++| Native/application tracing | Filtered bounded OTLP and inspected export | Viewer health alone is insufficient; production retention remains separate |
++
+ ### Manager output and logs
+ 
+ The manager reports bounded, redacted operational outcomes. It spools subprocess
+@@ -949,6 +968,16 @@ cannot authorize destroying persistent application data.
+ 
+ ## Validation and acceptance gates
+ 
++| Gate | Required evidence | Scope |
++| --- | --- | --- |
++| Offline | Configuration, contracts, ownership, privacy and bounded failure tests | No real infrastructure or media claim |
++| Infrastructure | Actual startup, restricted identities and readiness | Supported local platform only |
++| Transport and intake | Authenticated SDK text/audio and retained intake identity | Synthetic transport is separate from real-model quality |
++| PostgreSQL | Actual isolated-role, migration and process-recovery assertions | Required setup and zero skipped requirements |
++| Business browser | Actual scripted input/output, interruption, consent and filtered traces | Native smoke or mocks cannot replace the browser path |
++| Product/release | Required modality, artifact, API and inference qualification | Missing or timed-out assertions remain non-passing |
++| H1 workload | Frozen declaration, installed runner, independent truth and owned cleanup | Summaries do not establish production throughput |
++
+ 1. **Configuration and unit gate.** Run the existing commands in the
+    [setup guide](README.md#unit-tests). Require tests for malformed dotenv files,
+    substitution treated as data, private permissions and symlinks, exact image
+diff --git a/projects/agent-continuity/python/src/continuity_lab/execution.py b/projects/agent-continuity/python/src/continuity_lab/execution.py
+index 9d387e1..097f80d 100644
+--- a/projects/agent-continuity/python/src/continuity_lab/execution.py
++++ b/projects/agent-continuity/python/src/continuity_lab/execution.py
+@@ -61,7 +61,10 @@ def _version(value: int) -> int:
+ def _event(event: str, code: str = "ok") -> None:
+     # Fields are fixed producer literals, never exception/request values.
+     level = logging.ERROR if event == "storage_failed" else logging.INFO
+-    LOGGER.log(level, event, extra={"event": event, "code": code})
++    try:
++        LOGGER.log(level, event, extra={"event": event, "code": code})
++    except Exception:  # noqa: BLE001 - telemetry cannot alter committed state or failures
++        return
+ 
+ 
+ class ExecutionStore:
+diff --git a/projects/agent-continuity/python/src/continuity_lab/inquiry_worker.py b/projects/agent-continuity/python/src/continuity_lab/inquiry_worker.py
+index a1da561..5ca621c 100644
+--- a/projects/agent-continuity/python/src/continuity_lab/inquiry_worker.py
++++ b/projects/agent-continuity/python/src/continuity_lab/inquiry_worker.py
+@@ -62,9 +62,12 @@ def _error_code(error: Exception) -> str:
+     if isinstance(error, SourceAdmissionClosed):
+         return "source_quiesced"
+     if isinstance(error, (ExecutionError, MigrationError)):
+-        candidate = error.code
+-        if isinstance(candidate, str) and candidate in _FAILURE_CODES:
+-            return candidate
++        try:
++            candidate = error.code
++            if type(candidate) is str and candidate in _FAILURE_CODES:
++                return candidate
++        except Exception:  # noqa: BLE001 - diagnostic metadata cannot replace an original failure
++            return "execution_error"
+         return "execution_error"
+     if isinstance(error, ValueError):
+         return "invalid_input"
+@@ -78,7 +81,10 @@ def _event(event: str, code: str = "ok") -> None:
+         level = logging.WARNING if code == "capacity_exhausted" else logging.ERROR
+     elif code == "inquiry_rejected":
+         level = logging.WARNING
+-    LOGGER.log(level, event, extra={"event": event, "code": code})
++    try:
++        LOGGER.log(level, event, extra={"event": event, "code": code})
++    except Exception:  # noqa: BLE001 - telemetry cannot alter inquiry truth or failures
++        return
+ 
+ 
+ class InquiryWorker:
+diff --git a/projects/agent-continuity/python/src/continuity_lab/managed_inquiry_worker.py b/projects/agent-continuity/python/src/continuity_lab/managed_inquiry_worker.py
+index bad6607..4cd06d8 100644
+--- a/projects/agent-continuity/python/src/continuity_lab/managed_inquiry_worker.py
++++ b/projects/agent-continuity/python/src/continuity_lab/managed_inquiry_worker.py
+@@ -40,11 +40,22 @@ class InquiryNotDispatched(SupplierUnavailable):
+ 
+ 
+ def _event(event: str, code: str = "ok") -> None:
+-    LOGGER.log(
+-        logging.ERROR if event == "managed_worker_failed" else logging.INFO,
+-        event,
+-        extra={"event": event, "code": code},
+-    )
++    try:
++        LOGGER.log(
++            logging.ERROR if event == "managed_worker_failed" else logging.INFO,
++            event,
++            extra={"event": event, "code": code},
++        )
++    except Exception:  # noqa: BLE001 - telemetry cannot alter inquiry truth or failures
++        return
++
++
++def _code(error: Exception) -> str:
++    try:
++        candidate = getattr(error, "code", "unexpected_error")
++        return candidate if type(candidate) is str and candidate in _CODES else "unexpected_error"
++    except Exception:  # noqa: BLE001 - diagnostic metadata cannot replace an original failure
++        return "unexpected_error"
+ 
+ 
+ class ManagedInquiryWorker:
+@@ -124,11 +135,5 @@ class ManagedInquiryWorker:
+                 _event("managed_worker_completed")
+                 return value
+         except Exception as error:
+-            candidate = getattr(error, "code", "unexpected_error")
+-            code = (
+-                candidate
+-                if isinstance(candidate, str) and candidate in _CODES
+-                else "unexpected_error"
+-            )
+-            _event("managed_worker_failed", code)
++            _event("managed_worker_failed", _code(error))
+             raise
+diff --git a/projects/agent-continuity/python/src/continuity_lab/postgres_case.py b/projects/agent-continuity/python/src/continuity_lab/postgres_case.py
+index cf93e23..744d08e 100644
+--- a/projects/agent-continuity/python/src/continuity_lab/postgres_case.py
++++ b/projects/agent-continuity/python/src/continuity_lab/postgres_case.py
+@@ -55,7 +55,10 @@ Connection = psycopg.Connection[dict[str, Any]]
+ 
+ 
+ def _event(event: str) -> None:
+-    LOGGER.info(event, extra={"event": event, "code": "ok"})
++    try:
++        LOGGER.info(event, extra={"event": event, "code": "ok"})
++    except Exception:  # noqa: BLE001 - telemetry cannot alter committed state or failures
++        return
+ 
+ 
+ def _actor(actor: AuthenticatedActor) -> AuthenticatedActor:
+diff --git a/projects/agent-continuity/python/src/continuity_lab/postgres_lifecycle.py b/projects/agent-continuity/python/src/continuity_lab/postgres_lifecycle.py
+index 634dd94..519335d 100644
+--- a/projects/agent-continuity/python/src/continuity_lab/postgres_lifecycle.py
++++ b/projects/agent-continuity/python/src/continuity_lab/postgres_lifecycle.py
+@@ -95,7 +95,10 @@ def _time(value: object) -> str:
+ 
+ 
+ def _event(event: str, code: str = "ok") -> None:
+-    LOGGER.info(event, extra={"event": event, "code": code})
++    try:
++        LOGGER.info(event, extra={"event": event, "code": code})
++    except Exception:  # noqa: BLE001 - telemetry cannot alter committed state or failures
++        return
+ 
+ 
+ def _expect_one(cursor: psycopg.Cursor[dict[str, Any]]) -> psycopg.Cursor[dict[str, Any]]:
+diff --git a/projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py b/projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py
+index d0d80ce..490d5d2 100644
+--- a/projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py
++++ b/projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py
+@@ -360,7 +360,10 @@ class ImportReport:
+ 
+ 
+ def _event(event: str, code: str = "ok") -> None:
+-    LOGGER.info(event, extra={"event": event, "code": code})
++    try:
++        LOGGER.info(event, extra={"event": event, "code": code})
++    except Exception:  # noqa: BLE001 - telemetry cannot alter completed upgrades or failures
++        return
+ 
+ 
+ def _identifier(value: str) -> str:
+diff --git a/projects/agent-continuity/python/src/continuity_lab/postgres_store.py b/projects/agent-continuity/python/src/continuity_lab/postgres_store.py
+index e53aea8..933c52f 100644
+--- a/projects/agent-continuity/python/src/continuity_lab/postgres_store.py
++++ b/projects/agent-continuity/python/src/continuity_lab/postgres_store.py
+@@ -61,11 +61,14 @@ def _canonical(request: BookingChange) -> str:
+ 
+ 
+ def _event(event: str, code: str = "ok") -> None:
+-    LOGGER.log(
+-        logging.ERROR if event == "storage_failed" else logging.INFO,
+-        event,
+-        extra={"event": event, "code": code},
+-    )
++    try:
++        LOGGER.log(
++            logging.ERROR if event == "storage_failed" else logging.INFO,
++            event,
++            extra={"event": event, "code": code},
++        )
++    except Exception:  # noqa: BLE001 - telemetry cannot alter committed state or failures
++        return
+ 
+ 
+ class PostgresExecutionStore:
+diff --git a/projects/agent-continuity/python/src/continuity_lab/supplier.py b/projects/agent-continuity/python/src/continuity_lab/supplier.py
+index d2bac5e..c619cba 100644
+--- a/projects/agent-continuity/python/src/continuity_lab/supplier.py
++++ b/projects/agent-continuity/python/src/continuity_lab/supplier.py
+@@ -108,7 +108,10 @@ def _event(event: str, code: str = "ok") -> None:
+         level = logging.ERROR
+     else:
+         level = logging.INFO
+-    LOGGER.log(level, event, extra={"event": event, "code": code})
++    try:
++        LOGGER.log(level, event, extra={"event": event, "code": code})
++    except Exception:  # noqa: BLE001 - telemetry cannot alter supplier truth or failures
++        return
+ 
+ 
+ def _identity(value: str) -> str:
+diff --git a/projects/channel-continuity/python/src/channel_continuity/native.py b/projects/channel-continuity/python/src/channel_continuity/native.py
+index c13d205..f9b2931 100644
+--- a/projects/channel-continuity/python/src/channel_continuity/native.py
++++ b/projects/channel-continuity/python/src/channel_continuity/native.py
+@@ -294,7 +294,14 @@ class NativeRuntime:
+ 
+     def _start_owned_close(self) -> None:
+         if self._close_task is not None:
+-            return
++            if not self._close_task.done():
++                return
++            if not self._close_task.cancelled() and self._close_task.exception() is None:
++                return
++            # Keep pending/successful attempts shared. After a failed attempt
++            # settles, public retry must still be able to close retained owners
++            # and a dependency whose previous close actually failed.
++            self._close_task = None
+         operation = self._close_owned()
+         try:
+             self._close_task = asyncio.create_task(
+diff --git a/projects/channel-continuity/tests/test_native_sdk.py b/projects/channel-continuity/tests/test_native_sdk.py
+index cab58b4..fd1c427 100644
+--- a/projects/channel-continuity/tests/test_native_sdk.py
++++ b/projects/channel-continuity/tests/test_native_sdk.py
+@@ -579,8 +579,46 @@ class NativeSdkTests(unittest.IsolatedAsyncioTestCase):
+             self.assertFalse(r.sdk_closed)
+         self.assertEqual(r.metrics()["activeIntakes"], 0)
+         self.assertEqual(r.metrics()["observerPending"], 0)
+-        # Fixture-only repair closes the still-owned actual SDK session after its injected failure.
+-        r._close_task = None
++        failed_close = r._close_task
++        sdk_close = r.session.aclose
++        retry_entered, retry_release = asyncio.Event(), asyncio.Event()
++        retry_calls = 0
++
++        async def recovered_close():
++            nonlocal retry_calls
++            retry_calls += 1
++            retry_entered.set()
++            await retry_release.wait()
++            await sdk_close()
++
++        with patch.object(r.session, "aclose", new=recovered_close):
++            first_retry = asyncio.create_task(r.aclose())
++            try:
++                async with asyncio.timeout(1):
++                    await retry_entered.wait()
++                second_retry = asyncio.create_task(r.aclose())
++                await asyncio.sleep(0)
++                self.assertIsNot(r._close_task, failed_close)
++                self.assertEqual(retry_calls, 1)
++                self.assertFalse(r._close_task.done())
++                self.assertTrue(r._closed)
++                self.assertFalse(r._ready)
++                with self.assertRaises(rtc.RpcError):
++                    await r.start_turn(rpc(str(uuid4())))
++                with self.assertRaises(NativeError):
++                    await r.prepare(context(r.binding, str(uuid4())))
++                first_retry.cancel()
++                with self.assertRaises(asyncio.CancelledError):
++                    await first_retry
++                self.assertFalse(r._close_task.done())
++                self.assertFalse(second_retry.done())
++            finally:
++                retry_release.set()
++                await asyncio.gather(first_retry, return_exceptions=True)
++            await second_retry
++            await r.aclose()
++        self.assertEqual(retry_calls, 1)
++        self.assertTrue(r.sdk_closed)
+ 
+     async def test_two_actual_reader_slots_hold_until_settlement_and_reject_third(self):
+         r, p, _stt, model, *_ = await self.make()
+diff --git a/projects/delegation-reliability/python/src/delegation_reliability/native_policy.py b/projects/delegation-reliability/python/src/delegation_reliability/native_policy.py
+index e35e4df..4acec7f 100644
+--- a/projects/delegation-reliability/python/src/delegation_reliability/native_policy.py
++++ b/projects/delegation-reliability/python/src/delegation_reliability/native_policy.py
+@@ -535,7 +535,15 @@ class NativePolicyApplication:
+         self._waiter = "waiting"
+         self._counts["tool_started"] += 1
+         try:
+-            accepted = await self._coordinator.submit(self._request)
++            try:
++                accepted = await self._coordinator.submit(self._request)
++            except CoordinatorError as error:
++                # Capacity rejects acceptance. Permit a later explicit call with
++                # the same frozen identity; retain actual pending ownership.
++                # Unknown acceptance and post-acceptance failures stay read-only.
++                if error.code == "capacity":
++                    self._attempted = False
++                raise
+             if (
+                 type(accepted) is not FixedPolicySubmission
+                 or type(accepted.view) is not FixedPolicyView
+diff --git a/projects/delegation-reliability/specialist-ts/README.md b/projects/delegation-reliability/specialist-ts/README.md
+index 66ad000..084dfb4 100644
+--- a/projects/delegation-reliability/specialist-ts/README.md
++++ b/projects/delegation-reliability/specialist-ts/README.md
+@@ -1,7 +1,13 @@
+ # Delegation specialist contracts and local HTTP
+ 
+-Status: Active
+-Last reviewed: 15 November 2026
++| Field | Value |
++| --- | --- |
++| Status | Active |
++| Purpose | Explain the specialist contracts, authenticated local HTTP boundary and supported consumer commands |
++| Audience | Engineers using or changing the TypeScript specialist package |
++| Scope | Read-only policy/document capabilities and local fixtures; excludes durable execution authority |
++| Owns | TypeScript specialist onboarding, exports, requirements and validation limits |
++| Related | [Project guide](../README.md) · [Project design](../Design.md) · [Coding instructions](../AGENTS.md) · [Python guide](../python/README.md) |
+ 
+ ## Overview
+ 
+@@ -90,29 +96,37 @@ outside this HTTP slice. Fourteen P3 rows remain planned.
+ 
+ ## Documentation
+ 
+-- [Project guide](../README.md)
+-- [Python package guide](../python/README.md)
+-- [Project design](../Design.md)
+-- [Project coding instructions](../AGENTS.md)
+-- [Contract and trust checkpoint](../../../docs/work-items/0025-p3-specialist-contracts-and-trust.md)
+-- [HTTP/standalone handoff](../../../docs/work-items/0027-p2-standalone-and-p3-http.md)
+-- [Issued execution checkpoint](../../../docs/work-items/0029-p2-gateway-and-p3-issued-execution.md)
+-- [Shared version-one fixtures](../../../contracts/delegation/v1.json)
++| Document | Use |
++| --- | --- |
++| [Project guide](../README.md) | Project scope and entry points |
++| [Python package guide](../python/README.md) | Coordinator and durable integration |
++| [Project design](../Design.md) | Ownership and failure boundaries |
++| [Project coding instructions](../AGENTS.md) | Change and validation rules |
++| [Contract and trust checkpoint](../../../docs/work-items/0025-p3-specialist-contracts-and-trust.md) | Contract/trust evidence |
++| [HTTP/standalone handoff](../../../docs/work-items/0027-p2-standalone-and-p3-http.md) | HTTP and standalone qualification |
++| [Issued execution checkpoint](../../../docs/work-items/0029-p2-gateway-and-p3-issued-execution.md) | Issuance integration evidence |
++| [Shared version-one fixtures](../../../contracts/delegation/v1.json) | Language-neutral contract examples |
+ 
+ ## Requirements
+ 
+-- Use the frozen root pnpm environment with Node 24.22.2 or 26.13.0 and pinned
+-  TypeScript and Vitest.
+-- Contract parity tests also require the installed Python 3.14 workspace.
+-- HTTP tests use actual, owned loopback sockets. No Docker, provider, model download
+-  or paid credential is required.
+-- Supply runtime token digests and source bytes through trusted application
+-  configuration. The example uses synthetic facts and a newly generated local token.
++| Requirement | Detail |
++| --- | --- |
++| Node tooling | Frozen root pnpm environment, Node 24.22.2 or 26.13.0, pinned TypeScript and Vitest |
++| Contract parity | Installed Python 3.14 workspace |
++| HTTP tests | Actual owned loopback sockets; no Docker, provider, model download or paid credential |
++| Runtime inputs | Token digests and source bytes from trusted configuration; the example uses synthetic facts and a newly generated local token |
+ 
+ ## Commands
+ 
+ From the repository root after frozen dependency installation:
+ 
++| Command suffix | Purpose |
++| --- | --- |
++| `typecheck` | Check the declared TypeScript surfaces |
++| `test` | Run the package tests with their stated local prerequisites |
++| `build` | Produce the package artifacts |
++| `demo` | Build and run the owned local policy HTTP example |
++
+ ```sh
+ corepack pnpm --filter @livekit-ecosystem/delegation-specialist typecheck
+ corepack pnpm --filter @livekit-ecosystem/delegation-specialist test
+@@ -445,10 +459,8 @@ both languages; the
+ [I18A handoff](../../../docs/work-items/0041-standalone-channel-and-durable-policy.md)
+ records its implementation and selected qualification.
+ 
+-Remaining work:
+-
+-- The I18B native application's text profile and broader real-model and modality
+-  qualification retain separate phase gates.
+-- Autonomous recovery, real models, media and complete P3 acceptance rows remain
+-  outside this HTTP slice.
+-- Fourteen full charter rows and broader integrated release remain planned.
++| Remaining work | Boundary |
++| --- | --- |
++| I18B native text and broader real-model/modality qualification | Separate phase gates |
++| Autonomous recovery, real models, media and complete P3 acceptance | Outside this HTTP slice |
++| Fourteen full charter rows and broader integrated release | Planned |
+diff --git a/projects/delegation-reliability/tests/test_native_policy.py b/projects/delegation-reliability/tests/test_native_policy.py
+index bd157f4..1d6513a 100644
+--- a/projects/delegation-reliability/tests/test_native_policy.py
++++ b/projects/delegation-reliability/tests/test_native_policy.py
+@@ -254,6 +254,83 @@ class NativePolicyTests(unittest.IsolatedAsyncioTestCase):
+         self.assertEqual(authority.issue_count, 0)
+         self.assertEqual(parse_native_policy_observation(seen.payload), seen)
+ 
++    async def test_pre_admission_capacity_allows_explicit_same_request_retry(self):
++        app, authority, _, specialist, coordinator, _ = self.make()
++        original_binding = app.binding
++        original_payload = authority.record.payload
++        authority.find_release = asyncio.Event()
++        pressure = [
++            asyncio.create_task(coordinator.find(authority.record.idempotency_key))
++            for _ in range(4)
++        ]
++        self.tasks.extend(pressure)
++        await until(lambda: coordinator.pending_count == 4)
++        with self.assertRaisesRegex(NativePolicyError, "^unavailable$"):
++            await app.evaluate(Context(authority))
++        self.assertEqual(coordinator.metrics()["capacity_rejected"], 1)
++        self.assertEqual(authority.submit_calls, 0)
++        self.assertFalse(authority.accepted)
++        self.assertEqual(authority.issue_count, 0)
++        self.assertEqual(specialist.requests, [])
++
++        authority.find_release.set()
++        await asyncio.gather(*pressure)
++        await until(lambda: coordinator.pending_count == 0)
++        # A distinct explicit call retries the same frozen request, not a new key.
++        result = await app.evaluate(Context(authority))
++        self.assertEqual(result.state, "result")
++        self.assertEqual(app.binding, original_binding)
++        self.assertEqual(authority.record.payload, original_payload)
++        self.assertEqual(authority.submit_calls, 1)
++        self.assertEqual(authority.issue_count, 1)
++        self.assertEqual(set(authority.issues), {"native_original"})
++        self.assertEqual(authority.complete_count, 1)
++        self.assertEqual(len(specialist.requests), 1)
++
++    async def test_unknown_submit_ack_never_retries_acceptance_or_issues(self):
++        app, authority, _, specialist, coordinator, _ = self.make()
++        original_submit = authority.submit
++
++        async def lose_ack(*, idempotency_key, payload):
++            await original_submit(idempotency_key=idempotency_key, payload=payload)
++            raise WorkError("acknowledgement_unknown")
++
++        with (
++            patch.object(authority, "submit", side_effect=lose_ack),
++            patch.object(
++                authority,
++                "find",
++                side_effect=[None, WorkError("storage_unavailable")],
++            ),
++            self.assertRaisesRegex(NativePolicyError, "^acknowledgement_unknown$"),
++        ):
++            await app.evaluate(Context(authority))
++        await until(lambda: coordinator.pending_count == 0)
++        self.assertTrue(authority.accepted)
++        for _ in range(2):
++            self.assertEqual((await app.evaluate(Context(authority))).state, "work")
++        self.assertEqual(authority.submit_calls, 1)
++        self.assertEqual(authority.issue_count, 0)
++        self.assertEqual(authority.complete_count, 0)
++        self.assertEqual(specialist.requests, [])
++
++    async def test_runner_capacity_after_acceptance_keeps_calls_lookup_only(self):
++        app, authority, _, specialist, _, runner = self.make()
++        authority.issue_error = WorkError("capacity")
++        with self.assertRaisesRegex(NativePolicyError, "^unavailable$"):
++            await app.evaluate(Context(authority))
++        await until(lambda: runner.pending_count == 0)
++        self.assertTrue(authority.accepted)
++        self.assertEqual(authority.submit_calls, 1)
++        self.assertEqual(authority.issue_count, 1)
++        # Removing pressure must not turn a known acceptance into another run.
++        authority.issue_error = None
++        self.assertEqual((await app.evaluate(Context(authority))).state, "work")
++        self.assertEqual(authority.submit_calls, 1)
++        self.assertEqual(authority.issue_count, 1)
++        self.assertEqual(authority.complete_count, 0)
++        self.assertEqual(specialist.requests, [])
++
+     async def test_ack_before_pending_and_reserved_read_progress_while_held(self):
+         app, authority, _, specialist, _, runner = self.make()
+         specialist.release = asyncio.Event()
+diff --git a/services/channel_policy_demo/native_provider_models.py b/services/channel_policy_demo/native_provider_models.py
+index f62ac2c..3409932 100644
+--- a/services/channel_policy_demo/native_provider_models.py
++++ b/services/channel_policy_demo/native_provider_models.py
+@@ -50,13 +50,14 @@ def provider_environment(values: Mapping[str, str]) -> dict[str, str]:
+ 
+ 
+ PROVIDER_INSTRUCTIONS: Final = (
+-    "You are the voice and chat assistant for a synthetic travel-support case. Every user "
+-    "message has already been durably recorded and a background policy check runs for the "
+-    "current case. Reply in one or two short spoken sentences, under 25 words. Only when the "
++    "You are the voice and chat assistant for a synthetic travel-support case. User messages "
++    "are durably recorded before generation. Policy checks are separate background work for "
++    "the current case. Reply in one or two short spoken sentences, under 25 words. Only when the "
+     "trusted current-result observation has state current, say whether the request is "
+     "eligible under the policy as of the latest check, or that more information is needed if "
+-    "its eligibility is null. States no_delivery, not_applicable and unavailable all mean the "
+-    "policy check is still running; say exactly that. Never mention "
++    "its eligibility is null. For states no_delivery, not_applicable and unavailable, say "
++    "that no current policy answer is available. Those states do not establish whether work "
++    "is still running. Never mention "
+     "permissions, uncertainty, revisions, timestamps or identifiers. Never claim that a booking "
+     "was changed, approved, cancelled or paid, and never request or accept confirmation; "
+     "exact approvals happen outside this conversation. No tools are available."
+diff --git a/services/conversation_agent/Design.md b/services/conversation_agent/Design.md
+index 927e04b..64eaa32 100644
+--- a/services/conversation_agent/Design.md
++++ b/services/conversation_agent/Design.md
+@@ -1,7 +1,13 @@
+ # Native conversation agent design
+ 
+-Status: Active
+-Last reviewed: 15 November 2026
++| Field | Value |
++| --- | --- |
++| Status | Active |
++| Purpose | Explain the native conversation agent's design, authority, resource limits and evidence |
++| Audience | Engineers changing the conversation worker or reviewing its qualification |
++| Scope | Native conversation, provider adapters and lifecycle; excludes durable business authority and browser implementation |
++| Owns | Conversation agent components, interfaces, failure boundaries and design decisions |
++| Related | [README](README.md) · [Agent instructions](AGENTS.md) · [Shared design](../../Design.md) · [P1 charter](../../docs/projects/agent-continuity-scope.md) · [Phase G work item](../../docs/work-items/0013-p1-phase-g-conversation-and-showcase.md) |
+ 
+ ## Overview
+ 
+@@ -485,44 +491,33 @@ or establish ASR quality.
+ 
+ ### Authority
+ 
+-- The server validates HMAC (hash-based message authentication code) grant
+-  signatures, the room and expected participant, the configured scope/actor and
+-  a finite expiry before constructing the port.
+-- Model and tool schemas cannot supply an actor, task, request key,
+-  confirmation or storage credential.
+-- Cancellation targets only the current owned task.
+-- Investigation consent and exact quote confirmation remain distinct, even when
+-  the agent speaks an apparent approval.
++| Boundary | Control |
++| --- | --- |
++| Port construction | The server validates HMAC (hash-based message authentication code) grant signatures, the room and expected participant, the configured scope/actor and a finite expiry before constructing the port |
++| Model and tool input | Model and tool schemas cannot supply an actor, task, request key, confirmation or storage credential |
++| Cancellation | Targets only the current owned task |
++| Consent | Investigation consent and exact quote confirmation remain distinct, even when the agent speaks an apparent approval |
+ 
+ ### Diagnostics and export
+ 
+-- Application and dedicated native SDK log formatting keeps only fixed finite
+-  metadata.
+-- Optional export strips raw attributes, events, links, status descriptions,
+-  resource labels and trace-state content into a new span while retaining
+-  ancestry. The original SDK span is unchanged.
+-- The local exporter does not honor OpenTelemetry (OTEL) header, credential
+-  provider or proxy environment hooks. It does not follow redirects, and it closes responses after
+-  status inspection without reading their body.
+-- Audio and transcript recording are disabled. Trace recording is enabled with
+-  SDK redaction. Review SDK recording behavior separately from the application's
+-  exported-field allowlist.
++| Surface | Control and limit |
++| --- | --- |
++| Logging | Application and dedicated native SDK log formatting keeps only fixed finite metadata |
++| Span export | Optional export strips raw attributes, events, links, status descriptions, resource labels and trace-state content into a new span while retaining ancestry. The original SDK span is unchanged |
++| Export transport | The local exporter does not honor OpenTelemetry (OTEL) header, credential provider or proxy environment hooks. It does not follow redirects, and it closes responses after status inspection without reading their body |
++| Recording | Audio and transcript recording are disabled. Trace recording is enabled with SDK redaction. Review SDK recording behavior separately from the application's exported-field allowlist |
+ 
+ See the shared [observability policy](../../docs/observability.md).
+ 
+ ## Observability
+ 
+-- Fixed JSON events distinguish admission rejection, session start/end, invalid
+-  input, hint failure, application failure and incomplete cleanup.
+-- Raw dependency errors never become application messages.
+-- Export uses one private provider and a bounded worker queue. Saturation drops
+-  diagnostic observations, and a collector outage cannot change an accepted
+-  business result.
+-- After native session closure, the observer extracts finite numeric usage and
+-  report fields, closes the exporter off the media loop and writes a small
+-  private local file. An SDK report failure remains a failure observation.
+-- Collector readiness alone is insufficient. The phase gate must inspect actual
+-  stored SDK and application spans.
++| Producer or boundary | Behavior and evidence limit |
++| --- | --- |
++| Application JSON events | Fixed events distinguish admission rejection, session start/end, invalid input, hint failure, application failure and incomplete cleanup |
++| Error messages | Raw dependency errors never become application messages |
++| Export queue | Export uses one private provider and a bounded worker queue. Saturation drops diagnostic observations, and a collector outage cannot change an accepted business result |
++| Post-session observer | After native session closure, the observer extracts finite numeric usage and report fields, closes the exporter off the media loop and writes a small private local file. An SDK report failure remains a failure observation |
++| Collector verification | Collector readiness alone is insufficient. The phase gate must inspect actual stored SDK and application spans |
+ 
+ ## Metrics
+ 
+diff --git a/services/rtc_agent/Design.md b/services/rtc_agent/Design.md
+index a3658d9..7c729e4 100644
+--- a/services/rtc_agent/Design.md
++++ b/services/rtc_agent/Design.md
+@@ -1,7 +1,13 @@
+ # Local transport diagnostic agent design
+ 
+-Status: Active
+-Last reviewed: 15 November 2026
++| Field | Value |
++| --- | --- |
++| Status | Active |
++| Purpose | Explain the diagnostic worker's transport behavior, limits and failure handling |
++| Audience | Engineers changing the diagnostic worker or relying on its evidence |
++| Scope | Native text and audio transport diagnostics; excludes inference and product workflow authority |
++| Owns | Diagnostic worker components, interfaces, resource bounds and evidence boundaries |
++| Related | [README](README.md) · [Agent instructions](AGENTS.md) · [Shared design](../../Design.md) · [Transport fixtures](../../contracts/README.md) · [Validation plan](../../docs/validation-plan.md) |
+ 
+ ## Overview
+ 
+@@ -214,16 +220,14 @@ bound. This is a one-server lab, not multi-server media scale evidence.
+ 
+ ## Security and privacy
+ 
+-- Use local-setup managed credentials and allowlisted synthetic identities.
+-  Identity prefixes reduce accidental lab traffic. They do not replace verified
+-  token grants or production principal authorization.
+-- Echo is sent only to the original text sender.
+-- Frame observations contain no audio sample data. Clients validate the SDK
+-  agent kind, schema and expected microphone track SID before presentation.
+-- Do not log transcript chunks, room secrets, raw audio, token material or
+-  provider messages.
+-- Treat inbound text as inert data, not as instructions to invoke tools.
+-- The worker has no booking-mutation, SMS or specialist capability.
++| Boundary | Control and limit |
++| --- | --- |
++| Credentials and identities | Use local-setup managed credentials and allowlisted synthetic identities. Identity prefixes reduce accidental lab traffic. They do not replace verified token grants or production principal authorization |
++| Text echo | Sent only to the original text sender |
++| Frame observations | Contain no audio sample data. Clients validate the SDK agent kind, schema and expected microphone track SID before presentation |
++| Logging | Do not log transcript chunks, room secrets, raw audio, token material or provider messages |
++| Inbound content | Treat inbound text as inert data, not as instructions to invoke tools |
++| Product authority | The worker has no booking-mutation, SMS or specialist capability |
+ 
+ ## Observability
+ 
+@@ -316,27 +320,9 @@ as a completed live-model turn.
+ 
+ ## Validation and acceptance gates
+ 
+-1. **Unit and fast validation.** Run the service command in [README.md](README.md),
+-   then full fast validation.
+-   - Require normal echo, sender-only destination, multi-byte oversize,
+-     rejection, stream closure, cap enforcement, cancellation and
+-     fresh-interpreter callback serialization assertions.
+-   - Logging tests additionally exercise real BoundedTasks failure and
+-     cancellation, actual admission/session callbacks, explicit setup,
+-     one-handler idempotence, logger/context isolation, finite schema/counts and
+-     secret-sentinel exceptions whose `str`/`repr` must never be read.
+-   - Ordinary failures, cancellation and fatal BaseException paths must preserve
+-     propagation and cleanup.
+-2. **Actual local smoke.** The [local smoke](../../local-setup/README.md) must
+-   dispatch this worker, receive native text, publish a real synthetic track and
+-   match diagnostics to that track and SDK agent. The recorded native smoke also
+-   passed the exact 16,384-byte UTF-8 request and the 16,390-byte prefixed reply.
+-   Test children and resources must be cleaned up.
+-3. **Separate media gates.** Browser microphone publication, denial/mute,
+-   cleanup, playback and network-loss recovery remain separate media gates. A
+-   native client or frame count cannot pass them. Actual browser input/playback
+-   evidence remains pending where unobserved.
+-4. **Product scenarios.** Conversational AgentSession, product tools and model
+-   scenarios arrive through explicit implementation tasks. Missing, timed-out or
+-   skipped requirements remain non-passing, and deterministic diagnostics cannot
+-   pass a live lane.
++| Gate | Required evidence | Limits and prerequisites |
++| --- | --- | --- |
++| Unit and fast validation | Run the service command in [README.md](README.md), then full fast validation. Require normal echo, sender-only destination, multi-byte oversize, rejection, stream closure, cap enforcement, cancellation and fresh-interpreter callback serialization assertions | Logging tests additionally exercise real BoundedTasks failure and cancellation, actual admission/session callbacks, explicit setup, one-handler idempotence, logger/context isolation, finite schema/counts and secret-sentinel exceptions whose `str`/`repr` must never be read. Ordinary failures, cancellation and fatal BaseException paths must preserve propagation and cleanup |
++| Actual local smoke | The [local smoke](../../local-setup/README.md) must dispatch this worker, receive native text, publish a real synthetic track and match diagnostics to that track and SDK agent. The recorded native smoke also passed the exact 16,384-byte UTF-8 request and the 16,390-byte prefixed reply | Test children and resources must be cleaned up |
++| Separate media gates | Browser microphone publication, denial/mute, cleanup, playback and network-loss recovery remain separate media gates | A native client or frame count cannot pass them. Actual browser input/playback evidence remains pending where unobserved |
++| Product scenarios | Conversational AgentSession, product tools and model scenarios arrive through explicit implementation tasks | Missing, timed-out or skipped requirements remain non-passing, and deterministic diagnostics cannot pass a live lane |
+diff --git a/services/rtc_agent/README.md b/services/rtc_agent/README.md
+index 430c18d..cb250df 100644
+--- a/services/rtc_agent/README.md
++++ b/services/rtc_agent/README.md
+@@ -1,7 +1,13 @@
+ # Local transport diagnostic agent
+ 
+-Status: Active
+-Last reviewed: 15 November 2026
++| Field | Value |
++| --- | --- |
++| Status | Active |
++| Purpose | Explain how to run and validate the local transport diagnostic worker |
++| Audience | Engineers running or changing the diagnostic worker |
++| Scope | Worker setup, commands and diagnostic evidence; excludes model inference and product workflows |
++| Owns | Diagnostic worker onboarding, implementation status and validation commands |
++| Related | [Agent instructions](AGENTS.md) · [Design](Design.md) · [Shared design](../../Design.md) · [Local setup](../../local-setup/README.md) |
+ 
+ ## Overview
+ 
+@@ -33,24 +39,29 @@ Native SDK logs remain a separate boundary.
+ 
+ ## Documentation
+ 
+-- [AGENTS.md](AGENTS.md) for coding rules and [Design.md](Design.md) for the design.
+-- The [shared design](../../Design.md) for ecosystem data flow and authority.
+-- The [local setup guide](../../local-setup/README.md) for the stack lifecycle and smoke checks.
++| Document | Purpose |
++| --- | --- |
++| [AGENTS.md](AGENTS.md) | Coding rules |
++| [Design.md](Design.md) | Worker design |
++| [Shared design](../../Design.md) | Ecosystem data flow and authority |
++| [Local setup guide](../../local-setup/README.md) | Stack lifecycle and smoke checks |
+ 
+ ## Requirements
+ 
+-- Install the root `agent` extra plus the local settings dependencies.
+-- Set `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` through the local setup.
+-- The health endpoint listens on container port 8081.
+-- Model preloading is disabled because this worker performs no inference.
++| Requirement | Configuration or limit |
++| --- | --- |
++| Dependencies | Install the root `agent` extra plus the local settings dependencies |
++| Credentials | Set `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` through the local setup |
++| Health endpoint | Container port 8081 |
++| Model preloading | Disabled because this worker performs no inference |
+ 
+ ## Commands
+ 
+-Use the local setup lifecycle for the composed stack. The container process entry is:
++Use the local setup lifecycle for the composed stack.
+ 
+-```sh
+-python -m services.rtc_agent start
+-```
++| Command | Purpose |
++| --- | --- |
++| `python -m services.rtc_agent start` | Container process entry |
+ 
+ Run it from the repository root in the installed environment with the required
+ configuration. The local setup supplies those values. Do not source untrusted
+@@ -58,16 +69,13 @@ shell configuration.
+ 
+ ## Validation
+ 
+-From the repository root:
+-
+-```sh
+-.venv/bin/python -m unittest discover -s tests -p 'test_rtc*.py' -v
+-```
+-
+-Unit tests use synthetic local adapters. Actual infrastructure and media evidence
+-is recorded separately through the local setup smoke checks.
++| Check | Command and evidence |
++| --- | --- |
++| Unit tests | From the repository root: `.venv/bin/python -m unittest discover -s tests -p 'test_rtc*.py' -v`. Tests use synthetic local adapters |
++| Infrastructure and media | Recorded separately through the local setup smoke checks |
+ 
+ ## Next milestone
+ 
+-Add scripted AgentSession and real-model scenarios through explicit product
+-checkpoints, preserving the distinction between transport and AI behavior.
++| Planned milestone | Evidence boundary |
++| --- | --- |
++| Add scripted AgentSession and real-model scenarios through explicit product checkpoints | Preserve the distinction between transport and AI behavior |
+diff --git a/tests/test_inquiry_worker.py b/tests/test_inquiry_worker.py
+index 8d0e694..7e380de 100644
+--- a/tests/test_inquiry_worker.py
++++ b/tests/test_inquiry_worker.py
+@@ -1,5 +1,6 @@
+ """One-call worker safety and useful progress against independent real stores."""
+ 
++import importlib
+ import json
+ import logging
+ import os
+@@ -11,18 +12,22 @@ from datetime import date
+ from pathlib import Path
+ from tempfile import TemporaryDirectory
+ from threading import Event
++from types import SimpleNamespace
++from unittest.mock import Mock, patch
+ 
+ from continuity_lab.execution import ExecutionStore
+ from continuity_lab.execution_models import (
+     AttemptStatus,
++    ExecutionError,
+     ExecutionStatus,
+     FailureCode,
+     TransitionConflict,
+ )
+ from continuity_lab.inquiry_worker import InquiryWorker, WorkerBusy, WorkerLockUnavailable
++from continuity_lab.managed_inquiry_worker import ManagedInquiryWorker
+ from continuity_lab.migrations import migrate
+ from continuity_lab.models import BookingChange
+-from continuity_lab.supplier import FakeSupplier, initialize_supplier
++from continuity_lab.supplier import FakeSupplier, InquiryCapabilities, initialize_supplier
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ 
+@@ -424,5 +429,106 @@ class InquiryWorkerTests(unittest.TestCase):
+         self.assertEqual(json.loads(result.stdout)["code"], "dependency_unavailable")
+ 
+ 
++class InquiryDiagnosticContainmentTests(unittest.TestCase):
++    """Observation failures cannot replace business results or primary failures."""
++
++    helpers = (
++        ("execution", "log"),
++        ("inquiry_worker", "log"),
++        ("managed_inquiry_worker", "log"),
++        ("postgres_case", "info"),
++        ("postgres_lifecycle", "info"),
++        ("postgres_store", "log"),
++        ("supplier", "log"),
++        ("postgres_migrations", "info"),
++    )
++
++    def test_existing_event_boundaries_contain_logger_failure_without_swallowing_fatal_exit(self):
++        for name, method in self.helpers:
++            module = importlib.import_module("continuity_lab." + name)
++            with self.subTest(module=name):
++                with patch.object(module.LOGGER, method, side_effect=OSError("private sink")):
++                    self.assertIsNone(module._event("diagnostic_fixture"))
++                fatal = KeyboardInterrupt()
++                with patch.object(module.LOGGER, method, side_effect=fatal):
++                    with self.assertRaises(KeyboardInterrupt) as caught:
++                        module._event("diagnostic_fixture")
++                    self.assertIs(caught.exception, fatal)
++
++    def test_managed_worker_returns_committed_success_when_completion_log_fails(self):
++        from contextlib import nullcontext
++
++        lifecycle = Mock()
++        lifecycle.worker_slot.return_value = nullcontext()
++        claim = SimpleNamespace(execution=SimpleNamespace(effect_id="effect", request="request"))
++        lifecycle.claim_due.return_value = claim
++        committed = object()
++        lifecycle.finish_success.return_value = committed
++        supplier = Mock(capabilities=InquiryCapabilities())
++        result = object()
++        supplier.lookup.return_value = SimpleNamespace(result=result)
++        worker = ManagedInquiryWorker(lifecycle, supplier)
++
++        def observe(_level, event, **_kwargs):
++            if event == "managed_worker_completed":
++                raise OSError("private sink")
++
++        with patch("continuity_lab.managed_inquiry_worker.LOGGER.log", side_effect=observe):
++            self.assertIs(worker.run_one(scope_id="scope", task_id="task"), committed)
++        lifecycle.finish_success.assert_called_once_with(claim, result)
++        supplier.inquire.assert_not_called()
++
++    def test_managed_worker_preserves_primary_failure_with_hostile_code_and_failed_logger(self):
++        from contextlib import nullcontext
++
++        class PrimaryFailure(RuntimeError):
++            @property
++            def code(self):
++                raise LookupError("private metadata")
++
++        original = PrimaryFailure("private primary")
++        lifecycle = Mock()
++        lifecycle.worker_slot.return_value = nullcontext()
++        lifecycle.claim_due.side_effect = original
++        supplier = Mock(capabilities=InquiryCapabilities())
++        worker = ManagedInquiryWorker(lifecycle, supplier)
++        with (
++            patch(
++                "continuity_lab.managed_inquiry_worker.LOGGER.log",
++                side_effect=OSError("private sink"),
++            ),
++            self.assertRaises(PrimaryFailure) as caught,
++        ):
++            worker.run_one(scope_id="scope", task_id="task")
++        self.assertIs(caught.exception, original)
++        supplier.lookup.assert_not_called()
++        lifecycle.finish_success.assert_not_called()
++
++    def test_inquiry_worker_preserves_primary_domain_failure_with_hostile_code_and_failed_logger(
++        self,
++    ):
++        from contextlib import nullcontext
++
++        class PrimaryFailure(ExecutionError):
++            @property
++            def code(self):
++                raise LookupError("private metadata")
++
++        original = PrimaryFailure("private primary")
++        executions = Mock()
++        executions.worker_slot.return_value = nullcontext()
++        executions.get.side_effect = original
++        supplier = Mock()
++        worker = InquiryWorker(executions, supplier)
++        with (
++            patch("continuity_lab.inquiry_worker.LOGGER.log", side_effect=OSError("private sink")),
++            self.assertRaises(PrimaryFailure) as caught,
++        ):
++            worker.run_one(scope_id="scope", task_id="task")
++        self.assertIs(caught.exception, original)
++        executions.start_attempt.assert_not_called()
++        supplier.lookup.assert_not_called()
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/tests/test_p3_document_fixture.py b/tests/test_p3_document_fixture.py
+index 3e8a725..6f76a80 100644
+--- a/tests/test_p3_document_fixture.py
++++ b/tests/test_p3_document_fixture.py
+@@ -26,7 +26,13 @@ FIXTURE = ROOT / "projects/delegation-reliability/tests/document_cases.py"
+ NODE_FIXTURE = (
+     ROOT / "projects/delegation-reliability/specialist-ts/tests/fixtures/document-cases.mjs"
+ )
+-NODE = Path("/opt/homebrew/Cellar/node@24/24.22.2_2/bin/node")
++# Use the selected runtime as an absolute child executable. A Homebrew cellar
++# location is not a portable installation contract; fixture version guards stay
++# unchanged and still qualify the actual runtime that executes the child.
++_node_command = shutil.which("node")
++if _node_command is None:
++    raise RuntimeError("A selected Node runtime is required for document fixture tests")
++NODE = Path(_node_command).resolve(strict=True)
+ SPEC = importlib.util.spec_from_file_location("document_fixture_under_test", FIXTURE)
+ assert SPEC is not None and SPEC.loader is not None
+ CASES: ModuleType = importlib.util.module_from_spec(SPEC)

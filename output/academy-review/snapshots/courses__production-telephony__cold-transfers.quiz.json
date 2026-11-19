@@ -1,0 +1,24 @@
+[
+  {
+    "question": "What is the fundamental tradeoff between cold transfers and warm transfers?",
+    "options": [
+      "Cold transfers are faster but lose conversation context, while warm transfers preserve context but take longer",
+      "Cold transfers require SIP REFER support, warm transfers do not require any SIP protocol support",
+      "Cold transfers cost more but are faster",
+      "Cold transfers work only with external numbers, warm transfers only with internal extensions"
+    ],
+    "correctIndex": 0,
+    "explanation": "Cold transfers redirect the call immediately via SIP REFER, which is fast but means the receiving party has no briefing on the caller's issue. Warm transfers take longer because the AI agent dials the target, briefs them, and then connects \u2014 but the caller does not have to repeat their story."
+  },
+  {
+    "question": "Why is it critical to implement error handling around SIP REFER transfer calls?",
+    "options": [
+      "Because REFER always fails on the first attempt",
+      "Because error handling reduces the latency of the transfer",
+      "Because a failed REFER can leave the caller disconnected or in silence if not caught and handled gracefully",
+      "Because REFER is an outdated protocol that rarely works"
+    ],
+    "correctIndex": 2,
+    "explanation": "A REFER can fail for several reasons: unreachable target, unsupported trunk, or rejected call. Without error handling, the caller may be left in silence or disconnected. Catching the failure allows the agent to stay on the line and offer alternatives, preventing a terrible caller experience."
+  }
+]

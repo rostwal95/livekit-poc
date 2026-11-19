@@ -1,0 +1,50 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, AgentSession\nfrom livekit.plugins import openai\n\n\nclass RealtimeAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a helpful assistant with a warm, conversational tone.\",\n          llm=openai.RealtimeLLM(\n              model=\"gpt-4o-realtime\",\n              voice=\"alloy\",\n          ),\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent } from \"@livekit/agents\";\nimport { openai } from \"@livekit/plugins-openai\";\n\nclass RealtimeAgent extends Agent {\nconstructor() {\n  super({\n    instructions:\n      \"You are a helpful assistant with a warm, conversational tone.\",\n    llm: new openai.RealtimeLLM({\n      model: \"gpt-4o-realtime\",\n      voice: \"alloy\",\n    }),\n  });\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, rtc\nimport typing\nimport logging\nimport time\n\nlogger = logging.getLogger(\"realtime-agent\")\n\n\nclass ProcessedRealtimeAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a helpful assistant.\",\n          llm=openai.RealtimeLLM(\n              model=\"gpt-4o-realtime\",\n              voice=\"alloy\",\n          ),\n      )\n\n  async def realtime_audio_output_node(\n      self, audio: rtc.AudioStream\n  ) -> typing.AsyncGenerator[rtc.AudioFrame, None]:\n      \"\"\"Process audio output from the realtime model.\"\"\"\n      frame_count = 0\n      start_time = time.time()\n\n      async for frame in Agent.default.realtime_audio_output_node(self, audio):\n          frame_count += 1\n\n          if frame_count == 1:\n              elapsed = time.time() - start_time\n              logger.info(f\"First audio frame in {elapsed:.3f}s\")\n\n          # Process the audio frame \u2014 e.g., adjust volume\n          processed = self.adjust_volume(frame, gain=0.8)\n\n          yield processed\n\n      duration = time.time() - start_time\n      logger.info(\n          f\"Response complete: {frame_count} frames in {duration:.3f}s\"\n      )\n\n  def adjust_volume(self, frame: rtc.AudioFrame, gain: float) -> rtc.AudioFrame:\n      \"\"\"Apply a volume gain to an audio frame.\"\"\"\n      import numpy as np\n\n      samples = np.frombuffer(frame.data, dtype=np.int16)\n      adjusted = np.clip(samples * gain, -32768, 32767).astype(np.int16)\n      return rtc.AudioFrame(\n          data=adjusted.tobytes(),\n          sample_rate=frame.sample_rate,\n          num_channels=frame.num_channels,\n          samples_per_channel=frame.samples_per_channel,\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, rtc } from \"@livekit/agents\";\nimport { openai } from \"@livekit/plugins-openai\";\n\nclass ProcessedRealtimeAgent extends Agent {\nconstructor() {\n  super({\n    instructions: \"You are a helpful assistant.\",\n    llm: new openai.RealtimeLLM({\n      model: \"gpt-4o-realtime\",\n      voice: \"alloy\",\n    }),\n  });\n}\n\nasync *realtimeAudioOutputNode(\n  audio: rtc.AudioStream\n): AsyncGenerator<rtc.AudioFrame> {\n  let frameCount = 0;\n  const startTime = Date.now();\n\n  for await (const frame of Agent.default.realtimeAudioOutputNode(\n    this,\n    audio\n  )) {\n    frameCount++;\n\n    if (frameCount === 1) {\n      const elapsed = (Date.now() - startTime) / 1000;\n      console.log(`First audio frame in ${elapsed.toFixed(3)}s`);\n    }\n\n    const processed = this.adjustVolume(frame, 0.8);\n    yield processed;\n  }\n\n  const duration = (Date.now() - startTime) / 1000;\n  console.log(\n    `Response complete: ${frameCount} frames in ${duration.toFixed(3)}s`\n  );\n}\n\nprivate adjustVolume(\n  frame: rtc.AudioFrame,\n  gain: number\n): rtc.AudioFrame {\n  const samples = new Int16Array(frame.data.buffer);\n  const adjusted = new Int16Array(samples.length);\n  for (let i = 0; i < samples.length; i++) {\n    adjusted[i] = Math.max(\n      -32768,\n      Math.min(32767, Math.round(samples[i] * gain))\n    );\n  }\n  return new rtc.AudioFrame({\n    data: Buffer.from(adjusted.buffer),\n    sampleRate: frame.sampleRate,\n    numChannels: frame.numChannels,\n    samplesPerChannel: frame.samplesPerChannel,\n  });\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import numpy as np\n\n\nclass AnalyticsRealtimeAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a helpful assistant.\",\n          llm=openai.RealtimeLLM(\n              model=\"gpt-4o-realtime\",\n              voice=\"alloy\",\n          ),\n      )\n\n  async def realtime_audio_output_node(self, audio):\n      \"\"\"Analyze output audio for quality monitoring.\"\"\"\n      total_energy = 0.0\n      frame_count = 0\n      silence_frames = 0\n\n      async for frame in Agent.default.realtime_audio_output_node(self, audio):\n          frame_count += 1\n          samples = np.frombuffer(frame.data, dtype=np.int16)\n\n          # Calculate RMS energy\n          rms = np.sqrt(np.mean(samples.astype(float) ** 2))\n          total_energy += rms\n\n          # Detect silence (very low energy)\n          if rms < 100:\n              silence_frames += 1\n\n          yield frame\n\n      if frame_count > 0:\n          avg_energy = total_energy / frame_count\n          silence_pct = (silence_frames / frame_count) * 100\n          logger.info(\n              f\"Audio stats: avg_energy={avg_energy:.1f}, \"\n              f\"silence={silence_pct:.1f}%, frames={frame_count}\"\n          )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "class AnalyticsRealtimeAgent extends Agent {\nconstructor() {\n  super({\n    instructions: \"You are a helpful assistant.\",\n    llm: new openai.RealtimeLLM({\n      model: \"gpt-4o-realtime\",\n      voice: \"alloy\",\n    }),\n  });\n}\n\nasync *realtimeAudioOutputNode(\n  audio: rtc.AudioStream\n): AsyncGenerator<rtc.AudioFrame> {\n  let totalEnergy = 0;\n  let frameCount = 0;\n  let silenceFrames = 0;\n\n  for await (const frame of Agent.default.realtimeAudioOutputNode(\n    this,\n    audio\n  )) {\n    frameCount++;\n    const samples = new Int16Array(frame.data.buffer);\n\n    let sumSquares = 0;\n    for (let i = 0; i < samples.length; i++) {\n      sumSquares += samples[i] * samples[i];\n    }\n    const rms = Math.sqrt(sumSquares / samples.length);\n    totalEnergy += rms;\n\n    if (rms < 100) {\n      silenceFrames++;\n    }\n\n    yield frame;\n  }\n\n  if (frameCount > 0) {\n    const avgEnergy = totalEnergy / frameCount;\n    const silencePct = (silenceFrames / frameCount) * 100;\n    console.log(\n      `Audio stats: avg_energy=${avgEnergy.toFixed(1)}, ` +\n        `silence=${silencePct.toFixed(1)}%, frames=${frameCount}`\n    );\n  }\n}\n}"
+  }
+]

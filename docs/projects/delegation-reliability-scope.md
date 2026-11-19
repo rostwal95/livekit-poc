@@ -188,21 +188,17 @@ mutation.
 
 The completed
 [0043 handoff](../work-items/0043-stable-result-delivery-and-return-context.md)
-adds selected explicit v2 delivery and P2 current-channel data reads. It qualifies
-explicit backend v2 delivery and current-grant result data reads through sixteen
-storage and four return source assertions. Its twenty-five-stage offline package
+qualifies explicit v2 result delivery and P2 current-grant data reads through
+sixteen storage and four return source assertions. Its twenty-five-stage offline package
 lane is separate from those actual source assertions. Receiver acceptance, carrier
 delivery, playback and human acknowledgement remain distinct.
 
 #### Original P2-input binding (0044)
 
-[0044](../work-items/0044-origin-bound-channel-policy.md) implements the original
-P2-input binding and typed schema3 consumption:
-
-- original P2 input identity in schema3 wrappers;
-- explicit coordinator, runner and delivery facades;
-- the narrow P2 operation client;
-- a bounded application HTTP boundary.
+[0044](../work-items/0044-origin-bound-channel-policy.md) preserves original P2
+input identity in typed schema3 wrappers. Explicit coordinator, runner and
+delivery facades compose them with the narrow P2 operation client and bounded
+application HTTP boundary.
 
 Focused unit/socket checks and isolated package/fake-port qualification passed. Its
 fourteen selected actual source assertions passed. This prerequisite does not
@@ -211,8 +207,9 @@ complete P3-I19's integrated handoff.
 ### Remaining work and limits
 
 - Broader media, integrated handoff and full release remain planned.
-- P2-I22 release, joined voice/text/SMS routing, restart/discovery, applicable
-  provider runs and the final video retain their later gates.
+- Joined voice/text/SMS qualification, restart/discovery and release remain open.
+  The later [provider journeys and recorded demo](../work-items/0046-joined-showcase-providers-and-demo.md)
+  do not close the frozen joined gates or complete charter rows.
 - Fourteen complete P3 acceptance rows remain planned, with no new catalog
   registration. The catalog's fifty-five definitions and twenty-four registered
   runners remain unchanged.

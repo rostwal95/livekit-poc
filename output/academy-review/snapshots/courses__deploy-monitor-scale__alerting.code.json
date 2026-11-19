@@ -1,0 +1,34 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "groups:\n- name: voice-agent-health\n  rules:\n    - alert: AgentHighErrorRate\n      expr: |\n        rate(agent_requests_total{status=\"error\"}[5m])\n        / rate(agent_requests_total[5m]) > 0.05\n      for: 2m\n      labels:\n        severity: critical\n      annotations:\n        summary: \"Agent error rate above 5%\"\n        runbook_url: \"https://wiki.example.com/runbooks/agent-error-rate\"\n\n    - alert: AgentHighLatency\n      expr: |\n        histogram_quantile(0.95,\n          rate(agent_response_seconds_bucket[5m])\n        ) > 1.5\n      for: 3m\n      labels:\n        severity: warning\n      annotations:\n        summary: \"Agent p95 latency above 1.5s\"\n        runbook_url: \"https://wiki.example.com/runbooks/agent-latency\"\n\n    - alert: STTFailureRate\n      expr: |\n        rate(stt_transcription_errors_total[5m])\n        / rate(stt_transcription_requests_total[5m]) > 0.02\n      for: 2m\n      labels:\n        severity: critical\n      annotations:\n        summary: \"STT failure rate above 2%\"\n\n    - alert: NoActiveAgents\n      expr: agent_workers_active == 0\n      for: 1m\n      labels:\n        severity: critical\n      annotations:\n        summary: \"No active agent workers detected\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "global:\nresolve_timeout: 5m\n\nroute:\nreceiver: slack-warnings\ngroup_by: [alertname, severity]\ngroup_wait: 30s\ngroup_interval: 5m\nrepeat_interval: 4h\nroutes:\n  - match:\n      severity: critical\n    receiver: pagerduty-critical\n    repeat_interval: 15m\n  - match:\n      severity: warning\n    receiver: slack-warnings\n\nreceivers:\n- name: pagerduty-critical\n  pagerduty_configs:\n    - service_key_file: /etc/alertmanager/pagerduty-key\n      description: '{{ .CommonAnnotations.summary }}'\n      details:\n        runbook: '{{ .CommonAnnotations.runbook_url }}'\n        firing: '{{ .Alerts.Firing | len }}'\n\n- name: slack-warnings\n  slack_configs:\n    - api_url_file: /etc/alertmanager/slack-webhook\n      channel: '#voice-agent-alerts'\n      title: '{{ .CommonAnnotations.summary }}'\n      text: >-\n        {{ range .Alerts }}\n        *{{ .Labels.alertname }}* - {{ .Annotations.summary }}\n        {{ end }}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from prometheus_client import Counter, Histogram, start_http_server\nfrom livekit.agents import Agent, AgentSession, function_tool, RunContext\n\nREQUEST_COUNT = Counter(\n  \"agent_requests_total\",\n  \"Total agent requests\",\n  [\"status\"],\n)\nRESPONSE_LATENCY = Histogram(\n  \"agent_response_seconds\",\n  \"Time from user speech end to first agent audio\",\n  buckets=[0.3, 0.5, 0.8, 1.0, 1.5, 2.0, 3.0, 5.0],\n)\n\n# Start metrics server on port 9090\nstart_http_server(9090)\n\n\nclass MonitoredAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a helpful voice assistant.\",\n      )\n\n  async def on_user_turn_completed(self, turn_ctx):\n      import time\n      start = time.monotonic()\n      try:\n          await Agent.default.on_user_turn_completed(self, turn_ctx)\n          REQUEST_COUNT.labels(status=\"success\").inc()\n      except Exception:\n          REQUEST_COUNT.labels(status=\"error\").inc()\n          raise\n      finally:\n          RESPONSE_LATENCY.observe(time.monotonic() - start)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, AgentSession } from \"@livekit/agents\";\nimport { Counter, Histogram, Registry, collectDefaultMetrics } from \"prom-client\";\n\nconst register = new Registry();\ncollectDefaultMetrics({ register });\n\nconst requestCount = new Counter({\nname: \"agent_requests_total\",\nhelp: \"Total agent requests\",\nlabelNames: [\"status\"] as const,\nregisters: [register],\n});\n\nconst responseLatency = new Histogram({\nname: \"agent_response_seconds\",\nhelp: \"Time from user speech end to first agent audio\",\nbuckets: [0.3, 0.5, 0.8, 1.0, 1.5, 2.0, 3.0, 5.0],\nregisters: [register],\n});\n\nclass MonitoredAgent extends Agent {\nconstructor() {\n  super({ instructions: \"You are a helpful voice assistant.\" });\n}\n\noverride async onUserTurnCompleted(turnCtx: TurnContext): Promise<void> {\n  const start = performance.now();\n  try {\n    await super.onUserTurnCompleted(turnCtx);\n    requestCount.labels({ status: \"success\" }).inc();\n  } catch (err) {\n    requestCount.labels({ status: \"error\" }).inc();\n    throw err;\n  } finally {\n    responseLatency.observe((performance.now() - start) / 1000);\n  }\n}\n}"
+  }
+]

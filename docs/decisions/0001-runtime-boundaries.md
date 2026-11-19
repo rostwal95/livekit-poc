@@ -53,8 +53,8 @@ evidence.
 
 Extract an installable library when a real consumer needs its public boundary.
 Verify a built wheel or npm package from an isolated consumer without repository
-imports. Do not turn the current service application package into evidence that
-all three planned libraries can already be installed independently.
+imports. Installing the reference application does not by itself establish that
+each library is independently installable; each needs its own artifact evidence.
 
 ## Consequences
 

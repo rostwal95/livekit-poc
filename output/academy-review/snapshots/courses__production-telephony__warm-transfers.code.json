@@ -1,0 +1,66 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, function_tool\nfrom livekit.agents.prebuilt.tasks import WarmTransferTask\n\n\n@function_tool()\nasync def transfer_to_billing(self, context: AgentSession):\n  \"\"\"Transfer the caller to the billing department.\"\"\"\n\n  # Announce the transfer to the caller\n  await context.say(\"Let me connect you with our billing team. One moment please.\")\n\n  # Create and run the warm transfer\n  transfer = WarmTransferTask(\n      transfer_to=\"+15559876543\",\n      instructions=(\n          \"Brief the receiving agent about the caller's issue before connecting. \"\n          \"Include the caller's name and the specific billing concern they described.\"\n      ),\n  )\n  await transfer.run(context)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession, functionTool } from \"@livekit/agents\";\nimport { WarmTransferTask } from \"@livekit/agents/prebuilt/tasks\";\n\nconst transferToBilling = functionTool({\nname: \"transfer_to_billing\",\ndescription: \"Transfer the caller to the billing department.\",\nhandler: async (params, context: AgentSession) => {\n  // Announce the transfer to the caller\n  await context.say(\"Let me connect you with our billing team. One moment please.\");\n\n  // Create and run the warm transfer\n  const transfer = new WarmTransferTask({\n    transferTo: \"+15559876543\",\n    instructions:\n      \"Brief the receiving agent about the caller's issue before connecting. \" +\n      \"Include the caller's name and the specific billing concern they described.\",\n  });\n  await transfer.run(context);\n},\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, function_tool\nfrom livekit.agents.prebuilt.tasks import WarmTransferTask\n\n\n@function_tool()\nasync def transfer_to_support(self, context: AgentSession):\n  \"\"\"Transfer the caller to a support specialist.\"\"\"\n\n  await context.say(\n      \"I'm going to connect you with a specialist who can help. \"\n      \"You'll hear some music while I brief them on your situation.\"\n  )\n\n  transfer = WarmTransferTask(\n      transfer_to=\"+15551234567\",\n      instructions=(\n          \"Summarize the caller's issue concisely. Include their name, \"\n          \"account number if provided, and the specific problem they described.\"\n      ),\n      hold_music_url=\"https://cdn.example.com/hold-music.wav\",\n  )\n  await transfer.run(context)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession, functionTool } from \"@livekit/agents\";\nimport { WarmTransferTask } from \"@livekit/agents/prebuilt/tasks\";\n\nconst transferToSupport = functionTool({\nname: \"transfer_to_support\",\ndescription: \"Transfer the caller to a support specialist.\",\nhandler: async (params, context: AgentSession) => {\n  await context.say(\n    \"I'm going to connect you with a specialist who can help. \" +\n    \"You'll hear some music while I brief them on your situation.\"\n  );\n\n  const transfer = new WarmTransferTask({\n    transferTo: \"+15551234567\",\n    instructions:\n      \"Summarize the caller's issue concisely. Include their name, \" +\n      \"account number if provided, and the specific problem they described.\",\n    holdMusicUrl: \"https://cdn.example.com/hold-music.wav\",\n  });\n  await transfer.run(context);\n},\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, function_tool\nfrom livekit.agents.prebuilt.tasks import WarmTransferTask\n\nDEPARTMENT_NUMBERS = {\n  \"billing\": \"+15559876543\",\n  \"technical\": \"+15559876544\",\n  \"sales\": \"+15559876545\",\n  \"retention\": \"+15559876546\",\n}\n\n\n@function_tool()\nasync def transfer_to_department(\n  self,\n  context: AgentSession,\n  department: str,\n  summary: str,\n):\n  \"\"\"Transfer the caller to a specific department.\n\n  Args:\n      department: The department to transfer to (billing, technical, sales, retention).\n      summary: A brief summary of the caller's issue.\n  \"\"\"\n  target = DEPARTMENT_NUMBERS.get(department)\n  if not target:\n      await context.say(\n          f\"I'm sorry, I don't have a transfer number for {department}. \"\n          \"Let me try to help you directly.\"\n      )\n      return\n\n  await context.say(\n      f\"I'll connect you with our {department} team now. One moment please.\"\n  )\n\n  transfer = WarmTransferTask(\n      transfer_to=target,\n      instructions=f\"The caller needs help with: {summary}\",\n  )\n  await transfer.run(context)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession, functionTool } from \"@livekit/agents\";\nimport { WarmTransferTask } from \"@livekit/agents/prebuilt/tasks\";\nimport { z } from \"zod\";\n\nconst DEPARTMENT_NUMBERS: Record<string, string> = {\nbilling: \"+15559876543\",\ntechnical: \"+15559876544\",\nsales: \"+15559876545\",\nretention: \"+15559876546\",\n};\n\nconst transferToDepartment = functionTool({\nname: \"transfer_to_department\",\ndescription: \"Transfer the caller to a specific department.\",\nparameters: z.object({\n  department: z.string().describe(\"The department to transfer to\"),\n  summary: z.string().describe(\"A brief summary of the caller's issue\"),\n}),\nhandler: async ({ department, summary }, context: AgentSession) => {\n  const target = DEPARTMENT_NUMBERS[department];\n  if (!target) {\n    await context.say(\n      `I'm sorry, I don't have a transfer number for ${department}. ` +\n      \"Let me try to help you directly.\"\n    );\n    return;\n  }\n\n  await context.say(\n    `I'll connect you with our ${department} team now. One moment please.`\n  );\n\n  const transfer = new WarmTransferTask({\n    transferTo: target,\n    instructions: `The caller needs help with: ${summary}`,\n  });\n  await transfer.run(context);\n},\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, function_tool\nfrom livekit.agents.prebuilt.tasks import WarmTransferTask\n\n\n@function_tool()\nasync def transfer_with_fallback(self, context: AgentSession):\n  \"\"\"Transfer with fallback handling.\"\"\"\n\n  await context.say(\"Let me connect you with a specialist. One moment please.\")\n\n  transfer = WarmTransferTask(\n      transfer_to=\"+15559876543\",\n      instructions=\"Brief the agent on the caller's billing question.\",\n  )\n\n  try:\n      await transfer.run(context)\n  except Exception as e:\n      # Transfer failed \u2014 inform the caller and offer alternatives\n      await context.say(\n          \"I wasn't able to connect you with a specialist right now. \"\n          \"I can take down your information and have someone call you back, \"\n          \"or I can try to help you directly. What would you prefer?\"\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession, functionTool } from \"@livekit/agents\";\nimport { WarmTransferTask } from \"@livekit/agents/prebuilt/tasks\";\n\nconst transferWithFallback = functionTool({\nname: \"transfer_with_fallback\",\ndescription: \"Transfer with fallback handling.\",\nhandler: async (params, context: AgentSession) => {\n  await context.say(\"Let me connect you with a specialist. One moment please.\");\n\n  const transfer = new WarmTransferTask({\n    transferTo: \"+15559876543\",\n    instructions: \"Brief the agent on the caller's billing question.\",\n  });\n\n  try {\n    await transfer.run(context);\n  } catch (error) {\n    // Transfer failed \u2014 inform the caller and offer alternatives\n    await context.say(\n      \"I wasn't able to connect you with a specialist right now. \" +\n      \"I can take down your information and have someone call you back, \" +\n      \"or I can try to help you directly. What would you prefer?\"\n    );\n  }\n},\n});"
+  }
+]

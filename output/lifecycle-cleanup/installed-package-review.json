@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "task": "0050 installed lifecycle interface compatibility",
+  "status": "passed",
+  "sourceFiles": {
+    "local-setup/scripts/p2_result_receiver_package_check.py": "cc49396aad3c7584e1e80d4e86994432165c2cc6e51587389c045ca95f88a116",
+    "tests/test_p2_result_receiver_package_check.py": "bb079ffd7ceba296f84cb887883ab9df11da9fa4a4d5acc48f5a266573351fd9",
+    "output/lifecycle-cleanup/package-count-red.log": "86b1df9f3e7112eab0219aa4254387ae691a84db759cf1817b0ae64584e5cee2",
+    "output/lifecycle-cleanup/package-count-green.log": "cdab14666c3504bf40189e602ca261b093774e6e61983d529be91821d0eff8ed",
+    "output/lifecycle-cleanup/package-controls-green.log": "868358d8a657d4249b258e76d0ceda5a0bea0e32fd40be0e67ab0d4b80461a34",
+    "output/lifecycle-cleanup/root-package-plan.json": "3ea6e6d8895ccf6d122e2f5719f38bd9dffd233ee6fe122c7734cc5fbf931516"
+  },
+  "changes": [
+    "Exact room25/Parent23/total772 installed test inventory; missing/extra/skipped cases remain rejected.",
+    "Root-application mode adds strict .d.ts method calls, inert runtime prototype checks and actual private installation path checks for ChannelGateway fenceNativeInput/drainNativeInput/quiesceDispatch and ChannelDispatcher quiesce.",
+    "Legacy and origin-only plan/probe byte hashes remain unchanged; all prior budgets/group counts maintained."
+  ],
+  "scope": "Built P2/P1/P3/root app packages with fake-port application tests; no actual PostgreSQL, RTC, provider or Node gateway application lifecycle behavior qualification.",
+  "red": "Count guard failed25!=21 before repair.",
+  "green": "Two focused count/lifecycle controls and all12RootApplicationMode controls passed.",
+  "packageReport": "/Users/rostwal/Downloads/livekit-poc/.local/validation/p2-result-receiver-package/lifecycle-0050-20261119.json",
+  "packageReportSha256": "61b43950ba5d17f15dc9c74206aadc6b29852f45ff27098c58ea91b8e10158ef",
+  "durationSeconds": 81.14776854199954,
+  "installedFakePortTests": 772,
+  "processGroups": 42,
+  "cleanupComplete": true,
+  "sourceSnapshotUnchanged": true,
+  "p2InstalledLifecycleProbe": {
+    "canonical_equal": true,
+    "imports_no_IO": true,
+    "lifecycle_public_signatures": true,
+    "negative_cases": 9,
+    "notice_hash_separate": true,
+    "operation_only_config": true,
+    "original_result_sha": "4a165e4a7edf8510d6b5fb435857c3736502bb6f9fc03032f31a2c9017f5eddf",
+    "private_npm_paths": true,
+    "schema_version": 1,
+    "status": "passed"
+  },
+  "actualStoreMediaProviderQualification": false
+}

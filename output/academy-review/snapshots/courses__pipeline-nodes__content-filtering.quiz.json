@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why is a multi-layered content filtering strategy more effective than filtering at a single pipeline stage?",
+    "options": [
+      "It makes the code more modular",
+      "It is required by the LiveKit framework",
+      "Each layer catches different types of issues \u2014 keyword filters catch explicit language quickly, LLM filters catch sophisticated abuse, and output filters catch what slips through",
+      "It reduces the overall latency of the pipeline"
+    ],
+    "correctIndex": 2,
+    "explanation": "No single filter catches everything. Keyword filters at stt_node are fast but miss sophisticated abuse. LLM-based intent filters at on_user_turn_completed catch prompt injection and manipulation. Output filters at llm_node catch harmful content the LLM generates. Together they provide defense in depth."
+  },
+  {
+    "question": "What is the main tradeoff of using an LLM-based content moderator at the on_user_turn_completed stage?",
+    "options": [
+      "It only works with OpenAI models",
+      "It adds 100-300ms of latency to every turn due to the additional LLM call",
+      "It cannot detect prompt injection",
+      "It blocks all user messages by default"
+    ],
+    "correctIndex": 1,
+    "explanation": "Running a second LLM call for content moderation adds 100-300ms to every turn. This is why you should use a small, fast model like GPT-4o-mini and keep the moderation prompt short. For latency-sensitive applications, consider running moderation in parallel or only triggering it conditionally."
+  },
+  {
+    "question": "In the output filtering approach using llm_node, why does the filter buffer text until sentence boundaries rather than checking each token individually?",
+    "options": [
+      "Tokens are too small to contain meaningful content",
+      "The TTS engine requires complete sentences",
+      "The framework does not support per-token filtering",
+      "Multi-word phrases like 'I guarantee' span token boundaries, so you need complete sentences to match them"
+    ],
+    "correctIndex": 3,
+    "explanation": "Policy-violating phrases like 'I guarantee' or 'legal action' span multiple tokens. Checking individual tokens would miss these multi-word patterns. Buffering until sentence boundaries ensures complete phrases can be matched against the output blocklist."
+  }
+]

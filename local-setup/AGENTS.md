@@ -163,7 +163,7 @@ later-slice qualification.
 - Runtime model mounts are read-only with no automatic empty host path.
 - p1-models services expose no host ports or application credentials.
 - Preserve scripted defaults and explicit start-local-real/stop-local-real behavior,
-  ACTIVE v4/same-scope read-only preflight, exact consent and existing data.
+  ACTIVE v4/v5 same-scope read-only preflight, exact consent and existing data.
 - Engine CPU/memory/PID/tmp ceilings are bounds, not a resource admission or capacity
   result.
 - Record actual inference/media evidence separately from cache/readiness.
@@ -350,8 +350,12 @@ A and B are the first and second rooms in the selected media sequence.
 - Its three closed child roles are specialist, gateway and optional public Vite preview.
 - Keep the child role environments distinct and bounded.
 - Parent owns native room/SDK process lifetime and the background App.
-- Begin UI and Parent closure independently before awaiting slow owners, then drain
-  both before Node dependencies.
+- Begin UI close and Parent preparation independently. Keep App origins and Node
+  dispatch live while Parent room cleanup drains original accepted inputs. Then
+  observe gateway dispatch quiescence before final Parent application close and
+  Node dependency removal.
+- Reobserve retained cleanup automatically after observer failure; another stop
+  signal may wake the wait but must not be required for progress.
 - Preserve late factory/spawn/read ownership.
 - Require actual pipe EOF, process reap and group absence before clean completion.
 - Normal restart retains private operator/static configuration and all product state.

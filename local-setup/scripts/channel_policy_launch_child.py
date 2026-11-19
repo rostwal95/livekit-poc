@@ -365,6 +365,36 @@ def terminal_frame(value: object, spec: ChildSpec, pid: int) -> bool:
     return True
 
 
+def dispatch_quiesced_frame(
+    value: object,
+    spec: ChildSpec,
+    pid: int,
+    ready: dict[str, object] | None,
+    requested: bool,
+) -> None:
+    """Only the requested, ready, original gateway incarnation can acknowledge quiescence."""
+    data = _fields(
+        value,
+        {"schemaVersion", "status", "mode", "pid", "profileId", "nodeEpoch"},
+    )
+    need(
+        spec.role == "gateway"
+        and requested
+        and ready is not None
+        and type(data["schemaVersion"]) is int
+        and data["schemaVersion"] == 1
+        and data["status"] == "dispatch_quiesced"
+        and data["mode"] == "scripted_readonly_policy"
+        and type(data["pid"]) is int
+        and data["pid"] == pid
+        and data["profileId"] == spec.profile_id,
+        "unavailable",
+    )
+    assert ready is not None
+    cursor = cast(dict[str, object], ready["roomControl"])
+    need(data["nodeEpoch"] == cursor["nodeEpoch"], "unavailable")
+
+
 class RoleChild:
     """One retained spawn, bounded discarded stdio, one actual wait/stop/reap."""
 
@@ -377,6 +407,10 @@ class RoleChild:
         self._drained: set[str] = set()
         self._wait: asyncio.Task[int] | None = None
         self._stop: asyncio.Task[None] | None = None
+        self._quiesce: asyncio.Task[None] | None = None
+        self._quiesced = asyncio.Event()
+        self._quiesce_requested = False
+        self._dispatch_fenced = False
         self._ready = asyncio.Event()
         self._terminal = asyncio.Event()
         self._frame: dict[str, object] | None = None
@@ -455,7 +489,7 @@ class RoleChild:
         current = asyncio.current_task()
         if current is not None and current.cancelling():
             raise asyncio.CancelledError
-        need(not self._closing, "closed")
+        need(not self._closing and not self._dispatch_fenced, "closed")
         if self._spawn is None:
             self._spawn = _task(self._actual_spawn())
         try:
@@ -520,6 +554,13 @@ class RoleChild:
                     assert self._process is not None
                     self._frame = ready_frame(raw, self.spec, self._process.pid)
                     self._ready.set()
+                elif value.get("status") == "dispatch_quiesced":
+                    need(self._process is not None and not self._quiesced.is_set(), "unavailable")
+                    assert self._process is not None
+                    dispatch_quiesced_frame(
+                        value, self.spec, self._process.pid, self._frame, self._quiesce_requested
+                    )
+                    self._quiesced.set()
                 elif value.get("status") in {"closed", "unavailable"}:
                     need(self._process is not None, "unavailable")
                     assert self._process is not None
@@ -557,6 +598,58 @@ class RoleChild:
             self._failed = True
             self._terminal.set()
             self._ready.set()
+
+    async def _actual_quiesce(self) -> None:
+        if self._spawn is None:
+            need(self._process is None, "cleanup_incomplete")
+            return
+        await asyncio.gather(asyncio.shield(self._spawn), return_exceptions=True)
+        if self._process is None:
+            return  # A settled failed spawn owns no process or dispatch driver.
+        self._observe(self._process)
+        process = self._process
+        if self._frame is None or process is None or process.returncode is not None:
+            # Without ready, the Parent cannot have adopted a room cursor. Actual
+            # reap/group absence, not a failed startup waiter, proves no driver remains.
+            await self.close()
+            need(self._reaped and self._group_absent, "cleanup_incomplete")
+            return
+        assert self._wait is not None
+        acknowledged = _task(self._quiesced.wait())
+        try:
+            while not self._quiesced.is_set():
+                if self._failed or process.returncode is not None:
+                    await self.close()
+                    need(self._reaped and self._group_absent, "cleanup_incomplete")
+                    return
+                self._quiesce_requested = True
+                try:
+                    process.send_signal(signal.SIGUSR1)
+                except ProcessLookupError:
+                    continue
+                await asyncio.wait(
+                    (acknowledged, self._wait), timeout=1, return_when=asyncio.FIRST_COMPLETED
+                )
+        finally:
+            acknowledged.cancel()
+            await asyncio.gather(acknowledged, return_exceptions=True)
+
+    async def quiesce_dispatch(self) -> None:
+        need(self.spec.role == "gateway", "invalid_configuration")
+        self._dispatch_fenced = True
+        if (
+            self._quiesce is None
+            or self._quiesce.done()
+            and (self._quiesce.cancelled() or self._quiesce.exception() is not None)
+        ):
+            self._quiesce = _task(self._actual_quiesce(), cleanup=True)
+        try:
+            async with asyncio.timeout(15):
+                await asyncio.shield(self._quiesce)
+        except asyncio.CancelledError:
+            raise
+        except Exception:  # noqa: BLE001 - retained process/control ownership
+            raise ChildError("cleanup_incomplete") from None
 
     async def _actual_stop(self) -> None:
         if self._spawn is not None:

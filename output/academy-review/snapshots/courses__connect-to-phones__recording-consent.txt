@@ -1,0 +1,309 @@
+1How telephony works in LiveKit
+
+2Buy a number & configure inbound trunk
+
+3Dispatch rules: routing calls to agents
+
+4Recording consent with AgentTask
+
+5DTMF & keypad input
+
+6HD voice & secure trunking
+
+7Making outbound calls
+
+8Test from your phone
+
+Recording consent with AgentTask
+
+Recording consent with AgentTask
+
+Many jurisdictions require that callers be informed and give consent before a call is recorded. Even where not legally required, it is good practice. In this chapter, you will learn the AgentTask pattern -- a way to build focused, single-purpose agents that handle one job and then hand off. You will build a CollectConsent task that greets the caller, asks for recording consent, and either hands off to your main dental receptionist or ends the call gracefully.
+
+What you'll learn
+
+What AgentTask is and when to use it
+
+How to build a consent collection task with on_enter() and complete()
+
+How to chain tasks so one hands off to another
+
+How to gracefully handle consent refusal
+
+What is an AgentTask?
+
+An AgentTask is a focused agent that handles one specific job in a conversation. Instead of building a single monolithic agent that handles everything -- greeting, consent, appointment booking, FAQ -- you break the conversation into discrete tasks, each with its own instructions and tools.
+
+Tasks run sequentially. When one task finishes (by calling self.complete()), the next task in the chain takes over. This gives you clean separation of concerns and makes each piece easier to test and maintain.
+
+Think of AgentTask like a relay race. The first runner (consent task) does their leg and passes the baton (complete()) to the second runner (main receptionist). Each runner focuses on their leg of the race. If the first runner stumbles (caller refuses consent), the race ends there -- the baton is never passed.
+
+Common use cases for AgentTask:
+
+Recording consent -- collect consent before the main conversation
+
+Language selection -- "Press 1 for English, 2 for Spanish" before routing
+
+Authentication -- verify a caller's identity before giving account access
+
+Surveys -- collect feedback after the main conversation ends
+
+Building the CollectConsent task
+
+Here is the complete consent task in Python:
+
+from livekit.agents import Agent, AgentTask, AgentSession, AgentServer, function_tool
+
+server = AgentServer()
+
+
+class CollectConsent(AgentTask):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are collecting recording consent from a caller.
+          Ask if they consent to being recorded. If they say yes or agree,
+          call the consent_given tool. If they say no or refuse, call the
+          consent_refused tool. Be brief and professional."""
+      )
+
+  @function_tool
+  async def consent_given(self, context):
+      """Called when the caller gives consent to recording."""
+      self.complete()
+
+  @function_tool
+  async def consent_refused(self, context):
+      """Called when the caller refuses consent to recording."""
+      await self.session.say(
+          "I understand. Thank you for calling Bright Smile Dental. Goodbye."
+      )
+      # Disconnect the SIP participant to end the call
+      await self.session.room.disconnect()
+
+  async def on_enter(self):
+      await self.session.say(
+          "Thank you for calling Bright Smile Dental. "
+          "This call may be recorded for quality purposes. "
+          "Do you consent to being recorded?"
+      )
+
+Let's break down each piece:
+
+CollectConsent inherits from AgentTask. The super().__init__() call passes instructions that are scoped to this specific task. These instructions replace (not extend) the main agent's instructions while this task is active.
+
+The on_enter() method is called automatically when the task becomes active. This is where you deliver the initial prompt to the caller. Here, the agent speaks the recording consent disclosure.
+
+The LLM listens to the caller's response and decides which tool to call. If the caller says "yes" or "sure, that's fine," the LLM calls consent_given. If they say "no" or "I'd rather not," it calls consent_refused.
+
+When consent_given is called, self.complete() signals that this task is done. Control passes to the next task in the chain (the main receptionist agent).
+
+Here is the same task in TypeScript:
+
+import { AgentTask, functionTool } from "@livekit/agents";
+
+class CollectConsent extends AgentTask {
+constructor() {
+  super({
+    instructions: `You are collecting recording consent from a caller.
+      Ask if they consent to being recorded. If they say yes or agree,
+      call the consent_given tool. If they say no or refuse, call the
+      consent_refused tool. Be brief and professional.`,
+  });
+}
+
+@functionTool()
+async consentGiven(context: any) {
+  /** Called when the caller gives consent to recording. */
+  this.complete();
+}
+
+@functionTool()
+async consentRefused(context: any) {
+  /** Called when the caller refuses consent to recording. */
+  await this.session.say(
+    "I understand. Thank you for calling Bright Smile Dental. Goodbye."
+  );
+  await this.session.room.disconnect();
+}
+
+async onEnter() {
+  await this.session.say(
+    "Thank you for calling Bright Smile Dental. " +
+    "This call may be recorded for quality purposes. " +
+    "Do you consent to being recorded?"
+  );
+}
+}
+
+Keep task instructions focused
+
+The LLM only sees the task's instructions while it is active. Do not include information about appointment booking or clinic hours in the consent task's instructions -- that is the main agent's job. Focused instructions lead to more reliable behavior.
+
+Chaining tasks with the main agent
+
+Now you need to wire the consent task to your main dental receptionist. The consent task runs first; when it completes, the main agent takes over.
+
+from livekit.agents import Agent, AgentTask, AgentSession, AgentServer, function_tool
+from livekit.plugins import openai, deepgram, cartesia
+
+server = AgentServer()
+
+
+class CollectConsent(AgentTask):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are collecting recording consent from a caller.
+          Ask if they consent to being recorded. If they say yes or agree,
+          call the consent_given tool. If they say no or refuse, call the
+          consent_refused tool. Be brief and professional."""
+      )
+
+  @function_tool
+  async def consent_given(self, context):
+      """Called when the caller gives consent to recording."""
+      self.complete()
+
+  @function_tool
+  async def consent_refused(self, context):
+      """Called when the caller refuses consent to recording."""
+      await self.session.say(
+          "I understand. Thank you for calling Bright Smile Dental. Goodbye."
+      )
+      await self.session.room.disconnect()
+
+  async def on_enter(self):
+      await self.session.say(
+          "Thank you for calling Bright Smile Dental. "
+          "This call may be recorded for quality purposes. "
+          "Do you consent to being recorded?"
+      )
+
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  await session.start(
+      agent=Agent(
+          instructions="""You are a friendly receptionist at Bright Smile Dental clinic.
+          Keep responses brief and conversational. Never use markdown or emojis.
+          Help callers with appointment inquiries, clinic hours, and general questions.""",
+          tasks=[CollectConsent()],
+      ),
+      room=session.room,
+      stt=deepgram.STT(model="nova-3"),
+      llm=openai.LLM(model="gpt-4o-mini"),
+      tts=cartesia.TTS(voice="<voice-id>"),
+  )
+
+
+if __name__ == "__main__":
+  server.run()
+
+import { Agent, AgentSession, AgentServer, AgentTask, functionTool } from "@livekit/agents";
+import { DeepgramSTT } from "@livekit/agents-plugin-deepgram";
+import { OpenAILLM } from "@livekit/agents-plugin-openai";
+import { CartesiaTTS } from "@livekit/agents-plugin-cartesia";
+
+class CollectConsent extends AgentTask {
+constructor() {
+  super({
+    instructions: `You are collecting recording consent from a caller.
+      Ask if they consent to being recorded. If they say yes or agree,
+      call the consent_given tool. If they say no or refuse, call the
+      consent_refused tool. Be brief and professional.`,
+  });
+}
+
+@functionTool()
+async consentGiven(context: any) {
+  /** Called when the caller gives consent to recording. */
+  this.complete();
+}
+
+@functionTool()
+async consentRefused(context: any) {
+  /** Called when the caller refuses consent to recording. */
+  await this.session.say(
+    "I understand. Thank you for calling Bright Smile Dental. Goodbye."
+  );
+  await this.session.room.disconnect();
+}
+
+async onEnter() {
+  await this.session.say(
+    "Thank you for calling Bright Smile Dental. " +
+    "This call may be recorded for quality purposes. " +
+    "Do you consent to being recorded?"
+  );
+}
+}
+
+const server = new AgentServer();
+
+server.rtcSession(async (session: AgentSession) => {
+await session.start({
+  agent: new Agent({
+    instructions: `You are a friendly receptionist at Bright Smile Dental clinic.
+      Keep responses brief and conversational. Never use markdown or emojis.
+      Help callers with appointment inquiries, clinic hours, and general questions.`,
+    tasks: [new CollectConsent()],
+  }),
+  room: session.room,
+  stt: new DeepgramSTT({ model: "nova-3" }),
+  llm: new OpenAILLM({ model: "gpt-4o-mini" }),
+  tts: new CartesiaTTS({ voice: "<voice-id>" }),
+});
+});
+
+server.run();
+
+The key is the tasks parameter on Agent. Tasks in the list run in order. CollectConsent runs first. When it calls self.complete(), the agent's main instructions take over and the dental receptionist conversation begins.
+
+The caller experiences a seamless conversation: "This call may be recorded... do you consent?" followed by "Yes" and then immediately "Great, how can I help you today?" The task handoff is invisible to the caller -- there is no pause, no beep, no indication that a different set of instructions just took over.
+
+Handling edge cases
+
+What if the caller says something ambiguous, like "I guess" or "whatever"? The LLM interprets natural language, so moderate affirmatives will typically trigger consent_given. But you can make the instructions more explicit:
+
+class CollectConsent(AgentTask):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are collecting recording consent from a caller.
+          Ask if they consent to being recorded.
+
+          If they clearly agree (yes, sure, okay, that's fine, go ahead),
+          call the consent_given tool.
+
+          If they clearly refuse (no, I don't want to, absolutely not),
+          call the consent_refused tool.
+
+          If their answer is ambiguous, ask once more for a clear yes or no.
+          Do not ask more than twice."""
+      )
+
+LLMs handle natural language well
+
+You do not need to enumerate every possible way someone might say yes or no. The LLM understands intent. Your instructions should focus on the decision boundary (what counts as consent vs refusal) and edge cases (ambiguity), not on listing synonyms.
+
+Test your knowledge
+
+Question 1 of 3
+
+What happens to the conversation when an AgentTask calls self.complete()?
+
+What you learned
+
+AgentTask lets you build focused, single-purpose conversation stages
+
+on_enter() runs when a task becomes active -- use it for the initial prompt
+
+complete() signals the task is done and hands off to the next task or the main agent
+
+Tools within a task let the LLM take action based on the caller's response
+
+Tasks are chained via the tasks parameter on the Agent
+
+The caller experiences a seamless conversation across task boundaries
+
+Next up
+
+Your consent flow works with voice, but phone callers are used to pressing buttons too. In the next chapter, you will learn how to handle DTMF keypad input -- "Press 1 for appointments, 2 for hours" -- using the GetDtmfTask prebuilt task.

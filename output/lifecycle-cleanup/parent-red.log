@@ -1,0 +1,72 @@
+test_alias_factory_cannot_close_shared_app_as_sms (test_channel_policy_parent.ParentTests.test_alias_factory_cannot_close_shared_app_as_sms) ... ok
+test_cached_sources_do_not_reapply_old_startup_deadline (test_channel_policy_parent.ParentTests.test_cached_sources_do_not_reapply_old_startup_deadline) ... ok
+test_cancelled_close_observer_retains_actual_http_then_drains (test_channel_policy_parent.ParentTests.test_cancelled_close_observer_retains_actual_http_then_drains) ... ok
+test_cancelled_sources_waiter_keeps_actual_start_and_late_app_owned (test_channel_policy_parent.ParentTests.test_cancelled_sources_waiter_keeps_actual_start_and_late_app_owned) ... ok
+test_cold_parent_import_has_no_sdk_provider_or_external_io (test_channel_policy_parent.ParentTests.test_cold_parent_import_has_no_sdk_provider_or_external_io) ... ok
+test_constructor_and_unstarted_close_are_inert (test_channel_policy_parent.ParentTests.test_constructor_and_unstarted_close_are_inert) ... ok
+test_eager_observation_keeps_single_source_and_operator_owner (test_channel_policy_parent.ParentTests.test_eager_observation_keeps_single_source_and_operator_owner) ... ok
+test_failed_http_close_blocks_dependent_owners_until_same_close_retry (test_channel_policy_parent.ParentTests.test_failed_http_close_blocks_dependent_owners_until_same_close_retry) ... ok
+test_failed_preparation_retries_same_owner_before_closing_application (test_channel_policy_parent.ParentTests.test_failed_preparation_retries_same_owner_before_closing_application) ... ERROR
+test_late_http_start_after_cancellation_never_becomes_ready (test_channel_policy_parent.ParentTests.test_late_http_start_after_cancellation_never_becomes_ready) ... ok
+test_malformed_colliding_or_early_cursor_allocates_no_extra_owner (test_channel_policy_parent.ParentTests.test_malformed_colliding_or_early_cursor_allocates_no_extra_owner) ... ok
+test_observed_nondefault_control_port_is_preserved_without_extra_owner (test_channel_policy_parent.ParentTests.test_observed_nondefault_control_port_is_preserved_without_extra_owner) ... ok
+test_partial_factory_failure_drains_every_returned_owner_once (test_channel_policy_parent.ParentTests.test_partial_factory_failure_drains_every_returned_owner_once) ... ok
+test_prepare_shutdown_drains_front_while_origins_remain_available (test_channel_policy_parent.ParentTests.test_prepare_shutdown_drains_front_while_origins_remain_available) ... ERROR
+test_prepare_timeout_and_cancelled_observer_share_actual_front_drain (test_channel_policy_parent.ParentTests.test_prepare_timeout_and_cancelled_observer_share_actual_front_drain) ... ERROR
+test_queued_cancel_admits_no_new_factory_and_fresh_call_progresses (test_channel_policy_parent.ParentTests.test_queued_cancel_admits_no_new_factory_and_fresh_call_progresses) ... ok
+test_reentrant_room_factory_close_retains_room_without_sms_or_listener (test_channel_policy_parent.ParentTests.test_reentrant_room_factory_close_retains_room_without_sms_or_listener) ... ok
+test_reentrant_source_factory_close_retains_owner_without_starting_sources (test_channel_policy_parent.ParentTests.test_reentrant_source_factory_close_retains_owner_without_starting_sources) ... ok
+test_room_close_failure_still_closes_sms_and_retains_shared_app (test_channel_policy_parent.ParentTests.test_room_close_failure_still_closes_sms_and_retains_shared_app) ... ok
+test_settings_copy_base_and_reject_cross_role_secret_or_fixed_port_alias (test_channel_policy_parent.ParentTests.test_settings_copy_base_and_reject_cross_role_secret_or_fixed_port_alias) ... ok
+test_stages_original_cursor_and_closed_dependency_order (test_channel_policy_parent.ParentTests.test_stages_original_cursor_and_closed_dependency_order) ... ok
+test_start_task_allocation_failure_has_no_factory_and_close_can_retry (test_channel_policy_parent.ParentTests.test_start_task_allocation_failure_has_no_factory_and_close_can_retry) ... ok
+
+======================================================================
+ERROR: test_failed_preparation_retries_same_owner_before_closing_application (test_channel_policy_parent.ParentTests.test_failed_preparation_retries_same_owner_before_closing_application)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/rostwal/Downloads/livekit-poc/tests/test_channel_policy_parent.py", line 255, in test_failed_preparation_retries_same_owner_before_closing_application
+    await parent.prepare_shutdown()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ChannelPolicyParent' object has no attribute 'prepare_shutdown'
+
+======================================================================
+ERROR: test_prepare_shutdown_drains_front_while_origins_remain_available (test_channel_policy_parent.ParentTests.test_prepare_shutdown_drains_front_while_origins_remain_available)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/rostwal/Downloads/livekit-poc/tests/test_channel_policy_parent.py", line 214, in test_prepare_shutdown_drains_front_while_origins_remain_available
+    preparing = asyncio.create_task(parent.prepare_shutdown())
+                                    ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ChannelPolicyParent' object has no attribute 'prepare_shutdown'
+
+======================================================================
+ERROR: test_prepare_timeout_and_cancelled_observer_share_actual_front_drain (test_channel_policy_parent.ParentTests.test_prepare_timeout_and_cancelled_observer_share_actual_front_drain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/rostwal/Downloads/livekit-poc/tests/test_channel_policy_parent.py", line 236, in test_prepare_timeout_and_cancelled_observer_share_actual_front_drain
+    first = asyncio.create_task(parent.prepare_shutdown())
+                                ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ChannelPolicyParent' object has no attribute 'prepare_shutdown'
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.490s
+
+FAILED (errors=3)

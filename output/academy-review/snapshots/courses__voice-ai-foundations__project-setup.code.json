@@ -1,0 +1,90 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "brew install livekit-cli"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "winget install LiveKit.LiveKitCLI"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "curl -sSL https://get.livekit.io/cli | bash"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "lk cloud auth"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "lk agent init dental-receptionist --template voice-agent-python"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "dental-receptionist/\nagent.py          # Your agent's main file \u2014 this is where all the logic lives\nrequirements.txt  # Python dependencies (livekit-agents, plugins)\n.env.example      # Template for environment variables (API keys)\nDockerfile        # For deployment to LiveKit Cloud (Chapter 12)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "cd dental-receptionist\npython -m venv .venv\nsource .venv/bin/activate  # On Windows: .venv\\Scripts\\activate\npip install -r requirements.txt"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "cp .env.example .env\n# Edit .env and add your OPENAI_API_KEY, DEEPGRAM_API_KEY, etc."
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentServer, rtc_session, Agent, AgentSession\n\nserver = AgentServer()\n\n\n@server.rtc_session\nasync def entrypoint(session: AgentSession):\n  await session.start(\n      agent=Agent(instructions=\"You are a helpful voice assistant.\"),\n      room=session.room,\n  )\n\n\nif __name__ == \"__main__\":\n  server.run()"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "python agent.py dev"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentServer, rtc_session, Agent, AgentSession\n\nserver = AgentServer()\n\n\n@server.rtc_session\nasync def entrypoint(session: AgentSession):\n  await session.start(\n      agent=Agent(\n          instructions=(\n              \"You are a friendly receptionist at Bright Smile Dental clinic. \"\n              \"Greet callers warmly and help them with appointment inquiries. \"\n              \"Keep your responses short and conversational \u2014 one to two sentences at most.\"\n          ),\n      ),\n      room=session.room,\n  )\n\n\nif __name__ == \"__main__\":\n  server.run()"
+  }
+]

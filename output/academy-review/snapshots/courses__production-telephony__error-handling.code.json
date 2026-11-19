@@ -1,0 +1,26 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import asyncio\nimport random\nfrom dataclasses import dataclass\n\n@dataclass\nclass RetryConfig:\n  max_retries: int = 3\n  base_delay: float = 1.0      # seconds\n  max_delay: float = 30.0      # seconds\n  jitter_factor: float = 0.5   # 0 to 1\n\nRETRYABLE_CODES = {408, 480, 503, 504}\n\nclass SIPCallError(Exception):\n  def __init__(self, sip_code: int, message: str):\n      self.sip_code = sip_code\n      super().__init__(f\"SIP {sip_code}: {message}\")\n\nasync def place_outbound_call(phone_number: str, trunk_id: str, room_name: str):\n  \"\"\"Place an outbound call via LiveKit SIP (from the outbound-system chapter).\"\"\"\n  from livekit.api import LiveKitAPI, CreateSIPParticipantRequest\n\n  api = LiveKitAPI()\n  return await api.sip.create_sip_participant(\n      CreateSIPParticipantRequest(\n          sip_trunk_id=trunk_id,\n          sip_call_to=phone_number,\n          room_name=room_name,\n          participant_identity=f\"caller-{phone_number}\",\n      )\n  )\n\n\nasync def place_call_with_retry(\n  phone_number: str,\n  trunk_id: str,\n  room_name: str,\n  config: RetryConfig = RetryConfig(),\n):\n  last_error = None\n\n  for attempt in range(config.max_retries + 1):\n      try:\n          return await place_outbound_call(phone_number, trunk_id, room_name)\n      except SIPCallError as e:\n          last_error = e\n\n          if e.sip_code not in RETRYABLE_CODES:\n              raise  # Non-retryable error, fail immediately\n\n          if attempt == config.max_retries:\n              raise  # Exhausted retries\n\n          delay = min(\n              config.base_delay * (2 ** attempt),\n              config.max_delay,\n          )\n          jitter = delay * config.jitter_factor * random.random()\n          await asyncio.sleep(delay + jitter)\n\n  raise last_error"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "interface RetryConfig {\nmaxRetries: number;\nbaseDelay: number;\nmaxDelay: number;\njitterFactor: number;\n}\n\nconst DEFAULT_CONFIG: RetryConfig = {\nmaxRetries: 3,\nbaseDelay: 1.0,\nmaxDelay: 30.0,\njitterFactor: 0.5,\n};\n\nconst RETRYABLE_CODES = new Set([408, 480, 503, 504]);\n\nasync function placeCallWithRetry(\nphoneNumber: string,\ntrunkId: string,\nroomName: string,\nconfig: RetryConfig = DEFAULT_CONFIG,\n) {\nlet lastError: Error | undefined;\n\nfor (let attempt = 0; attempt <= config.maxRetries; attempt++) {\n  try {\n    return await placeOutboundCall(phoneNumber, trunkId, roomName);\n  } catch (error: any) {\n    lastError = error;\n\n    if (!RETRYABLE_CODES.has(error.sipCode)) {\n      throw error;\n    }\n    if (attempt === config.maxRetries) {\n      throw error;\n    }\n\n    const delay = Math.min(\n      config.baseDelay * 2 ** attempt,\n      config.maxDelay,\n    );\n    const jitter = delay * config.jitterFactor * Math.random();\n    await new Promise((r) => setTimeout(r, (delay + jitter) * 1000));\n  }\n}\n\nthrow lastError;\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from dataclasses import dataclass\n\n@dataclass\nclass TrunkConfig:\n  trunk_id: str\n  name: str\n  priority: int  # Lower is higher priority\n  healthy: bool = True\n  consecutive_failures: int = 0\n  failure_threshold: int = 3\n\nclass TrunkRouter:\n  def __init__(self, trunks: list[TrunkConfig]):\n      self.trunks = sorted(trunks, key=lambda t: t.priority)\n\n  def get_active_trunk(self) -> TrunkConfig | None:\n      for trunk in self.trunks:\n          if trunk.healthy:\n              return trunk\n      return None  # All trunks are down\n\n  def record_success(self, trunk_id: str):\n      for trunk in self.trunks:\n          if trunk.trunk_id == trunk_id:\n              trunk.consecutive_failures = 0\n              trunk.healthy = True\n              break\n\n  def record_failure(self, trunk_id: str):\n      for trunk in self.trunks:\n          if trunk.trunk_id == trunk_id:\n              trunk.consecutive_failures += 1\n              if trunk.consecutive_failures >= trunk.failure_threshold:\n                  trunk.healthy = False\n              break\n\nasync def place_call_with_fallback(\n  phone_number: str,\n  room_name: str,\n  router: TrunkRouter,\n):\n  trunk = router.get_active_trunk()\n  if trunk is None:\n      raise RuntimeError(\"All SIP trunks are unavailable\")\n\n  try:\n      result = await place_call_with_retry(phone_number, trunk.trunk_id, room_name)\n      router.record_success(trunk.trunk_id)\n      return result\n  except SIPCallError:\n      router.record_failure(trunk.trunk_id)\n      # Try the next healthy trunk\n      next_trunk = router.get_active_trunk()\n      if next_trunk and next_trunk.trunk_id != trunk.trunk_id:\n          return await place_call_with_retry(phone_number, next_trunk.trunk_id, room_name)\n      raise"
+  }
+]

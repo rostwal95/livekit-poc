@@ -1,0 +1,149 @@
+1Production telephony patterns overview
+
+2Warm transfers
+
+3Cold transfers
+
+4Call recording & compliance
+
+5Building the outbound system
+
+6Queue management
+
+7Error handling & retries
+
+8Monitoring & analytics
+
+9Load testing
+
+Production telephony patterns overview
+
+Production telephony patterns overview
+
+You have a voice AI agent that can answer a phone call. Now you need it to survive real traffic — thousands of calls a day, regulatory requirements, handoffs to humans, retries on failure, and detailed records of every interaction. This chapter maps the territory of production telephony patterns and shows how they fit together in a complete system.
+
+What you'll learn
+
+The core production telephony patterns and when each applies
+
+How warm transfers, cold transfers, recording, queues, and outbound campaigns connect
+
+What differentiates a demo from a production telephony deployment
+
+How to read the architecture diagram that ties all these patterns together
+
+The gap between demo and production
+
+A demo voice AI agent handles one call at a time, never fails, and nobody asks for a recording afterward. Production is different. Production means:
+
+A caller asks to speak to a human, and your agent must transfer the call seamlessly — either announcing the caller first (warm transfer) or connecting immediately (cold transfer).
+
+Every call must be recorded for compliance, stored securely, and retrievable for months or years.
+
+Your system places thousands of outbound calls per day for appointment reminders or campaigns, respecting rate limits and time-of-day regulations.
+
+When all agents are busy, callers enter a queue with estimated wait times and the option to request a callback.
+
+When a SIP trunk fails or a downstream service is unreachable, the system retries intelligently and falls back to alternative routes.
+
+Operations teams need dashboards showing answer rates, handle times, and abandonment rates in real time.
+
+Each of these requirements is a pattern — a proven approach to a recurring problem. This course covers all of them.
+
+The production telephony patterns
+
+The agent places the caller on hold, dials a human agent, briefs them on the caller's issue, and then connects the two parties. The caller never has to repeat themselves. This is the gold standard for customer experience during escalation.
+
+The agent transfers the caller directly to another number or extension without any announcement. Faster than a warm transfer, but the receiving party has no context. Best used for routing to well-known departments or IVR systems.
+
+Every call is captured using LiveKit Egress, stored in S3 or equivalent object storage, and managed according to retention and consent policies. Recording is not optional in most telephony deployments — regulations like PCI-DSS, HIPAA, and GDPR impose strict requirements.
+
+Instead of waiting for calls, your system initiates them. Appointment reminders, payment follow-ups, satisfaction surveys, and sales campaigns all require outbound infrastructure with campaign management, scheduling, and rate limiting.
+
+When call volume exceeds agent capacity, callers need a queue. Priority queues ensure VIP callers are handled first. Wait time estimation sets expectations. Callback options let callers hang up and receive a return call when an agent is free.
+
+SIP trunks fail. Networks partition. Downstream APIs time out. Production systems need retry logic with exponential backoff, fallback routing to secondary trunks, and graceful degradation that keeps the caller informed.
+
+You cannot improve what you do not measure. Call Detail Records (CDR), real-time dashboards, and alerting on key metrics — answer rate, average handle time, abandonment rate — are essential for operating a telephony system at scale.
+
+Before launching, you must know your system's limits. Load testing with simulated concurrent calls reveals bottlenecks in SIP trunks, media servers, agent workers, and backend services. Capacity planning follows from load test results.
+
+Architecture of a production telephony system
+
+Here is how these patterns fit together in a complete deployment:
+
+graph TB
+    subgraph Inbound
+        PSTN[PSTN / Carrier] -->|SIP| TRUNK_IN[Inbound SIP Trunk]
+        TRUNK_IN --> LK[LiveKit Server]
+    end
+
+    subgraph "AI Agent Layer"
+        LK --> AGENT[Voice AI Agent]
+        AGENT --> LLM[LLM Provider]
+        AGENT --> STT[STT Provider]
+        AGENT --> TTS[TTS Provider]
+    end
+
+    subgraph "Call Control"
+        AGENT -->|Warm/Cold| TRANSFER[Transfer Manager]
+        AGENT --> QUEUE[Queue Manager]
+        QUEUE --> CALLBACK[Callback System]
+        TRANSFER --> TRUNK_OUT[Outbound SIP Trunk]
+    end
+
+    subgraph Outbound
+        CAMPAIGN[Campaign Manager] --> TRUNK_OUT
+        TRUNK_OUT --> PSTN_OUT[PSTN / Carrier]
+    end
+
+    subgraph "Recording & Compliance"
+        LK --> EGRESS[LiveKit Egress]
+        EGRESS --> S3[S3 / Object Storage]
+    end
+
+    subgraph Observability
+        LK --> METRICS[Metrics Collector]
+        AGENT --> CDR[CDR Generator]
+        METRICS --> DASH[Dashboard]
+        CDR --> DASH
+    end
+
+    subgraph Resilience
+        TRUNK_IN -.->|Failover| TRUNK_BACKUP[Backup SIP Trunk]
+        AGENT --> RETRY[Retry / Fallback Logic]
+    end
+
+The diagram shows six subsystems that a production telephony deployment must coordinate: inbound call handling, the AI agent layer, call control (transfers and queues), outbound calling, recording and compliance, and observability. Each subsystem introduces its own failure modes and scaling considerations, which is why the remaining chapters in this course address them individually.
+
+What separates each tier
+
+Not every deployment needs every pattern on day one. Here is a rough progression:
+
+Tier | Patterns | Typical use case
+Proof of concept | Single inbound trunk, basic agent | Internal demo, hackathon
+Pilot | Recording, basic error handling, cold transfers | Small-scale customer-facing deployment
+Production | Warm transfers, queues, monitoring, outbound | Full contact center replacement
+Enterprise | Load testing, multi-region failover, compliance audit trails | Regulated industries at scale
+
+Start where you are
+
+You do not need to implement every pattern before taking your first call. But you should understand all of them so you can plan your architecture to accommodate them as you grow. Retrofitting queue management or compliance recording into an architecture that was not designed for them is painful.
+
+What you learned
+
+Production telephony requires patterns beyond basic call handling: transfers, recording, queues, outbound campaigns, error handling, monitoring, and load testing.
+
+These patterns form interconnected subsystems that must be designed together.
+
+The gap between demo and production is primarily about resilience, compliance, and operational visibility.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why is it important to design your architecture for all production telephony patterns from the start, even if you don't implement them all immediately?
+
+Next up
+
+In the next chapter, you will implement warm transfers — the most customer-friendly way to hand a caller from your AI agent to a human.

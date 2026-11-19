@@ -1,0 +1,257 @@
+1AI-native routing & multi-agent orchestration
+
+2Human escalation & context transfer
+
+3CRM integration & caller context
+
+CRM integration & caller context
+
+CRM Integration: Caller Context and Conversation Logging
+
+The best agents — human or AI — know who is calling before they pick up. CRM integration makes this possible. When a call arrives, the system looks up the caller's phone number, pulls their history, and injects it into the agent's instructions. When the call ends, the conversation summary is logged back. This chapter connects your contact center to Salesforce and HubSpot.
+
+What you'll learn
+
+How to look up caller information from a CRM on incoming calls
+
+Building a screen pop that injects caller context into agent instructions
+
+Why AI screen pop is more powerful than traditional human agent screen pop
+
+Logging call outcomes and conversation summaries back to the CRM
+
+Integration patterns for Salesforce and HubSpot APIs
+
+Caller lookup on incoming calls
+
+When a call arrives through your SIP trunk, the caller ID (ANI) is the key. Use it to search the CRM before the agent even greets the caller. This lookup must be fast — under 2 seconds — and must fail gracefully.
+
+from dataclasses import dataclass
+import httpx
+
+
+@dataclass
+class CallerProfile:
+  name: str
+  company: str
+  email: str
+  phone: str
+  account_id: str
+  lifetime_value: float
+  open_tickets: int
+  last_contact: str
+  notes: str
+  priority: str  # "vip", "standard", "new"
+
+
+class CRMLookup:
+  def __init__(self, provider: str, api_key: str, base_url: str):
+      self.provider = provider
+      self.api_key = api_key
+      self.base_url = base_url
+      self._client = httpx.AsyncClient(
+          base_url=base_url,
+          headers={"Authorization": f"Bearer {api_key}"},
+          timeout=2.0,  # Hard timeout — never block call setup
+      )
+
+  async def lookup_by_phone(self, phone: str) -> CallerProfile | None:
+      """Look up a caller by phone number. Returns None if not found."""
+      try:
+          if self.provider == "salesforce":
+              return await self._salesforce_lookup(phone)
+          elif self.provider == "hubspot":
+              return await self._hubspot_lookup(phone)
+          return None
+      except httpx.TimeoutException:
+          # CRM is slow — proceed without context rather than delay the call
+          return None
+
+  async def _salesforce_lookup(self, phone: str) -> CallerProfile | None:
+      query = f"SELECT Id, Name, Account.Name, Email, Phone FROM Contact WHERE Phone = '{phone}'"
+      resp = await self._client.get("/services/data/v59.0/query", params={"q": query})
+      if resp.status_code != 200:
+          return None
+      records = resp.json().get("records", [])
+      if not records:
+          return None
+      contact = records[0]
+      return CallerProfile(
+          name=contact["Name"],
+          company=contact.get("Account", {}).get("Name", "Unknown"),
+          email=contact.get("Email", ""),
+          phone=phone,
+          account_id=contact["Id"],
+          lifetime_value=0.0,
+          open_tickets=0,
+          last_contact="",
+          notes="",
+          priority="standard",
+      )
+
+  async def _hubspot_lookup(self, phone: str) -> CallerProfile | None:
+      resp = await self._client.post(
+          "/crm/v3/objects/contacts/search",
+          json={
+              "filterGroups": [{
+                  "filters": [{
+                      "propertyName": "phone",
+                      "operator": "EQ",
+                      "value": phone,
+                  }]
+              }],
+              "properties": ["firstname", "lastname", "company", "email", "phone"],
+          },
+      )
+      if resp.status_code != 200:
+          return None
+      results = resp.json().get("results", [])
+      if not results:
+          return None
+      props = results[0]["properties"]
+      return CallerProfile(
+          name=f"{props.get('firstname', '')} {props.get('lastname', '')}".strip(),
+          company=props.get("company", "Unknown"),
+          email=props.get("email", ""),
+          phone=phone,
+          account_id=results[0]["id"],
+          lifetime_value=0.0,
+          open_tickets=0,
+          last_contact="",
+          notes="",
+          priority="standard",
+      )
+
+Never block call setup on CRM lookups
+
+If the CRM is slow or down, proceed without context. A 2-second timeout is generous — if the lookup has not returned by then, greet the caller normally and attempt the lookup in the background. A delayed greeting is worse than a generic one.
+
+Screen pop: enriching the AI agent
+
+For AI agents, "screen pop" means injecting the caller profile into the agent's instructions before the conversation starts. The agent knows the caller's name, history, and open issues from the first word.
+
+from livekit.agents import AgentServer, Agent, AgentSession
+
+server = AgentServer()
+
+
+def build_context_instructions(profile: CallerProfile | None) -> str:
+  """Generate agent instructions enriched with caller context."""
+  base = """You are a customer service agent for Acme Corp. Be helpful,
+  professional, and concise. Never use markdown or emojis."""
+
+  if profile is None:
+      return base + " You do not have prior information about this caller."
+
+  return base + f"""
+
+  CALLER CONTEXT (do not read this verbatim, use it to personalize):
+  - Name: {profile.name}
+  - Company: {profile.company}
+  - Account ID: {profile.account_id}
+  - Priority: {profile.priority}
+  - Open tickets: {profile.open_tickets}
+  - Last contact: {profile.last_contact}
+  - Notes: {profile.notes}
+
+  Greet {profile.name.split()[0]} by first name. If they have open tickets,
+  ask if they are calling about an existing issue before starting fresh."""
+
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  crm = CRMLookup(provider="salesforce", api_key="...", base_url="...")
+  caller_phone = session.room.metadata  # Phone number passed in room metadata
+
+  profile = await crm.lookup_by_phone(caller_phone)
+  instructions = build_context_instructions(profile)
+
+  await session.start(
+      agent=Agent(instructions=instructions, tools=[...]),
+      room=session.room,
+      userdata={"profile": profile},
+  )
+
+AI screen pop is more powerful than traditional screen pop for human agents. A human agent glances at a sidebar and might miss details. An AI agent has the entire caller profile woven into its instructions — it will never forget to mention an open ticket or fail to greet a VIP by name. The context becomes part of the agent's behavior, not just information displayed nearby.
+
+Logging conversations back to the CRM
+
+After each call, write the outcome back to the CRM. This closes the loop: the next time this caller phones in, the agent has the full history including today's call.
+
+interface CallLog {
+callerId: string;
+accountId: string;
+duration: number;
+department: string;
+outcome: "resolved" | "escalated" | "callback_scheduled" | "abandoned";
+summary: string;
+agentType: "ai" | "human";
+}
+
+async function logToSalesforce(log: CallLog, accessToken: string): Promise<void> {
+const taskBody = {
+  Subject: `Call: ${log.outcome} (${log.department})`,
+  Description: log.summary,
+  WhoId: log.accountId,
+  Status: "Completed",
+  Type: "Call",
+  CallDurationInSeconds: log.duration,
+  CallType: "Inbound",
+};
+
+await fetch("https://your-instance.salesforce.com/services/data/v59.0/sobjects/Task", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(taskBody),
+});
+}
+
+async function logToHubSpot(log: CallLog, apiKey: string): Promise<void> {
+const engagement = {
+  properties: {
+    hs_call_title: `Call: ${log.outcome}`,
+    hs_call_body: log.summary,
+    hs_call_duration: String(log.duration * 1000),
+    hs_call_status: "COMPLETED",
+    hs_call_direction: "INBOUND",
+  },
+  associations: [{
+    to: { id: log.accountId },
+    types: [{ associationCategory: "HUBSPOT_DEFINED", associationTypeId: 194 }],
+  }],
+};
+
+await fetch("https://api.hubspot.com/crm/v3/objects/calls", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(engagement),
+});
+}
+
+Summarize with the LLM
+
+Use the LLM to generate the call summary before logging it. After the call ends, send the full transcript with a prompt like "Summarize this customer service call in 2-3 sentences, including the issue, resolution, and any follow-up needed." This produces better summaries than rule-based extraction.
+
+Course summary
+
+Over this course, you have built an AI-native contact center architecture:
+
+Natural language intent detection routes callers directly to the right department agent — no menus, no DTMF, no frustrated callers.
+
+A state machine coordinates specialized department agents, each with focused instructions and tools, with clean handoffs that preserve conversation context.
+
+When AI reaches its limits, the handoff to a human agent includes an LLM-generated summary and full context — the caller never repeats themselves.
+
+Caller lookup before the first greeting, context injection into agent instructions, and conversation logging back to the CRM closes the feedback loop.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why should a CRM lookup timeout gracefully (proceeding without context) rather than blocking the call setup?

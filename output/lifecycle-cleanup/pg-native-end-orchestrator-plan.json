@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "status": "prepared_not_executed",
+  "node": "/private/tmp/livekit-academy-node-24.22.2-n1rqgu__/node-v24.22.2-darwin-arm64/bin/node",
+  "fixture": "/Users/rostwal/Downloads/livekit-poc/output/lifecycle-cleanup/pg-native-end.mjs",
+  "modes": {
+    "install": 45,
+    "run": 90,
+    "verify": 15,
+    "cleanup": 15
+  },
+  "totalObserverSeconds": 220,
+  "stopObservationSeconds": 10,
+  "captureBytesPerStreamPerChild": 32768,
+  "schemaPattern": "p2_lifecycle_<fresh_uuid_hex>",
+  "roleEnvironment": [
+    "LANG",
+    "NO_COLOR",
+    "P2_END_CONFIG",
+    "PATH"
+  ],
+  "settingsLoader": "channel_policy_setup._load_database",
+  "configurationReads": [
+    "local-setup/.env",
+    "local-setup/.secrets.env",
+    "local-setup/images.env"
+  ],
+  "failurePolicy": "Preserve first failure, work, credentials and schema; no dependent DROP. If group absence is unresolved, record exact PID/group and fail without dependent cleanup.",
+  "successPolicy": "Separate role children install/run/verify/cleanup; all actual owners settled before DROP; independently check schema absence; remove only owned credential copies.",
+  "limits": "Supplemental P2 PostgreSQL/HTTP only; no providers, SFU, browser or full P1 gate."
+}

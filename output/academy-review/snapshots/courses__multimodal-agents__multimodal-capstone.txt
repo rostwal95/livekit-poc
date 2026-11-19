@@ -1,0 +1,382 @@
+1Multimodal architecture & cost model
+
+2Vision agents
+
+3Avatar integration
+
+4Document processing & screen sharing
+
+5Building a complete multimodal agent
+
+Building a complete multimodal agent
+
+Building a complete multimodal agent
+
+This is the capstone. You have built vision agents, integrated avatars, processed documents, shared screens, and managed multimodal context. Now you will combine everything into a single application: an interactive study partner with voice, vision, avatar, document processing, screen annotation, and collaborative whiteboard.
+
+The complete agent
+
+The study partner combines every modality into one Agent class. Each capability is a function tool, and the LLM decides which tools to use based on the conversation. There is no complex routing logic or mode switching.
+
+import json
+import io
+import base64
+from livekit.agents import Agent, AgentSession, RoomInputOptions, VideoFrameOptions, function_tool
+from livekit.plugins import openai, deepgram, cartesia
+from livekit.plugins.tavus import AvatarSession
+
+class StudyPartner(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are an interactive study partner with multiple capabilities:
+
+          VISION: You can see through the user's camera. Describe textbook pages, diagrams,
+          and handwritten notes when the user shows them.
+
+          DOCUMENTS: When the user uploads a PDF or image, read its contents and answer
+          questions grounded in the document. Cite specific pages and passages.
+
+          WHITEBOARD: You share a whiteboard with the user. Describe what they draw and
+          use the drawing tools to illustrate concepts with lines, shapes, and labels.
+
+          SCREEN SHARING: When the user shares their screen, read its contents and guide
+          them step by step. Highlight specific areas using annotations.
+
+          Be warm, encouraging, and patient. Ask clarifying questions. Adapt your
+          explanations to the user's level of understanding.""",
+      )
+      self._document_text = ""
+      self._visual_summaries = []
+
+  # --- Document tools ---
+
+  @function_tool
+  async def get_document(self, context):
+      """Retrieve the uploaded document content."""
+      if not self._document_text:
+          return "No document has been uploaded yet."
+      if len(self._document_text) < 4000:
+          return self._document_text
+      return self._document_text[:4000] + "
+
+[Document truncated — ask about specific sections]"
+
+  @function_tool
+  async def search_document(self, context, query: str):
+      """Search the uploaded document for information related to the query."""
+      if not self._document_text:
+          return "No document uploaded yet."
+      chunks = self._document_text.split("
+
+")
+      query_lower = query.lower()
+      relevant = [c for c in chunks if any(w in c.lower() for w in query_lower.split())]
+      return "
+
+".join(relevant[:5]) if relevant else self._document_text[:4000]
+
+  # --- Whiteboard tools ---
+
+  @function_tool
+  async def draw_line(self, context, x1: float, y1: float, x2: float, y2: float,
+                      color: str = "#3366ff", width: int = 3):
+      """Draw a line on the shared whiteboard. Coordinates are 0-800 for x, 0-600 for y."""
+      stroke = {
+          "type": "stroke",
+          "stroke": {
+              "points": [{"x": x1, "y": y1}, {"x": x2, "y": y2}],
+              "color": color, "width": width,
+          },
+      }
+      await self.session.room.local_participant.publish_data(
+          json.dumps(stroke).encode(), topic="whiteboard",
+      )
+      return f"Drew line from ({x1}, {y1}) to ({x2}, {y2})"
+
+  @function_tool
+  async def draw_label(self, context, x: float, y: float, text: str):
+      """Place a text label on the whiteboard."""
+      label = {"type": "label", "x": x, "y": y, "text": text, "color": "#333333"}
+      await self.session.room.local_participant.publish_data(
+          json.dumps(label).encode(), topic="whiteboard",
+      )
+      return f"Placed label '{text}' at ({x}, {y})"
+
+  @function_tool
+  async def draw_shape(self, context, shape: str, x: float, y: float,
+                       w: float, h: float, color: str = "#3366ff"):
+      """Draw a shape (rect, circle, arrow) on the whiteboard."""
+      data = {"type": "shape", "shape": shape, "x": x, "y": y, "w": w, "h": h, "color": color}
+      await self.session.room.local_participant.publish_data(
+          json.dumps(data).encode(), topic="whiteboard",
+      )
+      return f"Drew {shape} at ({x}, {y}) size {w}x{h}"
+
+  # --- Screen annotation tools ---
+
+  @function_tool
+  async def annotate_screen(self, context, x: float, y: float,
+                             width: float, height: float, label: str):
+      """Highlight a region on the user's shared screen. Coordinates are 0-1 normalized."""
+      annotation = {"type": "highlight", "x": x, "y": y, "width": width, "height": height, "label": label}
+      await self.session.room.local_participant.publish_data(
+          json.dumps(annotation).encode(), topic="screen-annotation",
+      )
+      return f"Highlighted '{label}' at ({x:.0%}, {y:.0%})"
+
+  # --- Context management tools ---
+
+  @function_tool
+  async def store_visual_summary(self, context, summary: str):
+      """Store a text summary of visual content to save context window space.
+      Use this after analyzing an image to preserve the information cheaply."""
+      self._visual_summaries.append(summary)
+      return f"Stored. {len(self._visual_summaries)} summaries saved."
+
+  @function_tool
+  async def recall_summaries(self, context):
+      """Retrieve all stored visual summaries from this session."""
+      if not self._visual_summaries:
+          return "No visual summaries stored yet."
+      return "
+
+".join(f"[{i+1}] {s}" for i, s in enumerate(self._visual_summaries))
+
+  # --- Data handlers ---
+
+  async def on_data_received(self, payload: bytes, topic: str):
+      if topic == "document-upload":
+          import PyPDF2
+          reader = PyPDF2.PdfReader(io.BytesIO(payload))
+          pages = []
+          for i, page in enumerate(reader.pages):
+              text = page.extract_text() or ""
+              pages.append(f"--- Page {i + 1} ---
+{text}")
+          self._document_text = "
+
+".join(pages)
+          await self.session.say("I have received your document. What would you like to know about it?")
+
+
+async def entrypoint(ctx):
+  avatar = AvatarSession(persona_id="your-persona-id")
+
+  session = AgentSession(
+      stt=deepgram.STT(),
+      llm=openai.LLM(model="gpt-4o"),
+      tts=cartesia.TTS(),
+  )
+
+  await session.start(
+      agent=StudyPartner(),
+      room=ctx.room,
+      room_input_options=RoomInputOptions(
+          video_enabled=True,
+          video_frame_options=VideoFrameOptions(
+              capture_interval=3.0,
+              max_frames_in_context=3,
+              max_width=1024,
+              max_height=768,
+          ),
+      ),
+  )
+
+  await avatar.start(agent_session=session, room=ctx.room)
+
+The complete agent is still a single class. Each capability is a function tool, and the LLM orchestrates them based on what the user asks. There is no complex routing logic — you add capabilities without adding control flow. The agent instructions describe all capabilities, and the LLM figures out which tools to call.
+
+The complete frontend
+
+The frontend handles all modalities: avatar video, camera input, screen sharing, document upload, whiteboard canvas, and screen annotations. Use progressive disclosure — show panels only when the user activates them.
+
+import {
+LiveKitRoom,
+VideoTrack,
+useTracks,
+useDataChannel,
+} from "@livekit/components-react";
+import { Track } from "livekit-client";
+import { useState, useRef, useEffect, useCallback } from "react";
+
+function StudyPartnerApp({ token, serverUrl }) {
+return (
+  <LiveKitRoom token={token} serverUrl={serverUrl} connect>
+    <div className="study-layout">
+      <AvatarPanel />
+      <MainContent />
+      <Sidebar />
+    </div>
+  </LiveKitRoom>
+);
+}
+
+function AvatarPanel() {
+const tracks = useTracks([Track.Source.Camera]);
+const avatarTrack = tracks.find(
+  (t) => t.participant.identity.startsWith("tavus-")
+);
+if (!avatarTrack) return <div className="avatar-placeholder">Connecting...</div>;
+return <VideoTrack trackRef={avatarTrack} className="avatar-video" />;
+}
+
+function MainContent() {
+const [showWhiteboard, setShowWhiteboard] = useState(false);
+return (
+  <div className="main-content">
+    <button onClick={() => setShowWhiteboard(!showWhiteboard)}>
+      {showWhiteboard ? "Hide" : "Show"} Whiteboard
+    </button>
+    {showWhiteboard && <WhiteboardCanvas />}
+    <ScreenAnnotationOverlay />
+  </div>
+);
+}
+
+function WhiteboardCanvas() {
+const canvasRef = useRef<HTMLCanvasElement>(null);
+const strokesRef = useRef([]);
+const { send, message } = useDataChannel("whiteboard");
+
+useEffect(() => {
+  if (!message) return;
+  const data = JSON.parse(new TextDecoder().decode(message.payload));
+  if (data.type === "stroke") {
+    strokesRef.current.push({ ...data.stroke, source: "agent" });
+    redraw();
+  }
+}, [message]);
+
+const redraw = useCallback(() => {
+  const ctx = canvasRef.current?.getContext("2d");
+  if (!ctx) return;
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  for (const stroke of strokesRef.current) {
+    ctx.strokeStyle = stroke.color;
+    ctx.lineWidth = stroke.width;
+    ctx.beginPath();
+    stroke.points.forEach((p, i) => {
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    });
+    ctx.stroke();
+  }
+}, []);
+
+// Send canvas snapshot to agent periodically
+useEffect(() => {
+  const interval = setInterval(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      blob.arrayBuffer().then((buf) => {
+        send(new Uint8Array(buf), { topic: "whiteboard-snapshot" });
+      });
+    }, "image/jpeg", 0.7);
+  }, 5000);
+  return () => clearInterval(interval);
+}, [send]);
+
+return <canvas ref={canvasRef} width={800} height={600} className="whiteboard" />;
+}
+
+function Sidebar() {
+return (
+  <div className="sidebar">
+    <DocumentUpload />
+    <ScreenShareButton />
+  </div>
+);
+}
+
+function DocumentUpload() {
+const { send } = useDataChannel("document-upload");
+async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const buffer = await file.arrayBuffer();
+  send(new Uint8Array(buffer), { reliable: true });
+}
+return (
+  <div className="upload-area">
+    <label htmlFor="doc-upload">Upload a document</label>
+    <input id="doc-upload" type="file" accept=".pdf,.png,.jpg,.jpeg" onChange={handleFileChange} />
+  </div>
+);
+}
+
+Start with voice, enable modalities on demand
+
+Do not render every panel at once. Start with the avatar and voice conversation. Show the whiteboard when the user opens it. Show the annotation overlay only during screen sharing. Progressive disclosure keeps the UI clean and reduces cognitive load.
+
+Testing multimodal agents
+
+Testing multimodal agents is harder than testing voice-only agents because you need to simulate visual inputs. Follow this systematic 4-step approach:
+
+Disable vision, avatar, and all visual tools. Verify the agent handles conversation, instructions, and basic Q&A correctly. This is your baseline.
+
+Enable one modality at a time. Upload a PDF and verify document Q&A. Share a screen and verify the agent reads it. Draw on the whiteboard and verify the agent describes it. Test each capability independently.
+
+Start a voice conversation, then upload a document, then share your screen, then open the whiteboard. Verify the agent handles transitions cleanly and does not confuse context from different modalities.
+
+Run a full 30-minute session and measure token consumption, response latency, and avatar sync quality. Compare against your budget and latency targets. Tune frame capture settings and context management based on real numbers.
+
+# Smoke test for the study partner agent
+import asyncio
+from livekit.agents.testing import AgentTestHarness
+
+async def test_study_partner():
+  harness = AgentTestHarness(agent_class=StudyPartner)
+
+  # Test 1: Basic voice conversation
+  response = await harness.send_user_message("Hi, I need help studying for my biology exam.")
+  assert response is not None
+  assert len(response) > 0
+
+  # Test 2: Document upload
+  with open("sample.pdf", "rb") as f:
+      await harness.send_data(f.read(), topic="document-upload")
+  response = await harness.send_user_message("What is on page 1 of my document?")
+  assert "page" in response.lower() or "document" in response.lower()
+
+  # Test 3: Whiteboard drawing tool
+  response = await harness.send_user_message(
+      "Draw a simple diagram showing photosynthesis inputs and outputs."
+  )
+  assert harness.last_tool_calls is not None
+
+  # Test 4: Visual summary storage
+  response = await harness.send_user_message(
+      "Summarize what you just saw on the whiteboard so we can free up context."
+  )
+  assert harness.last_tool_calls is not None
+
+  print("All smoke tests passed.")
+
+asyncio.run(test_study_partner())
+
+Multimodal tests are slower and more expensive
+
+Every test that involves vision consumes image tokens. Use small, low-resolution test images to keep costs down. For CI pipelines, consider mocking the LLM responses for vision-related tests and running full integration tests only on demand.
+
+Course summary
+
+Chapter | What you built | Key SDK concepts
+1. Multimodal architecture | Understood how modalities map to LiveKit Tracks | RoomInputOptions, VideoFrameOptions, Track types
+2. Vision agents | Added camera input and image analysis | video_enabled, capture_interval, max_frames_in_context
+3. Avatar integration | Gave the agent a Tavus avatar with lip sync | AvatarSession, persona_id, avatar.start()
+4. Documents and screen sharing | Enabled PDF parsing, OCR, screen reading, annotations | publish_data, on_data_received, data channel topics
+5. Complete multimodal agent | Integrated everything with context management and testing | function_tool, AgentTestHarness, progressive disclosure
+
+The key insight across all of this: multimodal capabilities are additive layers on top of a voice agent. Each modality is a Track or a data channel. Each capability is a function tool. The LLM orchestrates everything through its instructions. You do not need complex mode-switching logic — you need clear instructions and well-designed tools.
+
+The study partner you built in this course is a template. Replace the study-focused instructions with medical intake questions and you have a telehealth assistant. Replace them with technical support prompts and you have a visual help desk. The architecture — voice plus vision plus avatar plus tools — transfers directly to any domain where seeing and showing matter.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why does the complete study partner agent use a single Agent class with multiple function tools rather than separate agents for each modality?
+
+Congratulations on completing the Multimodal Agents course. You now have the skills to build agents that talk, see, show their face, read documents, annotate screens, and draw on whiteboards. Take this foundation and apply it to your own domain.

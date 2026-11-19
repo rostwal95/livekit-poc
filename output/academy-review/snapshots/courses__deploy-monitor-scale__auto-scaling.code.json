@@ -1,0 +1,34 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "agent:\nname: dental-receptionist\nscaling:\n  min_workers: 2\n  max_workers: 50\n  sessions_per_worker: 5\n  scale_up_threshold: 0.8    # Add workers when 80% of capacity is in use\n  scale_down_threshold: 0.3  # Remove workers when below 30% utilization\n  scale_down_delay: 300s     # Wait 5 min before scaling down\n  warmup_time: 30s           # Time for a new worker to become ready"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\nname: voice-agent-hpa\nnamespace: livekit\nspec:\nscaleTargetRef:\n  apiVersion: apps/v1\n  kind: Deployment\n  name: voice-agent\nminReplicas: 2\nmaxReplicas: 50\nbehavior:\n  scaleUp:\n    stabilizationWindowSeconds: 30\n    policies:\n      - type: Pods\n        value: 4\n        periodSeconds: 60\n  scaleDown:\n    stabilizationWindowSeconds: 300\n    policies:\n      - type: Pods\n        value: 2\n        periodSeconds: 120\nmetrics:\n  - type: Pods\n    pods:\n      metric:\n        name: agent_active_sessions\n      target:\n        type: AverageValue\n        averageValue: \"4\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from prometheus_client import Gauge, start_http_server\nfrom livekit.agents import Agent, AgentSession, AgentServer, rtc_session\n\nACTIVE_SESSIONS = Gauge(\n  \"agent_active_sessions\",\n  \"Number of active voice sessions on this worker\",\n)\n\nserver = AgentServer()\n\n\n@server.rtc_session\nasync def entrypoint(session: AgentSession):\n  ACTIVE_SESSIONS.inc()\n  try:\n      await session.start(\n          agent=Agent(instructions=\"You are a helpful assistant.\"),\n          room=session.room,\n      )\n      # Wait for session to end\n      await session.wait()\n  finally:\n      ACTIVE_SESSIONS.dec()\n\n\n# Expose metrics for Prometheus scraping\nstart_http_server(9090)\n\nif __name__ == \"__main__\":\n  server.run()"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, AgentSession, AgentServer } from \"@livekit/agents\";\nimport { Gauge, Registry, collectDefaultMetrics } from \"prom-client\";\n\nconst register = new Registry();\ncollectDefaultMetrics({ register });\n\nconst activeSessions = new Gauge({\nname: \"agent_active_sessions\",\nhelp: \"Number of active voice sessions on this worker\",\nregisters: [register],\n});\n\nconst server = new AgentServer();\n\nserver.rtcSession(async (session: AgentSession) => {\nactiveSessions.inc();\ntry {\n  await session.start({\n    agent: new Agent({ instructions: \"You are a helpful assistant.\" }),\n    room: session.room,\n  });\n  await session.wait();\n} finally {\n  activeSessions.dec();\n}\n});\n\nserver.run();"
+  }
+]

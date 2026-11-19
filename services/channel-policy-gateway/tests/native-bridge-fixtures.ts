@@ -119,6 +119,8 @@ export async function bridgeFixture() {
       async native() {
         return null;
       },
+      async fenceInput() {},
+      async drainInput() {},
       ready: () => true,
     },
     configuration,

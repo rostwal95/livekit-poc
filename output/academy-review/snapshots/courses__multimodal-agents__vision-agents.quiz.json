@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why does the Agents framework capture video frames at a configurable interval rather than sending every frame to the LLM?",
+    "options": [
+      "The I2S bus cannot transmit video frames faster than the configured interval",
+      "Sending every frame would be prohibitively expensive in tokens and too slow for real-time conversation",
+      "WebRTC video Tracks only deliver frames at the capture interval rate",
+      "Multimodal LLMs can only process one image per API call"
+    ],
+    "correctIndex": 1,
+    "explanation": "A single 1024x768 frame costs 750-1000 tokens. Sending frames at 30fps would consume millions of tokens per minute and add seconds of latency to every LLM call. Strategic capture at 1-5 second intervals balances visual awareness with cost and speed."
+  },
+  {
+    "question": "What is the key difference between continuous observation and on-demand analysis patterns for vision agents?",
+    "options": [
+      "Continuous observation requires a separate vision model from the conversation LLM",
+      "On-demand analysis uses higher resolution frames than continuous observation",
+      "Continuous observation captures at shorter intervals to notice changes proactively, while on-demand waits for the user to ask before analyzing the current frame",
+      "Continuous observation uses camera Tracks while on-demand uses screen share Tracks"
+    ],
+    "correctIndex": 2,
+    "explanation": "Continuous observation (like monitoring a lab experiment) uses short capture intervals so the agent can proactively notice and report changes. On-demand analysis (like reading a textbook page) provides high-quality analysis of a specific moment only when the user asks, saving tokens during passive periods."
+  },
+  {
+    "question": "How should a vision agent handle cases where it cannot clearly read text from a camera image?",
+    "options": [
+      "Acknowledge the limitation honestly and ask the user to adjust lighting, distance, or focus",
+      "Use a fallback OCR library to extract the text automatically",
+      "Switch to a higher-resolution capture mode automatically",
+      "Make its best guess based on partial character recognition"
+    ],
+    "correctIndex": 0,
+    "explanation": "LLMs can hallucinate text that is not actually in the image, especially when it is ambiguous. A careful vision agent should express confidence levels, quote text exactly, and ask the user to improve conditions rather than guessing and potentially providing incorrect information."
+  }
+]

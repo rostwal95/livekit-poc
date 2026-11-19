@@ -1,0 +1,251 @@
+1Deployment architecture
+
+2Docker configuration
+
+3LiveKit Cloud deployment
+
+4Monitoring setup
+
+5Custom metrics & data hooks
+
+6Alerting & incident response
+
+7Multi-tenant architecture
+
+8Auto-scaling
+
+9Cost optimization
+
+10Blue-green deployments
+
+11Operational runbook
+
+Docker configuration
+
+Docker configuration
+
+Every deployment path -- Cloud, self-hosted, or hybrid -- starts with a Docker image. A well-structured Dockerfile means faster builds, smaller images, and fewer surprises in production. This chapter walks through multi-stage builds for both Python and Node.js voice agents, with optimization techniques that cut image size and build time dramatically.
+
+What you'll learn
+
+How to write multi-stage Dockerfiles for Python and Node.js agents
+
+Layer caching strategies that make rebuilds fast
+
+Image size optimization techniques (minimal base images, dependency pruning)
+
+Production-ready patterns for LiveKit agent containers
+
+Why Docker matters for voice agents
+
+Voice agents have a specific constraint that most web apps do not: they process real-time audio. A container that takes 60 seconds to start means 60 seconds of dead air for the first caller after a scale-up event. A bloated image means slower pulls across your cluster. Every megabyte and every second counts.
+
+Think of your Docker image as a suitcase for a business trip. You want everything you need and nothing you do not. A 1.2GB image full of build tools, documentation, and test fixtures is a suitcase packed with camping gear for a one-night hotel stay.
+
+Python agent Dockerfile
+
+Here is a production-ready multi-stage Dockerfile for a Python voice agent:
+
+# Stage 1: Install dependencies
+FROM python:3.12-slim AS builder
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Stage 2: Production image
+FROM python:3.12-slim
+WORKDIR /app
+
+# Copy installed packages from builder
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy application code
+COPY . .
+
+# Run as non-root user
+RUN useradd --create-home agent
+USER agent
+
+CMD ["python", "agent.py", "start"]
+
+The first stage installs all Python packages. The --no-cache-dir flag prevents pip from storing download caches inside the image, saving 50-100MB.
+
+The second stage starts from a clean python:3.12-slim image. It copies the installed packages from the builder but leaves behind pip itself, wheel files, and build artifacts.
+
+COPY . . is the last layer. Since application code changes most frequently, placing it last means dependency layers stay cached across builds. Change your agent logic? Rebuild takes seconds, not minutes.
+
+Running as a non-root user is a security best practice. If your container is compromised, the attacker has limited privileges.
+
+Pin your base image
+
+Use python:3.12-slim rather than python:slim or python:latest. An unpinned base image can change underneath you, breaking your build or introducing security issues without any change to your code.
+
+Node.js agent Dockerfile
+
+For TypeScript/Node.js agents, the pattern is similar but uses npm and a Node.js base image:
+
+# Stage 1: Install dependencies and build
+FROM node:22-slim AS builder
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci --production=false
+
+COPY tsconfig.json ./
+COPY src ./src
+RUN npm run build
+
+# Stage 2: Production image
+FROM node:22-slim
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+
+# Run as non-root user
+USER node
+
+CMD ["node", "dist/agent.js", "start"]
+
+npm ci --production=false installs both runtime and dev dependencies (TypeScript compiler, type definitions) needed for the build step.
+
+npm run build compiles TypeScript to JavaScript. The compiled output lands in dist/.
+
+npm ci --omit=dev installs only production dependencies. TypeScript, eslint, and test frameworks stay out of the final image.
+
+Only the compiled JavaScript from dist/ is copied. Source TypeScript, test files, and build configuration stay in the builder stage.
+
+The .dockerignore file
+
+A .dockerignore file prevents unnecessary files from being sent to the Docker build context. Without it, COPY . . pulls in everything -- git history, node_modules, virtual environments, test data.
+
+.git
+.gitignore
+.env
+.env.*
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+node_modules
+dist
+.venv
+venv
+*.md
+tests/
+docs/
+.vscode/
+.idea/
+
+Always create .dockerignore before your first build
+
+Without .dockerignore, a project with a 500MB node_modules directory or a .venv sends all of that to the Docker daemon on every build -- even though it is never used in the image. Build times go from seconds to minutes.
+
+Layer caching strategies
+
+Docker caches each layer. If a layer's inputs have not changed, Docker reuses the cached version. The key principle: put things that change rarely at the top, things that change often at the bottom.
+
+Layer | Changes how often | Position
+Base image | Rarely (monthly) | Top
+System packages | Rarely | Early
+Dependency manifest (requirements.txt / package.json) | Occasionally | Middle
+Dependency install | Occasionally | Middle
+Application code | Frequently | Bottom
+
+FROM python:3.12-slim
+WORKDIR /app
+
+# This layer is cached until requirements.txt changes
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# This layer rebuilds every time agent code changes
+# But the pip install layer above stays cached
+COPY . .
+
+CMD ["python", "agent.py", "start"]
+
+If you put COPY . . before RUN pip install, every code change would invalidate the pip install cache, triggering a full dependency reinstall. By copying only requirements.txt first, you ensure that dependencies are only reinstalled when they actually change.
+
+Image size comparison
+
+Here is what different base image choices mean for your final image size:
+
+Base image | Size | Python included | Use case
+python:3.12 | ~900MB | Yes + build tools | Never use in production
+python:3.12-slim | ~150MB | Yes | Recommended default
+python:3.12-alpine | ~50MB | Yes | Caution: musl vs glibc issues
+node:22 | ~1.1GB | N/A | Never use in production
+node:22-slim | ~200MB | N/A | Recommended default
+node:22-alpine | ~130MB | N/A | Good if deps are compatible
+
+Alpine caution for Python agents
+
+Alpine Linux uses musl libc instead of glibc. Many Python packages with C extensions (numpy, some audio processing libraries) ship pre-compiled wheels for glibc only. On Alpine, pip compiles them from source, which requires installing build tools and dramatically increases build time. Stick with -slim unless you have tested thoroughly.
+
+The agent.toml configuration
+
+LiveKit Cloud uses agent.toml to configure deployment behavior:
+
+[agent]
+name = "dental-receptionist"
+version = "1.0.0"
+
+[build]
+dockerfile = "Dockerfile"
+context = "."
+
+[scaling]
+min_instances = 1
+max_instances = 10
+
+This file tells lk agent deploy which Dockerfile to use, what to name the agent, and how to scale it. You will explore the scaling section in depth in the auto-scaling chapter.
+
+Testing your Docker image locally
+
+Always test the image locally before deploying:
+
+# Build the image
+docker build -t my-agent .
+
+# Check image size
+docker images my-agent
+
+# Run locally to verify startup
+docker run --rm \
+-e LIVEKIT_URL=wss://your-project.livekit.cloud \
+-e LIVEKIT_API_KEY=APIxxxxxxx \
+-e LIVEKIT_API_SECRET=xxxxxxxxxxxxxxx \
+-e OPENAI_API_KEY=sk-xxx \
+-e DEEPGRAM_API_KEY=xxx \
+my-agent
+
+Check image size as part of your build process
+
+A Python agent image should be 200-400MB. A Node.js agent image should be 250-500MB. If your image is over 1GB, something is wrong -- you are likely including build tools, test fixtures, or unneeded dependencies.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why is COPY requirements.txt placed before COPY . . in a Dockerfile for a Python agent?
+
+What you learned
+
+Multi-stage builds separate dependency installation from the final image, keeping production containers lean
+
+Layer ordering matters: dependencies before application code ensures fast rebuilds
+
+.dockerignore prevents bloat from git history, virtual environments, and test data entering the build context
+
+python:3.12-slim and node:22-slim are the recommended base images for voice agents
+
+Always test your Docker image locally before deploying to any environment
+
+Next up
+
+Your agent is containerized. In the next chapter, you will deploy it to LiveKit Cloud using the lk CLI, configure secrets, and set up rollback procedures.

@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "owner": "p1_book",
+  "documents": [
+    {
+      "path": "projects/agent-continuity/AGENTS.md",
+      "owner": "p1_book",
+      "ownership": "Root-delegated semantic and professional review; factual AGENTS inventory and lifecycle clarification only, no new policy.",
+      "document_status": "Active",
+      "review_mode": "full",
+      "decision": "correct_verified_claims",
+      "review_notes": [
+        "Read full project instructions and reviewed source-layout, consent, leases, work-schema, packaging and verification rules. No behavioral policy changes."
+      ],
+      "before_sha256": "3e3a5b8509c0ff85a4476ceb697b5f833dcae841ff825dc7ddfde061bbd8285b",
+      "after_sha256": "4f9a7114a8d5c23e10d76e0f59c94922500aa2d51a39fe5abd5f98623e5f4257",
+      "current_line_count": 358,
+      "changes": [
+        "Replace the stale future-package inventory label with the implemented canonical distribution, examples and packaging. Root explicitly authorized this factual change after the review-only finding; no policy added."
+      ],
+      "documentation_check": {
+        "status": "passed",
+        "violations": []
+      },
+      "lifecycle_contract_coordination_required": false,
+      "limits": [
+        "Historical source-bound test results were preserved, not reclassified as current full qualification.",
+        "No browser/media/provider gate was run by this documentation reviewer; root owns final integrated qualification."
+      ]
+    },
+    {
+      "path": "projects/agent-continuity/README.md",
+      "owner": "p1_book",
+      "ownership": "Root-delegated semantic and professional review; factual AGENTS inventory and lifecycle clarification only, no new policy.",
+      "document_status": "Active",
+      "review_mode": "full",
+      "decision": "correct_verified_claims",
+      "review_notes": [
+        "Read onboarding, command and gate tables; checked canonical package layout and current work-item evidence."
+      ],
+      "before_sha256": "2e5babc87e424aebc41342c1e5a3a874236187c1d6a345e05c8b22b9522bc50e",
+      "after_sha256": "e9742e1035cac214cf1dda2a006572ed324e161e0de1bc1ae10c2db36f883b09",
+      "current_line_count": 481,
+      "changes": [
+        "Bound v5 mutation pacing to pre-reservation retries; retain known P1-A2 post-dispatch reconciliation limitation.",
+        "Separate historic PostgreSQL pass evidence from the later 0048 five-error full run and narrower targeted pass; do not promote a new full-run result."
+      ],
+      "documentation_check": {
+        "status": "passed",
+        "violations": []
+      },
+      "lifecycle_contract_coordination_required": false,
+      "limits": [
+        "Historical source-bound test results were preserved, not reclassified as current full qualification.",
+        "No browser/media/provider gate was run by this documentation reviewer; root owns final integrated qualification."
+      ]
+    },
+    {
+      "path": "projects/agent-continuity/Design.md",
+      "owner": "p1_book",
+      "ownership": "Root-delegated semantic and professional review; factual AGENTS inventory and lifecycle clarification only, no new policy.",
+      "document_status": "Active",
+      "review_mode": "full",
+      "decision": "correct_verified_claims",
+      "review_notes": [
+        "Read state/identity/transaction, migration, worker, public work v1-v4, resource, telemetry and gate sections; retained three diagrams and design-template headings."
+      ],
+      "before_sha256": "a2d49b2cb5e6a9bb4dc3523a594cdcdd94df76aa37d5642c73c1f91094ffd074",
+      "after_sha256": "fdff3091a2aa1722574f3630a31ce7108bd5837f2c746a295d51e0223875f24f",
+      "current_line_count": 1199,
+      "changes": [
+        "Describe pre-dispatch v5 pacing and the unresolved post-dispatch boundary.",
+        "Record ordinary telemetry exception containment without swallowing cancellation or fatal exceptions.",
+        "Qualify current-source PostgreSQL evidence and keep retained qualification distinct from a fresh gate."
+      ],
+      "documentation_check": {
+        "status": "passed",
+        "violations": []
+      },
+      "lifecycle_contract_coordination_required": false,
+      "limits": [
+        "Historical source-bound test results were preserved, not reclassified as current full qualification.",
+        "No browser/media/provider gate was run by this documentation reviewer; root owns final integrated qualification."
+      ]
+    },
+    {
+      "path": "projects/agent-continuity/python/README.md",
+      "owner": "p1_book",
+      "ownership": "Root-delegated semantic and professional review; factual AGENTS inventory and lifecycle clarification only, no new policy.",
+      "document_status": "Active",
+      "review_mode": "full",
+      "decision": "correct_verified_claims",
+      "review_notes": [
+        "Read all API examples and lifecycle/error documentation; checked public factories, UUID issuance, context-manager methods and error helper implementations."
+      ],
+      "before_sha256": "1064850079f6b98c015e677512a09744b32a1ac56b77ba386f89c3634532291a",
+      "after_sha256": "5517aa0e23018fe66489aa58a5aa35e9a96aa92bfbeb8d71d1e9b3d5d66bafd2",
+      "current_line_count": 493,
+      "changes": [
+        "Correct token/principal factory bindings and distinguish caller-supplied owner UUID from P1-allocated attempt identity and lease.",
+        "Limit async-with support to the classes that implement it; describe explicit close on the remaining public work/action clients.",
+        "Correct closed error-family and safe-error-code helper scope; clarify new delivery-begin admission vs historical receipt truth."
+      ],
+      "documentation_check": {
+        "status": "passed",
+        "violations": []
+      },
+      "lifecycle_contract_coordination_required": false,
+      "limits": [
+        "Historical source-bound test results were preserved, not reclassified as current full qualification.",
+        "No browser/media/provider gate was run by this documentation reviewer; root owns final integrated qualification."
+      ]
+    },
+    {
+      "path": "apps/local-console/AGENTS.md",
+      "owner": "p1_book",
+      "ownership": "Root-delegated semantic and professional review; factual AGENTS inventory and lifecycle clarification only, no new policy.",
+      "document_status": "Active",
+      "review_mode": "full",
+      "decision": "correct_verified_claims",
+      "review_notes": [
+        "Read full console instructions; compared lifetime and qualification statements with current page sources and work-item records. Existing rules retained."
+      ],
+      "before_sha256": "0da822e5a5997f02a7c52b91185e4c19eafc1bcdbbe2eb1c4fd07537457978a6",
+      "after_sha256": "9f0d0da8073a35d039f2df24de9746b7897b7c0142c064753110844e59c6e88d",
+      "current_line_count": 423,
+      "changes": [
+        "Clarify that Forget/pagehide initiate owned cleanup rather than prove resource or remote End settlement.",
+        "Separate historical 0042 component/text qualification from later selected provider recordings and complete pending joined/charter gates."
+      ],
+      "documentation_check": {
+        "status": "passed",
+        "violations": []
+      },
+      "lifecycle_contract_coordination_required": false,
+      "limits": [
+        "Historical source-bound test results were preserved, not reclassified as current full qualification.",
+        "No browser/media/provider gate was run by this documentation reviewer; root owns final integrated qualification."
+      ]
+    },
+    {
+      "path": "apps/local-console/README.md",
+      "owner": "p1_book",
+      "ownership": "Root-delegated semantic and professional review; factual AGENTS inventory and lifecycle clarification only, no new policy.",
+      "document_status": "Active",
+      "review_mode": "full",
+      "decision": "correct_verified_claims",
+      "review_notes": [
+        "Read full page inventory/onboarding, native input/operations/background/joined sections and validation/milestones; checked entrypoints, build profiles and lifecycle adapters."
+      ],
+      "before_sha256": "49280296b1c15c18ad6e7595d1a91b6d57d3a554e4b74d058f97155e2da4a7b2",
+      "after_sha256": "1a63091a8e213cf917a9d9103e7653d7d5308a651e26ce72d35a1bf38204b987",
+      "current_line_count": 796,
+      "changes": [
+        "Align default P1 panel layout, explicit business-backend enablement and separate showcase landing/build.",
+        "Distinguish browser page URL/storage exclusion from authenticated API identity paths.",
+        "Qualify original-command replay, conversation lifetime vs business controls, page-exit best effort and explicit End barriers.",
+        "Separate source-bound provider/browser evidence and current post-v5 rerun requirement from general capability claims."
+      ],
+      "documentation_check": {
+        "status": "passed",
+        "violations": []
+      },
+      "lifecycle_contract_coordination_required": false,
+      "limits": [
+        "Historical source-bound test results were preserved, not reclassified as current full qualification.",
+        "No browser/media/provider gate was run by this documentation reviewer; root owns final integrated qualification."
+      ]
+    },
+    {
+      "path": "apps/local-console/Design.md",
+      "owner": "p1_book",
+      "ownership": "Root-delegated semantic and professional review; factual AGENTS inventory and lifecycle clarification only, no new policy.",
+      "document_status": "Active",
+      "review_mode": "full",
+      "decision": "correct_verified_claims",
+      "review_notes": [
+        "Read full component, control, permission, transcript, retention, credential and qualification design; checked relevant source adapters and build inputs."
+      ],
+      "before_sha256": "8edcc1f6f87b550932b9a0945237fda8f689fdc5e2cbd27e90472f45e13b2ce4",
+      "after_sha256": "9023f850a70f8ac2ac26f31172805f99809c8fd6228f06cdfdeeec91c0e166d6",
+      "current_line_count": 1034,
+      "changes": [
+        "Align page/build boundaries and full current business-read snapshot scope.",
+        "Record the existing permission-prompt-inclusive microphone observer and page-exit limitations instead of claiming stronger cleanup.",
+        "Qualify selected provider evidence and source-bound post-v5 rerun requirement.",
+        "Keep credential clear, cleanup initiation, observed remote End and actual resource settlement distinct."
+      ],
+      "documentation_check": {
+        "status": "passed",
+        "violations": []
+      },
+      "lifecycle_contract_coordination_required": false,
+      "limits": [
+        "Historical source-bound test results were preserved, not reclassified as current full qualification.",
+        "No browser/media/provider gate was run by this documentation reviewer; root owns final integrated qualification."
+      ]
+    }
+  ],
+  "implementation_references": [
+    "projects/agent-continuity/python/src/continuity_lab/work_api.py",
+    "projects/agent-continuity/python/src/continuity_lab/execution_api.py",
+    "projects/agent-continuity/python/src/continuity_lab/async_execution.py",
+    "projects/agent-continuity/python/src/continuity_lab/postgres_api.py",
+    "apps/local-console/index.html",
+    "apps/local-console/src/main.ts",
+    "apps/local-console/src/voice.ts",
+    "apps/local-console/src/channel-policy.ts",
+    "apps/local-console/vite.config.ts",
+    "apps/local-console/vite.channel-policy.config.ts",
+    "local-setup/docker/console.Dockerfile"
+  ]
+}

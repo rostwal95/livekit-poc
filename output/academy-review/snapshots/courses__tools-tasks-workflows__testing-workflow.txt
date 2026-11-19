@@ -1,0 +1,420 @@
+1Workflow architecture
+
+2Building the greeter agent
+
+3Complex tool definitions
+
+4AgentTask: structured data collection
+
+5TaskGroup: multi-step flows
+
+6Prebuilt tasks
+
+7Agent handoffs & context
+
+8State with userdata
+
+9Dynamic tool management
+
+10Testing the workflow
+
+Testing the workflow
+
+Testing the workflow
+
+You have built a multi-agent restaurant system with handoffs, tasks, dynamic tools, and shared state. But how do you know it works? Manual testing in the playground catches obvious bugs, but it cannot cover the combinatorial explosion of conversation paths. In this chapter, you will write automated tests that verify the entire workflow — from greeter to feedback — and run them in CI.
+
+What you'll learn
+
+How to test individual agents with AgentTest
+
+How to assert on agent handoffs with is_agent_handoff()
+
+How to test tasks and verify their typed results
+
+How to run the complete workflow in a CI pipeline
+
+Testing individual agents
+
+The AgentTest utility lets you simulate a conversation with an agent without a real audio connection. You send text messages, and the framework processes them through the full agent pipeline — tools, instructions, everything — returning text responses.
+
+import pytest
+from livekit.agents.testing import AgentTest
+from greeter_agent import GreeterAgent
+
+
+@pytest.mark.asyncio
+async def test_greeter_welcomes_guest():
+  """The greeter should produce a welcome message on enter."""
+  test = AgentTest(GreeterAgent())
+  await test.start()
+
+  # on_enter() should trigger a greeting
+  response = await test.get_response()
+  assert response is not None
+  assert len(response) > 0
+
+
+@pytest.mark.asyncio
+async def test_greeter_checks_hours():
+  """The greeter should use the check_hours tool when asked about hours."""
+  test = AgentTest(GreeterAgent())
+  await test.start()
+  await test.get_response()  # Consume the greeting
+
+  response = await test.say("What are your hours?")
+
+  # The response should contain hour information from the tool
+  assert "11" in response or "monday" in response.lower() or "open" in response.lower()
+
+
+@pytest.mark.asyncio
+async def test_greeter_hands_off_to_order_taker():
+  """The greeter should hand off when the customer wants to order."""
+  test = AgentTest(GreeterAgent())
+  await test.start()
+  await test.get_response()  # Consume the greeting
+
+  await test.say("I would like to place an order")
+
+  # Verify the handoff occurred
+  assert test.is_agent_handoff()
+  assert test.current_agent_type.__name__ == "OrderTakerAgent"
+
+import { AgentTest } from "@livekit/agents/testing";
+import { GreeterAgent } from "./greeterAgent";
+
+describe("GreeterAgent", () => {
+it("should welcome the guest on enter", async () => {
+  const test = new AgentTest(new GreeterAgent());
+  await test.start();
+
+  const response = await test.getResponse();
+  expect(response).toBeTruthy();
+  expect(response!.length).toBeGreaterThan(0);
+});
+
+it("should check hours when asked", async () => {
+  const test = new AgentTest(new GreeterAgent());
+  await test.start();
+  await test.getResponse(); // Consume the greeting
+
+  const response = await test.say("What are your hours?");
+
+  expect(
+    response.includes("11") ||
+    response.toLowerCase().includes("monday") ||
+    response.toLowerCase().includes("open")
+  ).toBe(true);
+});
+
+it("should hand off when the customer wants to order", async () => {
+  const test = new AgentTest(new GreeterAgent());
+  await test.start();
+  await test.getResponse();
+
+  await test.say("I would like to place an order");
+
+  expect(test.isAgentHandoff()).toBe(true);
+  expect(test.currentAgentType.name).toBe("OrderTakerAgent");
+});
+});
+
+AgentTest wraps an agent and simulates a text-based conversation. test.say() sends a user message and returns the agent's response. test.get_response() waits for the next agent-initiated message (like an on_enter() greeting). test.is_agent_handoff() returns true if the last interaction triggered a handoff, and test.current_agent_type tells you which agent is now active.
+
+Testing handoff chains
+
+The real power of AgentTest is testing the complete handoff chain. You can follow the conversation through multiple agents and verify that each transition works correctly.
+
+import pytest
+from livekit.agents.testing import AgentTest
+from greeter_agent import GreeterAgent
+from order_state import OrderState
+
+
+@pytest.mark.asyncio
+async def test_full_ordering_workflow():
+  """Test the complete flow from greeting to order to feedback."""
+  test = AgentTest(GreeterAgent())
+  test.session.userdata["state"] = OrderState()
+  await test.start()
+
+  # Step 1: Greeter welcomes us
+  greeting = await test.get_response()
+  assert greeting is not None
+
+  # Step 2: Ask to order — triggers handoff to OrderTaker
+  await test.say("I'd like to order some food")
+  assert test.is_agent_handoff()
+
+  # Step 3: OrderTaker greets us
+  order_greeting = await test.get_response()
+  assert order_greeting is not None
+
+  # Step 4: Place an order
+  response = await test.say("I'll have two bruschetta please")
+
+  # Verify the state was updated
+  state = test.session.userdata["state"]
+  assert state.item_count > 0
+
+  # Step 5: Finish and move to feedback
+  await test.say("That's everything, I'm done ordering")
+  # The agent should eventually hand off to feedback
+  if test.is_agent_handoff():
+      feedback_greeting = await test.get_response()
+      assert feedback_greeting is not None
+
+import { AgentTest } from "@livekit/agents/testing";
+import { GreeterAgent } from "./greeterAgent";
+import { OrderState } from "./orderState";
+
+describe("Full ordering workflow", () => {
+it("should flow from greeter to order taker to feedback", async () => {
+  const test = new AgentTest(new GreeterAgent());
+  test.session.userdata.state = new OrderState();
+  await test.start();
+
+  // Step 1: Greeter welcomes us
+  const greeting = await test.getResponse();
+  expect(greeting).toBeTruthy();
+
+  // Step 2: Ask to order
+  await test.say("I'd like to order some food");
+  expect(test.isAgentHandoff()).toBe(true);
+
+  // Step 3: OrderTaker greets us
+  const orderGreeting = await test.getResponse();
+  expect(orderGreeting).toBeTruthy();
+
+  // Step 4: Place an order
+  await test.say("I'll have two bruschetta please");
+
+  const state = test.session.userdata.state as OrderState;
+  expect(state.itemCount).toBeGreaterThan(0);
+});
+});
+
+Tests use a real LLM
+
+AgentTest runs the full agent pipeline, including LLM calls. This means tests are not deterministic — the LLM might phrase responses differently each run. Write assertions that check for semantic correctness (does the response mention hours?) rather than exact string matches. This also means tests require API credentials and incur LLM costs.
+
+Testing individual tasks
+
+Tasks can be tested in isolation, separately from the agents that use them. This is useful for verifying that a task collects the right data.
+
+import pytest
+from livekit.agents.testing import AgentTest
+from collect_order_item import CollectOrderItem
+
+
+@pytest.mark.asyncio
+async def test_collect_order_item():
+  """The task should collect a complete order item."""
+  test = AgentTest(CollectOrderItem())
+  await test.start()
+
+  # The task should ask what we want to order
+  prompt = await test.get_response()
+  assert prompt is not None
+
+  # Provide the item details
+  await test.say("I'd like one grilled salmon, no sauce")
+
+  # The task should confirm
+  confirmation = await test.get_response()
+  assert "salmon" in confirmation.lower()
+
+  # Confirm the order
+  await test.say("Yes, that's correct")
+
+  # The task should complete with a typed result
+  result = test.task_result
+  assert result is not None
+  assert result.name.lower() == "grilled salmon"
+  assert result.quantity == 1
+  assert any("no sauce" in m.lower() for m in result.modifications)
+
+
+@pytest.mark.asyncio
+async def test_collect_order_item_cancellation():
+  """The task should handle cancellation gracefully."""
+  test = AgentTest(CollectOrderItem())
+  await test.start()
+  await test.get_response()
+
+  await test.say("Actually, never mind")
+
+  result = test.task_result
+  assert result is None
+
+import { AgentTest } from "@livekit/agents/testing";
+import { CollectOrderItem } from "./collectOrderItem";
+
+describe("CollectOrderItem", () => {
+it("should collect a complete order item", async () => {
+  const test = new AgentTest(new CollectOrderItem());
+  await test.start();
+
+  const prompt = await test.getResponse();
+  expect(prompt).toBeTruthy();
+
+  await test.say("I'd like one grilled salmon, no sauce");
+
+  const confirmation = await test.getResponse();
+  expect(confirmation.toLowerCase()).toContain("salmon");
+
+  await test.say("Yes, that's correct");
+
+  const result = test.taskResult;
+  expect(result).not.toBeNull();
+  expect(result!.name.toLowerCase()).toBe("grilled salmon");
+  expect(result!.quantity).toBe(1);
+});
+
+it("should handle cancellation", async () => {
+  const test = new AgentTest(new CollectOrderItem());
+  await test.start();
+  await test.getResponse();
+
+  await test.say("Actually, never mind");
+
+  expect(test.taskResult).toBeNull();
+});
+});
+
+Testing dynamic tools
+
+Verify that tools are added and removed correctly by checking the agent's available tools after state changes.
+
+import pytest
+from livekit.agents.testing import AgentTest
+from order_taker_agent import OrderTakerAgent
+from order_state import OrderState
+
+
+@pytest.mark.asyncio
+async def test_coupon_tool_appears_after_confirmation():
+  """The apply_coupon tool should only be available after order confirmation."""
+  test = AgentTest(OrderTakerAgent())
+  test.session.userdata["state"] = OrderState()
+  await test.start()
+  await test.get_response()
+
+  # Before confirmation, no coupon tool
+  tool_names = [t.name for t in test.available_tools]
+  assert "apply_coupon" not in tool_names
+
+  # Add an item and confirm
+  await test.say("I'll have one bruschetta")
+  await test.say("That's all, please confirm my order")
+
+  # After confirmation, coupon tool should be available
+  tool_names = [t.name for t in test.available_tools]
+  assert "apply_coupon" in tool_names
+
+import { AgentTest } from "@livekit/agents/testing";
+import { OrderTakerAgent } from "./orderTakerAgent";
+import { OrderState } from "./orderState";
+
+describe("Dynamic tools", () => {
+it("should add coupon tool after order confirmation", async () => {
+  const test = new AgentTest(new OrderTakerAgent());
+  test.session.userdata.state = new OrderState();
+  await test.start();
+  await test.getResponse();
+
+  let toolNames = test.availableTools.map((t) => t.name);
+  expect(toolNames).not.toContain("apply_coupon");
+
+  await test.say("I'll have one bruschetta");
+  await test.say("That's all, please confirm my order");
+
+  toolNames = test.availableTools.map((t) => t.name);
+  expect(toolNames).toContain("apply_coupon");
+});
+});
+
+Running tests in CI
+
+Automated tests are only valuable if they run consistently. Here is a GitHub Actions workflow that runs your agent tests on every push.
+
+name: Agent Tests
+
+on:
+push:
+  branches: [main]
+pull_request:
+  branches: [main]
+
+jobs:
+test:
+  runs-on: ubuntu-latest
+
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio
+
+    - name: Run agent tests
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        DEEPGRAM_API_KEY: ${{ secrets.DEEPGRAM_API_KEY }}
+      run: |
+        pytest tests/ -v --timeout=60
+
+Agent tests call real LLMs, so you need API keys. Store them as GitHub repository secrets (Settings, Secrets and variables, Actions). Never commit API keys to your repository.
+
+Agent tests involve LLM calls that can hang if something goes wrong. The --timeout=60 flag ensures no single test runs longer than 60 seconds. Adjust based on your workflow complexity.
+
+The workflow triggers on both pushes to main and pull requests. This catches regressions before they merge. Since tests use real LLM calls, keep the test suite focused to control costs.
+
+LLM tests are non-deterministic
+
+Because tests use a real LLM, the exact wording of responses varies between runs. A test that passes today might fail tomorrow if the LLM phrases something slightly differently. Write resilient assertions: check that a handoff happened, not that the farewell message contains an exact string. Check that the order total is correct, not that the agent said "your total is" in a specific way.
+
+Best practices for agent testing
+
+Assert on structural outcomes: Did the handoff happen? Is the state correct? Was the right tool called? Avoid asserting on exact response text.
+
+Tasks are the most testable unit because they have clear inputs (conversation) and outputs (typed results). Test them separately before testing full workflows.
+
+After a conversation, check session.userdata to verify the state is correct. State assertions are deterministic even when LLM responses are not.
+
+Each test makes real LLM calls. A test suite with 100 agent tests will be slow and expensive. Focus on the critical paths: happy path ordering, handoff chain, error cases.
+
+Snapshot testing for regressions
+
+Consider logging full conversation transcripts during test runs and reviewing them when tests fail. This helps you understand whether a failure is due to a real regression or just LLM variability.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why should agent test assertions focus on structural outcomes (like handoffs and state changes) rather than exact response text?
+
+What you learned
+
+AgentTest simulates conversations with agents in an automated test environment
+
+is_agent_handoff() verifies that handoffs occurred correctly
+
+task_result retrieves the typed result from a completed task
+
+available_tools lets you assert on dynamic tool changes
+
+Agent tests use real LLMs, so assertions should focus on structure and state, not exact wording
+
+CI pipelines need API key secrets and reasonable timeouts
+
+Course summary
+
+Over ten chapters, you have built a complete multi-agent restaurant ordering system. You started with the three primitives — tools, tasks, and agents — and learned when to use each. You built a Greeter Agent with lifecycle hooks and handoff tools, explored complex tool definitions with programmatic creation, raw schemas, toolsets, and tool flags. You used AgentTask for structured data collection and TaskGroup for multi-step flows with regression and context summarization. You integrated prebuilt tasks for email and address collection, managed seamless handoffs with context passing, built type-safe cross-agent state with userdata, dynamically adapted agent behavior with update_tools and update_instructions, and tested the entire workflow with automated assertions in CI. These patterns are the foundation for building any complex voice AI system with LiveKit Agents.

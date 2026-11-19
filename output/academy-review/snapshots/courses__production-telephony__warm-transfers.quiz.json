@@ -1,0 +1,35 @@
+[
+  {
+    "question": "What distinguishes a warm transfer from a cold transfer at the protocol level?",
+    "options": [
+      "Warm transfers encrypt the audio stream while cold transfers do not",
+      "Warm transfers use SIP REFER while cold transfers use SIP INVITE",
+      "In a warm transfer, the AI agent maintains two simultaneous connections (caller and receiving party) to brief the receiving party before connecting them, whereas a cold transfer simply redirects the SIP session",
+      "Warm transfers can only be made to internal extensions"
+    ],
+    "correctIndex": 2,
+    "explanation": "The key difference is that the AI agent acts as a bridge during a warm transfer. It holds the caller on hold, places a separate outbound call to the receiving party, provides a briefing with full context, and only then connects the two parties. A cold transfer simply sends a SIP REFER to redirect the existing session."
+  },
+  {
+    "question": "Why is it important to play hold music during a warm transfer rather than leaving the line silent?",
+    "options": [
+      "Because regulations require hold music on all transfers",
+      "Because silence makes callers assume the call has dropped, leading them to hang up and call back, which increases load",
+      "Because hold music reduces the technical load on the SIP trunk",
+      "Because hold music improves STT accuracy when the call resumes"
+    ],
+    "correctIndex": 1,
+    "explanation": "Callers interpret silence as a disconnected call. If they hear nothing during the transfer, they will hang up and call back, creating duplicate load and a worse experience. Hold music or comfort messages confirm the call is still active and the transfer is in progress."
+  },
+  {
+    "question": "What should your system do when a warm transfer fails because the human agent does not answer?",
+    "options": [
+      "Catch the failure and offer the caller alternatives: a callback, a different transfer target, or continuing with the AI agent",
+      "Automatically retry the same number indefinitely until someone picks up",
+      "Silently end the call since the transfer cannot be completed",
+      "Place the caller back in the queue at the lowest priority"
+    ],
+    "correctIndex": 0,
+    "explanation": "Transfer failures must be caught gracefully. The three most common fallback strategies are offering a callback, retrying to a different number, or continuing the conversation with the AI agent. The caller should never be left in silence or disconnected after a failed transfer."
+  }
+]

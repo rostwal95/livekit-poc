@@ -1,0 +1,13 @@
+[
+  {
+    "question": "A startup with 2 engineers wants to build a customer-facing voice AI product with a React frontend. They expect to handle 20,000 minutes/month within 6 months. Which approach makes the most sense?",
+    "options": [
+      "ElevenLabs Agents for the fastest setup",
+      "Vapi for the API-first developer experience",
+      "LiveKit Agents for the client SDK integration and cost efficiency at scale",
+      "Retell for the visual workflow builder"
+    ],
+    "correctIndex": 2,
+    "explanation": "This scenario checks three boxes for LiveKit Agents: (1) a customer-facing product needs the integrated client SDKs and state sync that managed platforms lack, (2) 20K minutes/month makes framework cost savings significant ($1,000+/month vs managed platforms), and (3) a small but technical team can leverage the framework effectively. The React frontend benefits directly from LiveKit's component library."
+  }
+]

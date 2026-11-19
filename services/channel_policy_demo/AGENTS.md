@@ -73,10 +73,15 @@ M1 is the existing confirmed-investigation intake.
   text ingress and SessionHost disabled.
 - Parent room ownership remains separate from the background application.
 - End must not stop accepted durable work.
-- Native worker configuration is scripted-only and private.
+- Drain original accepted native inputs before revoking their grant or stopping
+  the worker; unresolved input keeps the original closing owner.
+- Parent preparation keeps App origins live until the launcher observes gateway
+  dispatch quiescence. Only then may final Parent close retire those origins.
+- Native worker configuration is private and versioned; scripted is the default
+  and provider_real is an explicit trusted v2 selection.
 - Keep codec/import paths free of environment, SDK, assets and provider access.
 - Load heavy clients explicitly during startup.
-- Provider mode requires a separate versioned contract.
+- Provider mode preserves the existing v2 contract and native-only key boundary.
 - Close the prepare host and native runtime concurrently.
 - Observe actual SDK startup before closing wrapper/model/transport dependencies.
 - Retain and settle actual real-time communication (RTC) connect before the final

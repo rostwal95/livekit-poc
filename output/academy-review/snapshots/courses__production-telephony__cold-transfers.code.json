@@ -1,0 +1,66 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, function_tool\nfrom livekit.api import LiveKitAPI\n\n\n@function_tool()\nasync def transfer_to_sales(context: RunContext):\n  \"\"\"Transfer the caller directly to the sales department.\"\"\"\n\n  await context.session.say(\"I'll transfer you to our sales team now. Goodbye!\")\n\n  api = LiveKitAPI()\n  await api.sip.transfer_sip_participant(\n      room_name=context.session.room.name,\n      participant_identity=\"phone-caller\",\n      transfer_to=\"sip:+15559876543@trunk.provider.com\",\n  )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession, functionTool } from \"@livekit/agents\";\nimport { LiveKitAPI } from \"@livekit/server-sdk\";\n\nconst transferToSales = functionTool({\nname: \"transfer_to_sales\",\ndescription: \"Transfer the caller directly to the sales department.\",\nhandler: async (params, context: AgentSession) => {\n  await context.say(\"I'll transfer you to our sales team now. Goodbye!\");\n\n  const api = new LiveKitAPI();\n  await api.sip.transferSipParticipant({\n    roomName: context.room.name,\n    participantIdentity: \"phone-caller\",\n    transferTo: \"sip:+15559876543@trunk.provider.com\",\n  });\n},\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import RunContext, function_tool\nfrom livekit.api import LiveKitAPI\n\nEXTENSION_MAP = {\n  \"sales\": \"sip:100@pbx.company.com\",\n  \"support\": \"sip:200@pbx.company.com\",\n  \"billing\": \"sip:300@pbx.company.com\",\n  \"voicemail\": \"sip:999@pbx.company.com\",\n}\n\n\n@function_tool()\nasync def transfer_to_extension(\n  context: RunContext,\n  department: str,\n):\n  \"\"\"Transfer the caller to a department extension.\n\n  Args:\n      department: The department to transfer to (sales, support, billing, voicemail).\n  \"\"\"\n  target = EXTENSION_MAP.get(department)\n  if not target:\n      await context.session.say(\n          f\"I don't have an extension for {department}. \"\n          \"Let me see how I can help you instead.\"\n      )\n      return\n\n  await context.session.say(f\"Transferring you to {department} now.\")\n\n  api = LiveKitAPI()\n  await api.sip.transfer_sip_participant(\n      room_name=context.session.room.name,\n      participant_identity=\"phone-caller\",\n      transfer_to=target,\n  )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession, functionTool } from \"@livekit/agents\";\nimport { LiveKitAPI } from \"@livekit/server-sdk\";\nimport { z } from \"zod\";\n\nconst EXTENSION_MAP: Record<string, string> = {\nsales: \"sip:100@pbx.company.com\",\nsupport: \"sip:200@pbx.company.com\",\nbilling: \"sip:300@pbx.company.com\",\nvoicemail: \"sip:999@pbx.company.com\",\n};\n\nconst transferToExtension = functionTool({\nname: \"transfer_to_extension\",\ndescription: \"Transfer the caller to a department extension.\",\nparameters: z.object({\n  department: z.string().describe(\"The department to transfer to\"),\n}),\nhandler: async ({ department }, context: AgentSession) => {\n  const target = EXTENSION_MAP[department];\n  if (!target) {\n    await context.say(\n      `I don't have an extension for ${department}. ` +\n      \"Let me see how I can help you instead.\"\n    );\n    return;\n  }\n\n  await context.say(`Transferring you to ${department} now.`);\n\n  const api = new LiveKitAPI();\n  await api.sip.transferSipParticipant({\n    roomName: context.room.name,\n    participantIdentity: \"phone-caller\",\n    transferTo: target,\n  });\n},\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.api import LiveKitAPI\n\n\nasync def cold_transfer_to_number(\n  room_name: str,\n  participant_identity: str,\n  phone_number: str,\n  trunk_domain: str = \"trunk.provider.com\",\n):\n  \"\"\"Cold transfer a caller to an external phone number.\n\n  Args:\n      room_name: The LiveKit room containing the call.\n      participant_identity: The caller's participant identity.\n      phone_number: E.164 formatted number (e.g., +15559876543).\n      trunk_domain: Your SIP trunk provider's domain.\n  \"\"\"\n  api = LiveKitAPI()\n  await api.sip.transfer_sip_participant(\n      room_name=room_name,\n      participant_identity=participant_identity,\n      transfer_to=f\"sip:{phone_number}@{trunk_domain}\",\n  )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { LiveKitAPI } from \"@livekit/server-sdk\";\n\nasync function coldTransferToNumber(\nroomName: string,\nparticipantIdentity: string,\nphoneNumber: string,\ntrunkDomain: string = \"trunk.provider.com\"\n): Promise<void> {\nconst api = new LiveKitAPI();\nawait api.sip.transferSipParticipant({\n  roomName,\n  participantIdentity,\n  transferTo: `sip:${phoneNumber}@${trunkDomain}`,\n});\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import RunContext, function_tool\nfrom livekit.api import LiveKitAPI\n\n\n@function_tool()\nasync def safe_cold_transfer(context: RunContext, target: str):\n  \"\"\"Transfer with error handling.\n\n  Args:\n      target: SIP URI or phone number to transfer to.\n  \"\"\"\n  await context.session.say(\"Transferring you now. One moment.\")\n\n  api = LiveKitAPI()\n  try:\n      await api.sip.transfer_sip_participant(\n          room_name=context.session.room.name,\n          participant_identity=\"phone-caller\",\n          transfer_to=target,\n      )\n  except Exception as e:\n      # Transfer failed \u2014 stay on the line\n      await context.session.say(\n          \"I'm sorry, I wasn't able to complete that transfer. \"\n          \"I'm still here \u2014 how else can I help you?\"\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession, functionTool } from \"@livekit/agents\";\nimport { LiveKitAPI } from \"@livekit/server-sdk\";\nimport { z } from \"zod\";\n\nconst safeColdTransfer = functionTool({\nname: \"safe_cold_transfer\",\ndescription: \"Transfer with error handling.\",\nparameters: z.object({\n  target: z.string().describe(\"SIP URI or phone number to transfer to\"),\n}),\nhandler: async ({ target }, context: AgentSession) => {\n  await context.say(\"Transferring you now. One moment.\");\n\n  const api = new LiveKitAPI();\n  try {\n    await api.sip.transferSipParticipant({\n      roomName: context.room.name,\n      participantIdentity: \"phone-caller\",\n      transferTo: target,\n    });\n  } catch (error) {\n    // Transfer failed \u2014 stay on the line\n    await context.say(\n      \"I'm sorry, I wasn't able to complete that transfer. \" +\n      \"I'm still here \u2014 how else can I help you?\"\n    );\n  }\n},\n});"
+  }
+]

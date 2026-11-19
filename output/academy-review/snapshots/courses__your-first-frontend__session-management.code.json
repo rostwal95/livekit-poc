@@ -1,0 +1,34 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "\"use client\";\n\nimport { useSession } from \"@livekit/agents-react\";\n\nconst stateConfig: Record<string, { label: string; color: string }> = {\nconnecting:   { label: \"Connecting to Maya...\",     color: \"bg-yellow-400\" },\nlistening:    { label: \"Maya is listening\",         color: \"bg-green-400\" },\nthinking:     { label: \"Maya is thinking...\",       color: \"bg-blue-400\" },\nspeaking:     { label: \"Maya is speaking\",          color: \"bg-purple-400\" },\ndisconnected: { label: \"Session ended\",             color: \"bg-gray-400\" },\nfailed:       { label: \"Connection lost\",           color: \"bg-red-400\" },\n};\n\nexport function DentalStateIndicator() {\nconst session = useSession();\nconst state = session.agent.agentState;\nconst config = stateConfig[state] ?? stateConfig.connecting;\n\nreturn (\n  <div className=\"flex items-center gap-2\">\n    <span\n      className={`inline-block h-3 w-3 rounded-full ${config.color} ${\n        state === \"thinking\" ? \"animate-pulse\" : \"\"\n      }`}\n    />\n    <span className=\"text-sm font-medium text-gray-700\">{config.label}</span>\n  </div>\n);\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "\"use client\";\n\nimport { useSession } from \"@livekit/agents-react\";\n\nexport function PatientGreeting() {\nconst session = useSession();\n\n// Read custom attributes published by the dental agent\nconst agentAttributes = session.agent.attributes;\nconst patientName = agentAttributes?.patient_name;\n\nif (!patientName) return null;\n\nreturn (\n  <p className=\"text-sm text-gray-500\">\n    Patient: <span className=\"font-medium text-gray-900\">{patientName}</span>\n  </p>\n);\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "\"use client\";\n\nimport { useSession } from \"@livekit/agents-react\";\nimport { TokenSource } from \"livekit-client\";\nimport { DentalStateIndicator } from \"@/components/DentalStateIndicator\";\nimport { PatientGreeting } from \"@/components/PatientGreeting\";\n\nexport default function DentalReceptionist() {\nconst session = useSession({\n  tokenSource: TokenSource.endpoint({ url: \"/api/token\" }),\n});\n\nconst { agentState, isFinished, error } = session.agent;\n\nreturn (\n  <main className=\"flex min-h-screen flex-col items-center justify-center bg-white p-8\">\n    <div className=\"w-full max-w-md space-y-6\">\n      {/* Header */}\n      <div className=\"text-center\">\n        <h1 className=\"text-2xl font-semibold text-gray-900\">\n          Bright Smile Dental\n        </h1>\n        <p className=\"mt-1 text-sm text-gray-500\">AI Receptionist</p>\n      </div>\n\n      {/* State indicator */}\n      <div className=\"flex justify-center\">\n        <DentalStateIndicator />\n      </div>\n\n      {/* Patient name (appears after agent collects it) */}\n      <div className=\"flex justify-center\">\n        <PatientGreeting />\n      </div>\n\n      {/* Connecting phase */}\n      {agentState === \"connecting\" && (\n        <div className=\"text-center\">\n          <div className=\"mx-auto h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500\" />\n          <p className=\"mt-4 text-gray-500\">\n            Connecting you to Maya, our receptionist...\n          </p>\n        </div>\n      )}\n\n      {/* Active conversation */}\n      {(agentState === \"listening\" ||\n        agentState === \"thinking\" ||\n        agentState === \"speaking\") && (\n        <div className=\"text-center\">\n          <p className=\"text-sm text-gray-400\">\n            {agentState === \"listening\" &&\n              \"Go ahead \u2014 tell Maya what you need.\"}\n            {agentState === \"thinking\" &&\n              \"One moment while Maya checks on that...\"}\n            {agentState === \"speaking\" && \"\"}\n          </p>\n          {/* Audio visualizer and chat transcript will go here in later chapters */}\n        </div>\n      )}\n\n      {/* Session ended cleanly */}\n      {isFinished && !error && (\n        <div className=\"text-center\">\n          <p className=\"text-lg font-semibold text-gray-900\">\n            Thanks for calling Bright Smile Dental!\n          </p>\n          <p className=\"mt-2 text-gray-500\">\n            If you booked an appointment, you will receive a confirmation\n            shortly.\n          </p>\n          <button\n            onClick={() => window.location.reload()}\n            className=\"mt-4 rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700\"\n          >\n            Start a new conversation\n          </button>\n        </div>\n      )}\n\n      {/* Error state */}\n      {error && (\n        <div className=\"rounded-lg border border-red-200 bg-red-50 p-6 text-center\">\n          <p className=\"font-semibold text-red-700\">Connection lost</p>\n          <p className=\"mt-2 text-sm text-red-600\">{error.message}</p>\n          <button\n            onClick={() => window.location.reload()}\n            className=\"mt-4 rounded-lg bg-red-600 px-6 py-2 text-white hover:bg-red-700\"\n          >\n            Reconnect\n          </button>\n        </div>\n      )}\n    </div>\n  </main>\n);\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "\"use client\";\n\nimport { useSession } from \"@livekit/agents-react\";\n\nexport function DentalError() {\nconst session = useSession();\nconst { error } = session.agent;\n\nif (!error) return null;\n\nreturn (\n  <div role=\"alert\" className=\"rounded-lg border border-red-300 bg-red-50 p-4\">\n    <h3 className=\"font-semibold text-red-800\">\n      We lost the connection to our receptionist\n    </h3>\n    <p className=\"mt-1 text-sm text-red-700\">\n      {error.message || \"An unexpected error occurred.\"}\n    </p>\n    <p className=\"mt-2 text-sm text-red-600\">\n      If you were in the middle of booking, your appointment has not been\n      confirmed. Please try again.\n    </p>\n    <button\n      onClick={() => window.location.reload()}\n      className=\"mt-3 rounded bg-red-600 px-4 py-1.5 text-sm text-white hover:bg-red-700\"\n    >\n      Reconnect to Maya\n    </button>\n  </div>\n);\n}"
+  }
+]

@@ -1,0 +1,1 @@
+document.getElementById('filter').addEventListener('input',event=>{const q=event.target.value.trim().toLowerCase();document.querySelectorAll('.course').forEach(c=>c.classList.toggle('hidden',!c.dataset.search.includes(q)));});

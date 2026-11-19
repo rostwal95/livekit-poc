@@ -15,6 +15,7 @@ const f = vi.hoisted(() => ({
   caseError: undefined as unknown,
   appWait: undefined as Promise<void> | undefined,
   closeWait: undefined as Promise<void> | undefined,
+  quiesceWait: undefined as Promise<void> | undefined,
   failAppClose: false,
   failAppConstruct: false,
   appConfig: undefined as unknown,
@@ -92,6 +93,11 @@ vi.mock('../src/application.js', () => ({
       if (f.failAppClose) throw new Error('PRIVATE_APP_CLOSE');
       f.trace.push('closed:app');
     }
+    async quiesceDispatch() {
+      f.trace.push('quiesce:app');
+      await f.quiesceWait;
+      f.trace.push('quiesced:app');
+    }
     metrics() {
       return { ownedResources: f.trace.includes('closed:app') ? 0 : 9 };
     }
@@ -115,6 +121,7 @@ vi.mock('../src/application.js', () => ({
   },
 }));
 beforeEach(() => {
+  f.quiesceWait = undefined;
   f.trace.length = 0;
   f.caseReferences.length = 0;
   f.revision = '1';
@@ -163,6 +170,45 @@ function message(): StoredMessage {
   };
 }
 describe('actual-runtime owner composition', () => {
+  it('keeps existing dispatch case adapters live until the application front drain settles', async () => {
+    const x = fixture(),
+      held = deferred();
+    await x.start();
+    const p = f.ports as GatewayApplicationPorts,
+      r = configuration().route;
+    f.closeWait = held.promise;
+    const closing = x.close();
+    try {
+      await expect(
+        p.native.cases.inspect({ scope: r.scope, caseId: r.caseId }, new AbortController().signal),
+      ).resolves.toMatchObject({ revision: '1', source: 'synthetic_read_only' });
+      expect(f.trace).not.toContain('close:bridge');
+      expect(f.trace).not.toContain('close:case');
+      await expect(x.start()).rejects.toThrow('closed');
+    } finally {
+      held.resolve();
+      await closing;
+    }
+    await expect(
+      p.native.cases.inspect({ scope: r.scope, caseId: r.caseId }, new AbortController().signal),
+    ).rejects.toMatchObject({ code: 'closed' });
+  });
+  it('delegates dispatch drain without closing origin clients or the application', async () => {
+    const x = fixture(),
+      held = deferred();
+    await x.start();
+    f.quiesceWait = held.promise;
+    const stopping = x.quiesceDispatch();
+    await Promise.resolve();
+    expect(f.trace).toContain('quiesce:app');
+    expect(f.trace).not.toContain('close:app');
+    expect(f.trace).not.toContain('close:bridge');
+    expect(f.trace).not.toContain('close:case');
+    held.resolve();
+    await stopping;
+    expect(x.roomControlReady()).not.toBeNull();
+    await x.close();
+  });
   it('constructs inertly, checks the real configured case before app start, and closes dependencies after app', async () => {
     const x = fixture();
     expect(f.trace).toEqual([]);

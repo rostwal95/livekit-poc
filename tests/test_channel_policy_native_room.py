@@ -523,7 +523,7 @@ class NativeRoomOwnerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.app.readers[0].calls, 0)
         await self.end()
 
-    async def test_end_drains_front_concurrently_then_view_g_sfu_and_keeps_app_alive(self) -> None:
+    async def test_end_drains_gateway_then_front_concurrently_then_view_sfu(self) -> None:
         await self.start()
         self.app.close_release.clear()
         self.workers[0].stop_release.clear()
@@ -539,16 +539,58 @@ class NativeRoomOwnerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(closed.stage, "closed")
         self.assertFalse(self.owner.is_current(EndCommand(uid(1), "1", uid(2))))
         for before, after in (
+            ("g_close", "worker_stop_entered"),
             ("producer_closed", "view_closed"),
             ("worker_reaped", "view_closed"),
-            ("view_closed", "g_close"),
-            ("g_close", "sfu_delete"),
+            ("view_closed", "sfu_delete"),
             ("sfu_delete", "admin_closed"),
         ):
             self.assertLess(self.log.index(before), self.log.index(after))
         self.assertEqual(self.owner.pending_count, 0)
         self.assertEqual(self.app.global_closed, 0)
         self.assertEqual({entry.name for entry in self.directory.iterdir()}, {"lastclosed.json"})
+
+    async def test_last_accepted_input_reaches_original_operation_before_worker_stops(self) -> None:
+        """Explicit stateful control fake; actual PostgreSQL qualification is separate."""
+        await self.start()
+        control, worker = self.controls[0], self.workers[0]
+        entered, release = asyncio.Event(), asyncio.Event()
+        original = {"receipt": uid(101), "operation": uid(102), "external": None}
+        accepted = dict(original)
+        real_close = control.close_room
+
+        async def drain_then_close(command, *, binding):
+            control._original(command, binding)
+            self.log.append("native_input_fenced")
+            entered.set()
+            await release.wait()
+            if worker.stop_entered.is_set():
+                raise NativeRoomError("cleanup_incomplete")
+            accepted["external"] = uid(103)
+            self.log.append("original_operation_retained")
+            return await real_close(command, binding=binding)
+
+        control.close_room = drain_then_close
+        closing = asyncio.create_task(self.end())
+        try:
+            async with asyncio.timeout(1):
+                await entered.wait()
+            self.assertEqual(self.owner.status().stage, "closing")
+            self.assertFalse(self.owner.is_current(EndCommand(uid(1), "1", uid(2))))
+            self.assertFalse(worker.stop_entered.is_set())
+            self.assertEqual(accepted, original)
+            self.assertEqual(control.state, "ready")
+            self.assertFalse(closing.done())
+        finally:
+            release.set()
+            await asyncio.gather(closing, return_exceptions=True)
+        self.assertEqual((await closing).stage, "closed")
+        self.assertEqual(accepted, {**original, "external": uid(103)})
+        self.assertLess(
+            self.log.index("original_operation_retained"), self.log.index("worker_stop_entered")
+        )
+        self.assertLess(self.log.index("g_close"), self.log.index("worker_stop_entered"))
+        self.assertEqual(self.app.global_closed, 0)
 
     async def test_start_and_end_physical_cas_prevents_delayed_a_retry_from_creating_b(
         self,
@@ -683,12 +725,43 @@ class NativeRoomOwnerTests(unittest.IsolatedAsyncioTestCase):
     ) -> None:
         await self.start()
         self.controls[0].close_unknown = True
-        with self.assertRaises(NativeRoomError):
-            await self.end()
-        await self.end()
+        self.assertEqual((await self.end()).stage, "closed")
         self.assertEqual((self.controls[0].opens, self.controls[0].closes), (1, 1))
         self.assertGreaterEqual(self.controls[0].observes, 2)
         self.assertEqual(self.owner.pending_count, 0)
+
+    async def test_unresolved_gateway_drain_retains_worker_then_exact_end_retry_progresses(
+        self,
+    ) -> None:
+        await self.start()
+        self.owner._cleanup_budget = 0.03
+        control, worker = self.controls[0], self.workers[0]
+        original_close = control.close_room
+        attempted = []
+        unavailable = True
+
+        async def closing(command, *, binding):
+            control._original(command, binding)
+            attempted.append((command, binding))
+            if unavailable:
+                control.state = "closing"
+                raise NativeRoomError("cleanup_incomplete")
+            return await original_close(command, binding=binding)
+
+        control.close_room = closing
+        with self.assertRaises(NativeRoomError) as failed:
+            await self.end()
+        self.assertEqual(failed.exception.code, "cleanup_incomplete")
+        self.assertFalse(worker.stop_entered.is_set())
+        self.assertEqual(self.owner.status().stage, "closing")
+        self.assertIsNotNone(self.owner._current)
+        await asyncio.gather(self.owner._current.ending, return_exceptions=True)
+        unavailable = False
+        self.assertEqual((await self.end()).stage, "closed")
+        self.assertTrue(worker.reaped)
+        self.assertGreaterEqual(len(attempted), 2)
+        self.assertTrue(all(value == attempted[0] for value in attempted))
+        self.assertEqual(control.opens, 1)
 
     async def test_unexpected_worker_exit_synchronously_fences_room_and_starts_end(self) -> None:
         await self.start()
@@ -704,16 +777,76 @@ class NativeRoomOwnerTests(unittest.IsolatedAsyncioTestCase):
     async def test_one_failed_final_close_does_not_prevent_other_owned_adapter_close(self) -> None:
         await self.start()
         self.controls[0].close_adapter_fail_once = True
-        with self.assertRaises(NativeRoomError) as caught:
-            await self.end()
-        self.assertEqual(str(caught.exception), "cleanup_incomplete")
+        self.assertEqual((await self.end()).stage, "closed")
         self.assertTrue(self.admins[0].closed)
-        self.assertEqual(self.owner.pending_count, 1)
-        await self.end()
+        self.assertEqual(self.owner.pending_count, 0)
         self.assertEqual(self.controls[0].adapter_closes, 2)
         self.assertEqual(
             (self.admins[0].created, self.admins[0].deleted, self.controls[0].closes), (1, 1, 1)
         )
+
+    async def test_cancelled_end_observer_keeps_original_cleanup_reobservation(self) -> None:
+        await self.start()
+        assert self.owner._current is not None
+        record = self.owner._current
+        original = self.controls[0].close
+        first, retry, release = asyncio.Event(), asyncio.Event(), asyncio.Event()
+        calls = 0
+
+        async def close():
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                first.set()
+                raise NativeRoomError("cleanup_incomplete")
+            retry.set()
+            await release.wait()
+            await original()
+
+        self.controls[0].close = close
+        observer = asyncio.create_task(self.end())
+        try:
+            await first.wait()
+            observer.cancel()
+            with self.assertRaises(asyncio.CancelledError):
+                await observer
+            async with asyncio.timeout(1):
+                await retry.wait()
+            self.assertEqual(self.owner.status().stage, "closing")
+            self.assertEqual(self.controls[0].opens, 1)
+        finally:
+            release.set()
+        assert record.ending is not None
+        await record.ending
+        self.assertEqual(self.owner.status().stage, "closed")
+        self.assertEqual(self.owner.pending_count, 0)
+        self.assertEqual((calls, self.admins[0].deleted, self.controls[0].closes), (2, 1, 1))
+
+    async def test_persistent_cleanup_failure_stops_automatic_retry_admission(self) -> None:
+        await self.start()
+        self.owner._cleanup_budget = 0.05
+        original = self.controls[0].close
+        calls = 0
+
+        async def unavailable():
+            nonlocal calls
+            calls += 1
+            raise NativeRoomError("cleanup_incomplete")
+
+        self.controls[0].close = unavailable
+        with self.assertRaisesRegex(NativeRoomError, "^cleanup_incomplete$"):
+            await self.end()
+        assert self.owner._current is not None
+        await asyncio.gather(self.owner._current.ending, return_exceptions=True)
+        self.assertGreaterEqual(calls, 2)
+        observed = calls
+        await asyncio.sleep(0.06)
+        self.assertEqual(calls, observed)
+        self.assertEqual(self.owner.status().stage, "closing")
+        self.assertEqual((self.admins[0].deleted, self.controls[0].closes), (1, 1))
+        self.controls[0].close = original
+        self.assertEqual((await self.end()).stage, "closed")
+        self.assertEqual((self.admins[0].deleted, self.controls[0].closes), (1, 1))
 
     async def test_expiry_fences_original_grant_and_ends_without_renewing_jwt(self) -> None:
         original = await self.start()

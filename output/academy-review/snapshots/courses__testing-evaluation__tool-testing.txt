@@ -1,0 +1,368 @@
+1Testing strategy for voice AI
+
+2Behavioral tests deep dive
+
+3Testing tools & workflows
+
+4Evaluation framework
+
+5Regression testing
+
+6CI/CD integration
+
+7Production evaluation
+
+Testing tools & workflows
+
+Testing tools and workflows
+
+Behavioral tests verify what the agent says. But voice AI agents also do things -- they call tools to check availability, book appointments, and look up patient records. In this chapter, you will learn how to mock tools, assert on tool calls, and test multi-step workflows including agent handoffs.
+
+What you'll learn
+
+How to mock tool implementations with mock_tools()
+
+How to assert that the right tools were called with the right arguments
+
+How to test multi-step workflows where tools depend on each other
+
+How to test multi-agent handoffs
+
+Why mock tools?
+
+When your dental receptionist agent books an appointment, it calls a check_availability tool that hits a real calendar API. In tests, you do not want to hit production APIs. Mocking lets you control what tools return so you can test the agent's behavior in response to different tool outcomes.
+
+Mocking tools is like giving an actor scripted props. When the agent reaches for the calendar, you hand it a pre-written schedule instead of connecting to a real calendar. This makes tests fast, deterministic, and free from external dependencies.
+
+Mocking tools with mock_tools()
+
+The mock_tools() method replaces tool implementations with functions you control. The agent still decides when to call the tool and what arguments to pass -- you just control what comes back.
+
+from livekit.agents.testing import AgentTest
+from receptionist.agent import DentalReceptionist
+
+async def test_checks_availability():
+  test = AgentTest(DentalReceptionist())
+
+  # Mock the check_availability tool to return an available slot
+  test.mock_tools({
+      "check_availability": lambda date, time: {
+          "available": True,
+          "provider": "Dr. Smith",
+          "duration": 60
+      }
+  })
+
+  await test.say("I'd like to book a cleaning for next Tuesday at 2pm")
+
+  # Assert the tool was called
+  assert test.tool_was_called("check_availability")
+
+  # Assert the arguments
+  args = test.tool_call_args("check_availability")
+  assert "Tuesday" in args["date"] or "tuesday" in args["date"].lower()
+  assert "2" in args["time"] or "14" in args["time"]
+
+import { AgentTest } from "@livekit/agents/testing";
+import { DentalReceptionist } from "../src/agent";
+
+test("checks availability when booking", async () => {
+const agentTest = new AgentTest(new DentalReceptionist());
+
+agentTest.mockTools({
+  check_availability: (date: string, time: string) => ({
+    available: true,
+    provider: "Dr. Smith",
+    duration: 60,
+  }),
+});
+
+await agentTest.say("I'd like to book a cleaning for next Tuesday at 2pm");
+
+expect(agentTest.toolWasCalled("check_availability")).toBe(true);
+
+const args = agentTest.toolCallArgs("check_availability");
+expect(args.date.toLowerCase()).toContain("tuesday");
+});
+
+Mock return values matter
+
+The mock return value shapes the agent's next response. If you return {"available": false}, the agent should offer alternative times. If you return {"available": true}, the agent should proceed with booking. Test both paths.
+
+Testing tool call arguments
+
+Sometimes the most important thing to verify is not that a tool was called, but that it was called with the right arguments. The agent must extract the correct information from the conversation and pass it to the tool.
+
+async def test_booking_extracts_correct_info():
+  test = AgentTest(DentalReceptionist())
+  test.mock_tools({
+      "check_availability": lambda date, time, service_type: {"available": True},
+      "book_appointment": lambda **kwargs: {"confirmation": "APT-12345"},
+  })
+
+  session = test.session()
+  await session.run([
+      "I need a root canal consultation",
+      "How about Thursday at 10am?",
+      "Yes, please book it",
+  ])
+
+  # Verify the booking was made with correct details
+  assert test.tool_was_called("book_appointment")
+  booking_args = test.tool_call_args("book_appointment")
+  assert "root canal" in booking_args.get("service_type", "").lower() or          "consultation" in booking_args.get("service_type", "").lower()
+
+async def test_patient_info_passed_to_lookup():
+  test = AgentTest(DentalReceptionist())
+  test.mock_tools({
+      "lookup_patient": lambda name, phone: {
+          "found": True,
+          "patient_id": "P-789",
+          "name": "Sarah Johnson"
+      }
+  })
+
+  await test.say("This is Sarah Johnson, my number is 555-123-4567")
+
+  assert test.tool_was_called("lookup_patient")
+  args = test.tool_call_args("lookup_patient")
+  assert "sarah" in args["name"].lower() or "johnson" in args["name"].lower()
+
+import { AgentTest } from "@livekit/agents/testing";
+import { DentalReceptionist } from "../src/agent";
+
+test("extracts correct booking info from conversation", async () => {
+const agentTest = new AgentTest(new DentalReceptionist());
+
+agentTest.mockTools({
+  check_availability: () => ({ available: true }),
+  book_appointment: (args: Record<string, string>) => ({
+    confirmation: "APT-12345",
+  }),
+});
+
+const session = agentTest.session();
+await session.run([
+  "I need a root canal consultation",
+  "How about Thursday at 10am?",
+  "Yes, please book it",
+]);
+
+expect(agentTest.toolWasCalled("book_appointment")).toBe(true);
+const bookingArgs = agentTest.toolCallArgs("book_appointment");
+expect(bookingArgs.service_type?.toLowerCase()).toMatch(/root canal|consultation/);
+});
+
+Testing different tool outcomes
+
+Your agent needs to handle both success and failure from tools. Mock different return values to test each path.
+
+async def test_handles_no_availability():
+  test = AgentTest(DentalReceptionist())
+  test.mock_tools({
+      "check_availability": lambda date, time: {
+          "available": False,
+          "next_available": "Thursday at 3pm"
+      }
+  })
+
+  response = await test.say("Can I come in Tuesday at 2pm for a cleaning?")
+  assert test.judge(response, """
+      Agent should inform the caller that Tuesday at 2pm is not available.
+      Agent should suggest the next available time (Thursday at 3pm).
+  """)
+
+async def test_handles_tool_error():
+  test = AgentTest(DentalReceptionist())
+
+  def failing_tool(date, time):
+      raise ConnectionError("Calendar service unavailable")
+
+  test.mock_tools({
+      "check_availability": failing_tool
+  })
+
+  response = await test.say("Is next Monday at 9am available?")
+  assert test.judge(response, """
+      Agent should apologize for the technical difficulty.
+      Agent should offer to try again or suggest calling back.
+      Agent should NOT expose technical error details to the caller.
+  """)
+
+test("handles no availability gracefully", async () => {
+const agentTest = new AgentTest(new DentalReceptionist());
+
+agentTest.mockTools({
+  check_availability: () => ({
+    available: false,
+    next_available: "Thursday at 3pm",
+  }),
+});
+
+const response = await agentTest.say("Can I come in Tuesday at 2pm for a cleaning?");
+expect(
+  await agentTest.judge(response, `
+    Agent should inform the caller that Tuesday at 2pm is not available.
+    Agent should suggest the next available time.
+  `)
+).toBe(true);
+});
+
+test("handles tool errors gracefully", async () => {
+const agentTest = new AgentTest(new DentalReceptionist());
+
+agentTest.mockTools({
+  check_availability: () => {
+    throw new Error("Calendar service unavailable");
+  },
+});
+
+const response = await agentTest.say("Is next Monday at 9am available?");
+expect(
+  await agentTest.judge(response, `
+    Agent should apologize for the technical difficulty.
+    Agent should NOT expose technical error details.
+  `)
+).toBe(true);
+});
+
+Testing multi-agent handoffs
+
+If your system uses multiple agents (e.g., a triage agent that hands off to a booking agent), you can test the handoff workflow.
+
+from livekit.agents.testing import AgentTest
+from receptionist.agent import TriageAgent
+
+async def test_emergency_handoff():
+  """Triage agent should hand off emergency calls to the on-call agent."""
+  test = AgentTest(TriageAgent())
+  test.mock_tools({
+      "transfer_to_agent": lambda agent_type: {"transferred": True, "agent": agent_type}
+  })
+
+  await test.say("I just knocked out my front tooth and I'm bleeding a lot!")
+
+  assert test.tool_was_called("transfer_to_agent")
+  args = test.tool_call_args("transfer_to_agent")
+  assert args["agent_type"] == "emergency" or args["agent_type"] == "on_call"
+
+async def test_billing_handoff():
+  """Triage agent should hand off billing questions to the billing agent."""
+  test = AgentTest(TriageAgent())
+  test.mock_tools({
+      "transfer_to_agent": lambda agent_type: {"transferred": True, "agent": agent_type}
+  })
+
+  await test.say("I have a question about my bill from last month")
+
+  assert test.tool_was_called("transfer_to_agent")
+  args = test.tool_call_args("transfer_to_agent")
+  assert args["agent_type"] == "billing"
+
+import { AgentTest } from "@livekit/agents/testing";
+import { TriageAgent } from "../src/agent";
+
+test("hands off emergency to on-call agent", async () => {
+const agentTest = new AgentTest(new TriageAgent());
+
+agentTest.mockTools({
+  transfer_to_agent: (agentType: string) => ({
+    transferred: true,
+    agent: agentType,
+  }),
+});
+
+await agentTest.say("I just knocked out my front tooth and I'm bleeding!");
+
+expect(agentTest.toolWasCalled("transfer_to_agent")).toBe(true);
+const args = agentTest.toolCallArgs("transfer_to_agent");
+expect(["emergency", "on_call"]).toContain(args.agent_type);
+});
+
+test("hands off billing questions to billing agent", async () => {
+const agentTest = new AgentTest(new TriageAgent());
+
+agentTest.mockTools({
+  transfer_to_agent: (agentType: string) => ({
+    transferred: true,
+    agent: agentType,
+  }),
+});
+
+await agentTest.say("I have a question about my bill from last month");
+
+expect(agentTest.toolWasCalled("transfer_to_agent")).toBe(true);
+expect(agentTest.toolCallArgs("transfer_to_agent").agent_type).toBe("billing");
+});
+
+Testing the complete booking workflow
+
+Combine tool mocking, argument assertions, and behavioral judging to test an end-to-end workflow.
+
+async def test_complete_booking_workflow():
+  """Test the full journey from greeting to confirmed appointment."""
+  test = AgentTest(DentalReceptionist())
+
+  test.mock_tools({
+      "lookup_patient": lambda name, phone: {
+          "found": True,
+          "patient_id": "P-100",
+          "name": name
+      },
+      "check_availability": lambda date, time, service_type: {
+          "available": True,
+          "provider": "Dr. Smith"
+      },
+      "book_appointment": lambda patient_id, date, time, service_type, provider: {
+          "confirmation": "APT-555",
+          "details": f"{service_type} with {provider}"
+      },
+  })
+
+  session = test.session()
+  responses = await session.run([
+      "Hi, this is Maria Garcia, my phone number is 555-0100",
+      "I need a dental cleaning",
+      "How about next Wednesday at 10am?",
+      "Yes, please book that",
+  ])
+
+  # Verify the right tools were called in order
+  assert test.tool_was_called("lookup_patient")
+  assert test.tool_was_called("check_availability")
+  assert test.tool_was_called("book_appointment")
+
+  # Verify the final response confirms the booking
+  assert test.judge(responses[-1], """
+      Agent should confirm the appointment with:
+      - Patient name (Maria Garcia)
+      - Service type (cleaning)
+      - Date and time (Wednesday at 10am)
+      - A confirmation number or reference
+  """)
+
+Test the happy path first
+
+Start with tests for the expected workflow, then add tests for each failure point. A complete test suite covers: happy path, unavailable slot, unknown patient, tool errors, and user cancellation mid-flow.
+
+Test your knowledge
+
+Question 1 of 3
+
+When using mock_tools(), what does the agent still control versus what you control?
+
+What you learned
+
+mock_tools() replaces tool implementations so tests do not hit real APIs
+
+tool_was_called() and tool_call_args() let you assert on tool usage and argument extraction
+
+Test both success and failure paths by returning different values from mocked tools
+
+Multi-agent handoffs can be tested by mocking the transfer tool and asserting on the target agent
+
+Combine tool assertions with judge() to verify both what the agent did and what it said
+
+Next up
+
+You can test individual behaviors and tool calls. In the next chapter, you will build an evaluation framework that measures overall agent quality across multiple dimensions with scoring rubrics and benchmarks.

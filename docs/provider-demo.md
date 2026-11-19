@@ -72,6 +72,10 @@ Each rule is repeated where it matters below.
 | Complete P2/P3 acceptance | Partial | Remains pending |
 
 - The provider work item owns observed outcomes.
+- The selected v2 result is retained checkpoint evidence. Its fresh P1-20 rerun
+  after the booking-schema v5 upgrade remains open in the
+  [qualification guide](qualification-gates.md); workload and schema versions
+  are separate identifiers.
 - A configured badge, nonempty key, healthy process or emitted token count alone
   is insufficient.
 - This guide does not certify model accuracy, physical microphone capture, human
@@ -180,7 +184,7 @@ All prerequisites are used from the repository root.
 | Requirement | Version or value | Notes |
 | --- | --- | --- |
 | Python | 3.14 | The supported environment |
-| Node | A supported runtime | None |
+| Node | 24.22.2 validated host | Use the frozen runtime in `.node-version`; container runtime pins are separate |
 | Docker and Compose | Required | None |
 | Corepack | pnpm 12.18.0, pinned by the root packageManager | Use Corepack instead of an unrelated global pnpm |
 

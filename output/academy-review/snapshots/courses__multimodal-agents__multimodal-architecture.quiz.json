@@ -1,0 +1,35 @@
+[
+  {
+    "question": "How does LiveKit represent different modalities (voice, vision, avatar, whiteboard) in its architecture?",
+    "options": [
+      "Each modality requires a separate WebSocket connection to the server",
+      "Each modality is a Track (audio, video, or data) within a Room, and agents subscribe or publish as needed",
+      "All modalities are multiplexed into a single audio stream",
+      "Modalities are handled by separate microservices that communicate through a message queue"
+    ],
+    "correctIndex": 1,
+    "explanation": "LiveKit treats every modality as a Track within a Room. Audio Tracks carry speech, video Tracks carry camera feeds or avatar video, and data Tracks carry structured messages like whiteboard strokes. The agent subscribes to input Tracks and publishes output Tracks."
+  },
+  {
+    "question": "In a multimodal conversation, what percentage of token cost do images typically account for?",
+    "options": [
+      "30-50%",
+      "80-95%",
+      "50-70%",
+      "10-20%"
+    ],
+    "correctIndex": 1,
+    "explanation": "A typical text message costs 20-50 tokens while a single image costs 750-2,000 tokens. This means images dominate the token budget, accounting for 80-95% of total cost. Optimizing image handling has far greater impact than optimizing text prompts."
+  },
+  {
+    "question": "How does the 'summarize and discard' strategy reduce token consumption in long sessions?",
+    "options": [
+      "It replaces expensive image frames with cheap text summaries that preserve the key information for future context",
+      "It deletes conversation history to make room for more images",
+      "It compresses images using a more efficient codec before sending them to the LLM",
+      "It reduces the capture interval so fewer frames are taken"
+    ],
+    "correctIndex": 0,
+    "explanation": "After the agent analyzes an image, it creates a text summary and stores it. The original image can then be dropped from context. For a session with 20 pages, text summaries might cost 2,000 total tokens versus 20,000 tokens for keeping the original images."
+  }
+]

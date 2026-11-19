@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Why must avatar.start() be called after session.start() rather than before?",
+    "options": [
+      "The session needs to verify the persona ID with the Tavus API first",
+      "LiveKit requires all participants to join the room in a specific order",
+      "The avatar needs to download its persona assets before the session begins",
+      "The avatar needs the agent session to be running so it can subscribe to the TTS audio Track"
+    ],
+    "correctIndex": 3,
+    "explanation": "The AvatarSession works by subscribing to the agent's TTS audio Track. If the session has not started yet, there is no audio Track to subscribe to, and the avatar would be silent. The avatar is a consumer of the agent's audio output."
+  },
+  {
+    "question": "How does the frontend identify the Tavus avatar's video Track among all participants in the room?",
+    "options": [
+      "LiveKit automatically separates avatar Tracks from regular video Tracks",
+      "The agent session provides a direct reference to the avatar Track",
+      "The frontend checks for the participant whose identity starts with 'tavus-'",
+      "The avatar Track is tagged with a special 'avatar' metadata field"
+    ],
+    "correctIndex": 2,
+    "explanation": "The Tavus avatar joins the Room as its own participant with an identity prefixed with 'tavus-'. The frontend filters useTracks results to find the participant whose identity starts with that prefix and renders its camera Track using the standard VideoTrack component."
+  }
+]

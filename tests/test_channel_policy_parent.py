@@ -207,6 +207,63 @@ class ParentTests(unittest.IsolatedAsyncioTestCase):
             self.assertLess(self.log.index("closed:" + label), self.log.index("close:app"))
         self.assertEqual(parent.metrics()["owned_resources"], 0)
 
+    async def test_prepare_shutdown_drains_front_while_origins_remain_available(self):
+        parent = self.parent()
+        await self.ready(parent)
+        self.holds["close:rooms"] = asyncio.Event()
+        preparing = asyncio.create_task(parent.prepare_shutdown())
+        await self.until(lambda: "close:rooms" in self.log)
+        self.assertFalse(parent.ready)
+        with self.assertRaisesRegex(m.ParentError, "^closed$"):
+            await parent.start(self.cursor)
+        self.assertIn("closed:http", self.log)
+        self.assertNotIn("close:app", self.log)
+        await self.until(lambda: parent.metrics()["owned_resources"] == 2)
+        self.assertEqual(parent.metrics()["owned_resources"], 2)
+        self.holds["close:rooms"].set()
+        await preparing
+        await parent.prepare_shutdown()
+        self.assertEqual(parent.metrics()["front_closed"], 1)
+        self.assertEqual(parent.metrics()["owned_resources"], 1)
+        self.assertNotIn("close:app", self.log)
+        await parent.close()
+        self.assertEqual(self.instances["rooms"][0].close_calls, 1)
+        self.assertEqual(self.instances["app"][0].close_calls, 1)
+
+    async def test_prepare_timeout_and_cancelled_observer_share_actual_front_drain(self):
+        parent = self.parent(cleanup_timeout_s=0.02)
+        await self.ready(parent)
+        self.holds["close:rooms"] = asyncio.Event()
+        first = asyncio.create_task(parent.prepare_shutdown())
+        await self.until(lambda: "close:rooms" in self.log)
+        first.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await first
+        with self.assertRaisesRegex(m.ParentError, "^cleanup_incomplete$"):
+            await parent.prepare_shutdown()
+        self.assertNotIn("close:app", self.log)
+        self.assertEqual(self.instances["rooms"][0].close_calls, 1)
+        self.holds["close:rooms"].set()
+        await asyncio.gather(parent.prepare_shutdown(), parent.close())
+        self.assertEqual(parent.metrics()["owned_resources"], 0)
+        self.assertEqual(self.instances["rooms"][0].close_calls, 1)
+
+    async def test_failed_preparation_retries_same_owner_before_closing_application(self):
+        parent = self.parent()
+        await self.ready(parent)
+        self.faults.add("close:rooms")
+        with self.assertRaisesRegex(m.ParentError, "^cleanup_incomplete$"):
+            await parent.prepare_shutdown()
+        self.assertIn("closed:sms", self.log)
+        self.assertNotIn("close:app", self.log)
+        self.faults.clear()
+        await parent.prepare_shutdown()
+        self.assertEqual(self.instances["rooms"][0].close_calls, 2)
+        self.assertEqual(self.instances["sms"][0].close_calls, 1)
+        self.assertNotIn("close:app", self.log)
+        await parent.close()
+        self.assertLess(self.log.index("closed:rooms"), self.log.index("close:app"))
+
     async def test_reentrant_source_factory_close_retains_owner_without_starting_sources(self):
         parent = None
         observers = []
@@ -379,6 +436,20 @@ class ParentTests(unittest.IsolatedAsyncioTestCase):
         await parent.close()
         self.assertEqual(set(self.instances), {"app", "rooms", "sms"})
         self.assertTrue(all(items[0].close_calls == 1 for items in self.instances.values()))
+
+    async def test_start_failure_preserves_origins_until_launcher_can_quiesce_dispatch(self):
+        parent = self.parent()
+        await parent.start_sources()
+        self.faults.add("factory:http")
+        with self.assertRaisesRegex(m.ParentError, "^unavailable$"):
+            await parent.start(self.cursor)
+        await parent.prepare_shutdown()
+        self.assertEqual(parent.metrics()["front_closed"], 1)
+        self.assertNotIn("close:app", self.log)
+        self.assertEqual(parent.metrics()["owned_resources"], 1)
+        # This explicit close follows the launcher's separate dispatch fence.
+        await parent.close()
+        self.assertEqual(parent.metrics()["owned_resources"], 0)
 
     async def test_alias_factory_cannot_close_shared_app_as_sms(self):
         parent = self.parent()

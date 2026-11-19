@@ -1,0 +1,66 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Set individual secrets\nlk agent secret set OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxx\nlk agent secret set DEEPGRAM_API_KEY=xxxxxxxxxxxxx\nlk agent secret set CARTESIA_API_KEY=xxxxxxxxxxxxx\n\n# List all configured secrets (values are masked)\nlk agent secret list\n\n# Delete a secret\nlk agent secret delete OLD_API_KEY"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Deploy using agent.toml configuration\nlk agent deploy\n\n# Or specify the agent name explicitly\nlk agent deploy dental-receptionist"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Check current deployment status\nlk agent status\n\n# View detailed status for a specific agent\nlk agent status dental-receptionist"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Stream logs from all instances\nlk cloud logs dental-receptionist\n\n# View logs from the last hour\nlk cloud logs dental-receptionist --since 1h"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "INFO  agent registered: dental-receptionist\nINFO  worker connected to LiveKit Cloud\nINFO  ready to accept sessions"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Or test from the CLI\nlk room join --identity test-caller dental-receptionist-room"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Roll back to the previous version\nlk agent rollback dental-receptionist\n\n# Check that rollback succeeded\nlk agent status dental-receptionist"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "[agent]\nname = \"dental-receptionist\"\nversion = \"1.2.0\"\n\n[build]\ndockerfile = \"Dockerfile\""
+  }
+]

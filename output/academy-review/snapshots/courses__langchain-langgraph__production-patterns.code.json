@@ -1,0 +1,58 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import logging\nfrom typing import TypedDict, Optional\nfrom langgraph.graph import StateGraph, END\nfrom langchain_openai import ChatOpenAI\n\nlogger = logging.getLogger(\"voice-agent\")\n\n\nclass AgentState(TypedDict):\n  user_message: str\n  response: str\n  error: Optional[str]\n  error_count: int\n\n\ndef safe_llm_call(prompt: str, fallback: str = \"I'm sorry, let me try that again.\") -> str:\n  \"\"\"Wrap LLM calls with error handling.\"\"\"\n  llm = ChatOpenAI(model=\"gpt-4o\", streaming=True, request_timeout=10)\n  try:\n      result = llm.invoke(prompt)\n      return result.content\n  except Exception as e:\n      logger.error(f\"LLM call failed: {e}\")\n      return fallback\n\n\ndef process_with_guard(state: AgentState) -> dict:\n  \"\"\"Process a message with full error guarding.\"\"\"\n  error_count = state.get(\"error_count\", 0)\n\n  try:\n      response = safe_llm_call(\n          f\"Respond helpfully to: {state['user_message']}\",\n          fallback=\"I apologize, I'm having a brief technical issue.\"\n      )\n      return {\"response\": response, \"error\": None, \"error_count\": 0}\n  except Exception as e:\n      logger.error(f\"Process node failed: {e}\", exc_info=True)\n      return {\n          \"response\": \"I'm sorry, something went wrong. Could you repeat that?\",\n          \"error\": str(e),\n          \"error_count\": error_count + 1,\n      }"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import asyncio\nfrom livekit.agents import function_tool, RunContext\n\n\n@function_tool\nasync def process_query(context: RunContext, query: str) -> str:\n  \"\"\"Process a user query through the LangGraph pipeline.\n\n  Args:\n      query: The user's question or request.\n  \"\"\"\n  try:\n      result = await asyncio.wait_for(\n          compiled.ainvoke({\"user_message\": query}),\n          timeout=8.0,  # 8-second hard limit\n      )\n      return result[\"response\"]\n  except asyncio.TimeoutError:\n      logger.warning(f\"Graph execution timed out for query: {query[:50]}...\")\n      return \"I'm taking too long to look that up. Let me give you a simpler answer.\"\n  except Exception as e:\n      logger.error(f\"Graph execution failed: {e}\", exc_info=True)\n      return \"I ran into an issue. Could you try asking that differently?\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Set these environment variables to enable LangSmith tracing\nexport LANGCHAIN_TRACING_V2=true\nexport LANGCHAIN_API_KEY=\"ls__your_api_key_here\"\nexport LANGCHAIN_PROJECT=\"voice-agent-production\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from langsmith import traceable\n\n\n@traceable(name=\"voice_graph_invocation\", tags=[\"voice\", \"production\"])\nasync def invoke_graph(user_message: str, thread_id: str) -> str:\n  config = {\n      \"configurable\": {\"thread_id\": thread_id},\n      \"metadata\": {\n          \"thread_id\": thread_id,\n          \"source\": \"voice_agent\",\n      },\n  }\n  result = await compiled.ainvoke({\"user_message\": user_message}, config=config)\n  return result[\"response\"]"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import pytest\n\n\n@pytest.mark.asyncio\nasync def test_intent_classification():\n  \"\"\"Test that the graph correctly classifies greeting intent.\"\"\"\n  result = await compiled.ainvoke({\"user_message\": \"Hello there!\"})\n  assert result.get(\"intent\") == \"greeting\"\n  assert result.get(\"response\") is not None\n  assert len(result[\"response\"]) > 0\n\n\n@pytest.mark.asyncio\nasync def test_complaint_routing():\n  \"\"\"Test that complaints route to the complaint handler.\"\"\"\n  result = await compiled.ainvoke({\n      \"user_message\": \"I've been waiting three weeks for my order and nobody is helping me!\"\n  })\n  assert result.get(\"intent\") == \"complaint\"\n  assert result.get(\"response\") is not None\n\n\n@pytest.mark.asyncio\nasync def test_error_fallback():\n  \"\"\"Test that the graph returns a graceful response on failure.\"\"\"\n  # Invoke with edge-case input\n  result = await compiled.ainvoke({\"user_message\": \"\"})\n  assert result.get(\"response\") is not None  # Should not crash"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "@pytest.mark.asyncio\nasync def test_extract_order_id():\n  \"\"\"Test order ID extraction from a message.\"\"\"\n  state = {\"user_message\": \"My order number is ORD-1234\"}\n  result = extract_order_id(state)\n  assert result[\"order_id\"] == \"ORD-1234\"\n\n\n@pytest.mark.asyncio\nasync def test_extract_order_id_missing():\n  \"\"\"Test graceful handling when no order ID is present.\"\"\"\n  state = {\"user_message\": \"I have a question about my order\"}\n  result = extract_order_id(state)\n  assert result[\"order_id\"] is None"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from langgraph.checkpoint.memory import MemorySaver\n\n\n@pytest.mark.asyncio\nasync def test_conversation_memory():\n  \"\"\"Test that state persists across invocations.\"\"\"\n  memory = MemorySaver()\n  test_compiled = graph.compile(checkpointer=memory)\n  config = {\"configurable\": {\"thread_id\": \"test-thread-1\"}}\n\n  # First turn: introduce yourself\n  await test_compiled.ainvoke(\n      {\"user_message\": \"Hi, I'm Alice\"},\n      config=config,\n  )\n\n  # Second turn: the graph should remember the name\n  state = await test_compiled.aget_state(config)\n  assert state.values.get(\"customer_name\") == \"Alice\""
+  }
+]

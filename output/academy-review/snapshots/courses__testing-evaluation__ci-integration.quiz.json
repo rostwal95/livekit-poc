@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why is the CI pipeline structured as a funnel where unit tests run before behavioral tests?",
+    "options": [
+      "Unit tests produce more detailed error messages than behavioral tests",
+      "GitHub Actions requires jobs to run in alphabetical order",
+      "Behavioral tests cannot run unless unit tests generate the required test fixtures",
+      "Cheap, fast tests run first and fail fast, saving time and LLM API costs on broken commits before expensive tests run"
+    ],
+    "correctIndex": 3,
+    "explanation": "Structuring the pipeline as a funnel means cheap tests (unit tests that take seconds and cost nothing) run first. If they fail, the pipeline stops immediately without running expensive behavioral tests that require LLM API calls. This saves both time and money on broken commits."
+  },
+  {
+    "question": "Why does the regression check job use the condition 'if: github.event_name == pull_request'?",
+    "options": [
+      "Regression checks need access to the base branch which is only available on pull requests",
+      "The full regression evaluation is expensive (requires many LLM calls), so it only runs on PRs to main to control API costs",
+      "Regression checks only work on pull request branches",
+      "GitHub branch protection rules require this condition"
+    ],
+    "correctIndex": 1,
+    "explanation": "The full regression evaluation suite makes many LLM API calls and takes longer to run. Running it on every push to every feature branch would be prohibitively expensive. By limiting it to pull requests to main, you get regression coverage where it matters most (before merging) while controlling costs."
+  },
+  {
+    "question": "How do branch protection rules and the CI pipeline work together to gate deployments?",
+    "options": [
+      "Branch protection rules automatically deploy code when tests pass",
+      "Required status checks in branch protection prevent merging to main until all CI test jobs pass, and deployments only trigger on pushes to main",
+      "Branch protection rules replace the need for CI test pipelines",
+      "The CI pipeline sends results to branch protection which then decides whether to deploy"
+    ],
+    "correctIndex": 1,
+    "explanation": "Branch protection rules require status checks (Unit Tests, Behavioral Tests, Regression Check) to pass before a PR can merge into main. Since the deployment workflow only triggers on pushes to main, and main is protected, only code that has passed all tests can reach deployment."
+  }
+]

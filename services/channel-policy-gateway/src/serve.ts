@@ -103,6 +103,7 @@ export async function runGatewayRuntime(
   signal: AbortSignal,
   roomControl?: RoomControlConfiguration,
   nativeBridge?: NativeBridgeConfiguration,
+  quiesceControl?: EventTarget,
 ): Promise<void> {
   guardOutput();
   const runtime = new ChannelPolicyGatewayRuntime(
@@ -112,6 +113,9 @@ export async function runGatewayRuntime(
     nativeBridge,
   );
   let stopping = false,
+    readyEmitted = false,
+    quiesced = false,
+    quiesceTask: Promise<void> | undefined,
     shutdownDeadline = 0,
     shutdownClose: Promise<void> | undefined,
     startupSettlement: Promise<void> = Promise.resolve(),
@@ -119,6 +123,41 @@ export async function runGatewayRuntime(
   const stopped = new Promise<void>((r) => {
     notify = r;
   });
+  const quiesce = () => {
+    if (!readyEmitted || stopping || quiesced || quiesceTask) return;
+    const actual = (async () => {
+      const deadline = performance.now() + 10000;
+      while (!stopping && performance.now() < deadline) {
+        try {
+          await runtime.quiesceDispatch();
+          if (stopping) return;
+          const cursor = runtime.roomControlReady();
+          if (!cursor) throw new GatewayRuntimeError('unavailable');
+          // Closed control DTO from trusted state only, never a log or copied request body.
+          emit({
+            schemaVersion: 1,
+            status: 'dispatch_quiesced',
+            mode: 'scripted_readonly_policy',
+            pid: process.pid,
+            profileId: configuration.route.profileId,
+            nodeEpoch: cursor.nodeEpoch,
+          });
+          quiesced = true;
+          return;
+        } catch {
+          if (!stopping && performance.now() < deadline)
+            await new Promise<void>((r) => setTimeout(r, 20));
+        }
+      }
+    })();
+    quiesceTask = actual;
+    const settled = () => {
+      if (quiesceTask === actual) quiesceTask = undefined;
+    };
+    void actual.then(settled, settled);
+  };
+  if (quiesceControl)
+    EventTarget.prototype.addEventListener.call(quiesceControl, 'quiesce', quiesce);
   const stop = () => {
     if (stopping) return;
     stopping = true;
@@ -140,7 +179,7 @@ export async function runGatewayRuntime(
         () => undefined,
       );
       const endpoints = await Promise.race([startup, stopped.then(() => undefined)]);
-      if (!stopping && endpoints)
+      if (!stopping && endpoints) {
         emit({
           schemaVersion: 1,
           status: 'ready',
@@ -151,6 +190,8 @@ export async function runGatewayRuntime(
           ...(roomControl ? { roomControl: runtime.roomControlReady() } : {}),
           ...(nativeBridge ? { nativeBridge: runtime.nativeBridgeReady() } : {}),
         });
+        readyEmitted = true;
+      }
     }
     if (!stopping) await stopped;
   } catch {
@@ -158,8 +199,19 @@ export async function runGatewayRuntime(
   } finally {
     stop();
     EventTarget.prototype.removeEventListener.call(signal, 'abort', stop);
+    if (quiesceControl)
+      EventTarget.prototype.removeEventListener.call(quiesceControl, 'quiesce', quiesce);
     try {
-      await drain(runtime, shutdownDeadline, startupSettlement, shutdownClose!);
+      const controlSettlement = quiesceTask?.then(
+        () => undefined,
+        () => undefined,
+      );
+      await drain(
+        runtime,
+        shutdownDeadline,
+        Promise.all([startupSettlement, controlSettlement]).then(() => undefined),
+        shutdownClose!,
+      );
       emit({
         schemaVersion: 1,
         status: 'closed',
@@ -206,9 +258,15 @@ export async function main(argv: readonly string[], environment: unknown): Promi
     const configuration = readRuntimeConfiguration(argv[1]),
       credentials = parseRuntimeEnvironment(environment),
       controller = new AbortController();
+    const control = new EventTarget();
+    // A repeat signal may retry a previous bounded observer without creating a new runtime.
+    const quiesce = () => {
+      control.dispatchEvent(new Event('quiesce'));
+    };
     const stop = () => controller.abort();
     process.once('SIGTERM', stop);
     process.once('SIGINT', stop);
+    process.on('SIGUSR1', quiesce);
     // Diagnostic sink failure must not throw an unhandled EPIPE over retained runtime resources.
     guardOutput();
     try {
@@ -218,10 +276,12 @@ export async function main(argv: readonly string[], environment: unknown): Promi
         controller.signal,
         roomControl,
         nativeBridge,
+        control,
       );
     } finally {
       process.off('SIGTERM', stop);
       process.off('SIGINT', stop);
+      process.off('SIGUSR1', quiesce);
     }
     return 0;
   } catch (error) {

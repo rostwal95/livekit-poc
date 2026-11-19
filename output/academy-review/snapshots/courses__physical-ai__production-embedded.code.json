@@ -1,0 +1,42 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "#include <HTTPUpdate.h>\n#include <WiFiClientSecure.h>\n\nconst char* FIRMWARE_URL = \"https://ota.example.com/firmware/latest.bin\";\nconst char* CURRENT_VERSION = \"1.2.0\";\n\nvoid checkForUpdate() {\n  WiFiClientSecure client;\n  client.setCACert(root_ca);  // Pin your CA certificate\n\n  HTTPClient http;\n  http.begin(client, String(FIRMWARE_URL) + \"?current=\" + CURRENT_VERSION);\n  int code = http.GET();\n\n  if (code == 200) {\n      Serial.println(\"Update available \u2014 downloading\");\n      t_httpUpdate_return ret = httpUpdate.update(client, FIRMWARE_URL);\n\n      switch (ret) {\n          case HTTP_UPDATE_OK:\n              Serial.println(\"Update success \u2014 rebooting\");\n              ESP.restart();\n              break;\n          case HTTP_UPDATE_FAILED:\n              Serial.printf(\"Update failed: %s\\n\",\n                  httpUpdate.getLastErrorString().c_str());\n              break;\n      }\n  }\n  http.end();\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "enum ConnectionState {\n  FULLY_CONNECTED,    // WiFi + LiveKit active\n  WIFI_ONLY,          // WiFi up, LiveKit disconnected\n  OFFLINE             // No WiFi\n};\n\nConnectionState connState = OFFLINE;\n\nvoid onWiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {\n  connState = OFFLINE;\n  enterOfflineMode();\n}\n\nvoid onWiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info) {\n  connState = WIFI_ONLY;\n  reconnectLiveKit();\n}\n\nvoid setup() {\n  WiFi.onEvent(onWiFiDisconnected, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);\n  WiFi.onEvent(onWiFiConnected, ARDUINO_EVENT_WIFI_STA_CONNECTED);\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "#include <esp_sr.h>\n\nconst char* offline_commands[] = {\n  \"turn on lights\",\n  \"turn off lights\",\n  \"what is the temperature\",\n  \"help\",\n  NULL\n};\n\nvoid offlineLoop() {\n  int16_t pcm[512];\n  readI2SAudio(pcm, 512);\n  int command_id = esp_sr_detect(pcm, 512);\n\n  switch (command_id) {\n      case 0:\n          digitalWrite(LED_PIN, HIGH);\n          playLocalAudio(\"lights_on.wav\");  // Pre-recorded in flash\n          queueAction(\"set_led\", 1);\n          break;\n      case 1:\n          digitalWrite(LED_PIN, LOW);\n          playLocalAudio(\"lights_off.wav\");\n          queueAction(\"set_led\", 0);\n          break;\n  }\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "#include <SPIFFS.h>\n#include <ArduinoJson.h>\n\nvoid queueAction(const char* action, int value) {\n  File file = SPIFFS.open(\"/action_queue.json\", FILE_APPEND);\n  StaticJsonDocument<128> doc;\n  doc[\"action\"] = action;\n  doc[\"value\"] = value;\n  doc[\"timestamp\"] = millis();\n  serializeJson(doc, file);\n  file.println();\n  file.close();\n}\n\nvoid syncQueuedActions() {\n  File file = SPIFFS.open(\"/action_queue.json\", FILE_READ);\n  if (!file) return;\n\n  while (file.available()) {\n      String line = file.readStringUntil('\\n');\n      if (line.length() > 0) {\n          lk.sendData(line.c_str());  // Send via LiveKit data channel\n          delay(50);\n      }\n  }\n  file.close();\n  SPIFFS.remove(\"/action_queue.json\");\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "void sendHealthReport() {\n  StaticJsonDocument<256> doc;\n  doc[\"device_id\"] = getDeviceId();\n  doc[\"firmware\"] = CURRENT_VERSION;\n  doc[\"uptime_sec\"] = millis() / 1000;\n  doc[\"free_heap\"] = ESP.getFreeHeap();\n  doc[\"wifi_rssi\"] = WiFi.RSSI();\n  doc[\"cpu_temp\"] = temperatureRead();\n  doc[\"reboot_reason\"] = esp_reset_reason();\n\n  char payload[256];\n  serializeJson(doc, payload);\n\n  if (connState == FULLY_CONNECTED) {\n      lk.sendData(payload);\n  } else if (connState == WIFI_ONLY) {\n      postToMonitoringEndpoint(payload);\n  }\n}"
+  }
+]

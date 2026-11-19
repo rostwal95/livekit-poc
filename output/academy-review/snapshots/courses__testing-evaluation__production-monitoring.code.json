@@ -1,0 +1,74 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import asyncio\nimport json\nimport random\nfrom datetime import datetime\nfrom livekit.agents.testing import ConversationEvaluator\nfrom evaluation.rubrics import RUBRICS\n\nclass LiveEvaluator:\n  def __init__(self, sample_rate=0.1):\n      \"\"\"Evaluate a sample of production conversations.\n\n      Args:\n          sample_rate: Fraction of conversations to evaluate (0.1 = 10%)\n      \"\"\"\n      self.sample_rate = sample_rate\n      self.evaluator = ConversationEvaluator(rubrics=RUBRICS)\n\n  async def on_conversation_end(self, conversation_id, history):\n      \"\"\"Called when a production conversation ends.\"\"\"\n      if random.random() > self.sample_rate:\n          return  # Skip this conversation\n\n      # Score the conversation\n      scores = await self.evaluator.evaluate(history)\n\n      # Store the results\n      result = {\n          \"conversation_id\": conversation_id,\n          \"timestamp\": datetime.now().isoformat(),\n          \"scores\": scores,\n          \"average\": sum(scores.values()) / len(scores),\n          \"turn_count\": len([m for m in history if m[\"role\"] == \"user\"]),\n      }\n\n      await self.store_result(result)\n      await self.check_quality_gates(result)\n\n  async def store_result(self, result):\n      \"\"\"Store evaluation result for trend analysis.\"\"\"\n      with open(\"monitoring/results.jsonl\", \"a\") as f:\n          f.write(json.dumps(result) + \"\\n\")\n\n  async def check_quality_gates(self, result):\n      \"\"\"Check if the conversation meets quality thresholds.\"\"\"\n      alerts = []\n\n      if result[\"average\"] < 3.0:\n          alerts.append(f\"Low overall quality: {result['average']:.1f}/5\")\n\n      for metric, score in result[\"scores\"].items():\n          if score < 2.0:\n              alerts.append(f\"Critical: {metric} scored {score}/5\")\n\n      if alerts:\n          await self.send_alert(result[\"conversation_id\"], alerts)\n\n  async def send_alert(self, conversation_id, alerts):\n      \"\"\"Send alert for quality issues.\"\"\"\n      print(f\"QUALITY ALERT for conversation {conversation_id}:\")\n      for alert in alerts:\n          print(f\"  - {alert}\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { ConversationEvaluator } from \"@livekit/agents/testing\";\nimport { RUBRICS } from \"../evaluation/rubrics\";\nimport { appendFile } from \"fs/promises\";\n\ninterface EvalResult {\nconversationId: string;\ntimestamp: string;\nscores: Record<string, number>;\naverage: number;\nturnCount: number;\n}\n\nexport class LiveEvaluator {\nprivate evaluator: ConversationEvaluator;\nprivate sampleRate: number;\n\nconstructor(sampleRate = 0.1) {\n  this.sampleRate = sampleRate;\n  this.evaluator = new ConversationEvaluator({ rubrics: RUBRICS });\n}\n\nasync onConversationEnd(conversationId: string, history: any[]) {\n  if (Math.random() > this.sampleRate) return;\n\n  const scores = await this.evaluator.evaluate(history);\n  const avg =\n    Object.values(scores).reduce((a, b) => a + b, 0) /\n    Object.values(scores).length;\n\n  const result: EvalResult = {\n    conversationId,\n    timestamp: new Date().toISOString(),\n    scores,\n    average: avg,\n    turnCount: history.filter((m) => m.role === \"user\").length,\n  };\n\n  await this.storeResult(result);\n  await this.checkQualityGates(result);\n}\n\nprivate async storeResult(result: EvalResult) {\n  await appendFile(\"monitoring/results.jsonl\", JSON.stringify(result) + \"\\n\");\n}\n\nprivate async checkQualityGates(result: EvalResult) {\n  const alerts: string[] = [];\n\n  if (result.average < 3.0) {\n    alerts.push(`Low overall quality: ${result.average.toFixed(1)}/5`);\n  }\n\n  for (const [metric, score] of Object.entries(result.scores)) {\n    if (score < 2.0) {\n      alerts.push(`Critical: ${metric} scored ${score}/5`);\n    }\n  }\n\n  if (alerts.length > 0) {\n    console.log(`QUALITY ALERT for conversation ${result.conversationId}:`);\n    alerts.forEach((a) => console.log(`  - ${a}`));\n  }\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from monitoring.live_eval import LiveEvaluator\n\nevaluator = LiveEvaluator(sample_rate=0.1)\n\nclass DentalReceptionist:\n  async def on_session_end(self, session):\n      \"\"\"Called when a caller hangs up or the session ends.\"\"\"\n      await evaluator.on_conversation_end(\n          conversation_id=session.id,\n          history=session.conversation_history(),\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { LiveEvaluator } from \"../monitoring/live-eval\";\n\nconst evaluator = new LiveEvaluator(0.1);\n\nclass DentalReceptionist {\nasync onSessionEnd(session: any) {\n  await evaluator.onConversationEnd(\n    session.id,\n    session.conversationHistory()\n  );\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from receptionist.agent import DentalReceptionist\n\nclass ABTestRouter:\n  def __init__(self, variant_a_config, variant_b_config, traffic_split=0.5):\n      \"\"\"Route callers to one of two agent configurations.\n\n      Args:\n          variant_a_config: Config for the control group\n          variant_b_config: Config for the experiment group\n          traffic_split: Fraction of traffic sent to variant B\n      \"\"\"\n      self.variant_a_config = variant_a_config\n      self.variant_b_config = variant_b_config\n      self.traffic_split = traffic_split\n\n  def get_agent(self, session_id):\n      \"\"\"Return an agent instance for this session.\"\"\"\n      # Deterministic assignment based on session ID ensures\n      # the same caller gets the same variant if they call back\n      is_variant_b = hash(session_id) % 100 < (self.traffic_split * 100)\n\n      if is_variant_b:\n          variant = \"B\"\n          config = self.variant_b_config\n      else:\n          variant = \"A\"\n          config = self.variant_a_config\n\n      agent = DentalReceptionist(config=config)\n      agent.ab_variant = variant  # Tag for evaluation\n      return agent\n\n# Example usage\nrouter = ABTestRouter(\n  variant_a_config={\n      \"model\": \"gpt-4o\",\n      \"system_prompt\": \"You are a friendly dental receptionist...\",\n  },\n  variant_b_config={\n      \"model\": \"gpt-4o\",\n      \"system_prompt\": \"You are a warm and professional dental office assistant...\",\n  },\n  traffic_split=0.2,  # Send 20% of traffic to variant B\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { DentalReceptionist } from \"../src/agent\";\n\ninterface AgentConfig {\nmodel: string;\nsystemPrompt: string;\n}\n\nexport class ABTestRouter {\nconstructor(\n  private variantAConfig: AgentConfig,\n  private variantBConfig: AgentConfig,\n  private trafficSplit = 0.5\n) {}\n\ngetAgent(sessionId: string) {\n  const hash = this.hashCode(sessionId);\n  const isVariantB = hash % 100 < this.trafficSplit * 100;\n\n  const config = isVariantB ? this.variantBConfig : this.variantAConfig;\n  const variant = isVariantB ? \"B\" : \"A\";\n\n  const agent = new DentalReceptionist(config);\n  (agent as any).abVariant = variant;\n  return agent;\n}\n\nprivate hashCode(str: string): number {\n  let hash = 0;\n  for (let i = 0; i < str.length; i++) {\n    hash = (hash << 5) - hash + str.charCodeAt(i);\n    hash |= 0;\n  }\n  return Math.abs(hash);\n}\n}\n\n// Example usage\nconst router = new ABTestRouter(\n{ model: \"gpt-4o\", systemPrompt: \"You are a friendly dental receptionist...\" },\n{ model: \"gpt-4o\", systemPrompt: \"You are a warm and professional dental office assistant...\" },\n0.2\n);"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import json\nfrom collections import defaultdict\n\ndef analyze_ab_results(results_path=\"monitoring/results.jsonl\"):\n  \"\"\"Compare quality scores between A/B variants.\"\"\"\n  variant_scores = defaultdict(lambda: defaultdict(list))\n\n  with open(results_path) as f:\n      for line in f:\n          result = json.loads(line)\n          variant = result.get(\"ab_variant\", \"A\")\n          for metric, score in result[\"scores\"].items():\n              variant_scores[variant][metric].append(score)\n\n  print(\"A/B Test Results\")\n  print(\"=\" * 50)\n\n  for variant in sorted(variant_scores.keys()):\n      scores_list = list(variant_scores[variant].values())[0]\n      print(f\"\\nVariant {variant} ({len(scores_list)} conversations):\")\n      for metric, scores in variant_scores[variant].items():\n          avg = sum(scores) / len(scores)\n          print(f\"  {metric}: {avg:.2f}/5\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "class QualityGateMonitor:\n  def __init__(self, window_minutes=60, min_conversations=10):\n      self.window_minutes = window_minutes\n      self.min_conversations = min_conversations\n\n      # Define quality thresholds\n      self.gates = {\n          \"overall_average\": {\"min\": 3.5, \"severity\": \"critical\"},\n          \"task_completion\": {\"min\": 3.0, \"severity\": \"critical\"},\n          \"tone\": {\"min\": 3.0, \"severity\": \"warning\"},\n          \"tool_accuracy\": {\"min\": 3.5, \"severity\": \"critical\"},\n          \"response_relevance\": {\"min\": 3.5, \"severity\": \"warning\"},\n      }\n\n  def check_gates(self, recent_results):\n      \"\"\"Check quality gates against recent evaluation results.\"\"\"\n      if len(recent_results) < self.min_conversations:\n          return []  # Not enough data\n\n      violations = []\n\n      # Check overall average\n      overall_avg = sum(r[\"average\"] for r in recent_results) / len(recent_results)\n      gate = self.gates[\"overall_average\"]\n      if overall_avg < gate[\"min\"]:\n          violations.append({\n              \"gate\": \"overall_average\",\n              \"threshold\": gate[\"min\"],\n              \"actual\": overall_avg,\n              \"severity\": gate[\"severity\"],\n          })\n\n      # Check individual metrics\n      for metric in [\"task_completion\", \"tone\", \"tool_accuracy\", \"response_relevance\"]:\n          scores = [r[\"scores\"][metric] for r in recent_results if metric in r[\"scores\"]]\n          if not scores:\n              continue\n\n          avg = sum(scores) / len(scores)\n          gate = self.gates.get(metric)\n          if gate and avg < gate[\"min\"]:\n              violations.append({\n                  \"gate\": metric,\n                  \"threshold\": gate[\"min\"],\n                  \"actual\": avg,\n                  \"severity\": gate[\"severity\"],\n              })\n\n      return violations"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "interface QualityGate {\nmin: number;\nseverity: \"warning\" | \"critical\";\n}\n\ninterface Violation {\ngate: string;\nthreshold: number;\nactual: number;\nseverity: string;\n}\n\nexport class QualityGateMonitor {\nprivate gates: Record<string, QualityGate> = {\n  overall_average: { min: 3.5, severity: \"critical\" },\n  task_completion: { min: 3.0, severity: \"critical\" },\n  tone: { min: 3.0, severity: \"warning\" },\n  tool_accuracy: { min: 3.5, severity: \"critical\" },\n  response_relevance: { min: 3.5, severity: \"warning\" },\n};\n\nconstructor(\n  private windowMinutes = 60,\n  private minConversations = 10\n) {}\n\ncheckGates(recentResults: any[]): Violation[] {\n  if (recentResults.length < this.minConversations) return [];\n\n  const violations: Violation[] = [];\n\n  const overallAvg =\n    recentResults.reduce((sum, r) => sum + r.average, 0) / recentResults.length;\n\n  if (overallAvg < this.gates.overall_average.min) {\n    violations.push({\n      gate: \"overall_average\",\n      threshold: this.gates.overall_average.min,\n      actual: overallAvg,\n      severity: this.gates.overall_average.severity,\n    });\n  }\n\n  for (const metric of [\"task_completion\", \"tone\", \"tool_accuracy\", \"response_relevance\"]) {\n    const scores = recentResults\n      .filter((r) => r.scores[metric] !== undefined)\n      .map((r) => r.scores[metric]);\n\n    if (scores.length === 0) continue;\n\n    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;\n    const gate = this.gates[metric];\n\n    if (gate && avg < gate.min) {\n      violations.push({\n        gate: metric,\n        threshold: gate.min,\n        actual: avg,\n        severity: gate.severity,\n      });\n    }\n  }\n\n  return violations;\n}\n}"
+  }
+]

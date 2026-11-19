@@ -1,0 +1,10 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Start your agent\nlk agent dev\n\n# In another terminal, verify infrastructure\nlk sip trunk list\nlk sip dispatch list"
+  }
+]

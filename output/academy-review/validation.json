@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "pages": 42,
+  "all_course_cards": 20,
+  "unique_chapter_judgments": 133,
+  "quiz_items_covered": 361,
+  "original_proposals": 24,
+  "answered_followups": 48,
+  "shortlisted": 15,
+  "all_chapter_qids_resolve": true,
+  "all_chapter_snapshots_http_200": true,
+  "pdf_margin_geometry": "passed",
+  "book_hash_unchanged": true,
+  "book_sha256": "45e9e2e617db216848645a3a718b118698570a7e1f1a4ca7c3c0f04c7d6a0cc8",
+  "report_sha256": "f8ca09ea663493744f1ccfa9c584704051e6b38882845ee0ffa6575c8a5ba465",
+  "limits": "Static reading/API audit. No examples, media, models, deployments or assessments executed. Visual QA recorded separately.",
+  "final_pages_rendered": 42,
+  "root_visual_qa": "All42 final page layouts inspected through contact sheets and representative full pages. Dense pages14,28,38,40 additionally inspected at full size. Final page38 scope wording checked after revision; other41 page content streams remained byte-identical to visually reviewed version. No clipping, overlap, broken glyphs or orphaned ledger course headings.",
+  "javascript_syntax": "passed: bundled Node --check",
+  "source_peer_review": "All24 proposed answers and48 followups reviewed; default hook and exact RPC contract corrections incorporated."
+}

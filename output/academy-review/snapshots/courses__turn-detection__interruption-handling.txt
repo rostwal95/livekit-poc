@@ -1,0 +1,124 @@
+1Turn detection fundamentals
+
+2VAD configuration
+
+3Multilingual turn detection
+
+4Endpointing configuration
+
+5Adaptive interruption handling
+
+6Backchanneling & natural flow
+
+7A/B testing & quality metrics
+
+Adaptive interruption handling
+
+Adaptive interruption handling
+
+Users interrupt agents constantly — sometimes intentionally ("Actually, make that Tuesday"), sometimes accidentally (a cough, a background noise). The difference between a good voice agent and a great one is how it handles these interruptions. This chapter covers LiveKit's two interruption modes and shows you how to tune them.
+
+What you'll learn
+
+The difference between VAD-only and adaptive interruption handling
+
+How adaptive mode uses the LLM to classify interruptions
+
+How to configure false_interruption_timeout to debounce noise
+
+When to use each mode based on your use case
+
+Two modes of interruption handling
+
+LiveKit provides two strategies for handling interruptions — moments when the user speaks while the agent is still talking.
+
+VAD mode is the simpler approach. When VAD detects speech while the agent is speaking, the agent stops immediately. Every detected voice activity is treated as a deliberate interruption.
+
+Adaptive mode adds intelligence. When VAD detects speech during agent output, the system briefly pauses and uses the LLM to determine whether the speech is a real interruption or just background noise, a cough, or a backchannel like "uh-huh." If the LLM determines it is not meaningful, the agent resumes speaking.
+
+from livekit.agents import AgentSession, TurnDetectionOptions
+
+# VAD mode — simple, immediate interruption
+session_vad = AgentSession(
+  turn_detection=TurnDetectionOptions(
+      interruption_mode="vad",
+  ),
+)
+
+# Adaptive mode — LLM-assisted interruption classification
+session_adaptive = AgentSession(
+  turn_detection=TurnDetectionOptions(
+      interruption_mode="adaptive",
+  ),
+)
+
+import { AgentSession } from "@livekit/agents";
+
+// VAD mode
+const sessionVad = new AgentSession({
+turnDetection: {
+  interruptionMode: "vad",
+},
+});
+
+// Adaptive mode
+const sessionAdaptive = new AgentSession({
+turnDetection: {
+  interruptionMode: "adaptive",
+},
+});
+
+Adaptive mode introduces a small delay (typically 50–200ms) while the LLM classifies the interruption. This delay is usually imperceptible but dramatically reduces false interruptions — those moments where the agent stops mid-sentence because someone coughed or a dog barked in the background.
+
+Debouncing with false_interruption_timeout
+
+The false_interruption_timeout parameter controls how long the system waits before treating detected speech as a genuine interruption. Think of it as a debounce timer.
+
+session = AgentSession(
+  turn_detection=TurnDetectionOptions(
+      interruption_mode="adaptive",
+      false_interruption_timeout=0.3,  # Wait 300ms before confirming
+  ),
+)
+
+Timeout | Behavior | Best for
+0.1 | Very responsive, more false positives | Gaming, quick-fire Q&A
+0.3 | Balanced — default recommendation | Customer service, general use
+0.5 | Conservative, fewer false positives | Noisy environments, telephony
+0.8+ | Very conservative, may feel sluggish | High-noise industrial settings
+
+Try it
+
+Run your agent with false_interruption_timeout=0.1 and then 0.5. Have a conversation where you cough or say "uh-huh" while the agent talks. Notice how the higher value prevents the agent from stopping unnecessarily.
+
+Choosing the right mode
+
+Scenario | Recommended mode | Why
+Quiet environment, fast interaction | VAD | Low false positives, zero classification delay
+Noisy environment, telephony | Adaptive | Filters noise, prevents false interruptions
+Long agent responses | Adaptive | Users often backchannel during long answers
+Short, rapid exchanges | VAD | Classification delay is noticeable in fast exchanges
+
+Reference
+
+See the Turn handling options docs for all available parameters and their defaults.
+
+Test your knowledge
+
+Question 1 of 2
+
+What is the key difference between VAD mode and adaptive mode when the user speaks while the agent is talking?
+
+What you learned
+
+VAD mode stops the agent immediately on any detected speech
+
+Adaptive mode uses the LLM to classify interruptions before stopping
+
+false_interruption_timeout acts as a debounce timer for interruptions
+
+Choose VAD for quiet, fast interactions and adaptive for noisy or long-form conversations
+
+Next up
+
+Backchanneling — teaching your agent to handle "uh-huh" and "yeah" without treating them as full conversational turns.

@@ -254,6 +254,83 @@ class NativePolicyTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(authority.issue_count, 0)
         self.assertEqual(parse_native_policy_observation(seen.payload), seen)
 
+    async def test_pre_admission_capacity_allows_explicit_same_request_retry(self):
+        app, authority, _, specialist, coordinator, _ = self.make()
+        original_binding = app.binding
+        original_payload = authority.record.payload
+        authority.find_release = asyncio.Event()
+        pressure = [
+            asyncio.create_task(coordinator.find(authority.record.idempotency_key))
+            for _ in range(4)
+        ]
+        self.tasks.extend(pressure)
+        await until(lambda: coordinator.pending_count == 4)
+        with self.assertRaisesRegex(NativePolicyError, "^unavailable$"):
+            await app.evaluate(Context(authority))
+        self.assertEqual(coordinator.metrics()["capacity_rejected"], 1)
+        self.assertEqual(authority.submit_calls, 0)
+        self.assertFalse(authority.accepted)
+        self.assertEqual(authority.issue_count, 0)
+        self.assertEqual(specialist.requests, [])
+
+        authority.find_release.set()
+        await asyncio.gather(*pressure)
+        await until(lambda: coordinator.pending_count == 0)
+        # A distinct explicit call retries the same frozen request, not a new key.
+        result = await app.evaluate(Context(authority))
+        self.assertEqual(result.state, "result")
+        self.assertEqual(app.binding, original_binding)
+        self.assertEqual(authority.record.payload, original_payload)
+        self.assertEqual(authority.submit_calls, 1)
+        self.assertEqual(authority.issue_count, 1)
+        self.assertEqual(set(authority.issues), {"native_original"})
+        self.assertEqual(authority.complete_count, 1)
+        self.assertEqual(len(specialist.requests), 1)
+
+    async def test_unknown_submit_ack_never_retries_acceptance_or_issues(self):
+        app, authority, _, specialist, coordinator, _ = self.make()
+        original_submit = authority.submit
+
+        async def lose_ack(*, idempotency_key, payload):
+            await original_submit(idempotency_key=idempotency_key, payload=payload)
+            raise WorkError("acknowledgement_unknown")
+
+        with (
+            patch.object(authority, "submit", side_effect=lose_ack),
+            patch.object(
+                authority,
+                "find",
+                side_effect=[None, WorkError("storage_unavailable")],
+            ),
+            self.assertRaisesRegex(NativePolicyError, "^acknowledgement_unknown$"),
+        ):
+            await app.evaluate(Context(authority))
+        await until(lambda: coordinator.pending_count == 0)
+        self.assertTrue(authority.accepted)
+        for _ in range(2):
+            self.assertEqual((await app.evaluate(Context(authority))).state, "work")
+        self.assertEqual(authority.submit_calls, 1)
+        self.assertEqual(authority.issue_count, 0)
+        self.assertEqual(authority.complete_count, 0)
+        self.assertEqual(specialist.requests, [])
+
+    async def test_runner_capacity_after_acceptance_keeps_calls_lookup_only(self):
+        app, authority, _, specialist, _, runner = self.make()
+        authority.issue_error = WorkError("capacity")
+        with self.assertRaisesRegex(NativePolicyError, "^unavailable$"):
+            await app.evaluate(Context(authority))
+        await until(lambda: runner.pending_count == 0)
+        self.assertTrue(authority.accepted)
+        self.assertEqual(authority.submit_calls, 1)
+        self.assertEqual(authority.issue_count, 1)
+        # Removing pressure must not turn a known acceptance into another run.
+        authority.issue_error = None
+        self.assertEqual((await app.evaluate(Context(authority))).state, "work")
+        self.assertEqual(authority.submit_calls, 1)
+        self.assertEqual(authority.issue_count, 1)
+        self.assertEqual(authority.complete_count, 0)
+        self.assertEqual(specialist.requests, [])
+
     async def test_ack_before_pending_and_reserved_read_progress_while_held(self):
         app, authority, _, specialist, _, runner = self.make()
         specialist.release = asyncio.Event()

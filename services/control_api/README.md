@@ -53,6 +53,10 @@ explains its design, limits and failure handling.
 | Optional `local_real` profile | Not qualified | Implemented; remains unqualified |
 | P1-I26 isolated host/Linux artifacts, independent API/failure review and genuine native consumer | Qualified | Passed; details in the [package work item](../../docs/work-items/0016-p1-standalone-package.md) |
 
+The provider qualification above is retained checkpoint evidence. A fresh P1-20
+run after the v5 upgrade remains open, as recorded in the
+[current qualification guide](../../docs/qualification-gates.md).
+
 Both real profiles are implemented. Production identity and independent durable
 worker scheduling remain outside this service. The Phase G work item owns
 combined local qualification rather than a full product release claim.
@@ -131,7 +135,7 @@ records remain independently available.
 | Local operator bearer token | `LOCAL_ACCESS_TOKEN` | Configured through the local setup |
 | PostgreSQL connection | `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Configured through the local setup |
 | M1 SQLite intake database | `INTAKE_DATABASE` | Configured through the local setup |
-| Business profile startup | An explicitly prepared ACTIVE v4 schema and separate existing supplier and receiver fixtures | See the conversation guide |
+| Business profile startup | An explicitly prepared ACTIVE v4 or v5 schema and separate existing supplier and receiver fixtures | `prepare-business` upgrades through v5; `start-business` performs read-only preflight |
 
 Never embed credentials in the browser bundle.
 
@@ -190,8 +194,8 @@ lane.
 
 | Step | Outcome | Gate |
 | --- | --- | --- |
-| Use the measured Phase H1 [seeded inquiry baseline](../../docs/work-items/0014-p1-phase-h-workload-baseline.md) | Seeded inquiry baseline measurements | Measured |
-| Use it alongside the passed Phase H2 study | Restart, slow-dependency, saturation and shutdown evidence | Passed |
+| Repeat affected API and PostgreSQL gates after changes | Fresh evidence for the changed boundary | Service tests and applicable durable lanes |
+| Rerun P1-20 after the v5 upgrade with the approved certificate bundle | Current provider-media evidence | [Provider guide](../../docs/provider-demo.md) |
 
 | Open or out-of-scope item | Status |
 | --- | --- |

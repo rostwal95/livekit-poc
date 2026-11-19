@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Which of these features is exclusive to LiveKit Cloud and cannot be replicated on self-hosted infrastructure?",
+    "options": [
+      "WebRTC media transport and SFU routing",
+      "Redis-based multi-node coordination",
+      "Krisp noise cancellation, GPU-accelerated turn detection, and the barge-in model",
+      "Prometheus metrics and Grafana dashboards"
+    ],
+    "correctIndex": 2,
+    "explanation": "Krisp noise cancellation, GPU-accelerated turn detection, and the purpose-built barge-in model run on specialized Cloud infrastructure and are not available in the open-source LiveKit server. These features compound to create noticeably more natural voice AI conversations."
+  },
+  {
+    "question": "A healthcare company needs media streams to stay within a specific geographic region. What should they do first?",
+    "options": [
+      "Immediately begin planning a self-hosted Kubernetes deployment",
+      "Contact LiveKit about custom Cloud deployment options for their region and compliance needs",
+      "Use a managed platform like Vapi or Retell instead",
+      "Build their own WebRTC server from scratch"
+    ],
+    "correctIndex": 1,
+    "explanation": "LiveKit offers custom Cloud deployments with dedicated infrastructure in specific regions, custom data processing agreements, and HIPAA-compliant configurations. Teams should explore these options before committing to the operational burden of self-hosting."
+  },
+  {
+    "question": "Why does a production LiveKit deployment require separate network configuration for signaling and media traffic?",
+    "options": [
+      "Media traffic uses lower ports that require special firewall rules",
+      "Signaling and media must run on separate physical servers",
+      "Signaling flows through WebSocket over HTTPS and can be proxied, while media flows over UDP directly to the server and cannot pass through an HTTP proxy",
+      "Signaling uses encrypted packets while media does not"
+    ],
+    "correctIndex": 2,
+    "explanation": "Signaling (room creation, track subscription) uses WebSocket over HTTPS and can be load-balanced and proxied like normal HTTP traffic. Media (audio/video packets) flows over UDP on ports 50000-60000 directly between clients and the server. Your firewall and load balancer must account for both paths separately."
+  }
+]

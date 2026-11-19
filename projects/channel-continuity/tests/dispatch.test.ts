@@ -18,6 +18,7 @@ const calls = vi.hoisted(() => ({
   finish: vi.fn(),
   fail: vi.fn(),
   inspect: vi.fn(),
+  readPrepared: vi.fn(),
   close: vi.fn(),
 }));
 vi.mock('../src/dispatch-store.js', () => ({
@@ -28,6 +29,7 @@ vi.mock('../src/dispatch-store.js', () => ({
     finish = calls.finish;
     fail = calls.fail;
     inspect = calls.inspect;
+    readPrepared = calls.readPrepared;
     close = calls.close;
   },
 }));
@@ -161,6 +163,44 @@ beforeEach(() => {
   calls.close.mockResolvedValue(undefined);
 });
 describe('bounded persisted dispatch adapter orchestration', () => {
+  it('quiesces actual timed-out work without closing retained reads or admitting another attempt', async () => {
+    const held = deferred<typeof CURRENT>(),
+      entered = deferred<void>();
+    const d = make(
+      fixture({
+        cases: {
+          async inspect() {
+            entered.resolve();
+            return held.promise;
+          },
+        },
+      }).ports,
+      { timeoutMs: 20, cleanupTimeoutMs: 20 },
+    );
+    const work = d.step('token', RECEIPT);
+    try {
+      await entered.promise;
+      await rejects(work, 'DispatchUnavailable');
+      await rejects(d.quiesce(), 'CleanupIncomplete');
+      await rejects(d.step('token', RECEIPT), 'StorageUnavailable');
+      expect(calls.claim).toHaveBeenCalledTimes(1);
+      expect(calls.close).not.toHaveBeenCalled();
+      held.resolve(CURRENT);
+      await tick();
+      await d.quiesce();
+      calls.inspect.mockResolvedValue({ receiptId: RECEIPT, state: 'pending' });
+      calls.readPrepared.mockResolvedValue(PLAN);
+      expect(await d.inspect('token', RECEIPT)).toMatchObject({ receiptId: RECEIPT });
+      expect(await d.readPrepared('token', RECEIPT)).toEqual(PLAN);
+      expect(calls.close).not.toHaveBeenCalled();
+      expect(calls.fail).toHaveBeenCalledTimes(1);
+    } finally {
+      held.resolve(CURRENT);
+      await work.catch(() => {});
+      await tick();
+      await d.close();
+    }
+  });
   it('requires declared cooperating ports before claiming any work', async () => {
     const f = fixture();
     for (const key of ['cases', 'agent', 'operations'])

@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why does the complete study partner agent use a single Agent class with multiple function tools rather than separate agents for each modality?",
+    "options": [
+      "Because Python only allows one Agent class per file",
+      "Because each function tool runs on a separate thread for performance",
+      "Because function tools let the LLM orchestrate capabilities based on conversation context, eliminating the need for complex mode-switching logic",
+      "Because multiple agents would require multiple LiveKit rooms"
+    ],
+    "correctIndex": 2,
+    "explanation": "Tool-based agent design means each capability (vision, whiteboard, screen annotation, documents) is a function tool, and the LLM decides which tools to call based on the conversation. This avoids complex routing logic or mode switching \u2014 you add capabilities without adding control flow."
+  },
+  {
+    "question": "What is the recommended approach for testing a multimodal agent with vision, documents, whiteboard, and screen sharing?",
+    "options": [
+      "Write unit tests for each function tool and skip integration testing",
+      "Test voice-only first as a baseline, then each modality in isolation, then modality switching, and finally cost and performance",
+      "Test all modalities simultaneously from the start to catch integration bugs early",
+      "Only test in production since multimodal interactions are too complex to test locally"
+    ],
+    "correctIndex": 1,
+    "explanation": "Systematic testing starts with a voice-only baseline (disabling all visual tools), then tests each modality independently, then tests transitions between modalities, and finally measures real-world cost and performance over extended sessions. This layered approach isolates issues effectively."
+  },
+  {
+    "question": "Why does the frontend use progressive disclosure (showing panels on demand) rather than rendering all modality panels at once?",
+    "options": [
+      "Because LiveKit limits the number of active tracks per room",
+      "Because each panel requires a separate WebSocket connection",
+      "Because showing everything at once increases cognitive load and creates a cluttered UI for the user",
+      "Because browsers cannot render multiple video elements simultaneously"
+    ],
+    "correctIndex": 2,
+    "explanation": "Progressive disclosure keeps the UI clean by starting with the avatar and voice conversation, then revealing the whiteboard, annotation overlay, and document panels only when the user activates them. This reduces cognitive load and lets users focus on the modality they are currently using."
+  }
+]

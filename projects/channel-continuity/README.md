@@ -489,6 +489,35 @@ do not expand resources.
 - Observer notifications are capped at eight. The application owns any external
   resources created by its observer.
 
+### Gateway lifecycle controls
+
+These public methods are for trusted application owners, not HTTP commands or
+browser capabilities. They retain the existing inbox and dispatcher; they add no
+durable queue or schema. The [lifecycle work item](../../docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md)
+records the repair and its separate verification.
+
+| Method | Current contract | Bounds and limits |
+| --- | --- | --- |
+| `ChannelDispatcher.quiesce()` | Permanently fence new dispatch/reconcile attempts and observe actual owned calls without closing the store; prepared/receipt reads remain available | Uses the dispatcher's cleanup observer budget; timeout retains actual owners |
+| `ChannelGateway.quiesceDispatch()` | Permanently fence new intake and polling, wake the driver and quiesce its dispatcher while keeping storage and reads available | Uses `cleanupMs`; a failed observation can be retried, with no resume method |
+| `NativeGateway.fenceNativeInput(bearer)` | Fence one native HTTP bearer before awaiting its already admitted actual SQL accepts | At most 1,024 distinct bearer hashes per gateway instance, retained until instance closure; no persisted revocation |
+| `NativeGateway.drainNativeInput(accountToken, bindingId, bearer)` | After the same bearer is fenced, observe its exact-provider/original-binding inputs until original dispatched receipts are known | Two actual drains; at most 16 total account/conversation history records before filtering; 20-second monotonic drain budget |
+
+Drain requires the existing ordinary dispatcher and application origins to remain
+available. It uses lookup-only reconciliation for possible external calls and
+never creates another input or operation key. History overflow, blocked or
+exhausted work, expiry/revocation, or an unresolved outcome can keep Room End in
+Closing. The original grant must still permit every new prepare/reservation.
+An already admitted external call remains owned and cannot be cancelled by these
+fences. Timeouts do not discard actual I/O.
+
+For each room, the joined owner drains accepted input, then revokes the grant and
+stops its worker. Whole-gateway quiescence follows that front-tier drain. The
+retiring-room adapter may use the existing deterministic preparation path for the
+same original claim; this grants no new permission. A process-local fence does
+not survive restart or prevent a trusted direct inbox caller. Applications still
+own explicit final revocation and resource closure.
+
 ### Acknowledgement semantics and the test hook
 
 Only the explicit trusted `harnessAfterAcknowledgement` test hook gates dispatch,
@@ -1312,7 +1341,9 @@ and verification layers.
   and SDK speech identity. `observeSdk` and `observeBrowser` append immutable facts.
 - Account-authenticated `inspectResponse`, `responses` and `observations` read
   bounded coherent projections.
-- The default native profile stays on its existing protocol and eighteen metrics.
+- The default native profile preserves its protocol and the original eighteen-field
+  `native18` metrics subset; current runtime metrics also report later lifecycle
+  and scheduled-reply observations.
 - The native Python profile adds `NativeCommunicationHttpClient` and source capture
   through public SDK nodes. Only normal actual source exhaustion publishes full
   generated text.

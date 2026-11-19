@@ -1,0 +1,26 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.api import LiveKitAPI, RoomCompositeEgressRequest, EncodedFileOutput, S3Upload\n\nasync def start_recording(room_name: str, call_id: str):\n  api = LiveKitAPI()\n\n  output = EncodedFileOutput(\n      file_type=\"OGG\",\n      filepath=f\"recordings/{call_id}.ogg\",\n      s3=S3Upload(\n          access_key=\"YOUR_AWS_ACCESS_KEY\",\n          secret=\"YOUR_AWS_SECRET_KEY\",\n          region=\"us-east-1\",\n          bucket=\"your-call-recordings\",\n      ),\n  )\n\n  request = RoomCompositeEgressRequest(\n      room_name=room_name,\n      file_outputs=[output],\n      audio_only=True,\n  )\n\n  egress_info = await api.egress.start_room_composite_egress(request)\n  return egress_info.egress_id"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { LiveKitAPI, RoomCompositeEgressRequest } from \"@livekit/server-sdk\";\n\nasync function startRecording(roomName: string, callId: string) {\nconst api = new LiveKitAPI();\n\nconst request: RoomCompositeEgressRequest = {\n  roomName,\n  audioOnly: true,\n  fileOutputs: [\n    {\n      fileType: \"OGG\",\n      filepath: `recordings/${callId}.ogg`,\n      s3: {\n        accessKey: \"YOUR_AWS_ACCESS_KEY\",\n        secret: \"YOUR_AWS_SECRET_KEY\",\n        region: \"us-east-1\",\n        bucket: \"your-call-recordings\",\n      },\n    },\n  ],\n};\n\nconst egressInfo = await api.egress.startRoomCompositeEgress(request);\nreturn egressInfo.egressId;\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Example: S3 lifecycle configuration for call recordings\nlifecycle_rules = {\n  \"Rules\": [\n      {\n          \"ID\": \"TransitionToGlacier\",\n          \"Filter\": {\"Prefix\": \"recordings/\"},\n          \"Status\": \"Enabled\",\n          \"Transitions\": [\n              {\"Days\": 90, \"StorageClass\": \"GLACIER\"},\n          ],\n      },\n      {\n          \"ID\": \"DeleteOldRecordings\",\n          \"Filter\": {\"Prefix\": \"recordings/\"},\n          \"Status\": \"Enabled\",\n          \"Expiration\": {\"Days\": 365},\n      },\n  ]\n}"
+  }
+]

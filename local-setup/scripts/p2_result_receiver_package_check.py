@@ -114,14 +114,14 @@ ROOT_APPLICATION_TEST_COUNTS = {
     "test_channel_policy_current_result_http.py": 20,
     "test_channel_policy_native_worker_config.py": 26,
     "test_channel_policy_native_worker.py": 27,
-    "test_channel_policy_native_room.py": 21,
+    "test_channel_policy_native_room.py": 25,
     "test_channel_policy_native_room_admin.py": 12,
     "test_channel_policy_native_room_state.py": 14,
     "test_channel_policy_native_worker_process.py": 13,
     "test_channel_policy_operator_contract.py": 12,
     "test_channel_policy_operator_sms.py": 14,
     "test_channel_policy_operator_http.py": 12,
-    "test_channel_policy_parent.py": 19,
+    "test_channel_policy_parent.py": 23,
 }
 ROOT_APPLICATION_HELPERS = (
     "local-setup/scripts/p2_channel_origin_wire.py",
@@ -254,6 +254,7 @@ def plan(*, channel_origin: bool = False, root_application: bool = False) -> dic
     if root_application:
         result.update(
             root_application=True,
+            p2_lifecycle_public_signature_probe=True,
             root_application_groups=7,
             builder_process_groups=32,
             test_child_process_groups=10,
@@ -653,8 +654,41 @@ async def channel_methods(coordinator: ChannelPolicyCoordinator, runner: Channel
 """
 
 
-def p2_consumer(*, channel_origin: bool = False) -> str:
+def p2_consumer(*, channel_origin: bool = False, lifecycle: bool = False) -> str:
     require(type(channel_origin) is bool, "invalid_input")
+    require(type(lifecycle) is bool, "invalid_input")
+    if lifecycle:
+        base = p2_consumer(channel_origin=channel_origin)
+        imports = """import type {ChannelGateway} from '@livekit-ecosystem/channel-continuity/gateway';
+import type {ChannelDispatcher} from '@livekit-ecosystem/channel-continuity/dispatch';
+async function lifecycleSignatures(gateway:ChannelGateway,dispatcher:ChannelDispatcher,account:string,binding:string,bearer:string):Promise<void>{
+  const fenced:Promise<void>=gateway.fenceNativeInput(bearer);await fenced;
+  const drained:Promise<void>=gateway.drainNativeInput(account,binding,bearer);await drained;
+  const gatewayQuiet:Promise<void>=gateway.quiesceDispatch();await gatewayQuiet;
+  const dispatcherQuiet:Promise<void>=dispatcher.quiesce();await dispatcherQuiet;
+}
+void lifecycleSignatures;
+"""
+        probe = """const gatewayApi=await import('@livekit-ecosystem/channel-continuity/gateway');
+const dispatchApi=await import('@livekit-ecosystem/channel-continuity/dispatch');
+for(const method of ['fenceNativeInput','drainNativeInput','quiesceDispatch'] as const)assert.equal(typeof gatewayApi.ChannelGateway.prototype[method],'function');
+assert.equal(typeof dispatchApi.ChannelDispatcher.prototype.quiesce,'function');
+"""
+        result = base.replace(
+            "}finally{Socket.prototype.connect=connect;",
+            probe + "}finally{Socket.prototype.connect=connect;",
+        )
+        require(result != base)
+        # Bind the newly imported runtime exports to the same private installation.
+        result = result.replace(
+            "for(const name of [",
+            "for(const name of ['@livekit-ecosystem/channel-continuity/gateway','@livekit-ecosystem/channel-continuity/dispatch',",
+        )
+        result = result.replace(
+            "notice_hash_separate:true",
+            "notice_hash_separate:true,lifecycle_public_signatures:true",
+        )
+        return imports + result
     if not channel_origin:
         return P2_CONSUMER
     imported = "import type {OperationClientConfig,OperationClientBinding} from '@livekit-ecosystem/channel-continuity/starter';\n"
@@ -2202,7 +2236,7 @@ def run(
         write(retained / "p2/archive-package.json", archive_manifest)
         write(retained / "p2-manifest-parity.json", json_bytes(p2_parity))
         consumer = p2["consumer"]
-        p2_probe = p2_consumer(channel_origin=channel_origin).encode()
+        p2_probe = p2_consumer(channel_origin=channel_origin, lifecycle=root_application).encode()
         write(consumer / "result-consumer.ts", p2_probe)
         write(retained / "consumers/result-consumer.ts", p2_probe)
         write(
@@ -2247,6 +2281,7 @@ def run(
                 "negative_cases": 9,
                 "original_result_sha": intent["result_sha256"],
                 "notice_hash_separate": True,
+                **({"lifecycle_public_signatures": True} if root_application else {}),
                 **({"operation_only_config": True} if channel_origin else {}),
             },
         )

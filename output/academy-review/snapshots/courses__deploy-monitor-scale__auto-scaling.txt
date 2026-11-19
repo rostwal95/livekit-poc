@@ -1,0 +1,184 @@
+1Deployment architecture
+
+2Docker configuration
+
+3LiveKit Cloud deployment
+
+4Monitoring setup
+
+5Custom metrics & data hooks
+
+6Alerting & incident response
+
+7Multi-tenant architecture
+
+8Auto-scaling
+
+9Cost optimization
+
+10Blue-green deployments
+
+11Operational runbook
+
+Auto-scaling
+
+Auto-scaling voice agent workers
+
+Voice traffic is spiky. A dental clinic gets a flood of calls Monday morning, a pizza chain peaks Friday evening, and a crisis hotline surges unpredictably. If you provision for peak, you waste money at idle. If you provision for average, callers get dropped during spikes. Auto-scaling solves this by adding and removing agent workers based on real-time demand.
+
+What you'll learn
+
+How to configure auto-scaling for agent workers on LiveKit Cloud
+
+How to set up Kubernetes HPA for self-hosted deployments
+
+How to define scaling policies based on concurrent sessions
+
+How to plan capacity so scaling has headroom to work
+
+Scaling on LiveKit Cloud
+
+LiveKit Cloud handles infrastructure scaling automatically. Your job is to configure the agent-level scaling behavior: how many sessions each worker handles, when to spawn new workers, and the upper bound.
+
+agent:
+name: dental-receptionist
+scaling:
+  min_workers: 2
+  max_workers: 50
+  sessions_per_worker: 5
+  scale_up_threshold: 0.8    # Add workers when 80% of capacity is in use
+  scale_down_threshold: 0.3  # Remove workers when below 30% utilization
+  scale_down_delay: 300s     # Wait 5 min before scaling down
+  warmup_time: 30s           # Time for a new worker to become ready
+
+The scale_down_delay is critical for voice workloads. Scaling down too aggressively means you pay the cold-start penalty again when the next burst arrives. A five-minute delay absorbs typical traffic fluctuations without keeping idle workers running for hours.
+
+Self-hosted scaling with Kubernetes HPA
+
+For self-hosted deployments, use a Kubernetes Horizontal Pod Autoscaler with a custom metric: active sessions per worker.
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+name: voice-agent-hpa
+namespace: livekit
+spec:
+scaleTargetRef:
+  apiVersion: apps/v1
+  kind: Deployment
+  name: voice-agent
+minReplicas: 2
+maxReplicas: 50
+behavior:
+  scaleUp:
+    stabilizationWindowSeconds: 30
+    policies:
+      - type: Pods
+        value: 4
+        periodSeconds: 60
+  scaleDown:
+    stabilizationWindowSeconds: 300
+    policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 120
+metrics:
+  - type: Pods
+    pods:
+      metric:
+        name: agent_active_sessions
+      target:
+        type: AverageValue
+        averageValue: "4"
+
+Why custom metrics over CPU?
+
+CPU utilization is a poor scaling signal for voice agents. An agent waiting for an LLM response uses almost no CPU but is fully occupied. Scaling on active sessions reflects actual capacity consumption.
+
+Exposing custom metrics for the HPA
+
+The HPA needs a metric to query. Expose the active session count from your agent worker using a Prometheus gauge, then use a Prometheus adapter to make it available to Kubernetes.
+
+from prometheus_client import Gauge, start_http_server
+from livekit.agents import Agent, AgentSession, AgentServer, rtc_session
+
+ACTIVE_SESSIONS = Gauge(
+  "agent_active_sessions",
+  "Number of active voice sessions on this worker",
+)
+
+server = AgentServer()
+
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  ACTIVE_SESSIONS.inc()
+  try:
+      await session.start(
+          agent=Agent(instructions="You are a helpful assistant."),
+          room=session.room,
+      )
+      # Wait for session to end
+      await session.wait()
+  finally:
+      ACTIVE_SESSIONS.dec()
+
+
+# Expose metrics for Prometheus scraping
+start_http_server(9090)
+
+if __name__ == "__main__":
+  server.run()
+
+import { Agent, AgentSession, AgentServer } from "@livekit/agents";
+import { Gauge, Registry, collectDefaultMetrics } from "prom-client";
+
+const register = new Registry();
+collectDefaultMetrics({ register });
+
+const activeSessions = new Gauge({
+name: "agent_active_sessions",
+help: "Number of active voice sessions on this worker",
+registers: [register],
+});
+
+const server = new AgentServer();
+
+server.rtcSession(async (session: AgentSession) => {
+activeSessions.inc();
+try {
+  await session.start({
+    agent: new Agent({ instructions: "You are a helpful assistant." }),
+    room: session.room,
+  });
+  await session.wait();
+} finally {
+  activeSessions.dec();
+}
+});
+
+server.run();
+
+Capacity planning
+
+Auto-scaling reacts to demand, but it cannot create resources that do not exist. You need to plan capacity so the cluster has headroom for scaling to work.
+
+Measure memory, CPU, and network usage per concurrent session. A typical voice agent uses 50-100 MB of memory per session and negligible CPU while waiting for LLM responses.
+
+Start with 3-5 sessions per worker and load test. Increase only after confirming latency remains stable. An overloaded worker hurts every session on it, not just the newest one.
+
+Set your node pool autoscaler to maintain at least 20% idle capacity. New pods cannot start if there are no nodes to schedule them on. Node provisioning takes 2-4 minutes, which is an eternity for a caller on hold.
+
+Use load testing tools to simulate traffic ramps. Verify that new workers come online before existing workers hit capacity, and that scale-down does not interrupt active sessions.
+
+Graceful shutdown matters
+
+When scaling down, the agent worker must finish active sessions before terminating. Configure a terminationGracePeriodSeconds of at least 600 seconds (10 minutes) in your Kubernetes deployment to avoid cutting off callers mid-conversation.
+
+Auto-scaling turns a fixed-cost infrastructure into a variable-cost one that tracks demand. The key is choosing the right metric (active sessions, not CPU), setting conservative thresholds (scale up eagerly, scale down cautiously), and ensuring the underlying cluster has room to grow.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why is CPU utilization a poor scaling signal for voice AI agent workers?

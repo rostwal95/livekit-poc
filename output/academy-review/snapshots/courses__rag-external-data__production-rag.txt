@@ -1,0 +1,312 @@
+1RAG architecture for voice
+
+2MCP tools for structured data
+
+3Citation in spoken conversation
+
+4Production RAG: caching, monitoring, evaluation
+
+Production RAG: caching, monitoring, evaluation
+
+Production RAG patterns
+
+You have a working RAG pipeline — ingestion, retrieval, citation, and hybrid search are all in place. Now you need it to survive real traffic. Production RAG means caching frequent queries to cut latency, monitoring retrieval quality to catch degradation early, and measuring answer quality so you know when your system is helping and when it is not. This chapter covers the operational patterns that separate a prototype from a production system.
+
+What you'll learn
+
+How to cache retrieval results and embeddings for frequently asked questions
+
+How to monitor retrieval quality with relevance scores and hit rates
+
+How to evaluate answer quality with automated and human-in-the-loop approaches
+
+Key metrics to track and alert on in a production RAG deployment
+
+Caching frequent queries
+
+Voice agents in production receive the same questions repeatedly. "What are your business hours?" and "How do I reset my password?" do not need a fresh vector search every time. A semantic cache maps queries to cached results, avoiding both the embedding API call and the database search.
+
+import hashlib
+import time
+from dataclasses import dataclass
+
+@dataclass
+class CacheEntry:
+  results: list[dict]
+  query_embedding: list[float]
+  created_at: float
+  hit_count: int = 0
+
+class SemanticCache:
+  def __init__(self, ttl_seconds: int = 3600, similarity_threshold: float = 0.95):
+      self.cache: dict[str, CacheEntry] = {}
+      self.ttl = ttl_seconds
+      self.threshold = similarity_threshold
+
+  def _key(self, query: str) -> str:
+      normalized = query.strip().lower()
+      return hashlib.sha256(normalized.encode()).hexdigest()
+
+  def get(self, query: str) -> list[dict] | None:
+      key = self._key(query)
+      entry = self.cache.get(key)
+      if entry is None:
+          return None
+      if time.time() - entry.created_at > self.ttl:
+          del self.cache[key]
+          return None
+      entry.hit_count += 1
+      return entry.results
+
+  def put(self, query: str, results: list[dict], embedding: list[float]):
+      key = self._key(query)
+      self.cache[key] = CacheEntry(
+          results=results,
+          query_embedding=embedding,
+          created_at=time.time(),
+      )
+
+  def stats(self) -> dict:
+      total_hits = sum(e.hit_count for e in self.cache.values())
+      return {
+          "cache_size": len(self.cache),
+          "total_hits": total_hits,
+          "avg_hits_per_entry": total_hits / max(len(self.cache), 1),
+      }
+
+import { createHash } from "crypto";
+
+interface CacheEntry {
+results: Record<string, any>[];
+createdAt: number;
+hitCount: number;
+}
+
+class SemanticCache {
+private cache = new Map<string, CacheEntry>();
+private ttlMs: number;
+
+constructor(ttlSeconds = 3600) {
+  this.ttlMs = ttlSeconds * 1000;
+}
+
+private key(query: string): string {
+  return createHash("sha256")
+    .update(query.trim().toLowerCase())
+    .digest("hex");
+}
+
+get(query: string): Record<string, any>[] | null {
+  const entry = this.cache.get(this.key(query));
+  if (!entry) return null;
+  if (Date.now() - entry.createdAt > this.ttlMs) {
+    this.cache.delete(this.key(query));
+    return null;
+  }
+  entry.hitCount++;
+  return entry.results;
+}
+
+put(query: string, results: Record<string, any>[]): void {
+  this.cache.set(this.key(query), {
+    results,
+    createdAt: Date.now(),
+    hitCount: 0,
+  });
+}
+}
+
+Cache invalidation
+
+Invalidate your cache when documents are re-ingested. A stale cache serving outdated retrieval results is worse than no cache at all. The simplest approach: clear the entire cache on every ingestion run. For finer control, track which documents contributed to each cache entry and invalidate selectively.
+
+Monitoring retrieval quality
+
+A RAG system can degrade silently. The documents change, the queries shift, and suddenly the retrieval step is returning irrelevant results while the LLM gamely generates plausible-sounding answers from noise. You need metrics to catch this.
+
+Log the similarity score of every retrieved chunk. A declining average score over time means your knowledge base is drifting from the queries your users ask.
+
+What percentage of queries return at least one result above your relevance threshold? A falling hit rate means you have coverage gaps.
+
+Track p50, p95, and p99 retrieval latency. Voice agents have a hard latency ceiling. If p95 creeps above 300ms, investigate.
+
+Set alerts for sudden drops in hit rate, spikes in latency, or clusters of low-relevance retrievals.
+
+import time
+import logging
+from dataclasses import dataclass, field
+
+logger = logging.getLogger("rag_metrics")
+
+@dataclass
+class RAGMetrics:
+  total_queries: int = 0
+  cache_hits: int = 0
+  retrieval_hits: int = 0  # queries with at least one result above threshold
+  total_latency_ms: float = 0
+  relevance_scores: list[float] = field(default_factory=list)
+
+  @property
+  def hit_rate(self) -> float:
+      return self.retrieval_hits / max(self.total_queries, 1)
+
+  @property
+  def cache_hit_rate(self) -> float:
+      return self.cache_hits / max(self.total_queries, 1)
+
+  @property
+  def avg_latency_ms(self) -> float:
+      return self.total_latency_ms / max(self.total_queries, 1)
+
+  @property
+  def avg_relevance(self) -> float:
+      return sum(self.relevance_scores) / max(len(self.relevance_scores), 1)
+
+  def report(self) -> dict:
+      return {
+          "total_queries": self.total_queries,
+          "hit_rate": round(self.hit_rate, 3),
+          "cache_hit_rate": round(self.cache_hit_rate, 3),
+          "avg_latency_ms": round(self.avg_latency_ms, 1),
+          "avg_relevance": round(self.avg_relevance, 3),
+      }
+
+class MonitoredVectorStore:
+  def __init__(self, store, cache, metrics: RAGMetrics, min_score: float = 0.7):
+      self.store = store
+      self.cache = cache
+      self.metrics = metrics
+      self.min_score = min_score
+
+  async def search(self, query: str, top_k: int = 3) -> list:
+      self.metrics.total_queries += 1
+      start = time.monotonic()
+
+      # Check cache first
+      cached = self.cache.get(query)
+      if cached:
+          self.metrics.cache_hits += 1
+          return cached
+
+      # Execute search
+      results = await self.store.search(query, top_k=top_k)
+      elapsed_ms = (time.monotonic() - start) * 1000
+      self.metrics.total_latency_ms += elapsed_ms
+
+      # Record metrics
+      for r in results:
+          self.metrics.relevance_scores.append(r.score)
+      if any(r.score >= self.min_score for r in results):
+          self.metrics.retrieval_hits += 1
+
+      # Populate cache
+      self.cache.put(query, results)
+
+      # Log warnings
+      if elapsed_ms > 300:
+          logger.warning(f"Slow retrieval: {elapsed_ms:.0f}ms for query: {query[:80]}")
+      if not any(r.score >= self.min_score for r in results):
+          logger.warning(f"No relevant results for query: {query[:80]}")
+
+      return results
+
+Evaluating answer quality
+
+Retrieval quality is only half the picture. You also need to know whether the final answer — the one the user hears — is actually correct. This requires evaluation at the answer level.
+
+Method | Effort | Coverage | Best for
+LLM-as-judge | Low | High | Automated continuous evaluation
+Human review sampling | High | Low | Ground truth validation
+User feedback | Low | Variable | Real-world quality signal
+Golden test set | Medium | Fixed | Regression testing
+
+import json
+from openai import AsyncOpenAI
+
+async def evaluate_answer(
+  client: AsyncOpenAI,
+  question: str,
+  context: str,
+  answer: str,
+) -> dict:
+  """Use an LLM to evaluate RAG answer quality."""
+  eval_prompt = f"""Evaluate this RAG system response. Score each dimension 1-5.
+
+Question: {question}
+Retrieved context: {context}
+Agent answer: {answer}
+
+Score these dimensions:
+1. Faithfulness: Does the answer only use information from the context? (1=fabricates, 5=fully grounded)
+2. Relevance: Does the answer address the question? (1=off-topic, 5=directly answers)
+3. Completeness: Does the answer cover the key points from the context? (1=misses everything, 5=comprehensive)
+
+Respond in JSON: {{"faithfulness": N, "relevance": N, "completeness": N, "reasoning": "..."}}"""
+
+  response = await client.chat.completions.create(
+      model="gpt-4o",
+      messages=[{"role": "user", "content": eval_prompt}],
+      response_format={"type": "json_object"},
+  )
+  return json.loads(response.choices[0].message.content)
+
+import OpenAI from "openai";
+
+async function evaluateAnswer(
+client: OpenAI,
+question: string,
+context: string,
+answer: string
+): Promise<{ faithfulness: number; relevance: number; completeness: number }> {
+const evalPrompt = `Evaluate this RAG system response. Score each dimension 1-5.
+
+Question: ${question}
+Retrieved context: ${context}
+Agent answer: ${answer}
+
+Score these dimensions:
+1. Faithfulness: Does the answer only use information from the context?
+2. Relevance: Does the answer address the question?
+3. Completeness: Does the answer cover the key points?
+
+Respond in JSON: {"faithfulness": N, "relevance": N, "completeness": N}`;
+
+const response = await client.chat.completions.create({
+  model: "gpt-4o",
+  messages: [{ role: "user", content: evalPrompt }],
+  response_format: { type: "json_object" },
+});
+return JSON.parse(response.choices[0].message.content!);
+}
+
+LLM-as-judge evaluation runs automatically on a sample of interactions. It scores faithfulness (is the answer grounded in the context?), relevance (does it answer the question?), and completeness (does it cover the key points?). This is not a replacement for human evaluation, but it scales to thousands of interactions per day and catches obvious failures.
+
+Build a golden test set
+
+Create a set of 50-100 question-answer pairs with known correct answers. Run your RAG pipeline against this set on every deployment. If scores drop, you have a regression. This is the single most effective quality assurance practice for RAG systems.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why is cache invalidation especially important for a semantic cache in a RAG system?
+
+Course summary
+
+Over these seven chapters, you built a complete RAG system for voice agents:
+
+You learned what RAG is, how vector search works, and when to use it versus tool calls or static instructions.
+
+You built an ingestion pipeline with chunking, embedding, and vector storage across pgvector, Pinecone, and Weaviate.
+
+You wired retrieval into the voice agent pipeline using on_user_turn_completed with relevance filtering.
+
+You connected external APIs using MCP tool servers for structured data access alongside RAG.
+
+You added source tracking and voice-friendly citation patterns with audit logging.
+
+You combined keyword and semantic search with reciprocal rank fusion and cross-encoder reranking.
+
+You added caching, monitoring, and quality evaluation to keep the system reliable at scale.
+
+Your voice agent now has access to external knowledge, structured APIs, and the monitoring infrastructure to keep it all running reliably. The next course in the integrations track builds on these patterns to cover real-time data streaming and event-driven architectures.

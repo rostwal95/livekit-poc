@@ -1,0 +1,174 @@
+1What is voice AI? Why WebRTC matters
+
+2Project setup & your first agent
+
+3Understanding AgentSession
+
+4Writing great agent instructions
+
+5Adding your first tool: check availability
+
+6RunContext, state & the booking tool
+
+7Noise cancellation & room configuration
+
+8Testing your agent
+
+9Turn detection deep dive
+
+10Conversation context & multi-turn state
+
+11Beyond audio: the data plane
+
+12Deploy to LiveKit Cloud
+
+13Polish & production readiness
+
+Deploy to LiveKit Cloud
+
+Deploy to LiveKit Cloud
+
+Your dental receptionist works perfectly on your local machine. But a receptionist that only works when your laptop is open is not much of a receptionist. In this chapter, you will deploy your agent to LiveKit Cloud — a fully managed infrastructure that runs your agent 24/7 with automatic scaling, monitoring, and debugging tools. Six steps from local dev to production.
+
+What happens during deployment
+
+When you deploy to LiveKit Cloud, your agent code is packaged into a Docker container, uploaded to LiveKit's container registry, and launched on managed infrastructure. LiveKit handles scaling — spinning up more instances when call volume increases and scaling down when it drops. You do not manage servers, load balancers, or container orchestration.
+
+Think of it like deploying a web app to a platform like Vercel or Railway, but optimized for real-time media. Your agent code runs in containers that LiveKit manages. When a caller connects, LiveKit routes them to an available instance of your agent. If all instances are busy, a new one spins up automatically.
+
+Step 1: Create the agent on LiveKit Cloud
+
+First, register your agent with LiveKit Cloud. This creates an agent entry that you will deploy code to:
+
+lk agent create dental-receptionist
+
+This tells LiveKit Cloud that an agent called dental-receptionist exists and will accept deployments. The name must be unique within your project.
+
+Step 2: Write the Dockerfile
+
+LiveKit Cloud runs your agent as a Docker container. Create a Dockerfile in the root of your project:
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["python", "agent.py", "start"]
+
+python:3.12-slim keeps the container small while including everything you need. The slim variant omits build tools and documentation, reducing image size from ~900MB to ~150MB.
+
+Copying requirements.txt and installing before copying the rest of your code means Docker caches the dependency layer. When you change your agent code but not your dependencies, rebuilds are fast.
+
+COPY . . brings in your agent.py and any other files your agent needs.
+
+python agent.py start launches your agent in production mode. This is different from lk agent dev — it connects to LiveKit Cloud rather than running a local dev server.
+
+Make sure your requirements.txt includes all your dependencies:
+
+livekit-agents[codecs]~=1.6
+livekit-plugins-openai~=1.1
+livekit-plugins-deepgram~=1.1
+livekit-plugins-cartesia~=1.1
+livekit-plugins-silero~=1.1
+
+Pin your dependency versions
+
+Always use version constraints (~=1.6 means >= 1.6, < 2.0) rather than unpinned packages. A breaking change in a dependency should not take down your production agent at 2 AM.
+
+Step 3: Set secrets
+
+Your agent needs API keys for OpenAI, Deepgram, Cartesia, and any other services it uses. Never bake these into the Docker image. Use LiveKit Cloud's secret management:
+
+lk cloud secrets set OPENAI_API_KEY=sk-...
+lk cloud secrets set DEEPGRAM_API_KEY=...
+lk cloud secrets set CARTESIA_API_KEY=...
+
+These secrets are encrypted at rest and injected as environment variables when your agent container starts. They are never visible in logs, images, or the Cloud dashboard.
+
+LiveKit API keys are automatic
+
+You do not need to set LIVEKIT_URL or LIVEKIT_API_KEY as secrets. LiveKit Cloud injects these automatically when running your agent. Your agent code reads them from the environment the same way it does in dev mode.
+
+Step 4: Deploy
+
+With the Dockerfile ready and secrets configured, deploy your agent:
+
+lk agent deploy
+
+This command builds your Docker image, pushes it to LiveKit's container registry, and starts rolling it out. You will see progress output as the build and deployment proceed. A typical first deployment takes 2-3 minutes. Subsequent deployments are faster because Docker layer caching kicks in.
+
+If you need to target a specific agent name (useful when you have multiple agents):
+
+lk agent deploy dental-receptionist
+
+Step 5: Check logs
+
+Once deployed, check that your agent is running correctly:
+
+lk cloud logs dental-receptionist
+
+This streams the logs from your running agent containers. You should see startup messages confirming the agent registered successfully. When a caller connects, you will see session lifecycle events, tool calls, and any print() statements in your code.
+
+Add structured logging
+
+Replace print() statements with Python's logging module for production. Structured logs with timestamps, log levels, and session IDs make debugging much easier when you have multiple concurrent calls.
+
+Step 6: Test from Playground
+
+Open the LiveKit Playground from your Cloud dashboard. Select your project, and your deployed dental-receptionist agent should appear as an available agent. Click connect and start talking — the audio now flows through LiveKit Cloud's infrastructure rather than your local dev server.
+
+Try saying: "Hi, I'd like to book an appointment for next Wednesday."
+
+The experience should be identical to local dev mode. If the agent responds slower, check your deployment region — deploying close to your STT/LLM/TTS providers reduces inter-service latency.
+
+Cloud Insights: monitoring your deployed agent
+
+LiveKit Cloud Insights gives you visibility into every conversation your agent handles. From the Cloud dashboard, you can access:
+
+Transcripts — Full text transcripts of every conversation, showing both user and agent messages with timestamps. Invaluable for reviewing how the agent handles real calls and identifying areas for improvement.
+
+Traces — Detailed timing breakdowns for each turn: how long STT took, how long the LLM took, how long TTS took, and the total end-to-end latency. This is where you spot performance bottlenecks.
+
+Audio recordings — Listen to actual conversations. Reading a transcript is useful; hearing the tone, pacing, and naturalness of the interaction tells you far more about quality.
+
+# View recent sessions
+lk cloud sessions list dental-receptionist
+
+# View details for a specific session
+lk cloud sessions view <session-id>
+
+Monitoring checklist
+
+Once your agent is deployed, establish a monitoring routine:
+
+Review Cloud Insights for failed sessions. A sudden spike in errors usually means an API key expired or a provider is having issues.
+
+Look at P50 and P95 latency for each pipeline stage. If LLM latency creeps up, you might need a faster model or shorter prompts.
+
+Pick 3-5 random conversations per week and listen to the audio recordings. Transcripts miss nuance — was the agent too fast? Too slow? Did turn detection feel natural?
+
+When you improve your agent, deploy again with lk agent deploy. LiveKit Cloud handles rolling updates — existing calls are not interrupted.
+
+Deploying is not the finish line. It is where the real learning begins. Production conversations will surprise you. Callers will say things you never anticipated. The monitoring tools in Cloud Insights let you learn from every call and continuously improve your agent.
+
+Rollback if something goes wrong
+
+If a deployment introduces a bug, roll back to the previous version:
+
+lk agent rollback dental-receptionist
+
+This immediately reverts to the last known-good deployment. New calls are routed to the previous version. Always test in Playground after a deployment before considering it stable.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why does the Dockerfile copy requirements.txt and install dependencies before copying the rest of the application code?
+
+Looking ahead
+
+Your dental receptionist is live. Real callers can reach it 24/7. But there is still room to polish — filtering markdown from TTS output, handling abandoned calls, adding hold music, and locking down prompt guardrails. In the next chapter, you will add the production finishing touches that separate a demo from a real product.

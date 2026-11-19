@@ -50,7 +50,7 @@ _CODES = frozenset(
 )
 BASE = frozenset({"PATH", "LANG", "CI", "NO_COLOR", "__CF_USER_TEXT_ENCODING"})
 T = TypeVar("T")
-STARTUP_SECONDS, SHUTDOWN_SECONDS = 60.0, 60.0
+STARTUP_SECONDS, SHUTDOWN_SECONDS = 60.0, 120.0
 RETRY_SECONDS, RETRY_MAXIMUM_SECONDS = 0.1, 5.0
 STOP_SIGNALS = (signal.SIGTERM, signal.SIGINT, signal.SIGHUP, signal.SIGQUIT)
 PRIVATE_BYTES = 32768
@@ -269,6 +269,7 @@ class PreparedLaunch:
 class ParentPort(Protocol):
     async def start_sources(self) -> None: ...
     async def start(self, cursor: NodeRoomCursor) -> Endpoint: ...
+    async def prepare_shutdown(self) -> None: ...
     async def close(self) -> None: ...
 
 
@@ -276,6 +277,7 @@ class ChildPort(Protocol):
     async def start(self) -> None: ...
     async def wait_ready(self, deadline: float) -> dict[str, object]: ...
     async def wait_terminal(self) -> None: ...
+    async def quiesce_dispatch(self) -> None: ...
     async def close(self) -> None: ...
     def facts(self) -> dict[str, object]: ...
 
@@ -525,6 +527,8 @@ class JoinedLauncher:
         self._startup: asyncio.Task[None] | None = None
         self._cleanup: asyncio.Task[None] | None = None
         self._parent_cleanup: asyncio.Task[None] | None = None
+        self._parent_preparation: asyncio.Task[None] | None = None
+        self._gateway_quiesce: asyncio.Task[None] | None = None
         self._ui_cleanup: asyncio.Task[None] | None = None
         self._deadline: float | None = None
         self._closing = self._closed = self._ready = False
@@ -682,11 +686,15 @@ class JoinedLauncher:
         # Start both admission fences without awaiting either slow owner. Keep
         # independent observers so a failed allocation cannot discard the other.
         allocation_failed = False
-        for name, owner in (
-            ("_ui_cleanup", self._children.get("ui")),
-            ("_parent_cleanup", self._parent),
+        ui = self._children.get("ui")
+        for name, action in (
+            ("_ui_cleanup", None if ui is None else ui.close),
+            (
+                "_parent_preparation",
+                None if self._parent is None else self._parent.prepare_shutdown,
+            ),
         ):
-            if owner is None:
+            if action is None:
                 continue
             prior = cast(asyncio.Task[None] | None, getattr(self, name))
             if (
@@ -695,7 +703,7 @@ class JoinedLauncher:
                 and (prior.cancelled() or prior.exception() is not None)
             ):
                 try:
-                    setattr(self, name, task(owner.close(), cleanup=True))
+                    setattr(self, name, task(action(), cleanup=True))
                 except Exception:  # noqa: BLE001 - independently retain both front owners
                     allocation_failed = True
         need(not allocation_failed, "cleanup_incomplete")
@@ -713,7 +721,7 @@ class JoinedLauncher:
         # adopted. Startup is now settled, so catch every such late owner.
         self._front_cleanup()
         front = tuple(
-            value for value in (self._ui_cleanup, self._parent_cleanup) if value is not None
+            value for value in (self._ui_cleanup, self._parent_preparation) if value is not None
         )
         if front:
             await asyncio.gather(
@@ -723,6 +731,30 @@ class JoinedLauncher:
                 all(not value.cancelled() and value.exception() is None for value in front),
                 "cleanup_incomplete",
             )
+        # End has now fenced/drained the current room, while dispatch and origin
+        # endpoints were still live. Stop every global dispatcher before App close.
+        gateway = self._children.get("gateway")
+        if gateway is not None:
+            if (
+                self._gateway_quiesce is None
+                or self._gateway_quiesce.done()
+                and (
+                    self._gateway_quiesce.cancelled()
+                    or self._gateway_quiesce.exception() is not None
+                )
+            ):
+                self._gateway_quiesce = task(gateway.quiesce_dispatch(), cleanup=True)
+            await asyncio.shield(self._gateway_quiesce)
+        if self._parent is not None:
+            if (
+                self._parent_cleanup is None
+                or self._parent_cleanup.done()
+                and (
+                    self._parent_cleanup.cancelled() or self._parent_cleanup.exception() is not None
+                )
+            ):
+                self._parent_cleanup = task(self._parent.close(), cleanup=True)
+            await asyncio.shield(self._parent_cleanup)
         for role in ("gateway", "specialist"):
             if role in self._children:
                 await self._children[role].close()
@@ -771,13 +803,20 @@ def plan() -> dict[str, object]:
         "childrenMaximum": 3,
         "startupSeconds": 60,
         "roleReadySeconds": 15,
-        "shutdownSeconds": 60,
+        "shutdownSeconds": 120,
         "stdoutBytesPerRole": 262144,
         "stderrBytesPerRole": 1048576,
         "ui": "prebuilt_preview",
         "uiPort": 5179,
         "operatorPort": 11033,
-        "shutdownOrder": ["ui", "parent", "gateway", "specialist"],
+        "shutdownOrder": [
+            "ui",
+            "parent_prepare_shutdown",
+            "gateway_quiesce_dispatch",
+            "parent",
+            "gateway",
+            "specialist",
+        ],
     }
 
 
@@ -830,17 +869,18 @@ async def serve(request: LaunchRequest) -> int:
                     reported = True
                 retry = task(stopped.wait())
                 actual = launcher._cleanup
-                waiters = (retry,) if actual is None or actual.done() else (retry, actual)
-                await asyncio.wait(waiters, return_when=asyncio.FIRST_COMPLETED)
-                if (
-                    not retry.done()
-                    and actual is not None
-                    and (actual.cancelled() or actual.exception() is not None)
-                ):
-                    # Past the shutdown deadline every close() fails at once, so pace
-                    # unsignalled retries of a cleanup that settled unsuccessfully.
+                if actual is None or actual.done():
+                    # A settled failure has no future completion edge to wake us.
+                    # Retry after bounded backoff even without another stop signal.
                     await asyncio.wait((retry,), timeout=pause)
                     pause = min(2 * pause, RETRY_MAXIMUM_SECONDS)
+                else:
+                    await asyncio.wait((retry, actual), return_when=asyncio.FIRST_COMPLETED)
+                    if not retry.done() and (actual.cancelled() or actual.exception() is not None):
+                        # Past the shutdown deadline every close() fails at once, so pace
+                        # unsignalled retries of a cleanup that settled unsuccessfully.
+                        await asyncio.wait((retry,), timeout=pause)
+                        pause = min(2 * pause, RETRY_MAXIMUM_SECONDS)
                 retry.cancel()
                 await asyncio.gather(retry, return_exceptions=True)
         for observer in (stopping, terminal):

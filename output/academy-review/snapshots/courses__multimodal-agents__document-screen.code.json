@@ -1,0 +1,82 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import io\nfrom livekit.agents import Agent, AgentSession, function_tool\nfrom livekit.plugins import openai, deepgram, cartesia\n\nclass DocumentAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are a study partner that can read documents.\n          When the user uploads a PDF or image, read its contents and help them\n          understand the material. Always refer to specific sections, page numbers,\n          or passages when answering questions about a document.\"\"\",\n      )\n      self._document_text = \"\"\n\n  @function_tool\n  async def get_document_content(self, context):\n      \"\"\"Retrieve the contents of the most recently uploaded document.\n      Call this when the user asks about their uploaded document.\"\"\"\n      if not self._document_text:\n          return \"No document has been uploaded yet. Ask the user to upload a file.\"\n      if len(self._document_text) < 4000:\n          return self._document_text\n      return self._document_text[:4000] + \"\n\n[Document truncated \u2014 ask about specific sections]\"\n\n  @function_tool\n  async def search_document(self, context, query: str):\n      \"\"\"Search the uploaded document for information related to the query.\n      Returns relevant passages from the document.\"\"\"\n      if not self._document_text:\n          return \"No document uploaded yet.\"\n      chunks = self._document_text.split(\"\n\n\")\n      query_lower = query.lower()\n      relevant = [c for c in chunks if any(w in c.lower() for w in query_lower.split())]\n      return \"\n\n\".join(relevant[:5]) if relevant else self._document_text[:4000]\n\n  async def on_data_received(self, payload: bytes, topic: str):\n      if topic == \"document-upload\":\n          self._document_text = await self._extract_text(payload)\n          await self.session.say(\"I have received your document. Ask me anything about it.\")\n\n  async def _extract_text(self, payload: bytes) -> str:\n      import PyPDF2\n      reader = PyPDF2.PdfReader(io.BytesIO(payload))\n      pages = []\n      for i, page in enumerate(reader.pages):\n          text = page.extract_text() or \"\"\n          pages.append(f\"--- Page {i + 1} ---\n{text}\")\n      return \"\n\n\".join(pages)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, AgentSession, functionTool } from \"@livekit/agents\";\nimport { OpenAI } from \"@livekit/agents-plugin-openai\";\n\nclass DocumentAgent extends Agent {\nprivate documentText = \"\";\n\nconstructor() {\n  super({\n    instructions: `You are a study partner that can read documents.\n      When the user uploads a PDF or image, read its contents and help them\n      understand the material. Always refer to specific sections, page numbers,\n      or passages when answering questions about a document.`,\n  });\n}\n\n@functionTool({\n  description: \"Retrieve the contents of the most recently uploaded document.\",\n})\nasync getDocumentContent(context) {\n  if (!this.documentText) {\n    return \"No document has been uploaded yet. Ask the user to upload a file.\";\n  }\n  return this.documentText.length < 4000\n    ? this.documentText\n    : this.documentText.slice(0, 4000) + \"\n\n[Document truncated]\";\n}\n\nasync onDataReceived(payload: Uint8Array, topic: string) {\n  if (topic === \"document-upload\") {\n    const pdfParse = await import(\"pdf-parse\");\n    const result = await pdfParse.default(Buffer.from(payload));\n    this.documentText = result.text;\n    await this.session.say(\"I have received your document. Ask me anything about it.\");\n  }\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.plugins import openai\nimport base64\n\nasync def ocr_with_vision(image_bytes: bytes, llm: openai.LLM) -> str:\n  \"\"\"Use a multimodal LLM to extract text from an image.\"\"\"\n  b64_image = base64.b64encode(image_bytes).decode(\"utf-8\")\n\n  response = await llm.chat(\n      messages=[\n          {\n              \"role\": \"user\",\n              \"content\": [\n                  {\n                      \"type\": \"text\",\n                      \"text\": \"Extract all visible text from this image. \"\n                             \"Preserve the original formatting as closely as possible. \"\n                             \"If there are diagrams, describe them briefly.\",\n                  },\n                  {\n                      \"type\": \"image_url\",\n                      \"image_url\": {\"url\": f\"data:image/png;base64,{b64_image}\"},\n                  },\n              ],\n          }\n      ]\n  )\n  return response.choices[0].message.content"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { OpenAI } from \"@livekit/agents-plugin-openai\";\n\nasync function ocrWithVision(imageBytes: Uint8Array, llm: OpenAI.LLM): Promise<string> {\nconst b64Image = Buffer.from(imageBytes).toString(\"base64\");\n\nconst response = await llm.chat({\n  messages: [\n    {\n      role: \"user\",\n      content: [\n        {\n          type: \"text\",\n          text: \"Extract all visible text from this image. \"\n            + \"Preserve the original formatting as closely as possible. \"\n            + \"If there are diagrams, describe them briefly.\",\n        },\n        {\n          type: \"image_url\",\n          image_url: { url: `data:image/png;base64,${b64Image}` },\n        },\n      ],\n    },\n  ],\n});\nreturn response.choices[0].message.content;\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { useDataChannel } from \"@livekit/components-react\";\n\nfunction DocumentUpload() {\nconst { send } = useDataChannel(\"document-upload\");\n\nasync function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {\n  const file = e.target.files?.[0];\n  if (!file) return;\n\n  const buffer = await file.arrayBuffer();\n  send(new Uint8Array(buffer), { reliable: true });\n}\n\nreturn (\n  <div className=\"upload-area\">\n    <label htmlFor=\"doc-upload\">Upload a document (PDF or image)</label>\n    <input\n      id=\"doc-upload\"\n      type=\"file\"\n      accept=\".pdf,.png,.jpg,.jpeg\"\n      onChange={handleFileChange}\n    />\n  </div>\n);\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, AgentSession, RoomInputOptions, VideoFrameOptions\n\nclass ScreenAssistantAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You can see the user's shared screen. Help them with whatever\n          they are working on.\n\n          When reading screen content:\n          - Read error messages exactly as written \u2014 do not paraphrase\n          - Reference specific UI elements by name and location\n          - Give step-by-step directions: \"click the Settings icon in the top-right corner\"\n          - If the screen content is unclear, ask the user to scroll or zoom in\n\n          You are patient and precise. Walk the user through each step one at a time.\"\"\",\n      )\n\nasync def entrypoint(ctx):\n  session = AgentSession(\n      stt=deepgram.STT(),\n      llm=openai.LLM(model=\"gpt-4o\"),\n      tts=cartesia.TTS(),\n  )\n\n  await session.start(\n      agent=ScreenAssistantAgent(),\n      room=ctx.room,\n      room_input_options=RoomInputOptions(\n          video_enabled=True,\n          video_frame_options=VideoFrameOptions(\n              capture_interval=2.0,\n              max_frames_in_context=3,\n              max_width=1920,\n              max_height=1080,\n          ),\n      ),\n  )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, AgentSession } from \"@livekit/agents\";\nimport { OpenAI } from \"@livekit/agents-plugin-openai\";\nimport { Deepgram } from \"@livekit/agents-plugin-deepgram\";\nimport { Cartesia } from \"@livekit/agents-plugin-cartesia\";\n\nclass ScreenAssistantAgent extends Agent {\nconstructor() {\n  super({\n    instructions: `You can see the user's shared screen. Help them with whatever\n      they are working on.\n\n      When reading screen content:\n      - Read error messages exactly as written \u2014 do not paraphrase\n      - Reference specific UI elements by name and location\n      - Give step-by-step directions: \"click the Settings icon in the top-right corner\"\n      - If the screen content is unclear, ask the user to scroll or zoom in\n\n      You are patient and precise. Walk the user through each step one at a time.`,\n  });\n}\n}\n\nasync function entrypoint(ctx) {\nconst session = new AgentSession({\n  stt: new Deepgram.STT(),\n  llm: new OpenAI.LLM({ model: \"gpt-4o\" }),\n  tts: new Cartesia.TTS(),\n});\n\nawait session.start({\n  agent: new ScreenAssistantAgent(),\n  room: ctx.room,\n  roomInputOptions: {\n    videoEnabled: true,\n    videoFrameOptions: {\n      captureInterval: 2.0,\n      maxFramesInContext: 3,\n      maxWidth: 1920,\n      maxHeight: 1080,\n    },\n  },\n});\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import json\nfrom livekit.agents import Agent, function_tool\n\nclass AnnotatingAssistant(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You can see the user's screen and highlight areas using\n          the annotate tool. When guiding the user, highlight the specific element\n          you are referring to so they can find it easily.\"\"\",\n      )\n\n  @function_tool\n  async def annotate_screen(self, context, x: float, y: float, width: float, height: float, label: str):\n      \"\"\"Highlight a rectangular region on the user's screen.\n      Coordinates are normalized 0-1 relative to the screen dimensions.\n      x, y is the top-left corner. width and height define the box size.\"\"\"\n      annotation = {\n          \"type\": \"highlight\",\n          \"x\": x, \"y\": y,\n          \"width\": width, \"height\": height,\n          \"label\": label,\n      }\n      await self.session.room.local_participant.publish_data(\n          json.dumps(annotation).encode(),\n          topic=\"screen-annotation\",\n      )\n      return f\"Highlighted region at ({x:.0%}, {y:.0%}) with label: {label}\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, functionTool } from \"@livekit/agents\";\n\nclass AnnotatingAssistant extends Agent {\nconstructor() {\n  super({\n    instructions: `You can see the user's screen and highlight areas using\n      the annotate tool. When guiding the user, highlight the specific element\n      you are referring to so they can find it easily.`,\n  });\n}\n\n@functionTool({\n  description: \"Highlight a rectangular region on the user's screen. Coordinates are normalized 0-1.\",\n})\nasync annotateScreen(context, { x, y, width, height, label }) {\n  const annotation = { type: \"highlight\", x, y, width, height, label };\n  await this.session.room.localParticipant.publishData(\n    new TextEncoder().encode(JSON.stringify(annotation)),\n    { topic: \"screen-annotation\" },\n  );\n  return `Highlighted region at (${(x * 100).toFixed(0)}%, ${(y * 100).toFixed(0)}%) with label: ${label}`;\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { useDataChannel } from \"@livekit/components-react\";\nimport { useState, useEffect } from \"react\";\n\nfunction ScreenAnnotationOverlay({ screenWidth, screenHeight }) {\nconst [annotations, setAnnotations] = useState([]);\nconst { message } = useDataChannel(\"screen-annotation\");\n\nuseEffect(() => {\n  if (!message) return;\n  const annotation = JSON.parse(new TextDecoder().decode(message.payload));\n  const id = Date.now();\n  setAnnotations((prev) => [...prev, { ...annotation, id }]);\n\n  // Auto-clear after 5 seconds\n  setTimeout(() => {\n    setAnnotations((prev) => prev.filter((a) => a.id !== id));\n  }, 5000);\n}, [message]);\n\nreturn (\n  <div className=\"annotation-layer\" style={{ position: \"absolute\", inset: 0 }}>\n    {annotations.map((a) => (\n      <div\n        key={a.id}\n        className=\"annotation-highlight\"\n        style={{\n          position: \"absolute\",\n          left: `${a.x * 100}%`,\n          top: `${a.y * 100}%`,\n          width: `${a.width * 100}%`,\n          height: `${a.height * 100}%`,\n          border: \"3px solid #ff4444\",\n          borderRadius: 4,\n        }}\n      >\n        <span className=\"annotation-label\">{a.label}</span>\n      </div>\n    ))}\n  </div>\n);\n}"
+  }
+]

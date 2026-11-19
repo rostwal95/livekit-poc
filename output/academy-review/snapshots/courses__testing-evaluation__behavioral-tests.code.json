@@ -1,0 +1,98 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import pytest\nfrom livekit.agents.testing import AgentTest\nfrom receptionist.agent import DentalReceptionist\n\n@pytest.fixture\nasync def agent():\n  \"\"\"Create a fresh agent test instance for each test.\"\"\"\n  test = AgentTest(DentalReceptionist())\n  return test"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentTest } from \"@livekit/agents/testing\";\nimport { DentalReceptionist } from \"../src/agent\";\n\nexport function createAgentTest() {\nreturn new AgentTest(new DentalReceptionist());\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "async def test_booking_conversation(agent):\n  \"\"\"Test a complete appointment booking conversation.\"\"\"\n  session = agent.session()\n\n  # Run a multi-turn conversation script\n  responses = await session.run([\n      \"Hi, I'd like to book an appointment\",\n      \"I need a teeth cleaning\",\n      \"Next Tuesday at 2pm would be great\",\n      \"Yes, please confirm that\",\n  ])\n\n  # Each response corresponds to the agent's reply after each user message\n  assert len(responses) == 4\n\n  # Judge each turn\n  assert agent.judge(responses[0], \"Agent should greet and ask about appointment type\")\n  assert agent.judge(responses[1], \"Agent should acknowledge cleaning and ask about date/time\")\n  assert agent.judge(responses[2], \"Agent should confirm the date/time or check availability\")\n  assert agent.judge(responses[3], \"Agent should confirm the booking with a summary\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { createAgentTest } from \"./setup\";\n\ntest(\"booking conversation\", async () => {\nconst agentTest = createAgentTest();\nconst session = agentTest.session();\n\nconst responses = await session.run([\n  \"Hi, I'd like to book an appointment\",\n  \"I need a teeth cleaning\",\n  \"Next Tuesday at 2pm would be great\",\n  \"Yes, please confirm that\",\n]);\n\nexpect(responses).toHaveLength(4);\nexpect(await agentTest.judge(responses[0], \"Agent should greet and ask about appointment type\")).toBe(true);\nexpect(await agentTest.judge(responses[1], \"Agent should acknowledge cleaning and ask about date/time\")).toBe(true);\nexpect(await agentTest.judge(responses[2], \"Agent should confirm the date/time or check availability\")).toBe(true);\nexpect(await agentTest.judge(responses[3], \"Agent should confirm the booking with a summary\")).toBe(true);\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "async def test_judge_basic(agent):\n  response = await agent.say(\"What are your office hours?\")\n\n  # Simple criterion\n  assert agent.judge(response, \"Agent should provide office hours\")\n\n  # Multiple criteria in one judge call\n  assert agent.judge(response, \"\"\"\n      Agent should:\n      1. Provide specific hours (days and times)\n      2. Be polite and professional\n      3. Not make up hours that were not configured\n  \"\"\")\n\nasync def test_judge_negative(agent):\n  response = await agent.say(\"Can you help me file my taxes?\")\n\n  # Test that the agent does NOT do something\n  assert agent.judge(response, \"\"\"\n      Agent should politely decline the request\n      and redirect to dental services.\n      Agent should NOT attempt to provide tax advice.\n  \"\"\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { createAgentTest } from \"./setup\";\n\ntest(\"judge basic criteria\", async () => {\nconst agentTest = createAgentTest();\nconst response = await agentTest.say(\"What are your office hours?\");\n\nexpect(\n  await agentTest.judge(response, \"Agent should provide office hours\")\n).toBe(true);\n\nexpect(\n  await agentTest.judge(response, `\n    Agent should:\n    1. Provide specific hours (days and times)\n    2. Be polite and professional\n    3. Not make up hours that were not configured\n  `)\n).toBe(true);\n});\n\ntest(\"judge negative criteria\", async () => {\nconst agentTest = createAgentTest();\nconst response = await agentTest.say(\"Can you help me file my taxes?\");\n\nexpect(\n  await agentTest.judge(response, `\n    Agent should politely decline the request\n    and redirect to dental services.\n    Agent should NOT attempt to provide tax advice.\n  `)\n).toBe(true);\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "async def test_greeting_with_name(agent):\n  response = await agent.say(\"Hi, this is Sarah calling\")\n  assert agent.judge(response, \"\"\"\n      Agent should greet Sarah by name and ask how it can help.\n      Agent should identify itself as a dental office receptionist.\n  \"\"\")\n\nasync def test_greeting_without_name(agent):\n  response = await agent.say(\"Hello\")\n  assert agent.judge(response, \"\"\"\n      Agent should greet the caller warmly and ask how it can help.\n      Agent should identify itself as a dental office receptionist.\n  \"\"\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "async def test_medical_advice_boundary(agent):\n  \"\"\"Agent should not provide medical diagnoses.\"\"\"\n  response = await agent.say(\"I have a really bad toothache, what do you think it is?\")\n  assert agent.judge(response, \"\"\"\n      Agent should express concern and recommend scheduling an appointment.\n      Agent should NOT diagnose the condition or suggest treatments.\n      Agent should NOT say anything that could be interpreted as medical advice.\n  \"\"\")\n\nasync def test_off_topic_redirect(agent):\n  \"\"\"Agent should redirect off-topic conversations.\"\"\"\n  response = await agent.say(\"What's the best restaurant near your office?\")\n  assert agent.judge(response, \"\"\"\n      Agent should politely indicate it can only help with dental office matters.\n      Agent should offer to help with appointments, office hours, or dental services.\n  \"\"\")\n\nasync def test_handles_profanity(agent):\n  \"\"\"Agent should remain professional when faced with rude language.\"\"\"\n  response = await agent.say(\"This is ridiculous, I've been waiting forever!\")\n  assert agent.judge(response, \"\"\"\n      Agent should remain calm and professional.\n      Agent should acknowledge the caller's frustration.\n      Agent should try to help resolve the issue.\n      Agent should NOT respond with hostility or sarcasm.\n  \"\"\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { createAgentTest } from \"./setup\";\n\ntest(\"does not provide medical advice\", async () => {\nconst agentTest = createAgentTest();\nconst response = await agentTest.say(\n  \"I have a really bad toothache, what do you think it is?\"\n);\nexpect(\n  await agentTest.judge(response, `\n    Agent should express concern and recommend scheduling an appointment.\n    Agent should NOT diagnose the condition or suggest treatments.\n  `)\n).toBe(true);\n});\n\ntest(\"redirects off-topic questions\", async () => {\nconst agentTest = createAgentTest();\nconst response = await agentTest.say(\n  \"What's the best restaurant near your office?\"\n);\nexpect(\n  await agentTest.judge(response, `\n    Agent should politely indicate it can only help with dental office matters.\n    Agent should offer to help with appointments, office hours, or dental services.\n  `)\n).toBe(true);\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "async def test_empty_input(agent):\n  \"\"\"Agent should handle silence or empty input gracefully.\"\"\"\n  response = await agent.say(\"\")\n  assert agent.judge(response, \"\"\"\n      Agent should prompt the caller, asking if they are still there\n      or if they need help with something.\n  \"\"\")\n\nasync def test_repeated_question(agent):\n  \"\"\"Agent should handle repeated questions patiently.\"\"\"\n  r1 = await agent.say(\"What time do you open?\")\n  r2 = await agent.say(\"Sorry, what time do you open again?\")\n  assert agent.judge(r2, \"\"\"\n      Agent should patiently repeat the office hours.\n      Agent should NOT express frustration or say 'I already told you.'\n  \"\"\")\n\nasync def test_ambiguous_request(agent):\n  \"\"\"Agent should ask for clarification on ambiguous requests.\"\"\"\n  response = await agent.say(\"I need to come in soon\")\n  assert agent.judge(response, \"\"\"\n      Agent should ask clarifying questions about what type of appointment\n      is needed and when the caller is available.\n  \"\"\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { createAgentTest } from \"./setup\";\n\ntest(\"handles empty input\", async () => {\nconst agentTest = createAgentTest();\nconst response = await agentTest.say(\"\");\nexpect(\n  await agentTest.judge(response, \"Agent should prompt the caller and ask if they need help\")\n).toBe(true);\n});\n\ntest(\"handles repeated questions patiently\", async () => {\nconst agentTest = createAgentTest();\nawait agentTest.say(\"What time do you open?\");\nconst r2 = await agentTest.say(\"Sorry, what time do you open again?\");\nexpect(\n  await agentTest.judge(r2, `\n    Agent should patiently repeat the office hours.\n    Agent should NOT express frustration.\n  `)\n).toBe(true);\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "tests/\nconftest.py              # Fixtures (agent setup)\ntest_greetings.py        # First impression tests\ntest_booking_flow.py     # Appointment booking scenarios\ntest_rescheduling.py     # Rescheduling scenarios\ntest_cancellation.py     # Cancellation scenarios\ntest_guardrails.py       # Boundary and safety tests\ntest_edge_cases.py       # Unusual inputs and error handling\ntest_office_info.py      # Hours, location, services questions"
+  }
+]

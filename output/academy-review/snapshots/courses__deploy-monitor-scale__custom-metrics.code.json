@@ -1,0 +1,42 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, AgentSession, RoomInputOptions\nfrom livekit.agents.voice import MetricsCollectedEvent\nfrom prometheus_client import Counter, Histogram, start_http_server\nimport time\n\n# Define Prometheus metrics\nSESSION_TOTAL = Counter(\n  \"agent_sessions_total\",\n  \"Total number of agent sessions\",\n  [\"agent_name\", \"outcome\"],\n)\nBOOKING_TOTAL = Counter(\n  \"agent_bookings_total\",\n  \"Total number of bookings made\",\n  [\"agent_name\"],\n)\nSESSION_DURATION = Histogram(\n  \"agent_session_duration_seconds\",\n  \"Session duration in seconds\",\n  [\"agent_name\"],\n  buckets=[30, 60, 120, 300, 600, 1800],\n)\nTOOL_CALL_DURATION = Histogram(\n  \"agent_tool_call_duration_seconds\",\n  \"Tool call duration in seconds\",\n  [\"agent_name\", \"tool_name\"],\n)\nTURN_LATENCY = Histogram(\n  \"agent_turn_latency_seconds\",\n  \"End-to-end turn latency\",\n  [\"agent_name\"],\n  buckets=[0.3, 0.5, 0.8, 1.0, 1.5, 2.0, 3.0],\n)\n\n# Start Prometheus metrics server\nstart_http_server(9090)\n\n\nclass DentalReceptionist(Agent):\n  def __init__(self) -> None:\n      super().__init__(\n          instructions=\"You are a dental receptionist...\",\n      )\n      self._session_start = time.time()\n      self._booking_made = False\n\n  async def on_enter(self):\n      self.session.on(\"metrics_collected\", self._on_metrics)\n\n  async def _on_metrics(self, event: MetricsCollectedEvent):\n      \"\"\"Capture pipeline metrics from each turn.\"\"\"\n      for metrics in event.metrics:\n          if hasattr(metrics, \"ttft\"):\n              TURN_LATENCY.labels(agent_name=\"dental-receptionist\").observe(\n                  metrics.duration\n              )\n\n  async def on_close(self):\n      duration = time.time() - self._session_start\n      outcome = \"booking\" if self._booking_made else \"inquiry\"\n\n      SESSION_TOTAL.labels(\n          agent_name=\"dental-receptionist\", outcome=outcome\n      ).inc()\n      SESSION_DURATION.labels(\n          agent_name=\"dental-receptionist\"\n      ).observe(duration)\n\n      if self._booking_made:\n          BOOKING_TOTAL.labels(agent_name=\"dental-receptionist\").inc()"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, AgentSession } from \"@livekit/agents\";\nimport { MetricsCollectedEvent } from \"@livekit/agents\";\nimport { collectDefaultMetrics, Counter, Histogram, Registry } from \"prom-client\";\nimport http from \"node:http\";\n\nconst register = new Registry();\ncollectDefaultMetrics({ register });\n\nconst sessionTotal = new Counter({\nname: \"agent_sessions_total\",\nhelp: \"Total number of agent sessions\",\nlabelNames: [\"agent_name\", \"outcome\"] as const,\nregisters: [register],\n});\n\nconst bookingTotal = new Counter({\nname: \"agent_bookings_total\",\nhelp: \"Total number of bookings made\",\nlabelNames: [\"agent_name\"] as const,\nregisters: [register],\n});\n\nconst sessionDuration = new Histogram({\nname: \"agent_session_duration_seconds\",\nhelp: \"Session duration in seconds\",\nlabelNames: [\"agent_name\"] as const,\nbuckets: [30, 60, 120, 300, 600, 1800],\nregisters: [register],\n});\n\nconst turnLatency = new Histogram({\nname: \"agent_turn_latency_seconds\",\nhelp: \"End-to-end turn latency\",\nlabelNames: [\"agent_name\"] as const,\nbuckets: [0.3, 0.5, 0.8, 1.0, 1.5, 2.0, 3.0],\nregisters: [register],\n});\n\n// Serve metrics on port 9090\nconst server = http.createServer(async (req, res) => {\nif (req.url === \"/metrics\") {\n  res.setHeader(\"Content-Type\", register.contentType);\n  res.end(await register.metrics());\n}\n});\nserver.listen(9090);\n\nclass DentalReceptionist extends Agent {\nprivate sessionStart = Date.now();\nprivate bookingMade = false;\n\nconstructor() {\n  super({\n    instructions: \"You are a dental receptionist...\",\n  });\n}\n\noverride async onEnter(): Promise<void> {\n  this.session.on(\"metricsCollected\", (event: MetricsCollectedEvent) => {\n    for (const metrics of event.metrics) {\n      turnLatency\n        .labels({ agent_name: \"dental-receptionist\" })\n        .observe(metrics.duration);\n    }\n  });\n}\n\noverride async onClose(): Promise<void> {\n  const duration = (Date.now() - this.sessionStart) / 1000;\n  const outcome = this.bookingMade ? \"booking\" : \"inquiry\";\n\n  sessionTotal.labels({ agent_name: \"dental-receptionist\", outcome }).inc();\n  sessionDuration\n    .labels({ agent_name: \"dental-receptionist\" })\n    .observe(duration);\n\n  if (this.bookingMade) {\n    bookingTotal.labels({ agent_name: \"dental-receptionist\" }).inc();\n  }\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import time\nimport functools\nfrom prometheus_client import Counter, Histogram\n\nTOOL_CALLS = Counter(\n  \"agent_tool_calls_total\",\n  \"Total tool calls\",\n  [\"tool_name\", \"status\"],\n)\nTOOL_DURATION = Histogram(\n  \"agent_tool_call_duration_seconds\",\n  \"Tool call duration\",\n  [\"tool_name\"],\n  buckets=[0.1, 0.25, 0.5, 1.0, 2.0, 5.0],\n)\n\n\ndef tracked_tool(func):\n  \"\"\"Decorator that tracks tool call metrics.\"\"\"\n  @functools.wraps(func)\n  async def wrapper(*args, **kwargs):\n      tool_name = func.__name__\n      start = time.time()\n      try:\n          result = await func(*args, **kwargs)\n          TOOL_CALLS.labels(tool_name=tool_name, status=\"success\").inc()\n          return result\n      except Exception as e:\n          TOOL_CALLS.labels(tool_name=tool_name, status=\"error\").inc()\n          raise\n      finally:\n          TOOL_DURATION.labels(tool_name=tool_name).observe(\n              time.time() - start\n          )\n  return wrapper\n\n\n@tracked_tool\nasync def check_availability(date: str, time_slot: str) -> dict:\n  \"\"\"Check appointment availability.\"\"\"\n  # Your implementation here\n  ...\n\n@tracked_tool\nasync def book_appointment(\n  patient_name: str, date: str, time_slot: str\n) -> dict:\n  \"\"\"Book an appointment.\"\"\"\n  # Your implementation here\n  ..."
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "global:\nscrape_interval: 15s\n\nscrape_configs:\n- job_name: \"voice-agents\"\n  static_configs:\n    - targets:\n        - \"agent-worker-1:9090\"\n        - \"agent-worker-2:9090\"\n        - \"agent-worker-3:9090\"\n  metrics_path: /metrics"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from prometheus_client import Histogram\n\nSESSION_COST = Histogram(\n  \"agent_session_cost_dollars\",\n  \"Estimated cost per session in USD\",\n  [\"agent_name\"],\n  buckets=[0.01, 0.05, 0.10, 0.25, 0.50, 1.00, 2.00],\n)\n\nclass CostTracker:\n  def __init__(self):\n      self.total_cost = 0.0\n\n  def add_llm_cost(self, input_tokens: int, output_tokens: int):\n      # GPT-4o-mini pricing (example)\n      self.total_cost += (input_tokens * 0.15 / 1_000_000)\n      self.total_cost += (output_tokens * 0.60 / 1_000_000)\n\n  def add_stt_cost(self, audio_seconds: float):\n      # Deepgram Nova pricing (example)\n      self.total_cost += audio_seconds * (0.0043 / 60)\n\n  def add_tts_cost(self, characters: int):\n      # Cartesia pricing (example)\n      self.total_cost += characters * (0.000030)\n\n  def finalize(self, agent_name: str):\n      SESSION_COST.labels(agent_name=agent_name).observe(self.total_cost)"
+  }
+]

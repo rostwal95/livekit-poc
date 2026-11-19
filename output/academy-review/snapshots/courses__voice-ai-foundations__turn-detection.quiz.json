@@ -1,0 +1,35 @@
+[
+  {
+    "question": "What is the key advantage of adaptive interruption mode over VAD interruption mode?",
+    "options": [
+      "Adaptive mode uses the turn detection model to distinguish intentional speech from brief noise or filler words, while VAD mode treats any voice activity as a genuine interruption",
+      "Adaptive mode eliminates the need for endpointing delays",
+      "Adaptive mode responds faster to genuine interruptions",
+      "Adaptive mode works with all turn detection strategies"
+    ],
+    "correctIndex": 0,
+    "explanation": "VAD mode is aggressive -- any detected voice activity (including a cough or background noise) cuts the agent off. Adaptive mode uses the multilingual turn detector to assess whether the interruption is intentional. Only sustained, purposeful speech causes the agent to yield, making conversations feel dramatically more natural."
+  },
+  {
+    "question": "Why does the gap between min_endpointing_delay and max_endpointing_delay matter for conversation quality?",
+    "options": [
+      "The gap determines how loud the user must speak",
+      "The gap defines a confidence window -- clearly finished sentences trigger near min_delay, while trailing or uncertain utterances get the full max_delay of patience",
+      "A larger gap increases audio quality",
+      "A smaller gap reduces the agent's token usage"
+    ],
+    "correctIndex": 1,
+    "explanation": "The gap creates a sliding window where the turn detection model's confidence determines the exact trigger point. A clear sentence ending like 'Tuesday at 3.' fires near the minimum. An uncertain trailing thought like 'I was thinking maybe... Tuesday?' gets the full maximum delay, giving the speaker time to finish."
+  },
+  {
+    "question": "How does resume_false_interruption improve the experience when a patient says 'mmhmm' during a booking confirmation?",
+    "options": [
+      "It increases the volume of the agent's speech",
+      "It mutes the patient's microphone temporarily",
+      "It allows the agent to pick up where it left off instead of restarting or generating a confused follow-up response",
+      "It translates the backchannel into text for the LLM"
+    ],
+    "correctIndex": 2,
+    "explanation": "Without resume_false_interruption, a false interruption causes the agent to either restart its entire response or generate a confused follow-up. With it enabled, the agent pauses briefly, classifies the interruption as false, and continues the confirmation from exactly where it stopped -- creating a natural conversational flow."
+  }
+]

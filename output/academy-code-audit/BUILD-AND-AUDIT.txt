@@ -1,0 +1,34 @@
+LiveKit Academy / POC code audit
+19 November 2026
+
+Read LiveKit-Code-and-Academy-Audit.html for the human report and all 20 course mappings.
+Read consolidated-audit.json for exact findings, tests, file snapshots and review limits.
+The maintained handoff is docs/work-items/0049-academy-and-sdk-code-alignment-audit.md.
+
+Four repaired product findings: P2 retryable owned cleanup; P3 explicit retry after
+definite initial capacity rejection; P1 diagnostic containment; truthful provider
+noncurrent-result instructions. Larger shutdown/End and retry-pacing findings remain.
+
+Verified final aggregate: 3797 Python tests, 2056 TypeScript tests, no required skips.
+Type checks, lint, 568-file formatting, 136-document validation and diff whitespace pass.
+SDK call audit: 209 Python runtime/example files parsed, 51 recognized constructors
+checked and 21 event sites inventoried; method/lifecycle semantics have separate
+source and genuine-SDK test evidence in the three peer ledgers.
+
+Docker daemon unavailable: no fresh actual PostgreSQL, browser/media or live-provider
+qualification. No private provider values were read and no provider was invoked.
+
+The original host Node 24.22.3 did not satisfy fixtures requiring 24.22.2. A temporary
+official 24.22.2 archive was checksum-verified; see node-toolchain.json for provenance
+and executable path. System Node and repository dependency pins remain unchanged.
+To reproduce, select that verified Node bin on PATH and use this repository's
+absolute .venv/bin/python. Exact full commands and outcomes are in the handoff.
+
+Initial sandbox, prerequisites and failed-root evidence were retained. Private root
+failure directories remain at their recorded locations, rather than deleting
+unresolved evidence. The final successful root lane observed complete cleanup.
+
+The book retains its recorded source snapshot; the report provides current line
+matches for unchanged literal excerpts moved by these code changes.
+Changes are local and uncommitted. No GitHub publishing or deployment occurred.
+Patch SHA256:ee23491d5186a8cfaa1ce615c6a7fc66e99d5e0dfb47aff5d06f75b8c7b02fcf

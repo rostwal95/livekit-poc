@@ -7,6 +7,8 @@ const f = vi.hoisted(() => ({
   constructed: 0,
   started: 0,
   closed: 0,
+  quiesced: 0,
+  quiesceWait: undefined as Promise<void> | undefined,
   startError: false,
   closeWait: undefined as Promise<void> | undefined,
   startWait: undefined as Promise<void> | undefined,
@@ -36,6 +38,10 @@ vi.mock('../src/runtime.js', () => ({
     async close() {
       f.closed++;
       await f.closeWait;
+    }
+    async quiesceDispatch() {
+      f.quiesced++;
+      await f.quiesceWait;
     }
     metrics() {
       return { closed: true, applicationOwners: 0 };
@@ -69,6 +75,8 @@ beforeEach(() => {
   f.constructed = f.started = f.closed = f.reads = 0;
   f.startError = false;
   f.startWait = f.closeWait = undefined;
+  f.quiesceWait = undefined;
+  f.quiesced = 0;
   f.config = configuration();
   f.roomArgument = undefined;
   output = [];
@@ -84,6 +92,47 @@ afterEach(() => {
     if (!baseline.has(listener)) process.stdout.off('error', listener);
 });
 describe('explicit serving entrypoint', () => {
+  it('acknowledges only settled requested dispatch quiescence while room-control runtime remains alive', async () => {
+    const controller = new AbortController(),
+      control = new EventTarget(),
+      held = deferred();
+    f.quiesceWait = held.promise;
+    const run = runGatewayRuntime(
+      configuration(),
+      credentials(),
+      controller.signal,
+      undefined,
+      undefined,
+      control,
+    );
+    control.dispatchEvent(new Event('quiesce')); // Before ready grants no acknowledgement.
+    await vi.waitFor(() => expect(output.some((s) => JSON.parse(s).status === 'ready')).toBe(true));
+    expect(f.quiesced).toBe(0);
+    control.dispatchEvent(new Event('quiesce'));
+    await vi.waitFor(() => expect(f.quiesced).toBe(1));
+    control.dispatchEvent(new Event('quiesce'));
+    expect(f.quiesced).toBe(1);
+    expect(output.map((s) => JSON.parse(s).status)).toEqual(['ready']);
+    expect(f.closed).toBe(0);
+    held.resolve();
+    await vi.waitFor(() => expect(output).toHaveLength(2));
+    expect(JSON.parse(output[1]!)).toEqual({
+      schemaVersion: 1,
+      status: 'dispatch_quiesced',
+      mode: 'scripted_readonly_policy',
+      pid: process.pid,
+      profileId: configuration().route.profileId,
+      nodeEpoch: '11111111-1111-4111-8111-111111111111',
+    });
+    expect(f.closed).toBe(0);
+    controller.abort();
+    await run;
+    expect(output.map((s) => JSON.parse(s).status)).toEqual([
+      'ready',
+      'dispatch_quiesced',
+      'closed',
+    ]);
+  });
   it('plans without inspecting environment, files, signals or runtime constructors', async () => {
     const env = new Proxy(
         {},

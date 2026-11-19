@@ -1,0 +1,999 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "scope": "Actual Mermaid syntax parsing with jsdom; no rendering or product behavior qualification.",
+  "tools": {
+    "node": "v24.22.2",
+    "mermaid": "11.12.0",
+    "jsdom": "26.1.0"
+  },
+  "installation": {
+    "isolated": true,
+    "ignoreScripts": true,
+    "repositoryDependenciesChanged": false
+  },
+  "manifest": "harness/documentation.json",
+  "documentCount": 137,
+  "fileCount": 17,
+  "diagramCount": 53,
+  "passed": 53,
+  "failed": 0,
+  "positiveControlPassed": true,
+  "negativeFixtureRejected": true,
+  "documents": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "ab3106a333c92df0512279cecd13745677addfe393f0ea1ec2445f8bb90858e4"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "afc9f8b61426bfd0619f15c2f98b2ced9663fb20a486426a47f061fc4830c8aa"
+    },
+    {
+      "path": "Design.md",
+      "sha256": "7c7a5f4763171c33fe9d9347fe3af355f13c7f71dcfcf172169c003a310c3b29"
+    },
+    {
+      "path": "README.md",
+      "sha256": "468c3d4d5e492685fa842c5ea9e73e332d8c532c3834c0502cff7ed6fb60ae7f"
+    },
+    {
+      "path": "apps/local-console/AGENTS.md",
+      "sha256": "9f0d0da8073a35d039f2df24de9746b7897b7c0142c064753110844e59c6e88d"
+    },
+    {
+      "path": "apps/local-console/Design.md",
+      "sha256": "9023f850a70f8ac2ac26f31172805f99809c8fd6228f06cdfdeeec91c0e166d6"
+    },
+    {
+      "path": "apps/local-console/README.md",
+      "sha256": "1a63091a8e213cf917a9d9103e7653d7d5308a651e26ce72d35a1bf38204b987"
+    },
+    {
+      "path": "contracts/AGENTS.md",
+      "sha256": "6cdb049bc2302e2837aa8ea97a1c8b503808392f69afce7e38cfb9fa4b7a3eb7"
+    },
+    {
+      "path": "contracts/Design.md",
+      "sha256": "d89325bc16c51718b78102ed90dda3bb4123a5f5b99afd71ce9c125f021d2215"
+    },
+    {
+      "path": "contracts/README.md",
+      "sha256": "090372496ffc340cd82465dacac9e0ec5c44182dbbf44a8b46871b34b7ba9182"
+    },
+    {
+      "path": "docs/README.md",
+      "sha256": "699147387a717992297c669e47426d32cf8697aeead4731a72534b9d597b73a9"
+    },
+    {
+      "path": "docs/build-plan.md",
+      "sha256": "97827d5bccd777efba67b8943fb2215f2d8c38b08cac32397027c3b498edff46"
+    },
+    {
+      "path": "docs/case-and-continuation.md",
+      "sha256": "05f709f73fa2e4f24a32d1d1ffff138d39fe3284b83d89f44e49ca1798c72b60"
+    },
+    {
+      "path": "docs/checkpoint-history.md",
+      "sha256": "c2f6571205a2ea2377759ae6ae44a6497044103e25f055fbfbe11e7a44337fde"
+    },
+    {
+      "path": "docs/conversation-and-showcase.md",
+      "sha256": "80c80a235d34fbea5182888b596ea52957691b1829ca6fb9295306b85225c5e1"
+    },
+    {
+      "path": "docs/decisions/0001-runtime-boundaries.md",
+      "sha256": "6cc5c0fa30cadddda6eeb688c30005004b1543328a07e01eba213de2d5e40715"
+    },
+    {
+      "path": "docs/decisions/0002-sqlite-inquiry-subset.md",
+      "sha256": "c6d5520aa015b3b371bb4e9d2f3dbe9a9b5777fd425f736a29ec65e249d8c343"
+    },
+    {
+      "path": "docs/decisions/0003-postgres-cutover-and-scope.md",
+      "sha256": "5666d01bc97e5e4373351e58599dec697d3dfd6a4a3e68de65c1258eb01c966b"
+    },
+    {
+      "path": "docs/decisions/0004-case-authority-and-continuation.md",
+      "sha256": "d5c3a2d7075d7e0a8ee8f7a907095ed15f7406a9c7b301e71b47314bafa2f743"
+    },
+    {
+      "path": "docs/decisions/0005-effects-cancellation-and-outbox.md",
+      "sha256": "a09b1467398115d5343388a5e70ef5624c19743b07b449e79b6a3fa515dd1aa9"
+    },
+    {
+      "path": "docs/decisions/0006-database-leases-and-bounded-worker.md",
+      "sha256": "f9a4b99f508d52ebbefc853b0d13a21d23f2d2600fd016f0fa9312d3a199cf08"
+    },
+    {
+      "path": "docs/decisions/0007-native-conversation-and-local-media.md",
+      "sha256": "0fd10d7caeb619e3e97001199b0b7e047e75e86b526ffecc880241b6ac80a67a"
+    },
+    {
+      "path": "docs/demo-plan.md",
+      "sha256": "2709615d37b161e41d2e5ca702ef3fd93283363dddc47d348fdcfd5509f5d73c"
+    },
+    {
+      "path": "docs/design-template.md",
+      "sha256": "52d0c909c53e6332a6f509820277cb3c52c3a2c66fd6bdd113e0aa2d94532c33"
+    },
+    {
+      "path": "docs/documentation-audit.md",
+      "sha256": "44f7ded0a07d723a4f2b3c5776d3f5004bc3fe5b614101a71b7c9ef8bddf8c04"
+    },
+    {
+      "path": "docs/documentation-standards.md",
+      "sha256": "b6ff676bc6cf7853c70a72b95f048e405f01baaa9ae02800349540ef820f401c"
+    },
+    {
+      "path": "docs/effects-and-completion.md",
+      "sha256": "31663fcfef30c5192dbab303d3ff0c5debd7e169d23fe064680958182c8c3ed2"
+    },
+    {
+      "path": "docs/harness-architecture.md",
+      "sha256": "131e6687d70159670eed7012c3b96171ec580f246c83d412e698252990f928d3"
+    },
+    {
+      "path": "docs/implementation/p1-agent-continuity.md",
+      "sha256": "695b3fb81383208b23e9e3199a1529789ea88d8ca8433fe89a2198ecbd93b77e"
+    },
+    {
+      "path": "docs/implementation/p2-channel-continuity.md",
+      "sha256": "4ecd1b6776ca46d4435d69672927a3f2233effe4d681478c2ef8c7f6b217884b"
+    },
+    {
+      "path": "docs/implementation/p3-delegation-reliability.md",
+      "sha256": "e6a5cb93690679b203a25f3950ecd569055b3a78b030ac02a6ddc57a8fadc9d0"
+    },
+    {
+      "path": "docs/implementation-plan.md",
+      "sha256": "649e621822330d35f92c8d75c8678c3d6c5db6da3ef1ee2444525823a7202927"
+    },
+    {
+      "path": "docs/learning-plan.md",
+      "sha256": "31cd38b95d1c19ef699de17ce20aafe4e6d770f8bb809fccb3dc004cbd50b198"
+    },
+    {
+      "path": "docs/leases-and-workers.md",
+      "sha256": "747eeb63579b3a11de2e3c4c750e8c45e9ded33d16b7ec9106babc4cfbf10cc3"
+    },
+    {
+      "path": "docs/local-real-inference.md",
+      "sha256": "871a99f3a5a5f0cfe8c7bee1d79a4833ef27648d942ae6819c24c798d115640b"
+    },
+    {
+      "path": "docs/observability.md",
+      "sha256": "8364137cf5d34af6de96159d0766e565bca078a746703cebd894b5adecfad807"
+    },
+    {
+      "path": "docs/plan-audit.md",
+      "sha256": "b23b4b20b8f75917583f43dc4f9b11bfa01149f15e9ccb14dc09f158045793e8"
+    },
+    {
+      "path": "docs/portfolio-scope.md",
+      "sha256": "6f4db3b93143962e0e615ba088b97ff8593f5b305897880d9eb3a90bd22e6f9c"
+    },
+    {
+      "path": "docs/project-brief.md",
+      "sha256": "4e9c2e19cdc927d6d8ff44766e86dcd47092196dc5825dd012d262dc8ec72cf9"
+    },
+    {
+      "path": "docs/projects/agent-continuity-scope.md",
+      "sha256": "567879551a0de03f859f7b1209b202e39d7fe84a1df8f89a95e2ef8402774470"
+    },
+    {
+      "path": "docs/projects/channel-continuity-scope.md",
+      "sha256": "78dc1915b0af9cb71358a62736872ce54928f0a22ddf269d2cedfc1a2f529b41"
+    },
+    {
+      "path": "docs/projects/delegation-reliability-scope.md",
+      "sha256": "28d9e44853e344a1d56c9a889f543c70fd54e0e137914332d79d972c7e12339b"
+    },
+    {
+      "path": "docs/provider-demo.md",
+      "sha256": "ddee496fc9c35188d95a628ac2881fb540f1ded603ec8036c7d1090e6a7902ae"
+    },
+    {
+      "path": "docs/python-engineering.md",
+      "sha256": "5701f8fd48987ff0076ba14c3bb4b74955fb05bc8a89d9f99a8e8cbb1fecffc7"
+    },
+    {
+      "path": "docs/qualification-gates.md",
+      "sha256": "e38344c0289b8201afbd1591c50e2ee6c472928347ae318b8a997a292fd0590a"
+    },
+    {
+      "path": "docs/technology-baseline.md",
+      "sha256": "2328f4e8836eea5507586f57fa7928c43fd9f93edd91950486d8c4ee03a5aa69"
+    },
+    {
+      "path": "docs/validation-plan.md",
+      "sha256": "6547e2b99998e7943861dace04848f0be8cdec89dc9f284dba908758d9735d3b"
+    },
+    {
+      "path": "docs/work-items/0001-portfolio-foundation.md",
+      "sha256": "da4b5d21bb635973d40e6697bb96d5336685297e1f59d1c407e94b17ff7513c8"
+    },
+    {
+      "path": "docs/work-items/0002-documentation-audit.md",
+      "sha256": "fa4e9bb45b8e56bb3ac15e5f8cccfda2486caadff6a0fedccb78ec9d05872a12"
+    },
+    {
+      "path": "docs/work-items/0003-local-project-foundation.md",
+      "sha256": "d225496713d32489a80f8b9e920db8135b976f53f4309822ba1da8bdfbf2be5a"
+    },
+    {
+      "path": "docs/work-items/0004-plan-and-showcase-audit.md",
+      "sha256": "41241dde4e289c9868e4c438290345f17de771dc9db8efd7b6921cd00e849127"
+    },
+    {
+      "path": "docs/work-items/0005-granular-implementation-plan.md",
+      "sha256": "26cd0a1a8df49ea0db22fab3f6d3169787c4173a20defa8c1d43fa9c04d6469a"
+    },
+    {
+      "path": "docs/work-items/0006-design-and-engineering-gates.md",
+      "sha256": "bc1bc01a6ef7ca2c7527b85d7147beb29c442b094cb360421d4523880cddea32"
+    },
+    {
+      "path": "docs/work-items/0007-p1-phase-a-execution-foundation.md",
+      "sha256": "c0f238e0f6b6163e7cd763f720d8ee04c5802a2d29eebbf234d0acd411f4d327"
+    },
+    {
+      "path": "docs/work-items/0008-p1-phase-b-inquiry-recovery.md",
+      "sha256": "ab031846d03aaae3d7df2f84ba22fb4d435425706ceade2a5d3416a01305d701"
+    },
+    {
+      "path": "docs/work-items/0009-p1-phase-c-postgres-cutover.md",
+      "sha256": "0a546a3771e61bae4f89c850d0291eb2ed2aaf6f3c298690878c07ded71d8303"
+    },
+    {
+      "path": "docs/work-items/0010-p1-phase-d-authority-and-waits.md",
+      "sha256": "e78079fd58df87bde8a75e0dbb2ede8a81a5957c99836c85becc8cff428934f7"
+    },
+    {
+      "path": "docs/work-items/0011-p1-phase-e-effects-and-completion.md",
+      "sha256": "2f0f0b287bbbe1eadb1ce0bb1febf3531d756000882cb07667dec947d65dd056"
+    },
+    {
+      "path": "docs/work-items/0012-p1-phase-f-leases-and-deployment.md",
+      "sha256": "0497097873d8f82d830f1c0c19d3737f4339376a4820fb523d77df15dfa0d894"
+    },
+    {
+      "path": "docs/work-items/0013-p1-phase-g-conversation-and-showcase.md",
+      "sha256": "f343aabc80cacfdda0e1db0dbf498dc4d46b129bc4af3d1e54111772e766d122"
+    },
+    {
+      "path": "docs/work-items/0014-p1-phase-h-workload-baseline.md",
+      "sha256": "e990ad525f0c305fd8635bcbc05a9cff4791d44eb916c9d1ac2acbf9b01181b2"
+    },
+    {
+      "path": "docs/work-items/0015-p1-reliability-workloads.md",
+      "sha256": "622902447abb05ea1685479a0f7a761918b4b1e1f1231fbe867aa036350eb2b2"
+    },
+    {
+      "path": "docs/work-items/0016-p1-standalone-package.md",
+      "sha256": "deb9e15c7699b55c9d21e7b553d99beac9cd17781d8158839eec4923c4c3d666"
+    },
+    {
+      "path": "docs/work-items/0017-p1-local-real-inference.md",
+      "sha256": "0568b8fd4a22e3387ef4105a2b6cc58c97347c578fd5f37b998c58366cc66e03"
+    },
+    {
+      "path": "docs/work-items/0018-p1-provider-demo.md",
+      "sha256": "e3cba0a5504b3ca289164f6ada1ff15b4fe69a01e2c561c2ad63b13d8b793238"
+    },
+    {
+      "path": "docs/work-items/0019-p1-phase-h-release-qualification.md",
+      "sha256": "297634af58e157137787c8223aaf9bbe4f84bd68cde3d50a8be6064038d56594"
+    },
+    {
+      "path": "docs/work-items/0020-architecture-audit-reconciliation.md",
+      "sha256": "2910eb09dcfb10bc96899576748d59b657c4143b21fd5816a27e9270a17779cc"
+    },
+    {
+      "path": "docs/work-items/0021-p1-operational-safety-extensions.md",
+      "sha256": "433ccdd929ae482d018484e279480fd3c29323ef8b111e398239f4e829efa69e"
+    },
+    {
+      "path": "docs/work-items/0022-p2-channel-contracts.md",
+      "sha256": "1d2bc14edf11faad461cb074c98ee291aed3a39d023928032a5e3fcefce6bf69"
+    },
+    {
+      "path": "docs/work-items/0023-p3-native-baseline.md",
+      "sha256": "4e99350a320ab82cbe33dda20a2a27d6d80d2c61a4a1cd8cc0537d0b823eab83"
+    },
+    {
+      "path": "docs/work-items/0024-p2-verified-durable-intake.md",
+      "sha256": "83b6f44bc3a7d85176c89dfe8fdd38fbbb8f765af13c0c9b2793e466608ed475"
+    },
+    {
+      "path": "docs/work-items/0025-p3-specialist-contracts-and-trust.md",
+      "sha256": "e0c399cfe40a057f2171669d089224c6d8e78f5e54cdb2f5c219adc4c0951277"
+    },
+    {
+      "path": "docs/work-items/0026-p2-postgres-inbox.md",
+      "sha256": "bb53b7c67c627a8bc3a1bf09a66032292e6616946a4e9c5af44d958d62cdb33b"
+    },
+    {
+      "path": "docs/work-items/0027-p2-standalone-and-p3-http.md",
+      "sha256": "2c120fdefb8bd4866f1f2d8de0da46f6775ffb0133a84f4fe8e0ed20b10c37b1"
+    },
+    {
+      "path": "docs/work-items/0028-p2-dispatch-and-p3-coordinator.md",
+      "sha256": "ffbeef62cbd86d70aa0344fada71e3a5456df73c21426ce5145fb5294950209c"
+    },
+    {
+      "path": "docs/work-items/0029-p2-gateway-and-p3-issued-execution.md",
+      "sha256": "df9ae443c995fa66db44008d4c476b98556932d6e422608dd34b9a3750029310"
+    },
+    {
+      "path": "docs/work-items/0030-p2-agent-recovery-and-p3-completion.md",
+      "sha256": "952745f5fe52fbe7a0a544c49268d4f06e9b5483a7ec9afad6c8c679467d6570"
+    },
+    {
+      "path": "docs/work-items/0031-revision-routing-and-delegation-acceptance.md",
+      "sha256": "6f518f4dcabcc934ef9ab07ee9c06ed97c749a30ccf1b1e4e9b611eb35659b23"
+    },
+    {
+      "path": "docs/work-items/0032-linked-confirmation-and-result-projections.md",
+      "sha256": "ce1fec8f76fa91641d5b98dcba911caaf68f323d32c45f40b3f0d10baf81350a"
+    },
+    {
+      "path": "docs/work-items/0033-outbound-replies-and-completion-processing.md",
+      "sha256": "d6d0203e4cb6f151266e8355c0081d00d9ed7105cf1754634f19847461711a68"
+    },
+    {
+      "path": "docs/work-items/0034-callback-evidence-and-applicability-refresh.md",
+      "sha256": "cca0f9222eb63aa03fe33e2a9060275d283069519b809759d739e1023f9e1e7b"
+    },
+    {
+      "path": "docs/work-items/0035-send-policy-and-action-races.md",
+      "sha256": "85ac1486b386d6373f940507ecffb247e0b19553f30ced8aa826d7089ba44745"
+    },
+    {
+      "path": "docs/work-items/0036-native-input-and-deadline-cancellation.md",
+      "sha256": "53a7a0e00d738341fc0f90541eb18cd6620e4bc9cdea2afef8198dcf73a0db65"
+    },
+    {
+      "path": "docs/work-items/0037-playback-evidence-and-process-recovery.md",
+      "sha256": "ce77d2106d3f4da6abfc07076c2f2e3549570ddc39431fb22cf00f69e7310275"
+    },
+    {
+      "path": "docs/work-items/0038-case-rehydration-and-standalone-release.md",
+      "sha256": "cdb5303e3fb6bfbddb76887df54e37be166eb959100a3fe45d52308348207911"
+    },
+    {
+      "path": "docs/work-items/0039-bounded-channel-workloads-and-image-evidence.md",
+      "sha256": "96a91fd03b0d472e39e8faa911c996280ef88172e517da15fe8c059b448f7dab"
+    },
+    {
+      "path": "docs/work-items/0040-operations-ui-and-fixed-policy-evidence.md",
+      "sha256": "ff1e642a83eb512b9f871f2c574ed4f5271183a6c60aaeedab1359866dba850b"
+    },
+    {
+      "path": "docs/work-items/0041-standalone-channel-and-durable-policy.md",
+      "sha256": "fd97fd3330ef2b861df42439adb0be00738f80cfc65e2326c70b543833573f84"
+    },
+    {
+      "path": "docs/work-items/0042-responsive-native-policy-and-compact-demo.md",
+      "sha256": "a92c07a125669d62bc56bf28cc3c7dc1229a07b92b015a056823a4056fbe72e5"
+    },
+    {
+      "path": "docs/work-items/0043-stable-result-delivery-and-return-context.md",
+      "sha256": "9cce175319e550ccc6af45b7ea186d9fe64df50276409096c9c6699557091ac6"
+    },
+    {
+      "path": "docs/work-items/0044-origin-bound-channel-policy.md",
+      "sha256": "4c166f48343fdbe683201dc02ebd69300d82279e4f9aa5458bbc26c62c8b8366"
+    },
+    {
+      "path": "docs/work-items/0045-joined-native-channel-policy.md",
+      "sha256": "3ee910b3b1523d961bd716f99a45a4e946fa3ae30359d7393655312cc0d61591"
+    },
+    {
+      "path": "docs/work-items/0046-joined-showcase-providers-and-demo.md",
+      "sha256": "81fb844837ecd1229e4df3f4f59521857ddc6f1745f6d75fb016390d2e46a806"
+    },
+    {
+      "path": "docs/work-items/0047-open-findings-schema-upgrades-and-landing.md",
+      "sha256": "098b8f7d43f5e420c7192e899f6a7337f151e542eed1a30248f64a10a10740d0"
+    },
+    {
+      "path": "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+      "sha256": "267108da3b6c7515a85e706b8d461cca0ef84569d2f9c5dd4ef80d428fa57641"
+    },
+    {
+      "path": "docs/work-items/0049-sdk-compatibility-and-code-review.md",
+      "sha256": "7f6377588dfd39dd1948581f07eeaa51ad5b663b1abcedf8fcaa825e3b1ce406"
+    },
+    {
+      "path": "docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md",
+      "sha256": "80cc38839fcc3f27870640090c052d7c6a824d832cc92fc1bd15ed9085584620"
+    },
+    {
+      "path": "docs/work-items/template.md",
+      "sha256": "029112f0e655d6b8796e61c45e9f7ea1c0b3a6ba84a0e0ddabaa8aeb1459134a"
+    },
+    {
+      "path": "harness/AGENTS.md",
+      "sha256": "ac3cdc8806f10fec5ae9336a86ac77df5117b357b507114a905cb423c65553a0"
+    },
+    {
+      "path": "harness/Design.md",
+      "sha256": "2d1ae991ad1bfe5d3f4ee866e06864630048ab7f61a08c365e4411d5b1ecfbc1"
+    },
+    {
+      "path": "harness/README.md",
+      "sha256": "64b6f57dcb1f06c0107373f83b4aa6c798fae86a14e7534a4aa082132e57f7f6"
+    },
+    {
+      "path": "local-setup/AGENTS.md",
+      "sha256": "0e062d73ded72b8883140b93a75f50c1540946d29a554afb179c679785d3eaaa"
+    },
+    {
+      "path": "local-setup/Design.md",
+      "sha256": "1e63f1552b36260c84917d13b2363fc4db0011ec48abde681f66c8628743b54a"
+    },
+    {
+      "path": "local-setup/README.md",
+      "sha256": "9a68d7990902e88f72713fdf897c1ecfe2bf0172ebe00c0b8ef6d3595a7c8315"
+    },
+    {
+      "path": "projects/agent-continuity/AGENTS.md",
+      "sha256": "4f9a7114a8d5c23e10d76e0f59c94922500aa2d51a39fe5abd5f98623e5f4257"
+    },
+    {
+      "path": "projects/agent-continuity/Design.md",
+      "sha256": "fdff3091a2aa1722574f3630a31ce7108bd5837f2c746a295d51e0223875f24f"
+    },
+    {
+      "path": "projects/agent-continuity/README.md",
+      "sha256": "e9742e1035cac214cf1dda2a006572ed324e161e0de1bc1ae10c2db36f883b09"
+    },
+    {
+      "path": "projects/agent-continuity/python/README.md",
+      "sha256": "5517aa0e23018fe66489aa58a5aa35e9a96aa92bfbeb8d71d1e9b3d5d66bafd2"
+    },
+    {
+      "path": "projects/channel-continuity/AGENTS.md",
+      "sha256": "647ce28a09a21bc1e45060f6022c5d3c8ab4673b30949b77ebb6ea498fa2bd55"
+    },
+    {
+      "path": "projects/channel-continuity/COMMUNICATION.md",
+      "sha256": "a060117516e96adbd1f618a2a8df82adc0819da3fb542b28ac02f3d7d06b1d96"
+    },
+    {
+      "path": "projects/channel-continuity/Design.md",
+      "sha256": "1b88d6931700c8b18abfe9f9d43b7119c8ebc14b007ebfbf52a9c02ff3e3183f"
+    },
+    {
+      "path": "projects/channel-continuity/OPERATIONS.md",
+      "sha256": "34583a57aab61b1ba1bcde5aadaa89a87ccf0b5b03b7bb375e099ee3339cb067"
+    },
+    {
+      "path": "projects/channel-continuity/README.md",
+      "sha256": "5152f3c290c948b5871aa0f3a20caf7d579870177559ff28ecf789508c1545db"
+    },
+    {
+      "path": "projects/channel-continuity/REHYDRATION.md",
+      "sha256": "f366804243a8d3c8df840877c535fb35696a02882634fa5e21027e33c07ddd11"
+    },
+    {
+      "path": "projects/channel-continuity/STARTER.md",
+      "sha256": "50c88fbe3b567eddfd680c224caf06cf9f27c0286dd51c41c5abd16d53402237"
+    },
+    {
+      "path": "projects/channel-continuity/WORKLOAD.md",
+      "sha256": "0fa14f2c255437418fefe886594666e5f89f3a29b3b0f7eb8ee97b6703312421"
+    },
+    {
+      "path": "projects/channel-continuity/python/README.md",
+      "sha256": "0aafdbeae673c0bd18f33e42fc00eb6135cdcd681f60f4141089e17bd5aebc3f"
+    },
+    {
+      "path": "projects/delegation-reliability/AGENTS.md",
+      "sha256": "517291ef18a96313b590f99442468678b34531d59f022547f9f1f8629be70ccc"
+    },
+    {
+      "path": "projects/delegation-reliability/Design.md",
+      "sha256": "a2f8df900863dff5a57cc035e1429340f7ddf62d3bb1f60b65fed85c65c0b684"
+    },
+    {
+      "path": "projects/delegation-reliability/README.md",
+      "sha256": "4e33c9e1424e6de1fa9e5df04c5adc043b9b881e5d78e7409f6a6d1c0a03b994"
+    },
+    {
+      "path": "projects/delegation-reliability/python/README.md",
+      "sha256": "98afa52acfc6bf8466848f2a1b29a13c703fa2a03c58726735c0dae4cbc63938"
+    },
+    {
+      "path": "projects/delegation-reliability/specialist-ts/README.md",
+      "sha256": "8f66b8dccc7805833a1af5a81b5c193ce45909d455d7c7abc7c24271b27f8f48"
+    },
+    {
+      "path": "services/channel-policy-gateway/AGENTS.md",
+      "sha256": "b5d458fbac8b3324e832e63853877c53b947dd1f46d4ffe9dbd6b40d022d8c3c"
+    },
+    {
+      "path": "services/channel-policy-gateway/Design.md",
+      "sha256": "611afdfe320304eb1884933145c0faf9d51af4e235dda4e1ed4de3aa8cef6b14"
+    },
+    {
+      "path": "services/channel-policy-gateway/README.md",
+      "sha256": "74783175c1410cdc547b259d7880692d1b225181fb210caaed2b7ae15fa3f8e4"
+    },
+    {
+      "path": "services/channel_policy_demo/AGENTS.md",
+      "sha256": "ff8dc95745d7ec6ae2016cbfbd1a915da3f4f7d090b98e32fa40a0a887c39300"
+    },
+    {
+      "path": "services/channel_policy_demo/Design.md",
+      "sha256": "65ee71a18b025547dec6fd017eaf199374c2c8c6766bb63e032e89bdf1a93093"
+    },
+    {
+      "path": "services/channel_policy_demo/README.md",
+      "sha256": "d3baa006717ecb0de68d98a4f5b0be716dce0832f66d050ff320f16d9019fed7"
+    },
+    {
+      "path": "services/control_api/AGENTS.md",
+      "sha256": "c19312c62f9facc4364b76681c36d06361a84ae6293745cc095239295eaf2ab9"
+    },
+    {
+      "path": "services/control_api/Design.md",
+      "sha256": "5de2b6d0fb8d95d1b4b521c58f96dffded41cc13cbfcb83e2f6567a2f1b8712d"
+    },
+    {
+      "path": "services/control_api/README.md",
+      "sha256": "e1d3b18cf1de6f171179468e31925e6f2993394c85f461d77cd42b817598b8af"
+    },
+    {
+      "path": "services/conversation_agent/AGENTS.md",
+      "sha256": "5697d1a6c39247cbf2466d10b74ceac09ed3f474f23ab68941d2f0e06d15d1c5"
+    },
+    {
+      "path": "services/conversation_agent/Design.md",
+      "sha256": "1f14b5f91a472393a286bca1d3172061b533ea6e5e05da1a5a9dcd92aa0d6f21"
+    },
+    {
+      "path": "services/conversation_agent/README.md",
+      "sha256": "597119d8461fa190d737b408267623b988f2bcd370a157221a84d516bab78fb4"
+    },
+    {
+      "path": "services/rtc_agent/AGENTS.md",
+      "sha256": "f5967be5e8a2b8f495833b384af5cb9d2ab6e5456f4c8a9ae4ac6081000d17a2"
+    },
+    {
+      "path": "services/rtc_agent/Design.md",
+      "sha256": "d5f5d2f4502100d154a13ff5827def345263c559f8a6ee7be4d342ef0feb10f9"
+    },
+    {
+      "path": "services/rtc_agent/README.md",
+      "sha256": "6639ea9db44648c7051901dbb2bbfad44d3411c6278999fe48ea67ed9f722b79"
+    }
+  ],
+  "records": [
+    {
+      "file": "Design.md",
+      "index": 1,
+      "line": 248,
+      "sha256": "17ccfdfe380bd5fae8ed5b39dbee19ed30d0cc90f97bb0fdb68901a0b5be5bdf",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "Design.md",
+      "index": 2,
+      "line": 394,
+      "sha256": "c2bd52ae8ae6f6032df0506170f10b74c5b0ee6d0ba2b8db8fae0cd3e19d1acd",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "Design.md",
+      "index": 3,
+      "line": 563,
+      "sha256": "e1410e49737380eb5ca74a1c0f08f2d7185e76b45954914cf0ef46b59b69caab",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "README.md",
+      "index": 1,
+      "line": 199,
+      "sha256": "6bdad14d0d793eedf3fcd2985e7aeca115a9e4618ba4a7c8014077eb8d5b5ae6",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "apps/local-console/Design.md",
+      "index": 1,
+      "line": 136,
+      "sha256": "1ac04f36c938af7466ec2a8871bf6dcd79035b4951182d3bab5a25a52fc68fcf",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "apps/local-console/Design.md",
+      "index": 2,
+      "line": 182,
+      "sha256": "178c1551189f7956de6f22c1690c2ba92cfe141feb528724a9c220d03ef01780",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "apps/local-console/Design.md",
+      "index": 3,
+      "line": 214,
+      "sha256": "c5a793d830c8408d9c6958c6ad1532f8ec1662c109401af37f2d50802714bf49",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "contracts/Design.md",
+      "index": 1,
+      "line": 122,
+      "sha256": "59fd14c2271bcc336dcad0998d04f00b05789a71bc183d3860511276320ff3aa",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "contracts/Design.md",
+      "index": 2,
+      "line": 153,
+      "sha256": "d225070d0ceca7387e19f5b4d6b0c39dc8c310cc6dd5d102db7f41a5ffea2394",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "contracts/Design.md",
+      "index": 3,
+      "line": 178,
+      "sha256": "8eb04e2bb73d7d84b884f7b3badd07c62291daf48e7b27131b3278003ccc0734",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "docs/demo-plan.md",
+      "index": 1,
+      "line": 191,
+      "sha256": "c9dcf1b9477e4b6570a8cf07d10e8e2db2d4b3a8fd72a60edc6ca242f49c7d0f",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "docs/design-template.md",
+      "index": 1,
+      "line": 72,
+      "sha256": "cbacd53b5512bc3aedf5432ebebf6081d89a9c8d25636cc16c3072d300254521",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "docs/design-template.md",
+      "index": 2,
+      "line": 87,
+      "sha256": "c385a09b899bcc902fe8d365c2f00247f6f082b5116ac6340fb53337eff1abbb",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "docs/design-template.md",
+      "index": 3,
+      "line": 107,
+      "sha256": "1158b8a6d76573b5e15a76edd7346a2483efe31a126866d5f8e2d2731b8156e1",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "docs/implementation-plan.md",
+      "index": 1,
+      "line": 212,
+      "sha256": "41e67b7df59dbdb646faf9efed293605b12fc6eb038696e85d15e92bdba47997",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "harness/Design.md",
+      "index": 1,
+      "line": 146,
+      "sha256": "61d152cc6718d6f59eb15235257c3c4678ebd2b1dc51be63c371b5b351e1304b",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "harness/Design.md",
+      "index": 2,
+      "line": 185,
+      "sha256": "12dbf042a45b2c8822273f0f02dbddb4edcb8462638e8bc3ded8ba396c9656e3",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "harness/Design.md",
+      "index": 3,
+      "line": 219,
+      "sha256": "e7115c7ea689953ae34ecafaf0e58300d94148f7fa61a8cf84c88c4feb4ed68c",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "local-setup/Design.md",
+      "index": 1,
+      "line": 141,
+      "sha256": "9c445a73e43b6bba6d5509de309feb5dc0e3be61c520dec1e2f73b8189a80c9b",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "local-setup/Design.md",
+      "index": 2,
+      "line": 227,
+      "sha256": "4b30403c51d58d05eded35481506135c281777e2bd8a4b209b82a6de503433d3",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "local-setup/Design.md",
+      "index": 3,
+      "line": 284,
+      "sha256": "00ef1bd2522f01d5e71b9008a80b9f377c25bf500eb0883045514db8731fdc80",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "projects/agent-continuity/Design.md",
+      "index": 1,
+      "line": 196,
+      "sha256": "5cf07925a5c737677a687d5e1195b24ddff205b6d8d6d9a7f66ae298a61dfe49",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "projects/agent-continuity/Design.md",
+      "index": 2,
+      "line": 299,
+      "sha256": "2ce36da8615b038855fb72b60789d50ecbb19248540ff0ab44bae6bc943e0ced",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "projects/agent-continuity/Design.md",
+      "index": 3,
+      "line": 363,
+      "sha256": "86dba4cba9305f84e534b91f0a33ebb0a4eece215db66f78ff85143fddc538ec",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "projects/channel-continuity/Design.md",
+      "index": 1,
+      "line": 214,
+      "sha256": "47233f1bba6cad2dce4cc10ca83b883d58080d14037d53f66fa388c54014fdb3",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "projects/channel-continuity/Design.md",
+      "index": 2,
+      "line": 283,
+      "sha256": "95c8420cdce2b7d91ba7096e33b71607e26dd030afb637c3b33530baeda8cc2b",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "projects/channel-continuity/Design.md",
+      "index": 3,
+      "line": 337,
+      "sha256": "67a59b12e41af6cc9e6b482a20fd22449d06fd38f96bf52bee9c837ce4fe9597",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "projects/channel-continuity/Design.md",
+      "index": 4,
+      "line": 827,
+      "sha256": "12be5e84dc6bae92e1f4d024e5d8295851bfce57859d8227847faa55e23c69ed",
+      "status": "passed",
+      "parsedDiagramType": "stateDiagram"
+    },
+    {
+      "file": "projects/channel-continuity/Design.md",
+      "index": 5,
+      "line": 1361,
+      "sha256": "ee0e638ff63d46c0a48b3980a4b1d7e73add5d04f7870c921dfaac746e475586",
+      "status": "passed",
+      "parsedDiagramType": "stateDiagram"
+    },
+    {
+      "file": "projects/channel-continuity/Design.md",
+      "index": 6,
+      "line": 1461,
+      "sha256": "5f0df69697dea1028807455f0c6b6357564b568c6efdf19c7abf2edf8a2ef5a5",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "projects/channel-continuity/Design.md",
+      "index": 7,
+      "line": 1502,
+      "sha256": "10449698414f3aed1938ab4b5b0f3bb6be22fac80412571b11c726ca8d965d55",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "projects/channel-continuity/Design.md",
+      "index": 8,
+      "line": 1624,
+      "sha256": "8222e0f9510fe865a7cde008961001f506a98a7d7e8b7bb2ead7fdfc8c0d7ae6",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "projects/channel-continuity/Design.md",
+      "index": 9,
+      "line": 1659,
+      "sha256": "e2358b75b39b9aa22a91f5b51afb32e6d5435aab8b24c74bf9bd1b437a98e78a",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "projects/channel-continuity/Design.md",
+      "index": 10,
+      "line": 1723,
+      "sha256": "55c6761014683622473e932db402f8abc51ac42fd60006c2cd165ec09467b295",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "projects/channel-continuity/Design.md",
+      "index": 11,
+      "line": 1928,
+      "sha256": "e145c0c4f0ad14d7671f2991a0fae33cb95dc62072a466ac9401ad620297c279",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "projects/delegation-reliability/Design.md",
+      "index": 1,
+      "line": 218,
+      "sha256": "382a95046e964aee9a331aafcd559ebe81cf7be7d3a26a504808022c454209db",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "projects/delegation-reliability/Design.md",
+      "index": 2,
+      "line": 302,
+      "sha256": "dbced976d970838a21448b9b8a16f533f7be627cb73117c43f567b7d2377d0d2",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "projects/delegation-reliability/Design.md",
+      "index": 3,
+      "line": 394,
+      "sha256": "7c06c2c1062cb9b8062e20906365fe94d0c2dab7e6a4254c115f957ffe033ab9",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "services/channel-policy-gateway/Design.md",
+      "index": 1,
+      "line": 88,
+      "sha256": "dac81b6c77539466bf19dff10b3b0ee63fbffbf65d5f5d5462804fdd861dfac2",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "services/channel-policy-gateway/Design.md",
+      "index": 2,
+      "line": 118,
+      "sha256": "6703e327211e355e5f11cfba4d0441b299bf25621970406173d30f86f34bb165",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "services/channel-policy-gateway/Design.md",
+      "index": 3,
+      "line": 150,
+      "sha256": "e6bc3270db63a48ea658f8cf42b88e60554a6251d18f501dbb36ffe298a77b0e",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "services/channel_policy_demo/Design.md",
+      "index": 1,
+      "line": 97,
+      "sha256": "a9e889accb668531e7ce1fb16d1d3de315d51b347c354025bcef76c33799779c",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "services/channel_policy_demo/Design.md",
+      "index": 2,
+      "line": 133,
+      "sha256": "9fc93c9c664325a8e033ff17b35c3588a90fa4cae1776374c6ddadb5f46299ff",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "services/channel_policy_demo/Design.md",
+      "index": 3,
+      "line": 179,
+      "sha256": "1d2ac7bf2438d33bd9caaf5e8945d072dbf5c6287ef8a545802293b32ccaca93",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "services/control_api/Design.md",
+      "index": 1,
+      "line": 117,
+      "sha256": "868484b31a14331cfcef4819d6da97fe54368641b6410ea78968fc6e42b5f6f1",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "services/control_api/Design.md",
+      "index": 2,
+      "line": 154,
+      "sha256": "225320bf7225f06f450e0621e3b2f63ff5caae575113fff1025fc1c80915530d",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "services/control_api/Design.md",
+      "index": 3,
+      "line": 180,
+      "sha256": "039f4c76e7713f071bc159f06225b517820512ffa68c13c903ce663538236195",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "services/conversation_agent/Design.md",
+      "index": 1,
+      "line": 107,
+      "sha256": "19f865092ea4c37fd6e2900f0173769532329fff133479ba944880dff37627b2",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "services/conversation_agent/Design.md",
+      "index": 2,
+      "line": 145,
+      "sha256": "0fbdf167105377bde58d566688ffcbf77776d88697bb20cbeb002a7633ef7e77",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "services/conversation_agent/Design.md",
+      "index": 3,
+      "line": 201,
+      "sha256": "2b36470a5814918099403c5d25ffe01837df11debbdd6c2ffae54dcd52baad2c",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    },
+    {
+      "file": "services/rtc_agent/Design.md",
+      "index": 1,
+      "line": 89,
+      "sha256": "a08bede851f1cff1882c4096360f74b31a9dd3fcd294a5f346086fae47472545",
+      "status": "passed",
+      "parsedDiagramType": "flowchart-v2"
+    },
+    {
+      "file": "services/rtc_agent/Design.md",
+      "index": 2,
+      "line": 113,
+      "sha256": "ace8097998c1af326d6a69feef092420f57e3dd39e649e5efaae0c8ccc8bb290",
+      "status": "passed",
+      "parsedDiagramType": "sequence"
+    },
+    {
+      "file": "services/rtc_agent/Design.md",
+      "index": 3,
+      "line": 138,
+      "sha256": "41eaff35269a0bb7a7f329c3ac87c829f34973f4c7a162ce265a61d51bc2e175",
+      "status": "passed",
+      "parsedDiagramType": "class"
+    }
+  ]
+}

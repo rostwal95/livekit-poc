@@ -1,0 +1,214 @@
+1Deployment architecture
+
+2Docker configuration
+
+3LiveKit Cloud deployment
+
+4Monitoring setup
+
+5Custom metrics & data hooks
+
+6Alerting & incident response
+
+7Multi-tenant architecture
+
+8Auto-scaling
+
+9Cost optimization
+
+10Blue-green deployments
+
+11Operational runbook
+
+Blue-green deployments
+
+Zero-downtime deployments for voice agents
+
+Deploying a new version of a web API is routine. Deploying a new version of a voice agent while hundreds of people are mid-conversation is a different problem entirely. You cannot restart a worker without hanging up on every active caller. In this chapter, you will implement blue-green deployments, canary releases with percentage-based routing, and feature flags for gradual rollouts.
+
+What you'll learn
+
+How blue-green deployment works for stateful voice sessions
+
+How to set up canary releases that route a percentage of new calls to the new version
+
+How to use feature flags to toggle agent behavior without redeploying
+
+How to roll back safely when something goes wrong
+
+Blue-green deployment strategy
+
+Blue-green deployment runs two identical environments: blue (current) and green (new). You deploy to green, verify it works, then shift traffic. The key constraint for voice agents is that active sessions on blue must finish naturally — you never force-disconnect a caller.
+
+Deploy your updated agent workers to the green environment. They start up and register with LiveKit but do not receive any sessions yet.
+
+Send synthetic test calls to the green environment. Verify STT, LLM, and TTS all function correctly. Check latency and error rates against your baselines.
+
+Update your dispatch configuration so all new incoming calls route to green workers. Existing calls on blue continue uninterrupted.
+
+Wait for all active sessions on blue to complete naturally. Monitor the active session count on blue until it reaches zero. This typically takes 5-15 minutes depending on average call duration.
+
+Once blue has zero active sessions, shut it down. Green is now your production environment. On the next deploy, green becomes the old environment and blue becomes the target.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+name: voice-agent-green
+namespace: livekit
+labels:
+  app: voice-agent
+  version: green
+spec:
+replicas: 4
+selector:
+  matchLabels:
+    app: voice-agent
+    version: green
+template:
+  metadata:
+    labels:
+      app: voice-agent
+      version: green
+  spec:
+    terminationGracePeriodSeconds: 900  # 15 min for calls to finish
+    containers:
+      - name: agent
+        image: registry.example.com/voice-agent:v2.1.0
+        lifecycle:
+          preStop:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - "sleep 5 && kill -SIGTERM 1"
+        ports:
+          - containerPort: 8080
+
+terminationGracePeriodSeconds is critical
+
+Set this value higher than your longest expected call duration. If Kubernetes kills a pod before its sessions finish, those callers get disconnected. 900 seconds (15 minutes) is a safe starting point for most applications.
+
+Canary releases with percentage-based routing
+
+Blue-green is all-or-nothing. Canary releases let you send a small percentage of traffic to the new version first, monitor it, and gradually increase.
+
+import random
+from livekit.agents import AgentServer, AgentSession, Agent
+
+server = AgentServer()
+
+CANARY_PERCENTAGE = 10  # Start with 10% of new calls
+
+
+class ProductionAgent(Agent):
+  """Current stable version."""
+  def __init__(self):
+      super().__init__(
+          instructions="You are a helpful assistant. Version 2.0.",
+      )
+
+
+class CanaryAgent(Agent):
+  """New version under evaluation."""
+  def __init__(self):
+      super().__init__(
+          instructions="You are a helpful assistant. Version 2.1.",
+      )
+
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  if random.randint(1, 100) <= CANARY_PERCENTAGE:
+      agent = CanaryAgent()
+      version = "canary"
+  else:
+      agent = ProductionAgent()
+      version = "stable"
+
+  # Tag the session for monitoring
+  session.room.metadata = f'{{"agent_version": "{version}"}}'
+
+  await session.start(
+      agent=agent,
+      room=session.room,
+  )
+
+
+if __name__ == "__main__":
+  server.run()
+
+import { Agent, AgentServer, AgentSession } from "@livekit/agents";
+
+const CANARY_PERCENTAGE = 10;
+
+class ProductionAgent extends Agent {
+constructor() {
+  super({ instructions: "You are a helpful assistant. Version 2.0." });
+}
+}
+
+class CanaryAgent extends Agent {
+constructor() {
+  super({ instructions: "You are a helpful assistant. Version 2.1." });
+}
+}
+
+const server = new AgentServer();
+
+server.rtcSession(async (session: AgentSession) => {
+const isCanary = Math.random() * 100 < CANARY_PERCENTAGE;
+const agent = isCanary ? new CanaryAgent() : new ProductionAgent();
+
+await session.start({
+  agent,
+  room: session.room,
+});
+});
+
+server.run();
+
+Feature flags for gradual rollouts
+
+Sometimes the change is not a whole new agent version but a single behavior: a new greeting, a different TTS voice, or a modified tool. Feature flags let you toggle these without redeploying.
+
+import os
+from livekit.agents import Agent
+
+# Feature flags from environment or a remote config service
+FLAGS = {
+  "new_greeting": os.getenv("FF_NEW_GREETING", "false") == "true",
+  "use_cartesia_v2": os.getenv("FF_CARTESIA_V2", "false") == "true",
+  "enable_sentiment": os.getenv("FF_SENTIMENT", "false") == "true",
+}
+
+
+class FeatureFlaggedAgent(Agent):
+  def __init__(self):
+      greeting = (
+          "Welcome! How can I help you today?"
+          if FLAGS["new_greeting"]
+          else "Hello, thanks for calling. What can I do for you?"
+      )
+      super().__init__(
+          instructions=f"""You are a helpful voice assistant.
+          Greet the caller with: {greeting}""",
+      )
+
+  async def tts_node(self, text):
+      if FLAGS["use_cartesia_v2"]:
+          # Use new TTS model
+          pass
+      async for audio in Agent.default.tts_node(self, text):
+          yield audio
+
+Rolling back
+
+The fastest rollback is flipping a feature flag. The second fastest is shifting traffic back to blue. Design your deployment pipeline so both are a single command, not a multi-step process that requires approval chains at 2 AM.
+
+Zero-downtime deployment for voice agents comes down to one principle: never interrupt an active conversation. Blue-green gives you a clean cutover, canary gives you gradual confidence, and feature flags give you surgical control. Use all three together for a deployment strategy that lets you ship fast without fear.
+
+Test your knowledge
+
+Question 1 of 3
+
+In a blue-green deployment for voice agents, why must active sessions on the blue environment finish naturally rather than being immediately terminated?

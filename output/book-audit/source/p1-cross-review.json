@@ -1,0 +1,194 @@
+{
+  "reviewed_file": "/private/tmp/livekit-content-audit/parent-revised.json",
+  "reviewed_sha256": "e98fb48023913238282b89206d013040f5b3d6f54c07f7fc241d90148d0d5b61",
+  "reviewed_questions": [
+    "SYS-01",
+    "SYS-02",
+    "SYS-03",
+    "SYS-04",
+    "SYS-05",
+    "SYS-06",
+    "SYS-07",
+    "SYS-08",
+    "D4-01",
+    "D4-02",
+    "D4-03",
+    "D4-04",
+    "D4-05",
+    "D4-06",
+    "D4-07",
+    "D4-08",
+    "D4-09",
+    "D4-10",
+    "D4-11",
+    "D4-12"
+  ],
+  "count": 20,
+  "findings": [],
+  "blocking_findings": 0,
+  "checks": [
+    {
+      "id": "SYS-01",
+      "verdict": "no material factual or proof error found"
+    },
+    {
+      "id": "SYS-02",
+      "verdict": "no material factual or proof error found"
+    },
+    {
+      "id": "SYS-03",
+      "verdict": "no material factual or proof error found"
+    },
+    {
+      "id": "SYS-04",
+      "verdict": "no material factual or proof error found"
+    },
+    {
+      "id": "SYS-05",
+      "verdict": "no material factual or proof error found"
+    },
+    {
+      "id": "SYS-06",
+      "verdict": "no material factual or proof error found"
+    },
+    {
+      "id": "SYS-07",
+      "verdict": "no material factual or proof error found"
+    },
+    {
+      "id": "SYS-08",
+      "verdict": "no material factual or proof error found"
+    },
+    {
+      "id": "D4-01",
+      "verdict": "no material factual or proof error found",
+      "excerpt_matches_actual_source": true,
+      "test_body_read": {
+        "path": "tests/test_channel_policy_current_result_producer.py",
+        "name": "test_eager_reentrant_close_waits_for_task_publication_and_actual_scan",
+        "execution": "not run"
+      }
+    },
+    {
+      "id": "D4-02",
+      "verdict": "no material factual or proof error found",
+      "excerpt_matches_actual_source": true,
+      "test_body_read": {
+        "path": "tests/test_channel_policy_current_result_producer.py",
+        "name": "test_joined_waiter_keeps_the_scan_after_the_first_waiter_cancels",
+        "execution": "not run"
+      }
+    },
+    {
+      "id": "D4-03",
+      "verdict": "no material factual or proof error found",
+      "excerpt_matches_actual_source": true,
+      "test_body_read": {
+        "path": "tests/test_channel_policy_current_result_producer.py",
+        "name": "test_expiry_while_close_is_held_suppresses_prepared_current_output",
+        "execution": "not run"
+      }
+    },
+    {
+      "id": "D4-04",
+      "verdict": "no material factual or proof error found",
+      "excerpt_matches_actual_source": true,
+      "test_body_read": {
+        "path": "tests/test_channel_policy_executor.py",
+        "name": "test_rerun_of_the_same_work_is_paced_while_every_scan_still_rereads",
+        "execution": "not run"
+      }
+    },
+    {
+      "id": "D4-05",
+      "verdict": "no material factual or proof error found",
+      "excerpt_matches_actual_source": true,
+      "test_body_read": {
+        "path": "tests/test_channel_policy_worker_current_result.py",
+        "name": "test_valid_complete_ack_survives_actual_writer_close_failure",
+        "execution": "not run"
+      }
+    },
+    {
+      "id": "D4-06",
+      "verdict": "no material factual or proof error found",
+      "excerpt_matches_actual_source": true,
+      "test_body_read": {
+        "path": "tests/test_channel_policy_worker_client.py",
+        "name": "test_failed_close_observation_keeps_owner_but_peer_reset_closure_releases_it",
+        "execution": "not run"
+      }
+    },
+    {
+      "id": "D4-07",
+      "verdict": "no material factual or proof error found",
+      "excerpt_matches_actual_source": true,
+      "test_body_read": {
+        "path": "apps/local-console/src/channel-policy.test.ts",
+        "name": "reuses one frozen input for a repeated Send until it is accepted, then mints a new one",
+        "execution": "not run"
+      }
+    },
+    {
+      "id": "D4-08",
+      "verdict": "no material factual or proof error found",
+      "excerpt_matches_actual_source": true,
+      "test_body_read": {
+        "path": "tests/test_channel_policy_current_result_producer.py",
+        "name": "test_latest_recorded_undelivered_never_falls_back_to_older",
+        "execution": "not run"
+      }
+    },
+    {
+      "id": "D4-09",
+      "verdict": "no material factual or proof error found",
+      "excerpt_matches_actual_source": true,
+      "test_body_read": {
+        "path": "apps/local-console/src/channel-policy-room.test.ts",
+        "name": "never publishes a source that arrives after its5s observer deadline",
+        "execution": "not run"
+      }
+    },
+    {
+      "id": "D4-10",
+      "verdict": "no material factual or proof error found",
+      "excerpt_matches_actual_source": true,
+      "test_body_read": {
+        "path": "services/channel-policy-gateway/tests/operation-bridge.test.ts",
+        "name": "lets a slow committed accept finish within the bridge budget rather than a 2 s client cap",
+        "execution": "not run"
+      }
+    },
+    {
+      "id": "D4-11",
+      "verdict": "no material factual or proof error found",
+      "excerpt_matches_actual_source": true,
+      "test_body_read": {
+        "path": "tests/test_channel_policy_native_models.py",
+        "name": "test_sdk_clear_user_turn_replacement_commits_first_voice_turn",
+        "execution": "not run"
+      }
+    },
+    {
+      "id": "D4-12",
+      "verdict": "no material factual or proof error found",
+      "excerpt_matches_actual_source": true,
+      "test_body_read": {
+        "path": "tests/test_channel_policy_current_result_http.py",
+        "name": "test_room_end_after_exchange_settles_is_fenced_at_actual_response_admission",
+        "execution": "not run"
+      }
+    }
+  ],
+  "proof_boundaries_confirmed": [
+    "The SYS chapter separates selected local evidence from full/current release qualification.",
+    "D4 temporal checks are explicitly local samples and disclosure fences, not cross-store or final-COMMIT guarantees.",
+    "D4-05 preserves ordinary-exception cleanup uncertainty while limiting decoder purity to a trusted caller contract.",
+    "D4-07 names mocked UI input/ACK evidence separately from durable backend idempotency.",
+    "D4-09 names late fixture-source lifecycle proof separately from a held-publication proof and physical microphone qualification.",
+    "D4-10 does not equate matched nominal inner/outer timeouts with an end-to-end latency guarantee.",
+    "D4-11 uses the real AgentSession with deterministic fixture recognition and does not claim live ASR quality.",
+    "All12 code excerpts and hashes match the current source exactly."
+  ],
+  "scope": "Independent material factual/proof review only. No cosmetic rewrite, application edits, gates or provider calls."
+}

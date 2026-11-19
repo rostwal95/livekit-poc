@@ -1,0 +1,42 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, Agent, AgentServer, rtc_session\nfrom livekit.plugins.openai import realtime\nfrom livekit.plugins import cartesia\n\nserver = AgentServer()\n\n\n@server.rtc_session\nasync def entrypoint(session: AgentSession):\n  await session.start(\n      agent=Agent(\n          instructions=(\n              \"You are a brand ambassador for Luxe Cosmetics. \"\n              \"Speak warmly and enthusiastically about products. \"\n              \"Keep responses concise \u2014 two sentences maximum.\"\n          ),\n      ),\n      room=session.room,\n      # Realtime model handles audio input and reasoning\n      # but outputs TEXT only \u2014 no built-in voice synthesis\n      llm=realtime.RealtimeModel(\n          model=\"gpt-4o-realtime-preview\",\n          modalities=[\"text\"],\n      ),\n      # Cartesia handles all speech output with your chosen voice\n      tts=cartesia.TTS(voice=\"your-brand-voice-id\"),\n  )\n\n\nif __name__ == \"__main__\":\n  server.run()"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentSession, Agent, defineAgent, type RtcSession } from \"@livekit/agents\";\nimport { OpenAIRealtime } from \"@livekit/agents-plugin-openai\";\nimport { CartesiaTTS } from \"@livekit/agents-plugin-cartesia\";\n\nexport default defineAgent({\nentry: async (session: RtcSession) => {\n  await session.start({\n    agent: new Agent({\n      instructions:\n        \"You are a brand ambassador for Luxe Cosmetics. \" +\n        \"Speak warmly and enthusiastically about products. \" +\n        \"Keep responses concise \u2014 two sentences maximum.\",\n    }),\n    room: session.room,\n    // Realtime model handles audio input and reasoning\n    // but outputs TEXT only \u2014 no built-in voice synthesis\n    llm: new OpenAIRealtime({\n      model: \"gpt-4o-realtime-preview\",\n      modalities: [\"text\"],\n    }),\n    // Cartesia handles all speech output with your chosen voice\n    tts: new CartesiaTTS({ voice: \"your-brand-voice-id\" }),\n  });\n},\n});"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.plugins import cartesia, elevenlabs, google\nfrom livekit.plugins.openai import realtime\n\n# Option 1: Cartesia \u2014 hundreds of voices, fine-grained emotion control\nllm = realtime.RealtimeModel(model=\"gpt-4o-realtime-preview\", modalities=[\"text\"])\ntts = cartesia.TTS(voice=\"your-voice-id\")\n\n# Option 2: ElevenLabs \u2014 voice cloning, multilingual\nllm = realtime.RealtimeModel(model=\"gpt-4o-realtime-preview\", modalities=[\"text\"])\ntts = elevenlabs.TTS(voice=\"your-cloned-voice-id\")\n\n# Option 3: Google Cloud TTS \u2014 affordable, production-grade\nllm = realtime.RealtimeModel(model=\"gpt-4o-realtime-preview\", modalities=[\"text\"])\ntts = google.TTS(voice=\"en-US-Journey-F\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { OpenAIRealtime } from \"@livekit/agents-plugin-openai\";\nimport { CartesiaTTS } from \"@livekit/agents-plugin-cartesia\";\nimport { ElevenLabsTTS } from \"@livekit/agents-plugin-elevenlabs\";\n\n// Option 1: Cartesia \u2014 hundreds of voices, fine-grained emotion control\nconst llm = new OpenAIRealtime({\nmodel: \"gpt-4o-realtime-preview\",\nmodalities: [\"text\"],\n});\nconst tts1 = new CartesiaTTS({ voice: \"your-voice-id\" });\n\n// Option 2: ElevenLabs \u2014 voice cloning, multilingual\nconst tts2 = new ElevenLabsTTS({ voice: \"your-cloned-voice-id\" });"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, Agent, AgentServer, rtc_session\nfrom livekit.plugins.google import realtime as google_realtime\nfrom livekit.plugins import elevenlabs\n\nserver = AgentServer()\n\n\n@server.rtc_session\nasync def entrypoint(session: AgentSession):\n  await session.start(\n      agent=Agent(\n          instructions=\"You are a visual shopping assistant. \"\n          \"Describe products the user shows on camera. \"\n          \"Keep descriptions brief and enthusiastic.\",\n      ),\n      room=session.room,\n      llm=google_realtime.RealtimeModel(\n          model=\"gemini-2.0-flash\",\n          modalities=[\"TEXT\"],\n      ),\n      tts=elevenlabs.TTS(voice=\"your-voice-id\"),\n  )\n\n\nif __name__ == \"__main__\":\n  server.run()"
+  }
+]

@@ -1,0 +1,4621 @@
+{
+  "date": "19 November 2026",
+  "conclusion": "Four contained source defects were repaired and regression/compatibility evidence collected. The inspected SDK usage is compatible with the pinned contracts; no blanket claim of zero defects, complete feature parity or production readiness is justified. Larger shutdown/End findings remain open.",
+  "baseline_commit": "6cec82f6718cf5f9319976196d2cfd449c2b0048",
+  "working_tree_patch_sha256": "ee23491d5186a8cfaa1ce615c6a7fc66e99d5e0dfb47aff5d06f75b8c7b02fcf",
+  "changed_file_snapshots": [
+    {
+      "path": "README.md",
+      "sha256": "363b4ecd539eb7e7d2291040c2a9aac4e91f938954c1f94dfd3dc7be1e50c53f"
+    },
+    {
+      "path": "docs/README.md",
+      "sha256": "47c880c4ecdefee3e7bec69f605ac5f11b9f179d31262803eef39794efa78512"
+    },
+    {
+      "path": "docs/conversation-and-showcase.md",
+      "sha256": "a67e3b05c2fdaebcbaf14e7636253635a7959722da4b95840e4b4e41782c2aa0"
+    },
+    {
+      "path": "docs/effects-and-completion.md",
+      "sha256": "ec733c0b323072bd6b3d79026ff4fb555c2a3f4af6aa9be052965ef9e6604f1b"
+    },
+    {
+      "path": "local-setup/Design.md",
+      "sha256": "f4407adf9cac0f71844d2875620f76e1305f259483ad9fff05ec3c3bc30a142e"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/execution.py",
+      "sha256": "242e90e46218f87788695194965ea02bce804ed8be88fe81e0f0596524e9472f"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/inquiry_worker.py",
+      "sha256": "27b4c48cd459aaf4bb7944955cdc2d91c42318c4e559311121aac61790a83c88"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/managed_inquiry_worker.py",
+      "sha256": "79a297a9e8939463bff792e82a3a680463c18409a3933edb9920346f889dc53b"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+      "sha256": "de4a6daf78cda50adf380a28ec95c1c14ab2c3c1e598f66b675813457e93470d"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_lifecycle.py",
+      "sha256": "9934277e5b43f8a2f1318bf162b3688bd9014a8e8c8a48d6149a45463c77bfe4"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py",
+      "sha256": "794ca777a9d0b1b2ebacf07d1a2c1176d5f5abde9252a0adee98fec96ad6e501"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_store.py",
+      "sha256": "342005b503ca7bc5302062b26fafe2da12921921014bb386fb89cd283a1e6726"
+    },
+    {
+      "path": "projects/agent-continuity/python/src/continuity_lab/supplier.py",
+      "sha256": "1b50dbf17574743a04335f3bf200c2e00707620d41cd1323bada15db636a05e8"
+    },
+    {
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "sha256": "39e5a840ac4c269f00443445a14adcf82fdde3736dfc386f3e19010401b6095c"
+    },
+    {
+      "path": "projects/channel-continuity/tests/test_native_sdk.py",
+      "sha256": "d8981150b2452ddc8c66e39c01d0be24d6e0de111c8d29742096b020695f5c1b"
+    },
+    {
+      "path": "projects/delegation-reliability/python/src/delegation_reliability/native_policy.py",
+      "sha256": "9e85c62449da69bff7c29a87be93415f71e634f5bb15812866b43c7d6ed8d604"
+    },
+    {
+      "path": "projects/delegation-reliability/specialist-ts/README.md",
+      "sha256": "13ab345a5667cfc738bd0c592d59b254b34315e1dd2c149626c2963ad323689f"
+    },
+    {
+      "path": "projects/delegation-reliability/tests/test_native_policy.py",
+      "sha256": "9804f7062094d2fcd4adfd67f1d590572b150cdd40c24fba9c362fe8b7400015"
+    },
+    {
+      "path": "services/channel_policy_demo/native_provider_models.py",
+      "sha256": "5f4e0d57b6a3da6ef38dbe7c0345998c8f933018e87fc691796b71a1e1e13a18"
+    },
+    {
+      "path": "services/conversation_agent/Design.md",
+      "sha256": "bf7f113e1be8ffc12b1ca546cd2b18db3a04f2715806357cf816e25797f89acc"
+    },
+    {
+      "path": "services/rtc_agent/Design.md",
+      "sha256": "d5f5d2f4502100d154a13ff5827def345263c559f8a6ee7be4d342ef0feb10f9"
+    },
+    {
+      "path": "services/rtc_agent/README.md",
+      "sha256": "8bf39cc87d3d4382c52dd981191361578e9266c9d2e97750cbf1ac31e669f3f1"
+    },
+    {
+      "path": "tests/test_inquiry_worker.py",
+      "sha256": "3f49b7e7163e88e2f80741027af92e0bba624105d1eda19da3b7cb4d5975511e"
+    },
+    {
+      "path": "tests/test_p3_document_fixture.py",
+      "sha256": "25a410ed484214c7f794c4d38b34708ad635e564cc4d4c4a330800121ac9933e"
+    }
+  ],
+  "fixed_findings": [
+    {
+      "id": "AC-CODE-01",
+      "severity": "medium",
+      "title": "P2 could not retry a failed native SDK close",
+      "location": {
+        "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+        "line": 295
+      },
+      "before": "The runtime kept its failed close task forever. An SDK close failure left the resource owned, but every later public aclose only rethrew that old failure; its own test repaired a private field.",
+      "after": "Pending and successful close attempts remain shared. A definitively failed/cancelled attempt permits one later public retry. Admission remains fenced, independent work drains, and observer cancellation does not abandon actual cleanup.",
+      "validation": "Genuine pinned-SDK regression failed before the fix; 18 native SDK tests passed after, including concurrent retries and a cancelled close waiter."
+    },
+    {
+      "id": "AC-CODE-02",
+      "severity": "medium",
+      "title": "P3 could remain stuck after definite pre-acceptance capacity rejection",
+      "location": {
+        "path": "projects/delegation-reliability/python/src/delegation_reliability/native_policy.py",
+        "line": 523
+      },
+      "before": "The attempted flag was set before submit. A definite capacity rejection could leave all future calls inspecting work that had never been accepted.",
+      "after": "Only initial-submit capacity restores explicit retry of the same frozen request. Unknown acceptance and any post-acceptance runner failure remain lookup-only; no new work identity or hidden retry is introduced.",
+      "validation": "18 policy tests and 3 genuine SDK tests pass. New negatives distinguish unknown submit ACK and capacity after acceptance. The authority/specialist in this focused schedule are in-memory fixtures, not PostgreSQL."
+    },
+    {
+      "id": "AC-CODE-03",
+      "severity": "medium",
+      "title": "Older P1 diagnostic failures could replace operation truth",
+      "location": {
+        "path": "projects/agent-continuity/python/src/continuity_lab/managed_inquiry_worker.py",
+        "line": 42
+      },
+      "before": "A logger could raise after finish_success, causing a successful public worker call to report failure. A hostile diagnostic code getter could replace the original exception. Eight older logging helpers shared the escape pattern.",
+      "after": "Ordinary telemetry exceptions are contained in those helpers; managed and legacy inquiry error-code extraction is protected. Fatal BaseException control flow remains unsuppressed. No schema, transaction, consent or retry rule changed.",
+      "validation": "Four regression methods were observed failing before their corresponding fixes. All 19 inquiry-worker tests pass, including eight logger outage cases, fatal propagation and preserved public results/errors."
+    },
+    {
+      "id": "AC-CODE-04",
+      "severity": "medium",
+      "title": "Provider instructions invented running work from a noncurrent result",
+      "location": {
+        "path": "services/channel_policy_demo/native_provider_models.py",
+        "line": 52
+      },
+      "before": "The prompt told the model that no_delivery, not_applicable and unavailable all meant the policy check was still running. Those states can instead reflect a completed stale result or a failed read.",
+      "after": "The prompt asks for a neutral no-current-answer response and explicitly says those states do not establish whether work is running. Current-result facts and exact action authority remain separate.",
+      "validation": "Existing 13 offline provider-mode tests pass. This verifies composition/wire contracts, not whether a live model consistently follows the revised instruction; actual provider/media qualification was not rerun."
+    }
+  ],
+  "remaining_priority_findings": [
+    {
+      "id": "GW-A1",
+      "severity": "high",
+      "confidence": "previously verified; ordering still present",
+      "title": "Whole-showcase shutdown still closes Parent dependencies before gateway dispatch",
+      "location": {
+        "path": "local-setup/scripts/channel_policy_launch.py",
+        "line": 726
+      },
+      "detail": "The launcher awaits Parent cleanup before stopping the gateway child. Parent can close origin endpoints while gateway dispatch still consumes attempts. The previous audit records permanent pending-input exhaustion. This needs an explicit stop-dispatch/drain protocol and actual persisted/process evidence, not a tutorial shutdown hook."
+    },
+    {
+      "id": "GW-A2",
+      "severity": "high",
+      "confidence": "medium; previously reasoned race, not newly reproduced",
+      "title": "Room End can race the last accepted input",
+      "location": {
+        "path": "services/channel_policy_demo/native_room.py",
+        "line": 929
+      },
+      "detail": "Room cleanup stops the worker before _close_g closes the gateway room binding. The previous audit identifies a stranding window for the last input. A valid repair must fence new admission while preserving and reconciling the original accepted operation; fresh PostgreSQL/process/media proof is required."
+    },
+    {
+      "id": "DEMO-A6",
+      "severity": "medium",
+      "confidence": "previous audit; unchanged",
+      "title": "Joined cleanup budgets and repeated observation still need reconciliation",
+      "location": {
+        "path": "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+        "line": 115
+      },
+      "detail": "The recorded two-second scripted room, five-second Parent and up-to-eight-second provider cleanup windows do not form a consistent end-to-end drain budget. The P2 retry repair fixes its owned API, not the larger launcher/Parent shutdown design."
+    },
+    {
+      "id": "P1-A2",
+      "severity": "medium",
+      "confidence": "known limitation; unchanged",
+      "title": "Persisted v5 retry pacing does not cover every post-reservation outage",
+      "location": {
+        "path": "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+        "line": 112
+      },
+      "detail": "Do not describe all dependency outages as covered by the current persisted backoff. Preserve dispatch uncertainty and original effects when designing the next slice."
+    }
+  ],
+  "course_to_code": [
+    {
+      "id": "0.1",
+      "title": "LiveKit Architecture",
+      "url": "https://www.livekit-academy.com/courses/livekit-architecture",
+      "chapters": 8,
+      "status": "Aligned in selected scope",
+      "assessment": "Actual SDK rooms, tracks, explicit agent dispatch and separate application authority; the external pinned SFU implements WebRTC internals.",
+      "code": "services/conversation_agent/session.py"
+    },
+    {
+      "id": "0.2",
+      "title": "Competitive Landscape",
+      "url": "https://www.livekit-academy.com/courses/competitive-landscape",
+      "chapters": 3,
+      "status": "Design reference",
+      "assessment": "Build-versus-buy and framework vocabulary inform the architecture; competitor rankings are not executable product requirements.",
+      "code": "Design.md"
+    },
+    {
+      "id": "1.1",
+      "title": "Voice AI Foundations",
+      "url": "https://www.livekit-academy.com/courses/voice-ai-foundations",
+      "chapters": 13,
+      "status": "Aligned in selected scope",
+      "assessment": "Real AgentSession, Agent and function_tool paths with explicit model configuration and readiness. Scripted fixtures do not claim general speech recognition.",
+      "code": "services/conversation_agent/session.py"
+    },
+    {
+      "id": "1.2",
+      "title": "Agent Frontends",
+      "url": "https://www.livekit-academy.com/courses/your-first-frontend",
+      "chapters": 7,
+      "status": "Aligned in selected scope",
+      "assessment": "Authenticated token routes, caller-bound LocalParticipant RPC, bounded text streams and selected-agent readiness. Browser data remains separate from case mutation authority.",
+      "code": "services/control_api/business.py"
+    },
+    {
+      "id": "1.3",
+      "title": "Connect to the Phone Network",
+      "url": "https://www.livekit-academy.com/courses/connect-to-phones",
+      "chapters": 8,
+      "status": "Deferred feature",
+      "assessment": "No SIP/PSTN product implementation is claimed. Browser/manual voice and signed SMS simulation do not qualify a phone-number or carrier integration.",
+      "code": "docs/portfolio-scope.md"
+    },
+    {
+      "id": "2.1",
+      "title": "Tools, Tasks & Workflows",
+      "url": "https://www.livekit-academy.com/courses/tools-tasks-workflows",
+      "chapters": 10,
+      "status": "Aligned; different durability owner",
+      "assessment": "The actual SDK AgentTask/TaskGroup baseline is implemented. Conversational tasks remain distinct from P1 durable execution and exact confirmation.",
+      "code": "projects/delegation-reliability/python/src/delegation_reliability/baseline.py"
+    },
+    {
+      "id": "2.2",
+      "title": "Turn Detection & Conversation Quality",
+      "url": "https://www.livekit-academy.com/courses/turn-detection",
+      "chapters": 7,
+      "status": "Deliberate design difference",
+      "assessment": "Manual turn boundaries, vad=None and batch provider ASR are explicit. Automatic VAD/semantic/adaptive endpointing requires a separately designed and qualified intake path.",
+      "code": "projects/channel-continuity/python/src/channel_continuity/native.py"
+    },
+    {
+      "id": "2.3",
+      "title": "Pipeline Nodes, Hooks & Custom Logic",
+      "url": "https://www.livekit-academy.com/courses/pipeline-nodes",
+      "chapters": 8,
+      "status": "Selected hooks/nodes implemented",
+      "assessment": "Actual two-argument user-turn hook, StopResponse and bounded llm_node/tts_node ownership. A general RAG or moderation pipeline is not implemented by similarity to an example.",
+      "code": "projects/channel-continuity/python/src/channel_continuity/native.py"
+    },
+    {
+      "id": "2.4",
+      "title": "Realtime Models vs Pipelines",
+      "url": "https://www.livekit-academy.com/courses/realtime-vs-pipeline",
+      "chapters": 8,
+      "status": "Partial architecture coverage",
+      "assessment": "The POC uses explicit cascaded model profiles. Automatic realtime/hybrid handoff and silent fallback are not implemented or authorized.",
+      "code": "services/conversation_agent/session.py"
+    },
+    {
+      "id": "3.1",
+      "title": "Production Telephony Patterns",
+      "url": "https://www.livekit-academy.com/courses/production-telephony",
+      "chapters": 9,
+      "status": "Deferred feature",
+      "assessment": "Call forwarding, warm phone transfer, carrier callbacks and production telephony need separate contracts and real phone evidence.",
+      "code": "docs/portfolio-scope.md"
+    },
+    {
+      "id": "3.2",
+      "title": "AI-Powered Contact Centers",
+      "url": "https://www.livekit-academy.com/courses/contact-center",
+      "chapters": 3,
+      "status": "Selected domain patterns",
+      "assessment": "The joined travel-support demo has scoped context and asynchronous policy work; it is not a production contact center or IVR replacement.",
+      "code": "services/channel_policy_demo/application.py"
+    },
+    {
+      "id": "4.1",
+      "title": "Multimodal Agents",
+      "url": "https://www.livekit-academy.com/courses/multimodal-agents",
+      "chapters": 5,
+      "status": "Partial; bounded document evidence",
+      "assessment": "P3 provides selected image/document contracts and finite evidence. Live video, continuous screen analysis and avatars remain deferred.",
+      "code": "projects/delegation-reliability/python/src/delegation_reliability/document.py"
+    },
+    {
+      "id": "4.2",
+      "title": "Physical AI: Voice on Hardware",
+      "url": "https://www.livekit-academy.com/courses/physical-ai",
+      "chapters": 4,
+      "status": "Deferred feature",
+      "assessment": "No microcontroller, robotics or actuator execution is claimed. Audio and resource-ownership principles still apply.",
+      "code": "docs/portfolio-scope.md"
+    },
+    {
+      "id": "5.1",
+      "title": "Testing & Evaluation",
+      "url": "https://www.livekit-academy.com/courses/testing-evaluation",
+      "chapters": 7,
+      "status": "Strong deterministic coverage; quality gap remains",
+      "assessment": "Real SDK and fault/contract tests are present. A calibrated representative stochastic model-quality evaluation suite remains separate from these deterministic passes.",
+      "code": "projects/delegation-reliability/python/src/delegation_reliability/baseline.py"
+    },
+    {
+      "id": "5.2",
+      "title": "Deploy, Monitor & Scale",
+      "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale",
+      "chapters": 11,
+      "status": "Implemented signals; known lifecycle gaps",
+      "assessment": "Finite usage, safe traces, bounded owners and local workers exist. The remaining shutdown/End issues prevent a blanket production-readiness claim.",
+      "code": "services/conversation_agent/observations.py"
+    },
+    {
+      "id": "5.3",
+      "title": "Self-Hosting LiveKit",
+      "url": "https://www.livekit-academy.com/courses/self-hosting",
+      "chapters": 4,
+      "status": "Local topology only",
+      "assessment": "Pinned self-hosted configuration, explicit metrics and local validation do not establish redundant SFUs, multi-region failover or transparent media recovery. NATS is not a required POC dependency.",
+      "code": "local-setup/Design.md"
+    },
+    {
+      "id": "6.1",
+      "title": "RAG for Voice Agents",
+      "url": "https://www.livekit-academy.com/courses/rag-external-data",
+      "chapters": 4,
+      "status": "Deferred feature",
+      "assessment": "Fixed-policy factual verification is implemented; arbitrary prose retrieval, embeddings, semantic caching and general voice RAG are not.",
+      "code": "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy.py"
+    },
+    {
+      "id": "6.2",
+      "title": "LangChain & LangGraph",
+      "url": "https://www.livekit-academy.com/courses/langchain-langgraph",
+      "chapters": 3,
+      "status": "Deferred optional composition",
+      "assessment": "No LangGraph/MCP runtime is required or claimed. Any future adapter must retain one accepted-work owner and exact original command identity.",
+      "code": "docs/portfolio-scope.md"
+    },
+    {
+      "id": "6.3",
+      "title": "Provider Selection Guide",
+      "url": "https://www.livekit-academy.com/courses/choosing-ai-stack",
+      "chapters": 3,
+      "status": "Explicit providers; no comparative benchmark",
+      "assessment": "Provider/model modes and usage boundaries are explicit. A reproducible quality/latency/cost comparison across providers has not been established by this audit.",
+      "code": "services/channel_policy_demo/native_provider_models.py"
+    },
+    {
+      "id": "7.1",
+      "title": "LiveKit Expert Certification",
+      "url": "https://www.livekit-academy.com/courses/livekit-certification",
+      "chapters": 8,
+      "status": "Study material",
+      "assessment": "A course assessment is a learning aid; neither a score nor this audit certifies product behavior or a verified interview loop.",
+      "code": "docs/validation-plan.md"
+    }
+  ],
+  "sdk_audit": {
+    "sdk_versions": {
+      "livekit-agents": "1.8.11",
+      "livekit": "1.2.0",
+      "livekit-api": "1.2.2"
+    },
+    "python_source_files_parsed": 209,
+    "constructor_sites_checked": 51,
+    "event_sites_inventoried": 21,
+    "errors": [],
+    "limits": "AST and installed call-shape check only. Dynamic aliases, lifecycle semantics, actual SDK behavior and browser APIs need separate source/test review. No model/provider invoked."
+  },
+  "validation": {
+    "full_fast": {
+      "status": "structural_checks_passed",
+      "productAcceptance": "not_certified",
+      "violations": []
+    },
+    "python_suites": [
+      {
+        "command": [
+          "/Users/rostwal/Downloads/livekit-poc/.venv/bin/python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "projects/agent-continuity/tests",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "status": "passed",
+        "exitCode": 0,
+        "testCount": 49,
+        "skippedCount": 0,
+        "code": null,
+        "cleanup_complete": null,
+        "suite_directory": "projects/agent-continuity/tests"
+      },
+      {
+        "command": [
+          "/Users/rostwal/Downloads/livekit-poc/.venv/bin/python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "projects/channel-continuity/tests",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "status": "passed",
+        "exitCode": 0,
+        "testCount": 125,
+        "skippedCount": 0,
+        "code": null,
+        "cleanup_complete": null,
+        "suite_directory": "projects/channel-continuity/tests"
+      },
+      {
+        "command": [
+          "/Users/rostwal/Downloads/livekit-poc/.venv/bin/python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "projects/delegation-reliability/tests",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "status": "passed",
+        "exitCode": 0,
+        "testCount": 453,
+        "skippedCount": 0,
+        "code": null,
+        "cleanup_complete": null,
+        "suite_directory": "projects/delegation-reliability/tests"
+      },
+      {
+        "command": [
+          "/Users/rostwal/Downloads/livekit-poc/.venv/bin/python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "status": "passed",
+        "exitCode": 0,
+        "testCount": 3170,
+        "skippedCount": 0,
+        "code": "ok",
+        "cleanup_complete": true,
+        "suite_directory": "tests"
+      }
+    ],
+    "documentation": {
+      "schemaVersion": 1,
+      "status": "documentation_checks_passed",
+      "documentsChecked": 136,
+      "violations": []
+    },
+    "typescript": {
+      "console": 729,
+      "channel_continuity": 905,
+      "specialist": 188,
+      "gateway": 234,
+      "total": 2056,
+      "note": "The final aggregate passed all four packages. Initial blocked/failed runs are retained separately.",
+      "aggregate_command": "pnpm test with the verified Node 24.22.2 runtime and local loopback networking",
+      "aggregate_passed": true
+    },
+    "python_types": "make typecheck passed:194 standard source files and221 strict-selection files (overlapping selections).",
+    "python_format": "568 files passed format check.",
+    "python_lint": "Changed/runtime source selections passed Ruff.",
+    "fresh_postgres": "not run: Docker daemon unavailable",
+    "fresh_browser_media": "not run: Docker daemon unavailable",
+    "live_provider": "not run: no provider opt-in or private values accessed"
+  },
+  "review_coverage": {
+    "p1": {
+      "schema_version": 1,
+      "reviewed_at": "2026-11-19",
+      "repository": "/Users/rostwal/Downloads/livekit-poc",
+      "head": "6cec82f6718cf5f9319976196d2cfd449c2b0048",
+      "scope": "P1 durable/public/resource/effect source and selected tests/examples. Root owns joined services/frontend/infrastructure; other agents own P2/P3. Inventory-only files are explicitly identified. This is not exhaustive execution or production qualification.",
+      "summary": {
+        "new_material_finding_families": 1,
+        "fixed_after_root_agreement": 1,
+        "known_open_reconfirmed": [
+          "0048/P1-A2"
+        ],
+        "judgment": "Reviewed business authority and recovery deliberately remain stronger than conversational Academy examples. No scope/consent/lease/external-effect authority bypass was confirmed in the reviewed paths. A real diagnostic-containment defect was reproduced and fixed; post-dispatch pacing remains known open."
+      },
+      "findings": [
+        {
+          "id": "ACADEMY-CODE-P1-01",
+          "severity": "medium",
+          "status": "fixed after root approval",
+          "title": "Logger failures and diagnostic getters could replace a successful inquiry result or primary error",
+          "evidence": [
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/managed_inquiry_worker.py",
+              "line": 42,
+              "claim": "Ordinary logging failures are now contained"
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/managed_inquiry_worker.py",
+              "line": 53,
+              "claim": "Code-property access is now protected"
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/managed_inquiry_worker.py",
+              "line": 134,
+              "claim": "Successful persistence result exists before completed event"
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/inquiry_worker.py",
+              "line": 61,
+              "claim": "Legacy inquiry getter now preserves the primary failure"
+            }
+          ],
+          "failure_path": [
+            "An application logger raises on managed_worker_completed after lifecycle.finish_success returned. Previously run_one raised the logger OSError instead of returning the successful result.",
+            "If the primary exception has a raising code property, old managed-worker diagnostic selection replaced the exception. InquiryWorker had the same variant for ExecutionError/MigrationError subclasses.",
+            "Eight older _event helpers allowed logger failures to escape, unlike newer mutation/effects/leases/work helpers."
+          ],
+          "reproduction": {
+            "command": "/Users/rostwal/Downloads/livekit-poc/.venv/bin/python -m unittest tests.test_inquiry_worker.InquiryDiagnosticContainmentTests",
+            "before": "First three new test methods: 10 errors (eight event-helper subtests plus two managed paths). Added legacy inquiry getter method separately failed: LookupError replaced original ExecutionError.",
+            "after": "Entire tests.test_inquiry_worker passes 19/19 in 0.391 seconds. New methods also verify KeyboardInterrupt propagation."
+          },
+          "fix": "Contain ordinary Exception only in eight event helpers; protect both inquiry-worker error-code lookups and retain bare re-raise/fixed finite fallback. No transaction, consent, cancellation, dispatch, retry, lease, schema or public API change.",
+          "proof_boundary": "Public managed-worker regression uses a controlled lifecycle adapter whose finish_success returns its completed result. It proves caller-visible control flow, not a fresh PostgreSQL commit/crash or media/provider gate.",
+          "tests": [
+            {
+              "path": "tests/test_inquiry_worker.py",
+              "line": 446,
+              "name": "test_existing_event_boundaries_contain_logger_failure_without_swallowing_fatal_exit"
+            },
+            {
+              "path": "tests/test_inquiry_worker.py",
+              "line": 458,
+              "name": "test_managed_worker_returns_committed_success_when_completion_log_fails"
+            },
+            {
+              "path": "tests/test_inquiry_worker.py",
+              "line": 481,
+              "name": "test_managed_worker_preserves_primary_failure_with_hostile_code_and_failed_logger"
+            },
+            {
+              "path": "tests/test_inquiry_worker.py",
+              "line": 506,
+              "name": "test_inquiry_worker_preserves_primary_domain_failure_with_hostile_code_and_failed_logger"
+            }
+          ]
+        },
+        {
+          "id": "ACADEMY-CODE-P1-02",
+          "prior_id": "0048/P1-A2",
+          "severity": "medium",
+          "status": "known open, unchanged",
+          "title": "v5 persisted pacing excludes dependency outages after dispatch reservation",
+          "evidence": [
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/mutation_worker.py",
+              "line": 165,
+              "claim": "Unavailable lookup after a possible call is re-raised"
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+              "line": 771,
+              "claim": "Due time only written for pre-dispatch dependency_unavailable"
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+              "line": 506,
+              "claim": "Repeated recovered claims consume finite attempt budget"
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/postgres_work.py",
+              "line": 150,
+              "claim": "Selector due filter applies only to pending effects"
+            }
+          ],
+          "failure_path": [
+            "Cooperating mutation reserves dispatch, then apply and reconciliation lookup are unavailable. Effect remains possibly dispatched.",
+            "Recovery claims a new attempt; another unavailable lookup is re-raised without persisted due pacing. Worker poll cadence can repeatedly consume attempts.",
+            "A temporary outage can exhaust attempts into terminal uncertainty. Stable identity/uncertainty safety remains; this is a useful-progress/pacing limitation, never permission to retry with another key."
+          ],
+          "next_step": "Separate design and actual PostgreSQL outage/recovery test for paced reconciliation of possible effects. Do not fold this into the diagnostic fix or claim fixed.",
+          "existing_tests_read": [
+            {
+              "path": "tests/postgres/pg_upgrade_v5_cases.py",
+              "line": 340,
+              "name": "test_paced_dependency_retry_waits_for_its_persisted_due_time"
+            },
+            {
+              "path": "tests/postgres/pg_upgrade_v5_cases.py",
+              "line": 358,
+              "name": "test_cancellation_is_not_held_behind_a_paced_retry"
+            }
+          ]
+        }
+      ],
+      "checked_invariants": [
+        {
+          "claim": "Accepted-work replay compares original immutable payload before new-work expiry/caps; writes sample DB time after admission lock.",
+          "evidence": [
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/work_store.py",
+              "line": 190,
+              "claim": "Changed-payload conflict"
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/work_store.py",
+              "line": 157,
+              "claim": "Fresh DB time"
+            }
+          ],
+          "test_body_read": "tests/postgres/pg_readonly_work_cases.py selected assertions not freshly executed"
+        },
+        {
+          "claim": "Worker lease guards match scope/task/owner/epoch and expiry after locks; renewal cannot resurrect an expired grant.",
+          "evidence": [
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/postgres_leases.py",
+              "line": 103,
+              "claim": "Protected write guard"
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/postgres_leases.py",
+              "line": 268,
+              "claim": "Conditional renewal"
+            }
+          ],
+          "test_body_read": {
+            "path": "tests/postgres/pg_lease_cases.py",
+            "line": 443,
+            "name": "test_guard_samples_database_time_after_waiting_for_admission_lock"
+          }
+        },
+        {
+          "claim": "A prior reservation plus cancelled/expired lookup miss yields uncertainty, not definite prevention. Known reliable success survives late cancel/deadline, subject to current lease.",
+          "evidence": [
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+              "line": 614,
+              "claim": "Preserves possible old call"
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+              "line": 738,
+              "claim": "Known truth path"
+            }
+          ],
+          "test_bodies_read": [
+            "tests/postgres/pg_coordination_cases.py:255-277",
+            "tests/postgres/pg_effect_cases.py:292-405"
+          ]
+        },
+        {
+          "claim": "Only new issuance permits invocation; eligible result truth survives later cancellation; completion snapshots caller-owned nested grant values before awaits.",
+          "evidence": [
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+              "line": 153,
+              "claim": "Replay is not invocation"
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/execution_api.py",
+              "line": 79,
+              "claim": "Snapshot before await"
+            }
+          ],
+          "test_bodies_read": [
+            "tests/postgres/pg_issued_execution_cases.py:214-263",
+            "tests/postgres/pg_issued_execution_cases.py:551-599"
+          ]
+        },
+        {
+          "claim": "Exact quote/revision confirmation, work/result eligibility and intent receipt share protected commitment; no supplier I/O occurs in that transaction.",
+          "evidence": [
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+              "line": 595,
+              "claim": "Case authority remains sole intent authority"
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/action_store.py",
+              "line": 203,
+              "claim": "Booking then work admission and case locks"
+            }
+          ],
+          "limit": "No fresh database race executed."
+        },
+        {
+          "claim": "Child cleanup precedes lease release; failed reap keeps ownership; cancelled waiters keep thread capacity.",
+          "evidence": [
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/worker_runtime.py",
+              "line": 649,
+              "claim": "Lifetime order"
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/bounded_io.py",
+              "line": 66,
+              "claim": "Owned actual thread"
+            }
+          ],
+          "test_body_read": "tests/test_worker_runtime.py:526-550; tests/test_async_execution.py:1-210"
+        }
+      ],
+      "academy_comparison": [
+        {
+          "topic": "userdata and on_exit are not crash durability",
+          "academy": {
+            "path": "output/academy-review/snapshots/courses__tools-tasks-workflows__state-userdata.txt",
+            "line": 365
+          },
+          "judgment": "P1 correctly persists before ACK instead of waiting for an exit hook. Academy itself distinguishes session memory, but its save-in-on_exit advice is insufficient for a crash guarantee.",
+          "sdk": {
+            "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/agent_session.py",
+            "line": 727,
+            "claim": "userdata is an AgentSession object field."
+          },
+          "project": {
+            "path": "projects/agent-continuity/python/src/continuity_lab/managed_admission.py",
+            "line": 33,
+            "claim": "One protected intake/case/deadline transaction"
+          }
+        },
+        {
+          "topic": "Conversational AgentTask versus durable work",
+          "academy": "courses/tools-tasks-workflows/agent-task",
+          "judgment": "AgentTask has an in-memory future and conversational activity. It does not replace P1 persisted attempts/results, identity reconciliation or effects.",
+          "sdk": {
+            "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+            "line": 936,
+            "claim": "AgentTask owns asyncio.Future; complete sets that future."
+          },
+          "project": {
+            "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+            "line": 143,
+            "claim": "P1 invocation authority persists first"
+          }
+        },
+        {
+          "topic": "Tool calls versus consent",
+          "judgment": "Explicit controller exact confirmation is a deliberate stronger project boundary. Do not expose quote/confirm/action authority as native model tools to match a tutorial.",
+          "project": {
+            "path": "projects/agent-continuity/python/src/continuity_lab/conversation_service.py",
+            "line": 3,
+            "claim": "Native submit/get/cancel; controller separate"
+          }
+        },
+        {
+          "topic": "Interruption versus cancellation",
+          "judgment": "Speech interruption and waiter timeout do not stop a durable task, thread, child or supplier request. P1 separately records cancellation and possible effects.",
+          "project": {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+            "line": 605,
+            "claim": "Durable possible-call marker"
+          }
+        },
+        {
+          "topic": "Transport reliability versus business idempotency",
+          "judgment": "Room/RPC reliability does not replace original accepted key/bytes or receipt-backed recovery. Feed cursors are observations, not ACK/action authority.",
+          "project": {
+            "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_store.py",
+            "line": 61,
+            "claim": "Committed result and scoped feed sequence share transaction"
+          }
+        },
+        {
+          "topic": "Scope discipline",
+          "judgment": "No missing SIP, RAG, general workflow engine, dynamic model switching or automatic coroutine checkpoint was treated as a P1 bug or added. P1 standalone durable API requires no inference provider."
+        }
+      ],
+      "coverage": {
+        "runtime_modules_inventoried": 77,
+        "full_modules_read": 21,
+        "selected_modules_read": 21,
+        "files": [
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/__init__.py",
+            "lines": 6,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": []
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/__main__.py",
+            "lines": 78,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "demo",
+                "line": 16
+              },
+              {
+                "name": "main",
+                "line": 42
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/action_api.py",
+            "lines": 188,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "ActionClient",
+                "line": 37
+              },
+              {
+                "name": "open_action_client",
+                "line": 145
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/action_models.py",
+            "lines": 157,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "ActionError",
+                "line": 58
+              },
+              {
+                "name": "result_digest",
+                "line": 68
+              },
+              {
+                "name": "ActionReceipt",
+                "line": 75
+              },
+              {
+                "name": "ActionPort",
+                "line": 133
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/action_store.py",
+            "lines": 377,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "authorize",
+            "top_level_symbols": [
+              {
+                "name": "translated",
+                "line": 36
+              },
+              {
+                "name": "ActionStore",
+                "line": 68
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/api.py",
+            "lines": 113,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "safe_error_code",
+                "line": 92
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/async_execution.py",
+            "lines": 42,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "AsyncExecutionStore",
+                "line": 8
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/authorization.py",
+            "lines": 163,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "AuthenticationFailed",
+                "line": 31
+              },
+              {
+                "name": "_identity",
+                "line": 37
+              },
+              {
+                "name": "AuthenticatedActor",
+                "line": 48
+              },
+              {
+                "name": "BearerToken",
+                "line": 60
+              },
+              {
+                "name": "TokenDirectory",
+                "line": 74
+              },
+              {
+                "name": "ScopedInquiryService",
+                "line": 113
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/bounded_io.py",
+            "lines": 95,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "BoundedAsyncIO",
+                "line": 17
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/case_control_api.py",
+            "lines": 116,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "CaseControlIdentity",
+                "line": 31
+              },
+              {
+                "name": "CaseControlClient",
+                "line": 37
+              },
+              {
+                "name": "open_case_control_client",
+                "line": 104
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/case_models.py",
+            "lines": 379,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "StaleRevision",
+                "line": 25
+              },
+              {
+                "name": "QuoteExpired",
+                "line": 29
+              },
+              {
+                "name": "DeadlineExpired",
+                "line": 33
+              },
+              {
+                "name": "InvalidConfirmation",
+                "line": 37
+              },
+              {
+                "name": "CaseCancelled",
+                "line": 41
+              },
+              {
+                "name": "IntentAlreadyCommitted",
+                "line": 45
+              },
+              {
+                "name": "CaseCapacityExceeded",
+                "line": 49
+              },
+              {
+                "name": "identity",
+                "line": 53
+              },
+              {
+                "name": "integer",
+                "line": 65
+              },
+              {
+                "name": "uuid_identity",
+                "line": 71
+              },
+              {
+                "name": "utc_instant",
+                "line": 78
+              },
+              {
+                "name": "canonical",
+                "line": 90
+              },
+              {
+                "name": "_fields",
+                "line": 94
+              },
+              {
+                "name": "_text",
+                "line": 100
+              },
+              {
+                "name": "QuoteSnapshot",
+                "line": 107
+              },
+              {
+                "name": "parse_quote",
+                "line": 170
+              },
+              {
+                "name": "Confirmation",
+                "line": 208
+              },
+              {
+                "name": "parse_confirmation",
+                "line": 224
+              },
+              {
+                "name": "ActionIntent",
+                "line": 240
+              },
+              {
+                "name": "parse_intent",
+                "line": 282
+              },
+              {
+                "name": "require_mutation_quote",
+                "line": 323
+              },
+              {
+                "name": "CaseSnapshot",
+                "line": 331
+              },
+              {
+                "name": "IntentDispatch",
+                "line": 351
+              },
+              {
+                "name": "CaseAuthorityPort",
+                "line": 366
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/case_projection.py",
+            "lines": 558,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "strict_json",
+                "line": 59
+              },
+              {
+                "name": "parse_confirmation_payload",
+                "line": 79
+              },
+              {
+                "name": "wire_value",
+                "line": 91
+              },
+              {
+                "name": "quote_payload",
+                "line": 108
+              },
+              {
+                "name": "CaseProjection",
+                "line": 116
+              },
+              {
+                "name": "_cursor",
+                "line": 135
+              },
+              {
+                "name": "_decode_cursor",
+                "line": 140
+              },
+              {
+                "name": "PostgresCaseProjection",
+                "line": 167
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/case_service.py",
+            "lines": 210,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "LifecyclePort",
+                "line": 32
+              },
+              {
+                "name": "ScopedCaseService",
+                "line": 51
+              },
+              {
+                "name": "AsyncCaseService",
+                "line": 192
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/case_telemetry.py",
+            "lines": 113,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "_observe and call",
+            "top_level_symbols": [
+              {
+                "name": "CaseTelemetry",
+                "line": 40
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/completion_sink.py",
+            "lines": 323,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "CompletionSinkUnavailable",
+                "line": 49
+              },
+              {
+                "name": "CompletionSinkConflict",
+                "line": 53
+              },
+              {
+                "name": "SinkReceipt",
+                "line": 58
+              },
+              {
+                "name": "CompletionSinkPort",
+                "line": 64
+              },
+              {
+                "name": "_event",
+                "line": 71
+              },
+              {
+                "name": "_path",
+                "line": 78
+              },
+              {
+                "name": "_private",
+                "line": 89
+              },
+              {
+                "name": "_normalized",
+                "line": 102
+              },
+              {
+                "name": "_schema",
+                "line": 109
+              },
+              {
+                "name": "initialize_completion_sink",
+                "line": 136
+              },
+              {
+                "name": "CompletionSink",
+                "line": 178
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/conversation_composition.py",
+            "lines": 45,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "build_conversation_service",
+                "line": 19
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/conversation_service.py",
+            "lines": 158,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "ManagedAdmissionPort",
+                "line": 27
+              },
+              {
+                "name": "CaseProjectionPort",
+                "line": 33
+              },
+              {
+                "name": "TrustedQuotePort",
+                "line": 39
+              },
+              {
+                "name": "ManagedReceipt",
+                "line": 46
+              },
+              {
+                "name": "ConversationService",
+                "line": 62
+              },
+              {
+                "name": "AsyncConversationService",
+                "line": 140
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/cutover.py",
+            "lines": 96,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "CutoverReport",
+                "line": 27
+              },
+              {
+                "name": "cutover",
+                "line": 37
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/delivery_api.py",
+            "lines": 102,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "DeliveryClient",
+                "line": 35
+              },
+              {
+                "name": "open_delivery_client",
+                "line": 91
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/delivery_models.py",
+            "lines": 175,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "result_digest",
+                "line": 15
+              },
+              {
+                "name": "DeliveryIntent",
+                "line": 22
+              },
+              {
+                "name": "snapshot_intent",
+                "line": 66
+              },
+              {
+                "name": "DeliveryReceipt",
+                "line": 83
+              },
+              {
+                "name": "snapshot_receipt",
+                "line": 99
+              },
+              {
+                "name": "match_receipt",
+                "line": 112
+              },
+              {
+                "name": "DeliveryStart",
+                "line": 123
+              },
+              {
+                "name": "DeliverySnapshot",
+                "line": 133
+              },
+              {
+                "name": "DeliveryPort",
+                "line": 156
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/delivery_store.py",
+            "lines": 290,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "prepare, begin, record_receipt, inspect",
+            "top_level_symbols": [
+              {
+                "name": "DeliveryStore",
+                "line": 29
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/effect_models.py",
+            "lines": 463,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "EffectState",
+                "line": 30
+              },
+              {
+                "name": "EffectFailure",
+                "line": 40
+              },
+              {
+                "name": "CancelReason",
+                "line": 48
+              },
+              {
+                "name": "CancellationDisposition",
+                "line": 52
+              },
+              {
+                "name": "DeliveryState",
+                "line": 60
+              },
+              {
+                "name": "MutationResult",
+                "line": 68
+              },
+              {
+                "name": "_object",
+                "line": 125
+              },
+              {
+                "name": "_text",
+                "line": 131
+              },
+              {
+                "name": "parse_mutation_result",
+                "line": 137
+              },
+              {
+                "name": "require_result_binding",
+                "line": 178
+              },
+              {
+                "name": "EffectClaim",
+                "line": 212
+              },
+              {
+                "name": "EffectSnapshot",
+                "line": 222
+              },
+              {
+                "name": "CancellationReceipt",
+                "line": 234
+              },
+              {
+                "name": "BusinessOutcome",
+                "line": 246
+              },
+              {
+                "name": "parse_business_outcome",
+                "line": 324
+              },
+              {
+                "name": "CompletionEvent",
+                "line": 358
+              },
+              {
+                "name": "parse_completion_event",
+                "line": 384
+              },
+              {
+                "name": "DeliveryPolicy",
+                "line": 400
+              },
+              {
+                "name": "parse_delivery_policy",
+                "line": 423
+              },
+              {
+                "name": "DeliverySnapshot",
+                "line": 433
+              },
+              {
+                "name": "DeliveryClaim",
+                "line": 445
+              },
+              {
+                "name": "EffectViewPort",
+                "line": 452
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/execution.py",
+            "lines": 387,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "_event, _connection, canonical validation, submit admission",
+            "top_level_symbols": [
+              {
+                "name": "_utc_now",
+                "line": 39
+              },
+              {
+                "name": "_identity",
+                "line": 43
+              },
+              {
+                "name": "_canonical",
+                "line": 49
+              },
+              {
+                "name": "_version",
+                "line": 55
+              },
+              {
+                "name": "_event",
+                "line": 61
+              },
+              {
+                "name": "ExecutionStore",
+                "line": 70
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/execution_api.py",
+            "lines": 128,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "ExecutionClient",
+                "line": 41
+              },
+              {
+                "name": "open_execution_client",
+                "line": 117
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/execution_cli.py",
+            "lines": 312,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "_SafeParser",
+                "line": 160
+              },
+              {
+                "name": "_SafeFormatter",
+                "line": 168
+              },
+              {
+                "name": "_ApplicationHandler",
+                "line": 203
+              },
+              {
+                "name": "configure_logging",
+                "line": 207
+              },
+              {
+                "name": "main",
+                "line": 218
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/execution_codec.py",
+            "lines": 161,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "_identity",
+                "line": 24
+              },
+              {
+                "name": "_uuid",
+                "line": 30
+              },
+              {
+                "name": "_integer",
+                "line": 37
+              },
+              {
+                "name": "_timestamp",
+                "line": 43
+              },
+              {
+                "name": "_text",
+                "line": 57
+              },
+              {
+                "name": "_failure",
+                "line": 63
+              },
+              {
+                "name": "_body",
+                "line": 67
+              },
+              {
+                "name": "_canonical",
+                "line": 74
+              },
+              {
+                "name": "decode_execution",
+                "line": 78
+              },
+              {
+                "name": "decode_attempt",
+                "line": 139
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/execution_models.py",
+            "lines": 169,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "Operation",
+                "line": 12
+              },
+              {
+                "name": "ExecutionStatus",
+                "line": 16
+              },
+              {
+                "name": "AttemptStatus",
+                "line": 23
+              },
+              {
+                "name": "FailureCode",
+                "line": 30
+              },
+              {
+                "name": "ExecutionError",
+                "line": 35
+              },
+              {
+                "name": "ExecutionNotFound",
+                "line": 41
+              },
+              {
+                "name": "TransitionConflict",
+                "line": 45
+              },
+              {
+                "name": "UnsupportedOperation",
+                "line": 49
+              },
+              {
+                "name": "StorageUnavailable",
+                "line": 53
+              },
+              {
+                "name": "InvalidStoredState",
+                "line": 57
+              },
+              {
+                "name": "ExecutionCapacityExceeded",
+                "line": 61
+              },
+              {
+                "name": "ExecutionPortClosed",
+                "line": 65
+              },
+              {
+                "name": "InquiryResult",
+                "line": 70
+              },
+              {
+                "name": "ExecutionRecord",
+                "line": 91
+              },
+              {
+                "name": "ExecutionSubmission",
+                "line": 107
+              },
+              {
+                "name": "AttemptRecord",
+                "line": 114
+              },
+              {
+                "name": "AttemptStart",
+                "line": 125
+              },
+              {
+                "name": "InquiryExecutionPort",
+                "line": 130
+              },
+              {
+                "name": "WorkerExecutionPort",
+                "line": 145
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/execution_store.py",
+            "lines": 321,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "_attempt, _write, _read, issue, complete, result, observe",
+            "top_level_symbols": [
+              {
+                "name": "ExecutionStore",
+                "line": 29
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/inquiry_worker.py",
+            "lines": 214,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "_error_code, _event, InquiryWorker.run_one, main",
+            "top_level_symbols": [
+              {
+                "name": "_error_code",
+                "line": 61
+              },
+              {
+                "name": "_event",
+                "line": 77
+              },
+              {
+                "name": "InquiryWorker",
+                "line": 90
+              },
+              {
+                "name": "_SafeParser",
+                "line": 174
+              },
+              {
+                "name": "main",
+                "line": 182
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/issued_models.py",
+            "lines": 162,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "ExecutionLimits",
+                "line": 33
+              },
+              {
+                "name": "IssuedAttempt",
+                "line": 49
+              },
+              {
+                "name": "Issuance",
+                "line": 77
+              },
+              {
+                "name": "AttemptResult",
+                "line": 87
+              },
+              {
+                "name": "ExecutionObservation",
+                "line": 111
+              },
+              {
+                "name": "ExecutionPort",
+                "line": 152
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/lease_models.py",
+            "lines": 180,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "LeaseBusy",
+                "line": 19
+              },
+              {
+                "name": "LeaseLost",
+                "line": 25
+              },
+              {
+                "name": "LeaseRequired",
+                "line": 31
+              },
+              {
+                "name": "identity",
+                "line": 37
+              },
+              {
+                "name": "owner_identity",
+                "line": 48
+              },
+              {
+                "name": "epoch_number",
+                "line": 59
+              },
+              {
+                "name": "server_instant",
+                "line": 65
+              },
+              {
+                "name": "CoordinationPolicy",
+                "line": 78
+              },
+              {
+                "name": "LeaseGrant",
+                "line": 113
+              },
+              {
+                "name": "LeaseSnapshot",
+                "line": 129
+              },
+              {
+                "name": "WorkKind",
+                "line": 161
+              },
+              {
+                "name": "WorkClaim",
+                "line": 169
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/lifecycle_models.py",
+            "lines": 74,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "LifecycleState",
+                "line": 11
+              },
+              {
+                "name": "WaitState",
+                "line": 24
+              },
+              {
+                "name": "LifecycleSnapshot",
+                "line": 31
+              },
+              {
+                "name": "ManagedClaim",
+                "line": 44
+              },
+              {
+                "name": "WaitSnapshot",
+                "line": 52
+              },
+              {
+                "name": "SignalReceipt",
+                "line": 63
+              },
+              {
+                "name": "WaitAdvance",
+                "line": 72
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/managed_admission.py",
+            "lines": 149,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "ManagedAcceptance",
+                "line": 26
+              },
+              {
+                "name": "PostgresManagedAdmission",
+                "line": 33
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/managed_inquiry_worker.py",
+            "lines": 139,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "InquiryNotDispatched",
+                "line": 33
+              },
+              {
+                "name": "_event",
+                "line": 42
+              },
+              {
+                "name": "_code",
+                "line": 53
+              },
+              {
+                "name": "ManagedInquiryWorker",
+                "line": 61
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/migrations.py",
+            "lines": 314,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "MigrationError",
+                "line": 78
+              },
+              {
+                "name": "SchemaVersionError",
+                "line": 84
+              },
+              {
+                "name": "MigrationReport",
+                "line": 91
+              },
+              {
+                "name": "_normalized_sql",
+                "line": 99
+              },
+              {
+                "name": "_check_tables",
+                "line": 109
+              },
+              {
+                "name": "require_schema",
+                "line": 125
+              },
+              {
+                "name": "_valid_identity",
+                "line": 147
+              },
+              {
+                "name": "_reject_constant",
+                "line": 151
+              },
+              {
+                "name": "_unique_fields",
+                "line": 155
+              },
+              {
+                "name": "_validate_legacy",
+                "line": 164
+              },
+              {
+                "name": "_path",
+                "line": 213
+              },
+              {
+                "name": "_backup",
+                "line": 226
+              },
+              {
+                "name": "migrate",
+                "line": 248
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/models.py",
+            "lines": 61,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "BookingChange",
+                "line": 8
+              },
+              {
+                "name": "Task",
+                "line": 41
+              },
+              {
+                "name": "Submission",
+                "line": 51
+              },
+              {
+                "name": "IdempotencyConflict",
+                "line": 56
+              },
+              {
+                "name": "IntakeCapacityExceeded",
+                "line": 60
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/mutation_supplier.py",
+            "lines": 696,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "MutationRejected",
+                "line": 82
+              },
+              {
+                "name": "MutationConflict",
+                "line": 86
+              },
+              {
+                "name": "MutationUnavailable",
+                "line": 90
+              },
+              {
+                "name": "MutationLookupUnsupported",
+                "line": 94
+              },
+              {
+                "name": "MutationCapabilities",
+                "line": 99
+              },
+              {
+                "name": "MutationObservation",
+                "line": 109
+              },
+              {
+                "name": "_event",
+                "line": 114
+              },
+              {
+                "name": "_identity",
+                "line": 129
+              },
+              {
+                "name": "_path",
+                "line": 141
+              },
+              {
+                "name": "_normalized",
+                "line": 150
+              },
+              {
+                "name": "_metadata",
+                "line": 157
+              },
+              {
+                "name": "_schema",
+                "line": 173
+              },
+              {
+                "name": "_stamp",
+                "line": 195
+              },
+              {
+                "name": "_stored_stamp",
+                "line": 201
+              },
+              {
+                "name": "_json",
+                "line": 210
+              },
+              {
+                "name": "_booking",
+                "line": 228
+              },
+              {
+                "name": "_intent",
+                "line": 244
+              },
+              {
+                "name": "_result",
+                "line": 257
+              },
+              {
+                "name": "initialize_mutation_supplier",
+                "line": 276
+              },
+              {
+                "name": "MutationSupplier",
+                "line": 344
+              },
+              {
+                "name": "NonCooperatingMutationSupplier",
+                "line": 593
+              },
+              {
+                "name": "MutationInquiryView",
+                "line": 599
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/mutation_worker.py",
+            "lines": 209,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "protocols, _event, _code, MutationWorker.run_one",
+            "top_level_symbols": [
+              {
+                "name": "WorkerSlotPort",
+                "line": 57
+              },
+              {
+                "name": "MutationExecutionPort",
+                "line": 61
+              },
+              {
+                "name": "MutationSupplierPort",
+                "line": 76
+              },
+              {
+                "name": "_event",
+                "line": 85
+              },
+              {
+                "name": "_code",
+                "line": 96
+              },
+              {
+                "name": "MutationWorker",
+                "line": 104
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/outbox_delivery.py",
+            "lines": 64,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "_event",
+                "line": 16
+              },
+              {
+                "name": "CompletionDeliveryWorker",
+                "line": 23
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_api.py",
+            "lines": 178,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "ManagedCaseClient",
+                "line": 61
+              },
+              {
+                "name": "open_postgres_client",
+                "line": 152
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+            "lines": 803,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "_event, revise, _commit_in_transaction, commit_intent",
+            "top_level_symbols": [
+              {
+                "name": "_event",
+                "line": 57
+              },
+              {
+                "name": "_actor",
+                "line": 64
+              },
+              {
+                "name": "_request",
+                "line": 70
+              },
+              {
+                "name": "PostgresCaseAuthority",
+                "line": 82
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_cli.py",
+            "lines": 174,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "main",
+                "line": 36
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_effects.py",
+            "lines": 1257,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "__init__, claim, _claimed, prepare_dispatch, finish_success, finish_failure, finish_uncertain",
+            "top_level_symbols": [
+              {
+                "name": "_event",
+                "line": 82
+              },
+              {
+                "name": "_one",
+                "line": 89
+              },
+              {
+                "name": "PostgresEffects",
+                "line": 94
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_leases.py",
+            "lines": 311,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "require_worker_lease, limits, acquire_in_transaction, renew, release",
+            "top_level_symbols": [
+              {
+                "name": "_event",
+                "line": 38
+              },
+              {
+                "name": "_table",
+                "line": 45
+              },
+              {
+                "name": "_version",
+                "line": 49
+              },
+              {
+                "name": "_clock",
+                "line": 60
+              },
+              {
+                "name": "_stamp",
+                "line": 69
+              },
+              {
+                "name": "_snapshot",
+                "line": 75
+              },
+              {
+                "name": "_row",
+                "line": 92
+              },
+              {
+                "name": "require_worker_lease",
+                "line": 103
+              },
+              {
+                "name": "PostgresLeases",
+                "line": 146
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_lifecycle.py",
+            "lines": 942,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "_event, claim_due, signal, advance",
+            "top_level_symbols": [
+              {
+                "name": "_now",
+                "line": 62
+              },
+              {
+                "name": "_identity",
+                "line": 66
+              },
+              {
+                "name": "_uuid",
+                "line": 78
+              },
+              {
+                "name": "_canonical",
+                "line": 84
+              },
+              {
+                "name": "_time",
+                "line": 88
+              },
+              {
+                "name": "_event",
+                "line": 97
+              },
+              {
+                "name": "_expect_one",
+                "line": 104
+              },
+              {
+                "name": "_control",
+                "line": 110
+              },
+              {
+                "name": "_wait",
+                "line": 134
+              },
+              {
+                "name": "PostgresLifecycle",
+                "line": 156
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py",
+            "lines": 1529,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "_event only; full catalog and upgrade algorithms not re-audited",
+            "top_level_symbols": [
+              {
+                "name": "_Catalog",
+                "line": 208
+              },
+              {
+                "name": "_catalog",
+                "line": 220
+              },
+              {
+                "name": "_declared_version",
+                "line": 309
+              },
+              {
+                "name": "ImportState",
+                "line": 344
+              },
+              {
+                "name": "ImportReport",
+                "line": 352
+              },
+              {
+                "name": "_event",
+                "line": 362
+              },
+              {
+                "name": "_identifier",
+                "line": 369
+              },
+              {
+                "name": "_normalize_sql",
+                "line": 375
+              },
+              {
+                "name": "_restricted_role",
+                "line": 382
+              },
+              {
+                "name": "_owner",
+                "line": 396
+              },
+              {
+                "name": "_admission_lock",
+                "line": 403
+              },
+              {
+                "name": "_validate_privileges",
+                "line": 407
+              },
+              {
+                "name": "_validate_columns",
+                "line": 454
+              },
+              {
+                "name": "validate_schema",
+                "line": 488
+              },
+              {
+                "name": "install_schema",
+                "line": 697
+              },
+              {
+                "name": "_copy_snapshot",
+                "line": 778
+              },
+              {
+                "name": "_rows",
+                "line": 927
+              },
+              {
+                "name": "_verify",
+                "line": 942
+              },
+              {
+                "name": "stage_import",
+                "line": 966
+              },
+              {
+                "name": "verify_import",
+                "line": 1045
+              },
+              {
+                "name": "activate_import",
+                "line": 1061
+              },
+              {
+                "name": "read_import_state",
+                "line": 1114
+              },
+              {
+                "name": "UpgradeReport",
+                "line": 1138
+              },
+              {
+                "name": "upgrade_v2",
+                "line": 1144
+              },
+              {
+                "name": "upgrade_v3",
+                "line": 1232
+              },
+              {
+                "name": "upgrade_v4",
+                "line": 1329
+              },
+              {
+                "name": "upgrade_v5",
+                "line": 1464
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_schema_v2.py",
+            "lines": 419,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": []
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_schema_v3.py",
+            "lines": 351,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": []
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_schema_v4.py",
+            "lines": 136,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": []
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_schema_v5.py",
+            "lines": 39,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": []
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_settings.py",
+            "lines": 129,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "validate_identifier",
+                "line": 28
+              },
+              {
+                "name": "advisory_keys",
+                "line": 35
+              },
+              {
+                "name": "PostgresSettings",
+                "line": 45
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_store.py",
+            "lines": 586,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "_event, _connection, _require_runtime_role",
+            "top_level_symbols": [
+              {
+                "name": "_now",
+                "line": 41
+              },
+              {
+                "name": "_identity",
+                "line": 45
+              },
+              {
+                "name": "_version",
+                "line": 51
+              },
+              {
+                "name": "_canonical",
+                "line": 57
+              },
+              {
+                "name": "_event",
+                "line": 63
+              },
+              {
+                "name": "PostgresExecutionStore",
+                "line": 74
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_unit_of_work.py",
+            "lines": 38,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "protected_transaction",
+                "line": 20
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/postgres_work.py",
+            "lines": 231,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "claim_next",
+            "top_level_symbols": [
+              {
+                "name": "QueueSnapshot",
+                "line": 32
+              },
+              {
+                "name": "PostgresWorkQueue",
+                "line": 55
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/quote_producer.py",
+            "lines": 232,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "QuoteSupplierPort",
+                "line": 22
+              },
+              {
+                "name": "QuoteReceipt",
+                "line": 29
+              },
+              {
+                "name": "quote_command_ids",
+                "line": 35
+              },
+              {
+                "name": "TrustedQuoteProducer",
+                "line": 51
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/quote_reader.py",
+            "lines": 66,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "ReadOnlyQuoteSupplier",
+                "line": 21
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/receiver_api.py",
+            "lines": 413,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "initialization/catalog/path checks, _ReceiverStore.accept, ResultReceiver API/lifecycle",
+            "top_level_symbols": [
+              {
+                "name": "ReceiverBinding",
+                "line": 49
+              },
+              {
+                "name": "_path",
+                "line": 59
+              },
+              {
+                "name": "_private",
+                "line": 78
+              },
+              {
+                "name": "_normalize",
+                "line": 89
+              },
+              {
+                "name": "_schema",
+                "line": 93
+              },
+              {
+                "name": "initialize_result_receiver",
+                "line": 125
+              },
+              {
+                "name": "_receipt_json",
+                "line": 167
+              },
+              {
+                "name": "_ReceiverStore",
+                "line": 183
+              },
+              {
+                "name": "ResultReceiver",
+                "line": 328
+              },
+              {
+                "name": "open_result_receiver",
+                "line": 403
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_api.py",
+            "lines": 84,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "ResultFeedClient",
+                "line": 31
+              },
+              {
+                "name": "open_result_feed_client",
+                "line": 78
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_models.py",
+            "lines": 138,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "sequence",
+                "line": 16
+              },
+              {
+                "name": "copy_scope",
+                "line": 22
+              },
+              {
+                "name": "ResultFeedCursor",
+                "line": 29
+              },
+              {
+                "name": "copy_cursor",
+                "line": 40
+              },
+              {
+                "name": "ResultFeedEvent",
+                "line": 47
+              },
+              {
+                "name": "ResultFeedPage",
+                "line": 84
+              },
+              {
+                "name": "ResultFeedPort",
+                "line": 128
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/result_feed_store.py",
+            "lines": 179,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "source_id",
+                "line": 16
+              },
+              {
+                "name": "validate_feed_state",
+                "line": 35
+              },
+              {
+                "name": "append_result_event",
+                "line": 61
+              },
+              {
+                "name": "ResultFeedStore",
+                "line": 98
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/retry_policy.py",
+            "lines": 116,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "FailureClass",
+                "line": 9
+              },
+              {
+                "name": "RetryDisposition",
+                "line": 15
+              },
+              {
+                "name": "RetryError",
+                "line": 21
+              },
+              {
+                "name": "instant",
+                "line": 29
+              },
+              {
+                "name": "RetryPolicy",
+                "line": 36
+              },
+              {
+                "name": "parse_policy",
+                "line": 62
+              },
+              {
+                "name": "RetryDecision",
+                "line": 79
+              },
+              {
+                "name": "decide_retry",
+                "line": 85
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/session_grants.py",
+            "lines": 226,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "ConversationGrant, sign_grant, verify_grant envelope/type checks",
+            "top_level_symbols": [
+              {
+                "name": "_reject",
+                "line": 44
+              },
+              {
+                "name": "_key",
+                "line": 48
+              },
+              {
+                "name": "_signature",
+                "line": 54
+              },
+              {
+                "name": "ConversationGrant",
+                "line": 60
+              },
+              {
+                "name": "sign_grant",
+                "line": 120
+              },
+              {
+                "name": "verify_grant",
+                "line": 153
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/source_transfer.py",
+            "lines": 307,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "CutoverError",
+                "line": 27
+              },
+              {
+                "name": "SourceState",
+                "line": 32
+              },
+              {
+                "name": "_source_errors",
+                "line": 41
+              },
+              {
+                "name": "_private_backup",
+                "line": 48
+              },
+              {
+                "name": "_state",
+                "line": 59
+              },
+              {
+                "name": "read_source_state",
+                "line": 85
+              },
+              {
+                "name": "_snapshot",
+                "line": 100
+              },
+              {
+                "name": "source_snapshot",
+                "line": 136
+              },
+              {
+                "name": "prepare_source",
+                "line": 156
+              },
+              {
+                "name": "mark_source_cutover",
+                "line": 249
+              },
+              {
+                "name": "bind_source_target",
+                "line": 275
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/sqlite_admission.py",
+            "lines": 39,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "SourceAdmissionClosed",
+                "line": 20
+              },
+              {
+                "name": "ensure_write_open",
+                "line": 26
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/store.py",
+            "lines": 149,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "TaskStore init, submit, capacity, list and read",
+            "top_level_symbols": [
+              {
+                "name": "TaskStore",
+                "line": 20
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/supplier.py",
+            "lines": 537,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "error hierarchy, InquiryCapabilities, InquirySupplierPort, _event",
+            "top_level_symbols": [
+              {
+                "name": "SupplierRejected",
+                "line": 48
+              },
+              {
+                "name": "SupplierReplayConflict",
+                "line": 54
+              },
+              {
+                "name": "SupplierUnavailable",
+                "line": 60
+              },
+              {
+                "name": "InquiryCapabilities",
+                "line": 67
+              },
+              {
+                "name": "BookingSnapshot",
+                "line": 74
+              },
+              {
+                "name": "InquiryObservation",
+                "line": 82
+              },
+              {
+                "name": "InquirySupplierPort",
+                "line": 88
+              },
+              {
+                "name": "_event",
+                "line": 101
+              },
+              {
+                "name": "_identity",
+                "line": 117
+              },
+              {
+                "name": "_reference",
+                "line": 123
+              },
+              {
+                "name": "_request",
+                "line": 135
+              },
+              {
+                "name": "_database_path",
+                "line": 147
+              },
+              {
+                "name": "_normalized_sql",
+                "line": 158
+              },
+              {
+                "name": "_schema",
+                "line": 166
+              },
+              {
+                "name": "_unique_fields",
+                "line": 187
+              },
+              {
+                "name": "_nonfinite",
+                "line": 196
+              },
+              {
+                "name": "_json_object",
+                "line": 200
+              },
+              {
+                "name": "_booking_row",
+                "line": 209
+              },
+              {
+                "name": "_inquiry_row",
+                "line": 224
+              },
+              {
+                "name": "_validate_data",
+                "line": 258
+              },
+              {
+                "name": "initialize_supplier",
+                "line": 265
+              },
+              {
+                "name": "FakeSupplier",
+                "line": 325
+              },
+              {
+                "name": "_Parser",
+                "line": 457
+              },
+              {
+                "name": "main",
+                "line": 462
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/testing.py",
+            "lines": 23,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": []
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/tracing.py",
+            "lines": 412,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "_event",
+                "line": 104
+              },
+              {
+                "name": "TraceSettings",
+                "line": 112
+              },
+              {
+                "name": "safe_attributes",
+                "line": 157
+              },
+              {
+                "name": "clean_context",
+                "line": 181
+              },
+              {
+                "name": "sanitized_span",
+                "line": 189
+              },
+              {
+                "name": "LocalHTTPSpanExporter",
+                "line": 215
+              },
+              {
+                "name": "BoundedTraceProcessor",
+                "line": 264
+              },
+              {
+                "name": "TraceRuntime",
+                "line": 359
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/transfer.py",
+            "lines": 103,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "snapshot_digest",
+                "line": 32
+              },
+              {
+                "name": "TransferSnapshot",
+                "line": 65
+              },
+              {
+                "name": "make_snapshot",
+                "line": 73
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/work_admin.py",
+            "lines": 413,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "install_work_schema",
+                "line": 47
+              },
+              {
+                "name": "upgrade_work_schema_v2",
+                "line": 120
+              },
+              {
+                "name": "upgrade_work_schema_v3",
+                "line": 210
+              },
+              {
+                "name": "upgrade_work_schema_v4",
+                "line": 297
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/work_api.py",
+            "lines": 132,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "WorkClient",
+                "line": 51
+              },
+              {
+                "name": "open_work_client",
+                "line": 115
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/work_models.py",
+            "lines": 236,
+            "depth": "full module read",
+            "symbols_reviewed": "entire module",
+            "top_level_symbols": [
+              {
+                "name": "WorkError",
+                "line": 52
+              },
+              {
+                "name": "work_identifier",
+                "line": 60
+              },
+              {
+                "name": "work_uuid",
+                "line": 70
+              },
+              {
+                "name": "work_milliseconds",
+                "line": 82
+              },
+              {
+                "name": "WorkScope",
+                "line": 89
+              },
+              {
+                "name": "WorkPayload",
+                "line": 99
+              },
+              {
+                "name": "WorkLimits",
+                "line": 118
+              },
+              {
+                "name": "WorkPrincipal",
+                "line": 129
+              },
+              {
+                "name": "WorkDirectory",
+                "line": 140
+              },
+              {
+                "name": "WorkRecord",
+                "line": 177
+              },
+              {
+                "name": "WorkSubmission",
+                "line": 201
+              },
+              {
+                "name": "WorkCancellation",
+                "line": 211
+              },
+              {
+                "name": "TaskExecutionPort",
+                "line": 227
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/work_schema.py",
+            "lines": 390,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "v1-v4 DDL constraints and foreign keys",
+            "top_level_symbols": [
+              {
+                "name": "check_settings",
+                "line": 79
+              },
+              {
+                "name": "require_role",
+                "line": 89
+              },
+              {
+                "name": "_metadata_preflight",
+                "line": 120
+              },
+              {
+                "name": "_safe_grants",
+                "line": 204
+              },
+              {
+                "name": "catalog_sha256",
+                "line": 271
+              },
+              {
+                "name": "validate_work_schema",
+                "line": 286
+              },
+              {
+                "name": "work_schema_version",
+                "line": 363
+              },
+              {
+                "name": "execution_limits",
+                "line": 378
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/work_store.py",
+            "lines": 298,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "_write, submit, find, get, cancel",
+            "top_level_symbols": [
+              {
+                "name": "_event",
+                "line": 35
+              },
+              {
+                "name": "WorkStore",
+                "line": 47
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/worker_cli.py",
+            "lines": 541,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "_safe_code",
+                "line": 53
+              },
+              {
+                "name": "_path",
+                "line": 61
+              },
+              {
+                "name": "WorkerSettings",
+                "line": 71
+              },
+              {
+                "name": "WorkerHealth",
+                "line": 135
+              },
+              {
+                "name": "_supplier",
+                "line": 235
+              },
+              {
+                "name": "_execute_step",
+                "line": 242
+              },
+              {
+                "name": "_step",
+                "line": 299
+              },
+              {
+                "name": "_child_environment",
+                "line": 345
+              },
+              {
+                "name": "_run",
+                "line": 377
+              },
+              {
+                "name": "_initialize",
+                "line": 471
+              },
+              {
+                "name": "main",
+                "line": 495
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/worker_lock.py",
+            "lines": 52,
+            "depth": "AST/symbol inventory only in this pass",
+            "symbols_reviewed": "",
+            "top_level_symbols": [
+              {
+                "name": "WorkerBusy",
+                "line": 14
+              },
+              {
+                "name": "WorkerLockUnavailable",
+                "line": 20
+              },
+              {
+                "name": "sqlite_worker_lock",
+                "line": 25
+              }
+            ]
+          },
+          {
+            "path": "projects/agent-continuity/python/src/continuity_lab/worker_runtime.py",
+            "lines": 750,
+            "depth": "selected bodies read",
+            "symbols_reviewed": "ProcessStepChild init/kill/poll/drain/reap/close; WorkerRuntime _owned_step/run_once/run",
+            "top_level_symbols": [
+              {
+                "name": "WorkerRuntimeError",
+                "line": 47
+              },
+              {
+                "name": "WorkerOutputLimit",
+                "line": 51
+              },
+              {
+                "name": "WorkerCleanupIncomplete",
+                "line": 55
+              },
+              {
+                "name": "StepOutcome",
+                "line": 59
+              },
+              {
+                "name": "_duration",
+                "line": 66
+              },
+              {
+                "name": "RuntimePolicy",
+                "line": 79
+              },
+              {
+                "name": "StepResult",
+                "line": 103
+              },
+              {
+                "name": "WorkQueuePort",
+                "line": 110
+              },
+              {
+                "name": "StepChildPort",
+                "line": 117
+              },
+              {
+                "name": "StepLauncherPort",
+                "line": 124
+              },
+              {
+                "name": "encode_work_claim",
+                "line": 128
+              },
+              {
+                "name": "parse_work_claim",
+                "line": 149
+              },
+              {
+                "name": "_event",
+                "line": 195
+              },
+              {
+                "name": "WorkerTelemetry",
+                "line": 206
+              },
+              {
+                "name": "ProcessStepChild",
+                "line": 315
+              },
+              {
+                "name": "ProcessStepLauncher",
+                "line": 503
+              },
+              {
+                "name": "WorkerRuntime",
+                "line": 526
+              }
+            ]
+          }
+        ],
+        "examples_read": [
+          "projects/agent-continuity/examples/inquiry_consumer.py",
+          "projects/agent-continuity/examples/resource_consumer.py",
+          "projects/agent-continuity/examples/postgres_consumer.py"
+        ],
+        "example_limits": "All three read, none run. PostgreSQL example intentionally tests controlled startup refusal, not positive database persistence. Installed-only examples reject checkout import paths.",
+        "service_boundary": "P1 postgres_api/case_control_api/conversation_service/conversation_composition reviewed. Root owns application service implementations.",
+        "tests_bodies_read": [
+          "tests/test_async_execution.py:1-210",
+          "projects/agent-continuity/tests/test_work_public.py:1-147",
+          "tests/test_inquiry_worker.py:selected existing tests and all new tests",
+          "tests/postgres/pg_effect_cases.py:292-405",
+          "tests/postgres/pg_lease_cases.py:443-493",
+          "tests/postgres/pg_issued_execution_cases.py:214-263,551-599",
+          "tests/postgres/pg_upgrade_v5_cases.py:328-390",
+          "tests/postgres/pg_coordination_cases.py:255-277",
+          "tests/test_worker_runtime.py:526-550",
+          "tests/postgres/pg_readonly_work_cases.py:88-118,219-247"
+        ]
+      },
+      "documents_read": [
+        "AGENTS.md",
+        "README.md",
+        "docs/portfolio-scope.md",
+        "docs/projects/agent-continuity-scope.md",
+        "Design.md (P1 authority/lease sections)",
+        "projects/agent-continuity/AGENTS.md",
+        "projects/agent-continuity/README.md",
+        "projects/agent-continuity/Design.md (component/state/lease/work profiles)",
+        "projects/agent-continuity/python/README.md",
+        "docs/build-plan.md (P1 phases)",
+        "docs/technology-baseline.md",
+        "docs/validation-plan.md (engineering/evidence/P1 lease gates)",
+        "harness/README.md (commands/outcome semantics)",
+        "docs/implementation-plan.md (authority/status)",
+        "docs/implementation/p1-agent-continuity.md (status/phases)",
+        "docs/observability.md (signal rules)",
+        "docs/demo-plan.md (status and scope)",
+        "docs/python-engineering.md",
+        "docs/case-and-continuation.md",
+        "docs/effects-and-completion.md",
+        "docs/leases-and-workers.md",
+        "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+        "docs/documentation-standards.md"
+      ],
+      "validation": {
+        "executed": [
+          {
+            "command": "/Users/rostwal/Downloads/livekit-poc/.venv/bin/python -m unittest tests.test_async_execution tests.test_mutation_contracts tests.test_leases projects.agent-continuity.tests.test_work_public projects.agent-continuity.tests.test_guarded_action_public projects.agent-continuity.tests.test_result_feed_public",
+            "result": "passed",
+            "tests": 44,
+            "seconds": 0.207,
+            "mode": "bounded offline existing tests, before patch"
+          },
+          {
+            "command": "/Users/rostwal/Downloads/livekit-poc/.venv/bin/python -m unittest tests.test_inquiry_worker",
+            "result": "passed",
+            "tests": 19,
+            "seconds": 0.391,
+            "mode": "final bounded offline module, four new regressions"
+          },
+          {
+            "command": "Ruff check eight changed P1 modules plus tests/test_inquiry_worker.py",
+            "result": "passed"
+          },
+          {
+            "command": "harness.documentation_check.check_file with real manifest, two assigned guide paths",
+            "result": "zero violations in both"
+          },
+          {
+            "command": "git diff --check -- projects/agent-continuity tests/test_inquiry_worker.py docs/conversation-and-showcase.md docs/effects-and-completion.md",
+            "result": "passed after final source/docs edits"
+          },
+          {
+            "command": "Compare both assigned guide bodies from ## Overview onward against git show HEAD:<path>",
+            "result": "both technical bodies byte-identical"
+          }
+        ],
+        "not_run": [
+          "PostgreSQL, migrations and actual independent-process supplier recovery lanes",
+          "Docker/deploy/reset",
+          "Browser/media/provider or local_real gates",
+          "Built-wheel isolated consumers",
+          "Full fast by this agent"
+        ],
+        "root_validation": "Root owns serial full fast/code lanes. Shared fast currently stops at pre-existing documentation-standard violations; do not call it passed. Docker unavailable means no fresh PostgreSQL/media gate."
+      },
+      "changes": {
+        "source": [
+          "projects/agent-continuity/python/src/continuity_lab/execution.py",
+          "projects/agent-continuity/python/src/continuity_lab/inquiry_worker.py",
+          "projects/agent-continuity/python/src/continuity_lab/managed_inquiry_worker.py",
+          "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+          "projects/agent-continuity/python/src/continuity_lab/postgres_lifecycle.py",
+          "projects/agent-continuity/python/src/continuity_lab/postgres_store.py",
+          "projects/agent-continuity/python/src/continuity_lab/supplier.py",
+          "projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py"
+        ],
+        "tests": [
+          "tests/test_inquiry_worker.py"
+        ],
+        "docs": [
+          "docs/conversation-and-showcase.md",
+          "docs/effects-and-completion.md"
+        ],
+        "docs_scope": "Only legacy Status and Last reviewed metadata replaced by mandated six-row document cards. Technical bodies, links and history untouched.",
+        "no_change_to": [
+          "SQL/schema behavior",
+          "consent/effect/lease/retry logic",
+          "SDK/provider versions",
+          "public method signatures"
+        ],
+        "source_frozen": true
+      },
+      "untouched_or_unverified": [
+        "Inventory-only modules were not semantically re-audited in this pass; do not read the file count as exhaustive review.",
+        "Most complete schema catalog, owner upgrade/cutover, CLI and legacy codec algorithms were inventoried or read selectively.",
+        "Known 0048/P1-A2 remains open and needs separate paced-reconciliation design.",
+        "No fresh full PostgreSQL pass; historical targeted reruns are not equivalent.",
+        "v5 provider P1-20 requalification remains partial in current docs; local_real and physical microphone quality remain unqualified.",
+        "No production capacity or exactly-once physical external-call guarantee follows from this audit."
+      ],
+      "assistance": "Source review, regression design and patch assisted by Codex subagent; no user authorship/history inferred."
+    },
+    "p2": {
+      "area": "P2 Channel Continuity",
+      "date": "2026-11-19",
+      "baseline": {
+        "git_commit": "6cec82f6718cf5f9319976196d2cfd449c2b0048",
+        "livekit_agents": "1.8.11",
+        "livekit_rtc": "1.2.0",
+        "proof_mode": "Source and selected full test-body review, pinned installed SDK inspection, bounded offline genuine-SDK tests; no new PostgreSQL, browser, provider, migration, deployment or load qualification."
+      },
+      "summary": {
+        "verified_new_material_findings": 1,
+        "fixed_with_authorization": 1,
+        "unfixed_confirmed_new_material_findings": 0,
+        "followup_review_items": 1,
+        "result": "Contained native close-retry defect fixed; selected SDK tests pass. Preserve separate full media/storage/release gates."
+      },
+      "instructions_and_design": {
+        "read_or_revisited": [
+          "AGENTS.md",
+          "README.md",
+          "docs/portfolio-scope.md",
+          "docs/projects/channel-continuity-scope.md",
+          "Design.md",
+          "projects/channel-continuity/AGENTS.md",
+          "projects/channel-continuity/Design.md",
+          "docs/build-plan.md",
+          "docs/technology-baseline.md",
+          "docs/validation-plan.md",
+          "harness/README.md",
+          "docs/observability.md",
+          "docs/demo-plan.md",
+          "docs/python-engineering.md",
+          "projects/channel-continuity/COMMUNICATION.md",
+          "projects/channel-continuity/REHYDRATION.md",
+          "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+          "docs/work-items/0049-academy-and-sdk-code-alignment-audit.md"
+        ],
+        "extent": "Repository and area instructions plus relevant P2/native/current-authority/checkpoint sections; long shared documents are scoped reading, not a claim of fresh line-by-line re-audit of every project section.",
+        "boundaries": "P2 owns channel acceptance and observations; P1 remains business authority. Root reviews joined services/frontend. Academy examples do not authorize a new feature, secret access, provider invocation or consent shortcut."
+      },
+      "findings": [
+        {
+          "id": "AC-P2-01",
+          "severity": "medium",
+          "status": "fixed",
+          "confidence": "high",
+          "title": "A failed native runtime close permanently blocked public cleanup retry",
+          "mechanism": "_start_owned_close previously returned whenever _close_task existed, including a definitively failed task. If session.aclose raised once, _close_owned drained independent owners and raised NativeCleanupIncomplete, but every later public aclose only observed the cached failure. The application could not retry the retained SDK resource through the public lifecycle API.",
+          "evidence": [
+            {
+              "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+              "line": 295,
+              "claim": "Owned-close task sharing and failed-task retry decision."
+            },
+            {
+              "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+              "line": 1214,
+              "claim": "Public close fences admission and shields the actual owned close task."
+            },
+            {
+              "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+              "line": 1264,
+              "claim": "SDK close failure is sanitized while independent cleanup continues."
+            },
+            {
+              "path": "projects/channel-continuity/tests/test_native_sdk.py",
+              "line": 549,
+              "claim": "Existing close-failure regression formerly required private _close_task=None repair; now exercises public retry."
+            }
+          ],
+          "reproducible_schedule": [
+            "Start the genuine pinned AgentSession with synthetic local STT/LLM/TTS and hold an intake plus observer.",
+            "Inject one session.aclose exception; release independent work and observe sanitized NativeCleanupIncomplete with sdk_closed false.",
+            "Restore the SDK close implementation and call public runtime.aclose. Before the fix the SDK close is never entered; a bounded regression fails waiting for that entry.",
+            "After the fix, hold the new SDK close, start a second public close waiter, cancel the first waiter, and verify only one actual retry remains owned. Release it and observe sdk_closed true and successful subsequent close."
+          ],
+          "test_weakness_corrected": "The old assertion proved independent drains and safe diagnostics but repaired a private field in teardown, masking lack of public retry. The replacement checks retry entry, concurrent sharing, continued admission fencing, cancellation of one waiter without cancellation of the actual owner, eventual SDK closure and reuse of successful close.",
+          "change": "Only a definitively failed/cancelled cached task may be replaced. Pending and successful close tasks remain shared; the new task still uses eager_start=False and public waiters remain shielded.",
+          "limitations": "The regression injects a transient exception before genuine SDK closure and proves retry ownership. It does not certify recovery from every possible internal SDK failure or browser transport failure."
+        }
+      ],
+      "followup_review_items": [
+        {
+          "id": "AC-P2-OBS-01",
+          "classification": "source-observed API lifecycle question; not promoted to a confirmed material defect",
+          "title": "Response-view reads do not explicitly stop at runtime close",
+          "evidence": [
+            {
+              "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+              "line": 469,
+              "claim": "communication_view delegates when capture is configured without its own _closed check."
+            },
+            {
+              "path": "projects/channel-continuity/python/src/channel_continuity/native_capture.py",
+              "line": 617,
+              "claim": "Manager view validates retained response membership then starts a publication without checking closed."
+            },
+            {
+              "path": "projects/channel-continuity/python/src/channel_continuity/native_capture.py",
+              "line": 630,
+              "claim": "Manager aclose stops and drains current publications/reports."
+            }
+          ],
+          "possible_schedule": "An application calls communication_view after runtime.aclose has completed while its separately owned communication port is still open; the retained response can initiate another read. This could race the application closing that port.",
+          "why_not_promoted": "No end-to-end reproduction or explicit documented post-close read contract was completed in this pass. Application wrappers may already fence the method. This read does not itself grant business authority or create durable accepted work.",
+          "recommended_next_step": "Clarify whether post-close evidence reads are deliberately supported. Otherwise add closed admission at the public read boundary and a narrow test proving no port invocation after close."
+        }
+      ],
+      "coverage": [
+        {
+          "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+          "symbols": [
+            "_NativeAgent.llm_node",
+            "_NativeAgent.tts_node",
+            "_NativeAgent.on_user_turn_completed",
+            "NativeRuntime.__init__",
+            "start",
+            "start_turn",
+            "commit_turn",
+            "_voice_completed",
+            "_read_text",
+            "_accept",
+            "prepare",
+            "_observe_reply",
+            "refresh_context",
+            "_session_closed",
+            "_start_owned_close",
+            "_close_owned"
+          ],
+          "review_scope": "Entire file read in numbered ranges.",
+          "assessment": "Actual public SDK calls match pinned 1.8.11. Manual turn/preemptive settings, text_input=False, session_host=False and StopResponse prevent competing automatic generation. Final recognition identity is snapshotted before intake awaits. Prepare/acceptance/generation/playout remain distinct.",
+          "test_bodies_read": [
+            "test_native_sdk.py:175-241",
+            "test_native_sdk.py:264-422",
+            "test_native_sdk.py:453-625"
+          ]
+        },
+        {
+          "path": "projects/channel-continuity/python/src/channel_continuity/native_capture.py",
+          "symbols": [
+            "CaptureTicket",
+            "_StreamingNode",
+            "NativeCaptureManager.allocate",
+            "invoke",
+            "node",
+            "tts",
+            "publish_anchor",
+            "generated",
+            "drain",
+            "settled",
+            "abort",
+            "playback",
+            "view",
+            "aclose"
+          ],
+          "review_scope": "Entire file read.",
+          "assessment": "Public-handle/context capture, queue-two backpressure, byte/chunk/task limits and normal-exhaustion provenance are implemented. Actual node and producer ownership survives a finished/interrupted handle; browser reports stay separate.",
+          "test_bodies_read": [
+            "test_native_capture.py:245-311",
+            "test_native_capture.py:346-450",
+            "test_native_capture.py:546-709"
+          ]
+        },
+        {
+          "path": "projects/channel-continuity/python/src/channel_continuity/native_http.py",
+          "symbols": [
+            "NativeHttpIntake.accept",
+            "_exchange",
+            "aclose"
+          ],
+          "review_scope": "Entire file read.",
+          "assessment": "Two actual shielded HTTP calls, closed framing, original acknowledgement binding and unknown outcomes after malformed/lost replies. Socket closure is observed; waiter cancellation does not release actual capacity.",
+          "test_bodies_read": [
+            "test_native_http.py:91-193 (test inventory and targeted relevant assertions reviewed in earlier P2 audit; not rerun here)"
+          ]
+        },
+        {
+          "path": "projects/channel-continuity/python/src/channel_continuity/native_rehydration.py",
+          "symbols": [
+            "RehydrationContext",
+            "context_from",
+            "_response",
+            "_reply"
+          ],
+          "review_scope": "Selected model validation and public context contract.",
+          "assessment": "Detached canonical context, source/scope binding, as-of facts, whole-record bounds and history-versus-current authorization remain explicit. Native revision zero remains read-only.",
+          "test_bodies_read": [
+            "test_native_rehydration.py test inventory reviewed; actual source-level runtime flow traced in native.py"
+          ]
+        },
+        {
+          "path": "projects/channel-continuity/examples/native_scripted.py",
+          "symbols": [
+            "ScriptedModel",
+            "ScriptedRecognizer",
+            "_RecognizerStream._run",
+            "ScriptedVoice"
+          ],
+          "review_scope": "Recognizer and model implementation read through first 255 lines; voice declaration reviewed.",
+          "assessment": "Original source-turn ID is frozen before delays; genuine final snapshots are retained only while that original turn remains open. Fixed audio/text fixtures are not general ASR/model-quality evidence.",
+          "test_bodies_read": []
+        },
+        {
+          "path": "projects/channel-continuity/examples/native_lab.py",
+          "symbols": [
+            "LabHttp",
+            "wait_for_bound_participant",
+            "serve"
+          ],
+          "review_scope": "Lifecycle/symbol map and startup/cleanup contract; not full fresh line-by-line audit.",
+          "assessment": "Explicit local example owns HTTP/RTC/provider objects separately from runtime. Actual media qualification is outside this offline pass.",
+          "test_bodies_read": []
+        },
+        {
+          "path": "projects/channel-continuity/examples/rehydration_lab.py",
+          "symbols": [
+            "NativeSession",
+            "RehydrationApplication"
+          ],
+          "review_scope": "Lifecycle/symbol map and public prepare/refresh/response composition.",
+          "assessment": "Current-case read profile is distinct from new durable intake; example wrapper scope remains separate from runtime API lifecycle observation.",
+          "test_bodies_read": []
+        },
+        {
+          "path": "projects/channel-continuity/src/native-store.ts",
+          "symbols": [
+            "retainedBinding",
+            "currentBearer",
+            "accept",
+            "binding"
+          ],
+          "review_scope": "Current-grant expiry, immutable native acceptance and original binding ranges.",
+          "assessment": "Fresh database time follows binding locks. Current authority precedes new acceptance; replay preserves original receipt/key. Historical access is not new execution permission.",
+          "test_bodies_read": [
+            "native-store.test.ts entire file"
+          ]
+        },
+        {
+          "path": "projects/channel-continuity/src/postgres.ts",
+          "symbols": [
+            "rejectForged",
+            "ChannelInbox.acceptNative",
+            "acceptSms",
+            "transaction lifecycle"
+          ],
+          "review_scope": "Selected authentication/admission/rollback entry points.",
+          "assessment": "Forged raw webhook bytes are rejected before connection/admission; freshness is enforced again with database time. Clean rollback permits reuse; unknown commit or failed rollback retires connection.",
+          "test_bodies_read": [
+            "inbox-admission.test.ts:89-167"
+          ]
+        },
+        {
+          "path": "projects/channel-continuity/src/dispatch.ts",
+          "symbols": [
+            "ChannelDispatcher.#start",
+            "#run",
+            "close",
+            "#close"
+          ],
+          "review_scope": "Entire dispatch driver core and close ranges.",
+          "assessment": "Prepare is separate from stable operation acceptance. Lookup-first/original-key reconciliation preserves unknown outcomes. External calls stay outside SQL and local leases cannot fence remote work.",
+          "test_bodies_read": []
+        },
+        {
+          "path": "projects/channel-continuity/src/gateway.ts",
+          "symbols": [
+            "#nudge",
+            "#pause",
+            "#drive"
+          ],
+          "review_scope": "Full polling/backoff loop and lifecycle symbol map.",
+          "assessment": "Existing persisted work is polled with bounded account rotation; only useful dispatch or local intake resets idle backoff. Automatic eligibility of parked uncertainty remains the prior 0048 concern/fix.",
+          "test_bodies_read": []
+        },
+        {
+          "path": "projects/channel-continuity/src/routing.ts",
+          "symbols": [
+            "RevisionRouter.route",
+            "possible-write error mapping"
+          ],
+          "review_scope": "Retained-message derivation, command validation, CAS call and unknown outcome core.",
+          "assessment": "Strict original investigation revision routes to one authority. No automatic rebase or lost-ACK winner inference; current association is intentionally not supplied by ordinary retained history.",
+          "test_bodies_read": [
+            "routing.test.ts:205-284"
+          ]
+        },
+        {
+          "path": "projects/channel-continuity/src/confirmation.ts",
+          "symbols": [
+            "ConfirmationRouter.confirm"
+          ],
+          "review_scope": "Original-input fingerprint, immutable prompt lookup, late eligibility and exact confirmation core.",
+          "assessment": "Original command/opaque quote survive explicit replay. Late current association preflight denies known revocation but is not a cross-store atomic fence.",
+          "test_bodies_read": [
+            "confirmation.test.ts:256-290",
+            "confirmation.test.ts:356-393"
+          ]
+        },
+        {
+          "path": "projects/channel-continuity/src/confirmation-http.ts",
+          "symbols": [
+            "confirm",
+            "#decode"
+          ],
+          "review_scope": "Public exact-confirmation transport method and response decoder.",
+          "assessment": "One exact authority call; malformed/lost possible commitment stays unknown. No model tool or read-then-write consent shortcut.",
+          "test_bodies_read": []
+        },
+        {
+          "path": "projects/channel-continuity/src/callbacks.ts",
+          "symbols": [
+            "accept"
+          ],
+          "review_scope": "Raw-copy and strict header intake entry.",
+          "assessment": "Raw authentication remains distinct from canonical semantic replay identity.",
+          "test_bodies_read": [
+            "callbacks.test.ts:211-266"
+          ]
+        },
+        {
+          "path": "projects/channel-continuity/src/callback-store.ts",
+          "symbols": [
+            "accept",
+            "#accept"
+          ],
+          "review_scope": "Authentication-before-SQL, fresh timestamp, immutable attempt/key/digest binding and replay/growth core.",
+          "assessment": "Authenticated canonical replay returns original receipt; changed semantics conflict. Original raw bytes are retained. Callback evidence cannot grant resend or retarget ownership.",
+          "test_bodies_read": []
+        },
+        {
+          "path": "projects/channel-continuity/src/outbox-store.ts",
+          "symbols": [
+            "#priorOperationVeto",
+            "reserve",
+            "recordResult"
+          ],
+          "review_scope": "All-prior operation/callback veto and current route admission through immutable result record core.",
+          "assessment": "New reservation checks bounded prior evidence and current route/suppression. Reservation commits before carrier I/O. Historical result recording remains distinct from ordinary admission.",
+          "test_bodies_read": [
+            "outbox.test.ts:214-251"
+          ]
+        },
+        {
+          "path": "projects/channel-continuity/src/send-policy-store.ts",
+          "symbols": [
+            "admissionFor",
+            "state"
+          ],
+          "review_scope": "Symbol map and bounded operation/witness contract; no fresh complete-file audit.",
+          "assessment": "Ordinary ambiguous sends hold. Explicit idempotent recovery is a capability of the cooperating fake; original recovery-command replay performs no carrier call.",
+          "test_bodies_read": [
+            "send-policy.test.ts:229-250"
+          ]
+        },
+        {
+          "path": "projects/channel-continuity/src/rehydration-store.ts",
+          "symbols": [
+            "authorize",
+            "disclose"
+          ],
+          "review_scope": "Native/SMS original source authorization and final disclosure guards.",
+          "assessment": "One coherent P2 read plus external public-case read plus a fresh protected disclosure check; sources remain non-atomic.",
+          "test_bodies_read": [
+            "rehydration-transaction.test.ts:191-230"
+          ]
+        },
+        {
+          "path": "projects/channel-continuity/src/rehydration.ts",
+          "symbols": [
+            "#run"
+          ],
+          "review_scope": "Facade ownership, snapshot/case/disclose sequence and safe outcome core.",
+          "assessment": "Actual work slots survive timed-out waiters, final permission runs after the external read, and no read creates input or business work.",
+          "test_bodies_read": []
+        }
+      ],
+      "academy_comparison": {
+        "cached_material_examined": [
+          "output/academy-review/p2-course-review.json",
+          "output/academy-review/snapshots/courses__your-first-frontend__text-input.txt",
+          "output/academy-review/snapshots/courses__your-first-frontend__rpc-data-channels.txt",
+          "output/academy-review/snapshots/courses__pipeline-nodes__user-turn-completed.txt",
+          "output/academy-review/snapshots/courses__pipeline-nodes__llm-node.txt"
+        ],
+        "extent": "Relevant public text/code passages and retained course review, not a claim of completing video lessons or all Academy exercises during this code pass.",
+        "intentional_divergences": [
+          {
+            "topic": "Text input",
+            "assessment": "P2 deliberately replaces automatic lk.chat consumption with authenticated bounded intake and durable dispatch. Tutorial direct-to-LLM flow is appropriate for a transient conversation but cannot replace this selected persist-before-generation contract."
+          },
+          {
+            "topic": "Turn hook",
+            "assessment": "Pinned hook takes ChatContext and new ChatMessage. Its default body is a no-op; omitting an alleged Agent.default hook call does not block automatic generation. P2 correctly raises StopResponse and has a positive-control real SDK test."
+          },
+          {
+            "topic": "RPC",
+            "assessment": "P2 registers Python methods on room.local_participant and checks caller_identity against the trusted binding. An SDK event handler or request body label is not an authorization or durable business receipt."
+          },
+          {
+            "topic": "LLM streaming",
+            "assessment": "P2 uses the supported full llm_node signature and typed ChoiceDelta content. It preserves streaming with bounds rather than buffering arbitrary model JSON or treating model fields as mutation authority."
+          },
+          {
+            "topic": "Interruption",
+            "assessment": "Push-to-talk/manual turn control is intentional. It does not claim adaptive VAD/barge-in tuning. An interruption request, SDK settlement, generated text and browser playback remain distinct facts."
+          },
+          {
+            "topic": "Deferred curriculum",
+            "assessment": "SIP, warm transfers, avatars, robotics and vector RAG are not P2 V1 requirements. No absent Academy feature is labelled a defect or silently added."
+          }
+        ]
+      },
+      "primary_sources": [
+        {
+          "title": "Pinned LiveKit Agents 1.8.11 installed agent.py",
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+          "lines": [
+            344,
+            354
+          ],
+          "purpose": "Actual hook signature and default behavior."
+        },
+        {
+          "title": "Pinned AgentSession API",
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/agent_session.py",
+          "lines": [
+            924,
+            1632,
+            1702,
+            1775
+          ],
+          "purpose": "session_host, generate_reply, interrupt and commit_user_turn contracts."
+        },
+        {
+          "title": "Pinned public SpeechHandle",
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/speech_handle.py",
+          "lines": [
+            183,
+            201,
+            229
+          ],
+          "purpose": "Public exception/interruption/playout methods."
+        },
+        {
+          "title": "Official turns overview",
+          "url": "https://docs.livekit.io/agents/logic/turns/",
+          "purpose": "Manual control is a supported choice for explicit turn boundaries; current guidance is not substituted for pinned API signatures."
+        },
+        {
+          "title": "Official text and transcriptions",
+          "url": "https://docs.livekit.io/agents/multimodality/text/",
+          "purpose": "Text input, synchronized transcription and conversation events are transport/conversation facilities, not durable business authority."
+        },
+        {
+          "title": "Official RPC",
+          "url": "https://docs.livekit.io/transport/data/rpc/",
+          "purpose": "Python local_participant registration and caller data; application authorization remains its own responsibility."
+        }
+      ],
+      "validation": [
+        {
+          "command": ".venv/bin/python -m unittest discover -s projects/channel-continuity/tests -p test_native_sdk.py -v",
+          "phase": "before regression change",
+          "result": "passed",
+          "tests": 18,
+          "seconds": 4.349
+        },
+        {
+          "command": ".venv/bin/python -m unittest discover -s projects/channel-continuity/tests -p test_native_sdk.py -k test_sdk_close_failure_still_drains_independent_intake_and_observer -v",
+          "phase": "new regression before source fix",
+          "result": "failed as expected",
+          "tests": 1,
+          "seconds": 1.046,
+          "detail": "Retry never entered recovered SDK close; TimeoutError plus retained close cleanup error."
+        },
+        {
+          "command": ".venv/bin/python -m unittest discover -s projects/channel-continuity/tests -p test_native_sdk.py -v",
+          "phase": "after source fix",
+          "result": "passed",
+          "tests": 18,
+          "seconds": 4.379
+        },
+        {
+          "command": ".venv/bin/ruff check projects/channel-continuity/python/src/channel_continuity/native.py projects/channel-continuity/tests/test_native_sdk.py",
+          "result": "passed"
+        },
+        {
+          "command": ".venv/bin/ruff format --check projects/channel-continuity/python/src/channel_continuity/native.py projects/channel-continuity/tests/test_native_sdk.py",
+          "result": "passed; two files already formatted"
+        }
+      ],
+      "changed_files": [
+        {
+          "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+          "sha256": "39e5a840ac4c269f00443445a14adcf82fdde3736dfc386f3e19010401b6095c"
+        },
+        {
+          "path": "projects/channel-continuity/tests/test_native_sdk.py",
+          "sha256": "d8981150b2452ddc8c66e39c01d0be24d6e0de111c8d29742096b020695f5c1b"
+        }
+      ],
+      "known_limits_and_not_rerun": [
+        "Actual PostgreSQL, process-restart, browser/playback, isolated installed artifacts, providers and workloads were not rerun in this P2 pass; Docker is unavailable per coordinator. Historical selected qualifications are not extended by the offline tests.",
+        "Root coordinates broader TypeScript/shared fast validation serially; its final results belong in the aggregate report.",
+        "Existing GW-A7: commit_turn can report no_audio while genuine acceptance remains unresolved; acceptance topic/receipt remains separate. This was already recorded in 0048 and is not repaired here.",
+        "Existing root README exactly-once dispatch wording is stronger than repeated dispatch attempts plus one cooperating logical acceptance; reported to root without editing root-owned prose.",
+        "All complete P2 charter/release gates remain separately pending. No production, physical delivery, human hearing, fairness, general ASR or model-quality claim follows.",
+        "Selected source ranges and representative tests are recorded explicitly; untouched schema/migration, full fake-carrier, process-worker, operations/starter and installed-package surfaces were not fully re-audited line by line in this pass."
+      ]
+    },
+    "p3": {
+      "schema_version": 1,
+      "area": "P3 delegation reliability",
+      "reviewed_at": "2026-11-19",
+      "repository": "/Users/rostwal/Downloads/livekit-poc",
+      "status": "Approved native capacity repair implemented and focused checks passed; specialist 188/188 passed under verified pinned Node; one diagnostic limitation remains; actual PG/media qualification not rerun.",
+      "scope": {
+        "requested": "Compare the actual P3 native baseline, durable native application, HTTP specialist and durable result/delivery/action ownership against cached Academy material, installed SDK 1.8.11 and current official documentation.",
+        "execution": "Read-only source/test-body review except the two explicitly approved native-policy files. Bounded offline native tests and lint were run. A single failing standalone child was reproduced without accepting a listener.",
+        "not_claimed": [
+          "This is not a complete reread or requalification of every P3 image, projection, processing, refresh, workload, process or PG lane.",
+          "No providers, paid models, private key values, deployment, Docker start/reset, DDL or schema migration were used.",
+          "Existing frozen work-item results are historical evidence, not newly passing gates.",
+          "The public P1 authority and specialist used by focused native tests are in-memory test ports; real coordinator, runner and pinned SDK objects are used where named."
+        ]
+      },
+      "findings": [
+        {
+          "id": "P3-ACADEMY-01",
+          "priority": "medium",
+          "status": "fixed_with_root_authorization",
+          "title": "A definite pre-admission capacity rejection permanently consumed the configured native attempt",
+          "locations": [
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/native_policy.py",
+              "start": 523,
+              "end": 546
+            },
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+              "start": 487,
+              "end": 500
+            }
+          ],
+          "observed_failure": "evaluate set _attempted before awaiting the coordinator. A full coordinator rejected capacity without invoking acceptance. After pressure cleared, the next explicit call only inspected the original absent key and returned no_work, so this configured application could never start its otherwise unaccepted work.",
+          "failure_schedule": [
+            "Hold four real public FixedPolicyCoordinator.find calls so max_active=4 is exhausted.",
+            "Call NativePolicyApplication.evaluate with its original frozen request and command.",
+            "Observe capacity_rejected=1, no Authority.submit call, no accepted record, no issued attempt and no specialist invocation.",
+            "Release all four held reads and wait for actual coordinator.pending_count=0.",
+            "Call evaluate explicitly again. Before repair it returns no_work; after repair it produces one result with the same binding/payload and one original command."
+          ],
+          "boundary_proof": [
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+              "start": 365,
+              "end": 416,
+              "claim": "The coordinator resolves existing identity before acceptance and reconciles unknown commit by lookup, never by resubmitting."
+            },
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+              "start": 496,
+              "end": 500,
+              "claim": "Coordinator capacity rejects before a new call is admitted."
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/work_api.py",
+              "start": 81,
+              "end": 88,
+              "claim": "Public P1 executor-capacity rejection translates to WorkError(capacity)."
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/work_store.py",
+              "start": 161,
+              "end": 178,
+              "claim": "Once entering the commit boundary, P1 maps a failure to acknowledgement_unknown rather than capacity."
+            },
+            {
+              "path": "projects/agent-continuity/python/src/continuity_lab/work_store.py",
+              "start": 187,
+              "end": 203,
+              "claim": "Retained-identity capacity is checked before insertion; existing replay precedes this cap."
+            }
+          ],
+          "repair": "Reset only _attempted when CoordinatorError('capacity') is raised by the initial submit await. Keep the original request/command, _reserved/_submitting ownership accounting and all unknown/post-acceptance paths. This permits a later explicit call, never an automatic retry.",
+          "regression_tests": [
+            {
+              "path": "projects/delegation-reliability/tests/test_native_policy.py",
+              "line": 257,
+              "name": "test_pre_admission_capacity_allows_explicit_same_request_retry",
+              "result": "Failed before repair with no_work versus result; passed after repair."
+            },
+            {
+              "path": "projects/delegation-reliability/tests/test_native_policy.py",
+              "line": 290,
+              "name": "test_unknown_submit_ack_never_retries_acceptance_or_issues",
+              "result": "Committed-but-lost submit ACK plus failed reconciliation remains original-key lookup only; one submit, zero issues/invocations."
+            },
+            {
+              "path": "projects/delegation-reliability/tests/test_native_policy.py",
+              "line": 317,
+              "name": "test_runner_capacity_after_acceptance_keeps_calls_lookup_only",
+              "result": "Post-acceptance issue capacity remains lookup-only even after pressure clears; no second issuance/invocation."
+            }
+          ],
+          "proof_limit": "The new regressions use actual public P3 coordinator/runner with an in-memory public-authority fixture. P1 storage code establishes the error contract by review; an actual PG capacity/ACK failpoint rerun is not claimed."
+        },
+        {
+          "id": "P3-ACADEMY-02",
+          "historical_id": "P3-A6",
+          "priority": "low",
+          "status": "existing_diagnostic_limitation_not_changed",
+          "title": "A valid remote contract rejection is reported by the runner as invalid_result",
+          "locations": [
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/http_client.py",
+              "start": 186,
+              "end": 205
+            },
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/http_client.py",
+              "start": 558,
+              "end": 577
+            },
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+              "start": 449,
+              "end": 454
+            }
+          ],
+          "evidence": "The transport deliberately represents a valid delegation.error envelope as ContractError(code), including unauthorized/capacity. The runner catches ContractError from invoke_observed and always converts it to invalid_result. That conflates a correctly framed remote rejection with malformed or mismatched result bytes.",
+          "safety": "The path fails closed; it does not complete a result or authorize reinvocation. This is an operator-diagnosis/metric issue, not evidence of duplicate external execution.",
+          "source_test": {
+            "path": "projects/delegation-reliability/tests/test_http_client.py",
+            "line": 253,
+            "name": "test_known_safe_remote_errors_and_malformed_error_envelopes",
+            "claim": "The transport test explicitly expects a valid unauthorized envelope to produce ContractError; reviewed, not rerun in this audit."
+          },
+          "recommendation": "If addressed in a future authorized slice, preserve a finite safe remote-rejection classification distinct from result validation, without adding retry advice or changing P1 ownership.",
+          "proof_limit": "Source trace and existing transport test body, not a newly executed end-to-end regression."
+        },
+        {
+          "id": "P3-ACADEMY-03",
+          "priority": "prerequisite",
+          "status": "resolved_prerequisite_with_pinned_runtime",
+          "title": "Five specialist child-fixture tests ran under a different exact Node patch version",
+          "locations": [
+            {
+              "path": ".node-version",
+              "start": 1,
+              "end": 1
+            },
+            {
+              "path": "projects/delegation-reliability/specialist-ts/tests/fixtures/standalone-server.mjs",
+              "start": 152,
+              "end": 152
+            },
+            {
+              "path": "projects/delegation-reliability/specialist-ts/tests/fixtures/durable-fixed-policy-server.mjs",
+              "start": 893,
+              "end": 905
+            }
+          ],
+          "evidence": "The parent TS log contains four standalone readiness failures and one durable fixed-policy readiness failure, with 183 specialist tests passing. Both fixture mains explicitly require process.versions.node === '24.22.2'. Current /opt/homebrew/bin/node reports v24.22.3; .node-version requires 24.22.2.",
+          "reproduction": "One standalone child was launched with valid synthetic role-closed environment and private 0700 paths. It exited 1 before creating readiness/endpoint files; stderr was empty and its sanitized stdout reported standalone_fixture_failed plus cleanup_complete:true. Actual process exit was awaited before removing its private directory.",
+          "diagnosis": "Setup guard rejection explains the affected readiness symptoms; the import-without-side-effects test passes. There is no evidence that rebuilding dist can change the exact runtime guard. Do not widen deadlines or weaken the guard to manufacture a pass.",
+          "remedy": "Parent fetched the official 24.22.2 darwin-arm64 archive, verified it against the official checksum manifest and used an isolated temporary binary. All 188 specialist tests in 11 files passed in 2.51 seconds; no runtime guard, system Node or repository pin changed.",
+          "evidence_file": "output/academy-code-audit/p3-typescript-fixture-diagnosis.json",
+          "parent_log": "output/academy-code-audit/typescript-tests-local-network.log",
+          "proof_limit": "The initial standalone reproduction diagnosed setup failure. The subsequent full specialist suite passed under the exact pinned runtime in a parent-owned run whose saved log was inspected. This does not qualify actual PG, browser/media or provider lanes.",
+          "resolution_evidence": [
+            "output/academy-code-audit/node-toolchain.json",
+            "output/academy-code-audit/specialist-tests-pinned-node.log"
+          ]
+        }
+      ],
+      "intentional_differences": [
+        {
+          "title": "Native conversational TaskGroup is not the durable P1 execution queue",
+          "evidence": [
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/baseline.py",
+              "start": 82,
+              "end": 135
+            },
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+              "start": 383,
+              "end": 442
+            }
+          ],
+          "explanation": "The baseline intentionally compares one tool and real SDK AgentTask/TaskGroup within a single session. Durable acceptance/issuance/results are supplied by the separate P1-backed facade. No SDK task, generic result annotation or model statement grants durable invocation or action authority."
+        },
+        {
+          "title": "The implementation correctly uses the pinned Python task API rather than incompatible Academy examples",
+          "evidence": [
+            {
+              "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+              "start": 890,
+              "end": 909
+            },
+            {
+              "path": ".venv/lib/python3.14/site-packages/livekit/agents/beta/workflows/task_group.py",
+              "start": 46,
+              "end": 90
+            },
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/baseline.py",
+              "start": 121,
+              "end": 131
+            }
+          ],
+          "explanation": "Installed 1.8.11 takes task factories plus id/description, awaits the TaskGroup and exposes task_results. It does not accept the Academy's shown output_type, group.run(session) or summarize_between_tasks forms. P3 also explicitly validates the returned runtime PolicyResult because AgentTask.complete merely stores its Python value/exception.",
+          "cached_course_examples": [
+            "output/academy-review/snapshots/courses__tools-tasks-workflows__agent-task.code.json",
+            "output/academy-review/snapshots/courses__tools-tasks-workflows__task-group.code.json"
+          ]
+        },
+        {
+          "title": "SDK waiter cancellation and durable business cancellation are intentionally separate",
+          "evidence": [
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/native_policy.py",
+              "start": 557,
+              "end": 607
+            },
+            {
+              "path": "projects/delegation-reliability/tests/test_native_policy_sdk.py",
+              "start": 110,
+              "end": 131
+            },
+            {
+              "path": ".venv/lib/python3.14/site-packages/livekit/agents/llm/tool_context.py",
+              "start": 173,
+              "end": 176
+            }
+          ],
+          "explanation": "CANCELLABLE allows the conversational waiter to stop. A shielded actual runner and its public owner's pending count remain retained; no automatic P1 cancellation is inferred. The focused actual-SDK test proves useful held-work continuation using scripted model and fake durable ports, not live media or provider behavior."
+        },
+        {
+          "title": "Only newly created issuance followed by the exact fresh running grant permits HTTP invocation",
+          "evidence": [
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+              "start": 390,
+              "end": 454
+            },
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+              "start": 455,
+              "end": 486
+            }
+          ],
+          "explanation": "Issue ACK ambiguity reconciles the original command and returns a view; created=false does not invoke. A created grant is compared against a fresh running observation, cancellation and expiry before transport. Verified result truth is then recorded via public P1 completion; current case applicability is a separate read."
+        },
+        {
+          "title": "Cross-principal result/cancel grants are an explicit trust-policy choice",
+          "evidence": [
+            {
+              "path": "projects/delegation-reliability/specialist-ts/src/security.ts",
+              "start": 265,
+              "end": 331
+            },
+            {
+              "path": "projects/delegation-reliability/specialist-ts/tests/http.test.ts",
+              "start": 51,
+              "end": 79
+            },
+            {
+              "path": "projects/delegation-reliability/specialist-ts/tests/http.test.ts",
+              "start": 222,
+              "end": 245
+            }
+          ],
+          "explanation": "Historical P3-A9 is not an unauthenticated bypass: current scope/capability credentials are required. A distinct result principal and distinct cancel principal are deliberately tested. Binding observation/control exclusively to the starting principal would change this delegated-operations policy and needs an explicit design decision."
+        },
+        {
+          "title": "Observer-owned telemetry resources do not extend server ownership",
+          "evidence": [
+            {
+              "path": "docs/observability.md",
+              "start": 1318,
+              "end": 1354
+            },
+            {
+              "path": "projects/delegation-reliability/specialist-ts/src/server.ts",
+              "start": 1,
+              "end": 767
+            }
+          ],
+          "explanation": "Notifications are bounded/dropped rather than becoming an unbounded telemetry queue. The documented observer contract makes its external resources application-owned; successful server close is not a claim that arbitrary observer-created exporter I/O has closed."
+        },
+        {
+          "title": "Late verified result truth, delivery receipt and exact action permission remain separate",
+          "evidence": [
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+              "start": 455,
+              "end": 516
+            },
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/completion.py",
+              "start": 674,
+              "end": 792
+            },
+            {
+              "path": "projects/delegation-reliability/python/src/delegation_reliability/action_adapter.py",
+              "start": 1,
+              "end": 210
+            }
+          ],
+          "explanation": "A stored eligible-at-commit result is historical P1 time/lease/cancel truth, not an evergreen action permit. Delivery uses immutable receiver intent and possible-send lookup semantics. Exact human confirmation and current atomic public P1 action guards remain separate from model tools."
+        }
+      ],
+      "covered_paths_and_symbols": [
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/baseline.py",
+          "coverage": "Full module",
+          "symbols": [
+            "_PolicyTask",
+            "_PolicyAgent",
+            "_validate_parameters",
+            "_close_owned",
+            "run_baseline"
+          ],
+          "reviewed_snapshot_sha256": "ce42047f34c236899247ecfc1073d1c8a578028a6d7de092dbee25da6141bb66",
+          "current_line_count": 295
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/scripted.py",
+          "coverage": "Full module",
+          "symbols": [
+            "FixtureLLM",
+            "scripted LLM stream/tool events"
+          ],
+          "reviewed_snapshot_sha256": "48c0312034f45581eddf400d13298d103737eaef74efdcf7901e779e14aa2291",
+          "current_line_count": 110
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/models.py",
+          "coverage": "Full module",
+          "symbols": [
+            "PolicyInput",
+            "PolicyResult",
+            "canonical validation and immutable input"
+          ],
+          "reviewed_snapshot_sha256": "2d908d2a53d83f1577006de5ef821667148a8a72371ec8b74a44def4f22ae98f",
+          "current_line_count": 139
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/native_policy.py",
+          "coverage": "Full module including approved repair",
+          "symbols": [
+            "NativePolicyObservation",
+            "NativePolicyApplication.evaluate",
+            "inspect_observed",
+            "_refresh_ownership",
+            "close",
+            "NativePolicyAgent.evaluate_policy"
+          ],
+          "reviewed_snapshot_sha256": "9e85c62449da69bff7c29a87be93415f71e634f5bb15812866b43c7d6ed8d604",
+          "current_line_count": 837
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_native_baseline.py",
+          "coverage": "Normal/clarification, strict input, held progress, SDK task closure, timeout/cancellation and safe-diagnostic test bodies; executed 18 tests",
+          "symbols": [
+            "NativeBaselineTests",
+            "PolicyBoundaryTests",
+            "ProcessBoundaryTests"
+          ],
+          "reviewed_snapshot_sha256": "8c6c2c811bbea89ba8e12348bf97694f77ab26ec3c473c75cb6f6e2c8a7ebe5e",
+          "current_line_count": 398
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_native_policy.py",
+          "coverage": "All focused test bodies including three added regressions; executed 18 tests after repair",
+          "symbols": [
+            "Authority",
+            "NativePolicyTests"
+          ],
+          "reviewed_snapshot_sha256": "9804f7062094d2fcd4adfd67f1d590572b150cdd40c24fba9c362fe8b7400015",
+          "current_line_count": 559
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_native_policy_sdk.py",
+          "coverage": "Full test module; executed three actual-SDK tests",
+          "symbols": [
+            "NativePolicySDKTests"
+          ],
+          "reviewed_snapshot_sha256": "6cfda722b18566cdff61391ff4184d282fa7c442cb43fd048744cacf0ec4a892",
+          "current_line_count": 154
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/coordinator.py",
+          "coverage": "Lines 1-120 and 290-680; constructor middle not fully reread",
+          "symbols": [
+            "_snapshot",
+            "_view",
+            "_submit",
+            "_run",
+            "close"
+          ],
+          "reviewed_snapshot_sha256": "9260b135764851f3e463be54b956bf7c7f5909be3bacf408117f802dc56a3a33",
+          "current_line_count": 648
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/runner.py",
+          "coverage": "Lines 205-738, focusing issued invocation/result storage/ownership; initial codec helpers not fully reread",
+          "symbols": [
+            "_RunnerCore",
+            "_invoke",
+            "_view",
+            "_result",
+            "_run",
+            "close"
+          ],
+          "reviewed_snapshot_sha256": "d616ab8c65c88d294b3a44fa6a48c79ffc52f6c10963be360834746bb361e8de",
+          "current_line_count": 776
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/completion.py",
+          "coverage": "Selected lines 245-470 and 674-880; no claim of full plan/read helper review",
+          "symbols": [
+            "_CompletionOwner._run",
+            "_CompletionOwner.close",
+            "_DeliveryCore.deliver"
+          ],
+          "reviewed_snapshot_sha256": "19148afe544238c55526de57b88be774b368e2bc86d55f2d04c03723a9798852",
+          "current_line_count": 963
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/action_adapter.py",
+          "coverage": "Lines 1-210 and selected 230-440; confirmation snapshot and public guarded action flow",
+          "symbols": [
+            "confirmation validation",
+            "_authorize"
+          ],
+          "reviewed_snapshot_sha256": "55353268f484870f5a9dc53af46860ba352f82151a5d5805eccbdba97673d6ac",
+          "current_line_count": 468
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/http_client.py",
+          "coverage": "Selected response/error, invoke result, exchange and actual writer-close sections",
+          "symbols": [
+            "_remote_failure",
+            "_invoke_result",
+            "_exchange",
+            "_close_writer"
+          ],
+          "reviewed_snapshot_sha256": "d9d67ce7d07956adebd9e91350ef73da46ecdb517fbf01ab1673c284678d5315",
+          "current_line_count": 703
+        },
+        {
+          "path": "projects/delegation-reliability/tests/test_http_client.py",
+          "coverage": "Remote-error and bounded capacity/actual-close test bodies selected; not rerun",
+          "symbols": [
+            "test_known_safe_remote_errors_and_malformed_error_envelopes"
+          ],
+          "reviewed_snapshot_sha256": "a984fc77c85b2eae32e738e6df4414bdfe65de0ffb364f510e20b4e918276ff1",
+          "current_line_count": 549
+        },
+        {
+          "path": "projects/delegation-reliability/python/src/delegation_reliability/fixed_policy_execution.py",
+          "coverage": "Lines 1-115 public typed v2 facade",
+          "symbols": [
+            "FixedPolicyCoordinator",
+            "FixedPolicyRunner"
+          ],
+          "reviewed_snapshot_sha256": "5dee8a436488479e05da92dd2b6a932b2cd3af697680c052b975836d5bf55254",
+          "current_line_count": 158
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/security.ts",
+          "coverage": "Authorization/evidence and AttemptBoundary sections through line375; small 231-234 helper tail not fully reread",
+          "symbols": [
+            "LocalTrust",
+            "EvidenceRegistry",
+            "AttemptBoundary.acquire",
+            "inspect",
+            "release"
+          ],
+          "reviewed_snapshot_sha256": "6815f781d11fbdecc1301767c554813565be7afa8aa1eccf708065265cc2ff04",
+          "current_line_count": 375
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/server.ts",
+          "coverage": "Full module",
+          "symbols": [
+            "SpecialistServer",
+            "HTTP admission/body framing",
+            "actual evaluation ownership",
+            "observer bound",
+            "close"
+          ],
+          "reviewed_snapshot_sha256": "7c164a30da7c213ab76b05e61e9361dd6b88f0ec14bd0f9b21966a7f991481e1",
+          "current_line_count": 767
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/src/client.ts",
+          "coverage": "Full module",
+          "symbols": [
+            "SpecialistClient",
+            "invokeFixedPolicyObserved",
+            "#fixedPolicyResult",
+            "#observe",
+            "#call",
+            "close"
+          ],
+          "reviewed_snapshot_sha256": "38180a8d561bcb467c393975e02fb6875d4252b77e8771b5d145e36e20c498f7",
+          "current_line_count": 431
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/http.test.ts",
+          "coverage": "Selected configuration and actual distinct-principal/held-work test bodies",
+          "symbols": [
+            "configured",
+            "keeps result and cancel grants distinct while held work remains an observation"
+          ],
+          "reviewed_snapshot_sha256": "c2df5f7b3f22bde24db68638a07581cac10b39cdee7052a59f5d9e8d9c193bca",
+          "current_line_count": 792
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/standalone-server.test.ts",
+          "coverage": "Child ownership, role-closed environment, readiness, import side effects and cleanup sections",
+          "reviewed_snapshot_sha256": "642b8a8e528ea67f2504ffd357bdb6d337658bede6e82f7e97d2de6d18657a00",
+          "current_line_count": 329
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/durable-fixed-policy-fixture.test.ts",
+          "coverage": "Selected fixture input/configuration and spawned-child readiness/stop/finally body",
+          "reviewed_snapshot_sha256": "0a3e1dedc910f256ceb65121766d05c1110808f6d828c867028a5a330cb9829f",
+          "current_line_count": 454
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/fixtures/standalone-server.mjs",
+          "coverage": "Configuration/private-file rules, runtime guard, main startup and failure/close/terminal reporting",
+          "reviewed_snapshot_sha256": "146cd624bf8f23170db5f6fe20e91c8244093446facdc0db701c6d28f4c8b6a4",
+          "current_line_count": 352
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/tests/fixtures/durable-fixed-policy-server.mjs",
+          "coverage": "Runtime main guard/startup/close/terminal sections for prerequisite diagnosis",
+          "reviewed_snapshot_sha256": "2c5d09b4f335f3cbac60ace35d2b66548dada4f586b008e4b168b812f1128b99",
+          "current_line_count": 965
+        },
+        {
+          "path": "projects/delegation-reliability/examples/native_fixed_policy.py",
+          "coverage": "Full public composition example",
+          "reviewed_snapshot_sha256": "e9d160b20782d6baa6ccd2f6f8f9f424492aaaa4a8a2fc32b7dbef0e86f95059",
+          "current_line_count": 49
+        },
+        {
+          "path": "projects/delegation-reliability/examples/durable_fixed_policy.py",
+          "coverage": "Full public durable acceptance/runner example",
+          "reviewed_snapshot_sha256": "f363ed9b6b49c9d1f109261fed934ff798b68c5b6cbf9e84fb1b41b85e429fad",
+          "current_line_count": 35
+        },
+        {
+          "path": "projects/delegation-reliability/examples/policy_completion.py",
+          "coverage": "Full approximately 145-line example; explicit confirmation copied before awaits",
+          "reviewed_snapshot_sha256": "1d178ec5a057f1f98f3ff6f7f772e3a4d9d4bb901bc83cb64e1399ac3fa84c5e",
+          "current_line_count": 143
+        },
+        {
+          "path": "projects/delegation-reliability/specialist-ts/examples/policy-http.mjs",
+          "coverage": "First100lines; public imports and explicit lifecycle construction",
+          "reviewed_snapshot_sha256": "5937ee1675564378d66744ca96398f001a44de69bd942e30533ba60bab54f716",
+          "current_line_count": 105
+        }
+      ],
+      "instruction_and_design_coverage": {
+        "root": "Root AGENTS.md reread in full. README, portfolio scope, affected P3 charter, shared Design, build plan, technology baseline, validation/harness plans, P3 task plan, observability/demo and engineering rules reviewed in the P3-relevant sections, not all documentation line by line.",
+        "nearest": "P3 AGENTS.md rules and P3 README/Design native, execution, delivery/action, ownership and phase-gate sections.",
+        "historical_findings": "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md open findings reviewed; native attempt flag and remote rejection diagnosis were already recorded there. No claim that new audit discovered them first."
+      },
+      "sdk_and_primary_sources": [
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit_agents-1.8.11.dist-info/METADATA",
+          "line": 3,
+          "claim": "Installed livekit-agents version1.8.11"
+        },
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+          "start": 890,
+          "end": 961,
+          "claim": "AgentTask constructor, cancel and unvalidated generic complete behavior"
+        },
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/beta/workflows/task_group.py",
+          "start": 30,
+          "end": 142,
+          "claim": "TaskGroup factory registration, result dictionary, default chat summarization and direct awaiting"
+        },
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/events.py",
+          "start": 163,
+          "end": 202,
+          "claim": "RunContext.foreground and update/silent semantics"
+        },
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/llm/tool_context.py",
+          "start": 173,
+          "end": 185,
+          "claim": "ToolFlag.CANCELLABLE and in-flight duplicate scope; no durable exactly-once contract"
+        },
+        {
+          "url": "https://docs.livekit.io/agents/logic/tasks/",
+          "claim": "Current official task guidance checked against installed Python implementation; current other-language examples are not assumed compatible with the pin."
+        },
+        {
+          "url": "https://docs.livekit.io/agents/logic/workflows/",
+          "claim": "Conversational workflow/task orchestration and supervisor patterns, distinct from P1 authority."
+        },
+        {
+          "url": "https://docs.livekit.io/agents/logic/tools/definition/",
+          "claim": "Tool definition/cancellation guidance; stopping a waiter does not prove a remote business effect stopped."
+        }
+      ],
+      "academy_comparison": {
+        "role": "Secondary learning material and audit checklist, not API or release authority.",
+        "checked_snapshots": [
+          "output/academy-review/snapshots/courses__tools-tasks-workflows__agent-task.code.json",
+          "output/academy-review/snapshots/courses__tools-tasks-workflows__task-group.code.json",
+          "output/academy-review/snapshots/courses__tools-tasks-workflows__testing-workflow.code.json"
+        ],
+        "conclusions": [
+          "Preserve existing real AgentSession/AgentTask/TaskGroup baseline and its factory API; do not replace it with incompatible shown .run(session) or output_type examples.",
+          "Preserve actual SDK session.run/events tests instead of adopting the Academy's AgentTest example, which is absent from the installed public API.",
+          "Conversation task completion, model output shape, SDK duplicate suppression, durable acceptance and exact guarded action are different contracts.",
+          "SIP, RAG and graph features are not missing P3 fixes merely because Academy teaches them; adding them would expand the fixed project scope."
+        ],
+        "prior_course_audit": "output/academy-review/p3-course-review.json"
+      },
+      "verification": {
+        "evidence_file": "output/academy-code-audit/p3-focused-verification.json",
+        "tests_executed_after_repair": "18 native policy tests and 3 actual-SDK native policy tests passed. The 18 native baseline tests also passed before the repair in a different unchanged module.",
+        "red_green": "The 18-test native policy run failed only the new explicit-capacity-retry regression before source repair; all 18 passed after repair.",
+        "static_checks": "Ruff check and format --check passed for exactly the two changed files.",
+        "parent_owned_results": [
+          "output/academy-code-audit/typescript-check.log",
+          "output/academy-code-audit/typescript-tests-local-network.log",
+          "output/academy-code-audit/full-fast.log",
+          "output/academy-code-audit/node-toolchain.json",
+          "output/academy-code-audit/specialist-tests-pinned-node.log"
+        ],
+        "qualification_limits": [
+          "No new actual PG tests: Docker daemon unavailable, confirmed by parent. PG transaction/source review is not a runtime pass.",
+          "No live room/audio/playback, browser, remote specialist process recovery gate or provider inference qualification was executed by this subagent.",
+          "Initial specialist run under Node 24.22.3 was nonpassing; the parent-owned exact Node 24.22.2 rerun passed all 188 tests. Neither run qualifies actual PG/media/provider gates.",
+          "Scripted FixtureLLM tests establish control flow and safety invariants, not natural-language/model quality, hallucination rate, human usability or production scale."
+        ],
+        "specialist_typescript": "Parent-owned isolated Node 24.22.2 run:11 test files and188 tests passed in2.51s. Exact saved summary and toolchain metadata inspected."
+      },
+      "next_steps": [
+        "Integrate only the approved native_policy.py repair and its focused regression tests with the parent-owned serial validation.",
+        "Retain the recorded verified Node 24.22.2 toolchain and188/188 specialist result; use the validated runtime for subsequent fixture gates.",
+        "Keep actual PG/browser/media/provider gates explicitly unrun/nonpassing until prerequisites are available; do not infer them from native unit or source review.",
+        "Optionally plan a separate small diagnostics improvement for valid remote rejection classification; no retry semantics change.",
+        "Retain existing bounded scripted SDK tests; add model-quality/evaluation work only as a separately scoped capability with its own dataset, metrics and provider authorization."
+      ],
+      "coverage_hash_note": "Hashes bind the report-time reviewed snapshot; they were not recorded at the instant of each earlier test run."
+    }
+  },
+  "book_source_crosswalk": [
+    {
+      "id": "D1-05",
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+      "book_line": 395,
+      "current_exact_excerpt_matches": [
+        398
+      ],
+      "literal_excerpt_unchanged": true
+    },
+    {
+      "id": "D1-06",
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_case.py",
+      "book_line": 208,
+      "current_exact_excerpt_matches": [
+        211
+      ],
+      "literal_excerpt_unchanged": true
+    },
+    {
+      "id": "D1-15",
+      "path": "projects/agent-continuity/python/src/continuity_lab/postgres_migrations.py",
+      "book_line": 1370,
+      "current_exact_excerpt_matches": [
+        1373
+      ],
+      "literal_excerpt_unchanged": true
+    },
+    {
+      "id": "D2-07",
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "book_line": 789,
+      "current_exact_excerpt_matches": [
+        796
+      ],
+      "literal_excerpt_unchanged": true
+    },
+    {
+      "id": "D2-08",
+      "path": "projects/channel-continuity/python/src/channel_continuity/native.py",
+      "book_line": 150,
+      "current_exact_excerpt_matches": [
+        150
+      ],
+      "literal_excerpt_unchanged": true
+    }
+  ],
+  "limits": [
+    "The three peer reports distinguish full reads, selected bodies and inventory-only coverage. This is not an assertion of a line-by-line formal proof of every repository file.",
+    "Signature checks establish selected call shapes, not runtime semantics. Genuine SDK, synthetic/in-memory boundaries, process tests and actual PostgreSQL/media/provider lanes retain separate meanings.",
+    "Known historical findings were reclassified carefully: scoped cross-principal specialist result/cancel grants are intentionally tested, not an unauthenticated authority bypass.",
+    "No absent Academy telephony, hardware, avatar, general RAG or graph feature was added to the fixed POC scope.",
+    "The delivered book retains its recorded source snapshot. A short source-line crosswalk identifies unchanged literal excerpts moved by these fixes."
+  ],
+  "sources": [
+    [
+      "Academy curriculum",
+      "https://www.livekit-academy.com/courses"
+    ],
+    [
+      "Official session contract",
+      "https://docs.livekit.io/agents/logic/sessions/"
+    ],
+    [
+      "Official nodes/hooks",
+      "https://docs.livekit.io/agents/logic/nodes/"
+    ],
+    [
+      "Official tasks",
+      "https://docs.livekit.io/agents/logic/tasks/"
+    ],
+    [
+      "Official RPC",
+      "https://docs.livekit.io/transport/data/rpc/"
+    ],
+    [
+      "Official unit tests",
+      "https://docs.livekit.io/testing/unit-tests/"
+    ]
+  ]
+}

@@ -1,0 +1,164 @@
+1Production telephony patterns overview
+
+2Warm transfers
+
+3Cold transfers
+
+4Call recording & compliance
+
+5Building the outbound system
+
+6Queue management
+
+7Error handling & retries
+
+8Monitoring & analytics
+
+9Load testing
+
+Load testing
+
+Load testing your telephony system
+
+You need to know your system's limits before your callers find them. Load testing simulates realistic call traffic at scale so you can identify bottlenecks, validate capacity plans, and build confidence that your system will survive peak hours. This final chapter covers SIPp-based load testing, capacity planning, and scaling strategies.
+
+What you'll learn
+
+How to use SIPp to generate simulated SIP call traffic
+
+How to design load tests that reflect real usage patterns
+
+How to perform capacity planning based on load test results
+
+Scaling strategies for handling growing call volumes
+
+Load testing with SIPp
+
+SIPp is the standard open-source tool for SIP load testing. It generates SIP traffic — INVITE, ACK, BYE — at configurable rates, simulating hundreds or thousands of concurrent calls without needing real phone numbers or carriers.
+
+# Install SIPp
+sudo apt-get install sipp
+
+# Basic load test: 50 concurrent calls, 10 new calls per second
+sipp your-livekit-server:5060 \
+-sf call_scenario.xml \
+-l 50 \
+-r 10 \
+-d 60000 \
+-trace_stat
+
+<?xml version="1.0" encoding="UTF-8"?>
+<scenario name="Basic call load test">
+<!-- Send INVITE -->
+<send>
+  <![CDATA[
+    INVITE sip:+15551234567@[remote_ip]:[remote_port] SIP/2.0
+    Via: SIP/2.0/UDP [local_ip]:[local_port]
+    From: <sip:loadtest@[local_ip]>;tag=[call_number]
+    To: <sip:+15551234567@[remote_ip]>
+    Call-ID: [call_id]
+    CSeq: 1 INVITE
+    Contact: <sip:loadtest@[local_ip]:[local_port]>
+    Content-Length: 0
+  ]]>
+</send>
+
+<!-- Wait for 200 OK -->
+<recv response="200" />
+
+<!-- Send ACK -->
+<send>
+  <![CDATA[
+    ACK sip:+15551234567@[remote_ip]:[remote_port] SIP/2.0
+    Via: SIP/2.0/UDP [local_ip]:[local_port]
+    From: <sip:loadtest@[local_ip]>;tag=[call_number]
+    To: <sip:+15551234567@[remote_ip]>[peer_tag_param]
+    Call-ID: [call_id]
+    CSeq: 1 ACK
+    Content-Length: 0
+  ]]>
+</send>
+
+<!-- Hold the call for 60 seconds (simulating a conversation) -->
+<pause milliseconds="60000" />
+
+<!-- Send BYE -->
+<send>
+  <![CDATA[
+    BYE sip:+15551234567@[remote_ip]:[remote_port] SIP/2.0
+    Via: SIP/2.0/UDP [local_ip]:[local_port]
+    From: <sip:loadtest@[local_ip]>;tag=[call_number]
+    To: <sip:+15551234567@[remote_ip]>[peer_tag_param]
+    Call-ID: [call_id]
+    CSeq: 2 BYE
+    Content-Length: 0
+  ]]>
+</send>
+
+<!-- Wait for 200 OK to BYE -->
+<recv response="200" />
+</scenario>
+
+The key SIPp parameters: -l sets the maximum concurrent calls, -r sets the rate of new calls per second, and -d sets call duration in milliseconds. Start low — 10 concurrent calls — and increase gradually. Watch for the point where response times degrade or error rates climb. That is your system's effective capacity.
+
+Capacity planning
+
+Load test results tell you where your system breaks. Capacity planning turns that into a deployment strategy.
+
+Run progressively heavier load tests until performance degrades. The bottleneck is usually one of: SIP trunk concurrent call limits, LiveKit server CPU, AI agent worker count, or LLM/STT/TTS provider rate limits.
+
+Determine how many concurrent calls each component can handle. For example: one LiveKit server instance handles 200 concurrent calls, one agent worker handles 10 concurrent conversations, your SIP trunk supports 100 channels.
+
+Estimate your peak call volume. If you expect 500 concurrent calls at peak, and each agent worker handles 10, you need at least 50 agent workers plus headroom for spikes.
+
+Never run at 100% capacity. Target 70% utilization at peak. The remaining 30% absorbs unexpected spikes, handles retries, and gives you time to scale before hitting limits.
+
+Component | Typical limit | Scaling approach
+SIP trunk | 100-500 channels per trunk | Add trunks from multiple carriers
+LiveKit server | 200-500 concurrent rooms | Horizontal scaling with load balancer
+Agent workers | 5-15 concurrent calls per worker | Add worker instances
+LLM provider | Varies by plan | Request quota increases, use multiple providers
+
+Test the full stack
+
+SIPp tests only the SIP layer. Your real bottleneck might be the LLM provider throttling you at 50 concurrent requests, or your STT service dropping audio at high load. Load test with actual AI agents processing real (or synthetic) audio, not just SIP signaling.
+
+Course summary
+
+Over this course, you have built a production-grade telephony system:
+
+Warm and cold transfers move callers between AI agents and humans seamlessly.
+
+Call recording with Egress captures every conversation and stores it in S3 with compliance controls.
+
+Outbound calling systems run campaigns with rate limiting and TCPA compliance.
+
+Queue management handles overflow with priority queues, wait time estimation, and callbacks.
+
+Error handling uses retry logic with exponential backoff and fallback routing across multiple trunks.
+
+Monitoring with CDRs and dashboards gives your operations team real-time visibility.
+
+Load testing with SIPp reveals your system's limits before your callers do.
+
+Each pattern is independent but they reinforce each other. Recording feeds monitoring. Monitoring reveals when you need better error handling. Error handling keeps calls flowing during the load spikes that load testing prepared you for.
+
+What comes next
+
+With these patterns in place, your telephony system is ready for production traffic. As your volume grows, revisit capacity planning regularly and keep your load tests current. The system that handles 100 concurrent calls today may need architectural changes to handle 10,000 tomorrow.
+
+Test your knowledge
+
+Question 1 of 2
+
+Why is testing only the SIP signaling layer with SIPp insufficient for production capacity planning?
+
+What you learned
+
+SIPp generates simulated SIP traffic for load testing without real phone numbers or carriers.
+
+Capacity planning starts with identifying bottlenecks and measuring per-component limits.
+
+Target 70% utilization at peak to leave headroom for spikes and retries.
+
+Production telephony is a system of reinforcing patterns — transfers, recording, queues, error handling, monitoring, and load testing all work together.

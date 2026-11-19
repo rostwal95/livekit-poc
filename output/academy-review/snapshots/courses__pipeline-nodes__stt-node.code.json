@@ -1,0 +1,50 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, stt\nimport typing\n\n\nclass MyAgent(Agent):\n  async def stt_node(\n      self, audio: stt.SpeechStream\n  ) -> typing.AsyncGenerator[stt.SpeechEvent, None]:\n      async for event in Agent.default.stt_node(self, audio):\n          yield event"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, stt } from \"@livekit/agents\";\n\nclass MyAgent extends Agent {\nasync *sttNode(\n  audio: stt.SpeechStream\n): AsyncGenerator<stt.SpeechEvent> {\n  for await (const event of Agent.default.sttNode(this, audio)) {\n    yield event;\n  }\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, stt\nimport typing\nimport logging\n\nlogger = logging.getLogger(\"keyword-agent\")\n\nTRIGGER_PHRASES = [\n  \"transfer me\",\n  \"speak to a human\",\n  \"real person\",\n  \"cancel my account\",\n]\n\n\nclass KeywordAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a helpful customer service assistant.\"\n      )\n\n  async def stt_node(\n      self, audio: stt.SpeechStream\n  ) -> typing.AsyncGenerator[stt.SpeechEvent, None]:\n      async for event in Agent.default.stt_node(self, audio):\n          if event.type == stt.SpeechEventType.FINAL_TRANSCRIPT:\n              transcript = event.alternatives[0].text.lower()\n\n              for phrase in TRIGGER_PHRASES:\n                  if phrase in transcript:\n                      logger.info(\n                          f\"Trigger phrase detected: '{phrase}' \"\n                          f\"in transcript: '{transcript}'\"\n                      )\n                      await self.handle_trigger(phrase, transcript)\n                      break\n\n          yield event\n\n  async def handle_trigger(self, phrase: str, transcript: str):\n      \"\"\"Handle the detected trigger phrase.\"\"\"\n      if phrase in (\"transfer me\", \"speak to a human\", \"real person\"):\n          logger.info(\"Initiating transfer to human agent\")\n          # In production, trigger your escalation workflow here\n      elif phrase == \"cancel my account\":\n          logger.warning(f\"Account cancellation request detected\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, stt } from \"@livekit/agents\";\n\nconst TRIGGER_PHRASES = [\n\"transfer me\",\n\"speak to a human\",\n\"real person\",\n\"cancel my account\",\n];\n\nclass KeywordAgent extends Agent {\nconstructor() {\n  super({ instructions: \"You are a helpful customer service assistant.\" });\n}\n\nasync *sttNode(\n  audio: stt.SpeechStream\n): AsyncGenerator<stt.SpeechEvent> {\n  for await (const event of Agent.default.sttNode(this, audio)) {\n    if (event.type === stt.SpeechEventType.FINAL_TRANSCRIPT) {\n      const transcript = event.alternatives[0].text.toLowerCase();\n\n      for (const phrase of TRIGGER_PHRASES) {\n        if (transcript.includes(phrase)) {\n          console.log(\n            `Trigger phrase detected: '${phrase}' in: '${transcript}'`\n          );\n          await this.handleTrigger(phrase, transcript);\n          break;\n        }\n      }\n    }\n\n    yield event;\n  }\n}\n\nprivate async handleTrigger(phrase: string, transcript: string) {\n  if ([\"transfer me\", \"speak to a human\", \"real person\"].includes(phrase)) {\n    console.log(\"Initiating transfer to human agent\");\n  } else if (phrase === \"cancel my account\") {\n    console.warn(\"Account cancellation request detected\");\n  }\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, stt\nimport typing\nimport re\nimport logging\n\nlogger = logging.getLogger(\"safe-agent\")\n\n# In production, use a proper content moderation library\nBLOCKED_WORDS = {\"badword1\", \"badword2\", \"offensive_term\"}\n\n\nclass ProfanityFilterAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a helpful, family-friendly assistant.\"\n      )\n      self.flagged_count = 0\n\n  async def stt_node(\n      self, audio: stt.SpeechStream\n  ) -> typing.AsyncGenerator[stt.SpeechEvent, None]:\n      async for event in Agent.default.stt_node(self, audio):\n          if event.type == stt.SpeechEventType.FINAL_TRANSCRIPT:\n              transcript = event.alternatives[0].text\n              result = self.check_profanity(transcript)\n\n              if result[\"blocked\"]:\n                  self.flagged_count += 1\n                  logger.warning(\n                      f\"Blocked transcript ({self.flagged_count} total): \"\n                      f\"'{transcript}'\"\n                  )\n                  # Skip this event entirely \u2014 LLM never sees it\n                  continue\n\n              if result[\"redacted\"]:\n                  logger.info(f\"Redacted transcript: '{result['text']}'\")\n                  # Modify the transcript text before yielding\n                  event.alternatives[0].text = result[\"text\"]\n\n          yield event\n\n  def check_profanity(self, text: str) -> dict:\n      \"\"\"Check text for profanity. Returns action to take.\"\"\"\n      words = text.lower().split()\n      found = [w for w in words if w in BLOCKED_WORDS]\n\n      if not found:\n          return {\"blocked\": False, \"redacted\": False, \"text\": text}\n\n      # If more than half the words are blocked, drop the whole message\n      if len(found) > len(words) / 2:\n          return {\"blocked\": True, \"redacted\": False, \"text\": \"\"}\n\n      # Otherwise, redact the offending words\n      redacted = text\n      for word in BLOCKED_WORDS:\n          pattern = re.compile(re.escape(word), re.IGNORECASE)\n          redacted = pattern.sub(\"[redacted]\", redacted)\n\n      return {\"blocked\": False, \"redacted\": True, \"text\": redacted}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, stt } from \"@livekit/agents\";\n\nconst BLOCKED_WORDS = new Set([\"badword1\", \"badword2\", \"offensive_term\"]);\n\nclass ProfanityFilterAgent extends Agent {\nprivate flaggedCount = 0;\n\nconstructor() {\n  super({ instructions: \"You are a helpful, family-friendly assistant.\" });\n}\n\nasync *sttNode(\n  audio: stt.SpeechStream\n): AsyncGenerator<stt.SpeechEvent> {\n  for await (const event of Agent.default.sttNode(this, audio)) {\n    if (event.type === stt.SpeechEventType.FINAL_TRANSCRIPT) {\n      const transcript = event.alternatives[0].text;\n      const result = this.checkProfanity(transcript);\n\n      if (result.blocked) {\n        this.flaggedCount++;\n        console.warn(\n          `Blocked transcript (${this.flaggedCount} total): '${transcript}'`\n        );\n        continue;\n      }\n\n      if (result.redacted) {\n        console.log(`Redacted transcript: '${result.text}'`);\n        event.alternatives[0].text = result.text;\n      }\n    }\n\n    yield event;\n  }\n}\n\nprivate checkProfanity(text: string): {\n  blocked: boolean;\n  redacted: boolean;\n  text: string;\n} {\n  const words = text.toLowerCase().split(/\\s+/);\n  const found = words.filter((w) => BLOCKED_WORDS.has(w));\n\n  if (found.length === 0) {\n    return { blocked: false, redacted: false, text };\n  }\n\n  if (found.length > words.length / 2) {\n    return { blocked: true, redacted: false, text: \"\" };\n  }\n\n  let redacted = text;\n  for (const word of BLOCKED_WORDS) {\n    const pattern = new RegExp(word, \"gi\");\n    redacted = redacted.replace(pattern, \"[redacted]\");\n  }\n\n  return { blocked: false, redacted: true, text: redacted };\n}\n}"
+  }
+]

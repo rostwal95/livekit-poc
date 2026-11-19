@@ -2,6 +2,7 @@ import { registerRehydrationProxy } from './rehydration-access.js';
 /** Bounded loopback fake-SMS gateway. PostgreSQL owns acceptance and due work. */
 import { createServer, type IncomingMessage, type ServerResponse, type Server } from 'node:http';
 import type { Socket } from 'node:net';
+import { createHash } from 'node:crypto';
 import {
   ChannelInbox,
   SeededAccounts,
@@ -25,6 +26,8 @@ import {
   NativeError,
   isNativeIntegration,
   nativeInput,
+  nativeToken,
+  nativeUuid,
   NATIVE_INPUT_BYTES,
 } from './native-types.js';
 import { FAKE_SMS_MAX_BYTES, WebhookError, type FakeSmsIntegration } from './security.js';
@@ -196,6 +199,7 @@ function body(request: IncomingMessage, length: number): Promise<Uint8Array> {
 export class ChannelGateway {
   readonly #native: boolean;
   readonly #communication: boolean;
+  readonly #providerScope: FakeSmsIntegration['providerScope'];
   readonly #inbox: ChannelInbox;
   readonly #dispatcher: ChannelDispatcher;
   readonly #tokens: readonly string[];
@@ -213,18 +217,23 @@ export class ChannelGateway {
   readonly #deadlines = new Map<Socket, number>();
   readonly #seen = new WeakSet<Socket>();
   readonly #handlers = new Set<Promise<void>>();
+  readonly #nativeFences = new Set<string>();
+  readonly #nativeAccepts = new Map<string, Set<Promise<unknown>>>();
+  readonly #nativeDrains = new Set<Promise<void>>();
   #notifications = 0;
   #active = 0;
   #intakes = 0;
   #nudged = false;
   #cursor = 0;
   #closing = false;
+  #quiescing = false;
   #binding: Promise<GatewayEndpoint> | undefined;
   #endpoint: GatewayEndpoint | undefined;
   #loop: Promise<void> | undefined;
   #driverFault = false;
   #wake: (() => void) | undefined;
   #cleanup: Promise<void> | undefined;
+  #quiesceTask: Promise<void> | undefined;
   #counts: Record<string, number> = {
     accepted: 0,
     replayed: 0,
@@ -248,6 +257,7 @@ export class ChannelGateway {
       (this.#native && !isNativeIntegration(configuration.integration))
     )
       throw new GatewayError('unauthorized');
+    this.#providerScope = Object.freeze({ ...configuration.integration.providerScope });
     const options = (input.options ?? {}) as GatewayOptions;
     const fields = dispatchFields(options, Object.keys(options));
     if (
@@ -405,8 +415,88 @@ export class ChannelGateway {
     if (this.#closing) return Promise.reject(new ChannelError('StorageUnavailable'));
     return this.#dispatcher.readPrepared(accountToken, receiptId);
   }
+  /** Process-local HTTP fence; serving grant revocation remains an explicit later owner action. */
+  async fenceNativeInput(bearer: string): Promise<void> {
+    if (!this.#native || this.#closing) throw new GatewayError('closing');
+    const key = createHash('sha256').update(nativeToken(bearer)).digest('hex');
+    if (!this.#nativeFences.has(key) && this.#nativeFences.size >= 1024)
+      throw new GatewayError('capacity');
+    // Publish the fence before the first await. Bodies not yet admitted to SQL
+    // recheck it after reading; actual admitted accepts remain owned until settled.
+    this.#nativeFences.add(key);
+    await Promise.allSettled([...(this.#nativeAccepts.get(key) ?? [])]);
+  }
+  /** Read at most sixteen total retained history records, then observe this binding's inputs.
+   * The caller must first fence this same bearer and keep ordinary dispatch live.
+   * Ambiguous external calls use lookup-only reconciliation, never a new key. */
+  drainNativeInput(accountToken: string, bindingId: string, bearer: string): Promise<void> {
+    const binding = nativeUuid(bindingId),
+      key = createHash('sha256').update(nativeToken(bearer)).digest('hex');
+    if (!this.#native || this.#closing || this.#quiescing || !this.#nativeFences.has(key))
+      return Promise.reject(new GatewayError('closing'));
+    if (this.#nativeDrains.size >= 2) return Promise.reject(new GatewayError('capacity'));
+    const deadline = performance.now() + 20000;
+    const check = () => {
+      if (this.#closing || this.#quiescing || performance.now() >= deadline)
+        throw new GatewayError('cleanup_incomplete');
+    };
+    const actual = Promise.resolve().then(async () => {
+      check();
+      const page = await this.#inbox.history(accountToken, { limit: 16 });
+      check();
+      if (page.nextCursor !== undefined) throw new GatewayError('cleanup_incomplete');
+      const inputs = page.messages.filter(
+        (m) =>
+          m.event.type === 'text.received' &&
+          ['web_chat', 'voice_transcript'].includes(m.event.channel) &&
+          m.event.providerScope.tenantId === this.#providerScope.tenantId &&
+          m.event.providerScope.provider === this.#providerScope.provider &&
+          m.event.providerScope.providerAccountId === this.#providerScope.providerAccountId &&
+          m.event.senderId === binding,
+      );
+      let remaining = [...inputs];
+      while (remaining.length) {
+        const pending: typeof remaining = [];
+        for (const message of remaining) {
+          check();
+          const observed = await this.#dispatcher.inspect(accountToken, message.receipt.receiptId);
+          check();
+          if (observed.operationKey !== message.operationKey)
+            throw new GatewayError('cleanup_incomplete');
+          if (observed.state === 'dispatched' && observed.externalReceiptId !== null) continue;
+          if (['blocked', 'exhausted'].includes(observed.state))
+            throw new GatewayError('cleanup_incomplete');
+          if (observed.possibleExternal) {
+            try {
+              await this.#dispatcher.reconcile(accountToken, message.receipt.receiptId);
+            } catch (error) {
+              if (
+                !(error instanceof ChannelError) ||
+                !['Overloaded', 'DispatchClaimLost', 'DispatchUnavailable'].includes(error.code)
+              )
+                throw new GatewayError('cleanup_incomplete');
+            }
+          }
+          pending.push(message);
+        }
+        remaining = pending;
+        if (remaining.length) {
+          this.#nudge();
+          await new Promise<void>((resolve) => setTimeout(resolve, 100));
+        }
+      }
+      check();
+    });
+    this.#nativeDrains.add(actual);
+    void actual.then(
+      () => this.#nativeDrains.delete(actual),
+      () => this.#nativeDrains.delete(actual),
+    );
+    return actual;
+  }
   async listen(port = 0): Promise<GatewayEndpoint> {
-    if (this.#closing || this.#binding || this.#endpoint) throw new GatewayError('closing');
+    if (this.#closing || this.#quiescing || this.#binding || this.#endpoint)
+      throw new GatewayError('closing');
     positive(port, 0, 65535, 0);
     const deadline = performance.now() + this.#startupMs;
     const binding = this.#bind(port, deadline);
@@ -442,7 +532,7 @@ export class ChannelGateway {
     }
   }
   #starting(deadline: number): void {
-    if (this.#closing) throw new GatewayError('closing');
+    if (this.#closing || this.#quiescing) throw new GatewayError('closing');
     if (performance.now() >= deadline) throw new GatewayError('storage_unavailable');
   }
   async #bind(port: number, deadline: number): Promise<GatewayEndpoint> {
@@ -639,6 +729,7 @@ export class ChannelGateway {
         this.#emit('http', 'communication_known');
         return;
       }
+      if (this.#quiescing) throw new GatewayError('closing');
       if (this.#native) {
         if (request.method !== 'POST' || request.url !== '/v1/native/accept')
           throw new GatewayError('not_found');
@@ -654,6 +745,8 @@ export class ChannelGateway {
           !/^Bearer [A-Za-z0-9_-]{32,128}(?![\s\S])/.test(fields.authorization)
         )
           throw new NativeError('forbidden');
+        const intakeKey = createHash('sha256').update(fields.authorization.slice(7)).digest('hex');
+        if (this.#nativeFences.has(intakeKey)) throw new NativeError('closed');
         this.#intakes++;
         intake = true;
         const raw = await body(request, Number(fields['content-length']));
@@ -665,10 +758,23 @@ export class ChannelGateway {
         } catch {
           throw new NativeError('invalid_input');
         }
-        const accepted = await this.#inbox.acceptNative(
-          fields.authorization.slice(7),
-          nativeInput(value),
-        );
+        if (this.#quiescing) throw new GatewayError('closing');
+        if (this.#nativeFences.has(intakeKey) || this.#quiescing || this.#closing)
+          throw new NativeError('closed');
+        const originalBearer = fields.authorization.slice(7),
+          originalInput = nativeInput(value),
+          actualAccept = Promise.resolve().then(() =>
+            this.#inbox.acceptNative(originalBearer, originalInput),
+          );
+        const accepts = this.#nativeAccepts.get(intakeKey) ?? new Set<Promise<unknown>>();
+        this.#nativeAccepts.set(intakeKey, accepts);
+        accepts.add(actualAccept);
+        const settled = () => {
+          accepts.delete(actualAccept);
+          if (!accepts.size) this.#nativeAccepts.delete(intakeKey);
+        };
+        void actualAccept.then(settled, settled);
+        const accepted = await actualAccept;
         this.#increment(accepted.status === 'replayed' ? 'replayed' : 'accepted');
         if (accepted.status !== 'replayed') this.#nudge();
         const flushed = await this.#reply(response, 200, accepted);
@@ -691,7 +797,7 @@ export class ChannelGateway {
       this.#intakes++;
       intake = true;
       const raw = await body(request, length);
-      if (this.#closing) throw new GatewayError('closing');
+      if (this.#closing || this.#quiescing) throw new GatewayError('closing');
       const result = await this.#inbox.acceptSms(raw, {
         timestamp: fields['x-p2-timestamp'],
         signature: fields['x-p2-signature'],
@@ -785,7 +891,7 @@ export class ChannelGateway {
   }
   async #drive(): Promise<void> {
     let delayMs = this.#pollMs;
-    while (!this.#closing) {
+    while (!this.#closing && !this.#quiescing) {
       const start = this.#cursor,
         deadline = performance.now() + 2000;
       this.#cursor = (this.#cursor + 1) % this.#tokens.length;
@@ -797,6 +903,7 @@ export class ChannelGateway {
         performance.now() < deadline &&
         remaining > 0 &&
         !this.#closing &&
+        !this.#quiescing &&
         (this.#hook === undefined || this.#intakes === 0);
         offset++
       ) {
@@ -806,6 +913,7 @@ export class ChannelGateway {
           for (const id of eligible) {
             if (
               this.#closing ||
+              this.#quiescing ||
               (this.#hook !== undefined && this.#intakes > 0) ||
               performance.now() >= deadline
             )
@@ -827,7 +935,35 @@ export class ChannelGateway {
       // that dispatches nothing backs off like an idle cycle.
       delayMs = dispatched || this.#nudged ? this.#pollMs : Math.min(delayMs * 2, this.#idlePollMs);
       this.#nudged = false;
-      if (!this.#closing) await this.#pause(delayMs);
+      if (!this.#closing && !this.#quiescing) await this.#pause(delayMs);
+    }
+  }
+  /** Sticky dispatch/intake fence; keep source reads and room-control dependencies alive. */
+  async quiesceDispatch(): Promise<void> {
+    this.#quiescing = true;
+    this.#wake?.();
+    if (!this.#quiesceTask) {
+      const actual = Promise.allSettled([this.#loop, this.#dispatcher.quiesce()]).then(
+        (results) => {
+          if (results.some((result) => result.status === 'rejected'))
+            throw new GatewayError('cleanup_incomplete');
+        },
+      );
+      this.#quiesceTask = actual;
+      void actual.catch(() => {
+        if (this.#quiesceTask === actual) this.#quiesceTask = undefined;
+      });
+    }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        this.#quiesceTask,
+        new Promise<never>((_resolve, reject) => {
+          timer = setTimeout(() => reject(new GatewayError('cleanup_incomplete')), this.#cleanupMs);
+        }),
+      ]);
+    } finally {
+      if (timer) clearTimeout(timer);
     }
   }
   async close(): Promise<void> {
@@ -869,6 +1005,7 @@ export class ChannelGateway {
     for (const socket of this.#sockets) socket.destroy();
     await stopped;
     await Promise.all([...socketClosed, ...this.#handlers, this.#loop]);
+    await Promise.allSettled([...this.#nativeDrains]);
     const results = await Promise.allSettled([this.#dispatcher.close(), this.#inbox.close()]);
     if (results.some((result) => result.status === 'rejected'))
       throw new GatewayError('cleanup_incomplete');

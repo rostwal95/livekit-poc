@@ -130,6 +130,7 @@ export class ChannelDispatcher {
   readonly #options: ReturnType<typeof limits>;
   readonly #tasks = new Set<Task>();
   #closing = false;
+  #quiescing = false;
   #closed: Promise<void> | undefined;
   #notifications = 0;
   readonly #counts: Record<string, number> = Object.create(null) as Record<string, number>;
@@ -177,7 +178,8 @@ export class ChannelDispatcher {
   }
   /** A bounded observation of persisted due work, never execution permission. */
   eligible(accountToken: string, limit = 4): Promise<readonly string[]> {
-    if (this.#closing) return Promise.reject(new ChannelError('StorageUnavailable'));
+    if (this.#closing || this.#quiescing)
+      return Promise.reject(new ChannelError('StorageUnavailable'));
     return this.#store.eligible(accountToken, limit);
   }
   /** Existing prepared history only; never computes, claims or submits work. */
@@ -197,7 +199,8 @@ export class ChannelDispatcher {
     return this.#start(accountToken, receiptId, 'reconcile');
   }
   #start(token: string, id: string, kind: 'dispatch' | 'reconcile'): Promise<DispatchStepResult> {
-    if (this.#closing) return Promise.reject(new ChannelError('StorageUnavailable'));
+    if (this.#closing || this.#quiescing)
+      return Promise.reject(new ChannelError('StorageUnavailable'));
     if (this.#tasks.size >= 2) return Promise.reject(new ChannelError('Overloaded'));
     const controller = new AbortController(),
       deadline = performance.now() + this.#options.timeoutMs;
@@ -366,6 +369,11 @@ export class ChannelDispatcher {
       throw checked;
     }
   }
+  /** Fence new attempts and observe actual calls; retain prepared/receipt reads and the store. */
+  quiesce(): Promise<void> {
+    this.#quiescing = true;
+    return this.#close([...this.#tasks], performance.now() + this.#options.cleanupTimeoutMs, false);
+  }
   close(): Promise<void> {
     if (this.#closed) return this.#closed;
     this.#closing = true;
@@ -383,11 +391,13 @@ export class ChannelDispatcher {
     });
     return this.#closed;
   }
-  async #close(tasks: readonly Task[], deadline: number): Promise<void> {
+  async #close(tasks: readonly Task[], deadline: number, closeStore = true): Promise<void> {
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
       await Promise.race([
-        Promise.all(tasks.map((task) => task.settled)).then(() => this.#store.close()),
+        Promise.all(tasks.map((task) => task.settled)).then(() =>
+          closeStore ? this.#store.close() : undefined,
+        ),
         new Promise<never>((_done, reject) => {
           timer = setTimeout(
             () => reject(new ChannelError('CleanupIncomplete')),

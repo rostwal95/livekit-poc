@@ -1,0 +1,42 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, AgentTask, AgentSession, AgentServer, function_tool\n\nserver = AgentServer()\n\n\nclass CollectConsent(AgentTask):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are collecting recording consent from a caller.\n          Ask if they consent to being recorded. If they say yes or agree,\n          call the consent_given tool. If they say no or refuse, call the\n          consent_refused tool. Be brief and professional.\"\"\"\n      )\n\n  @function_tool\n  async def consent_given(self, context):\n      \"\"\"Called when the caller gives consent to recording.\"\"\"\n      self.complete()\n\n  @function_tool\n  async def consent_refused(self, context):\n      \"\"\"Called when the caller refuses consent to recording.\"\"\"\n      await self.session.say(\n          \"I understand. Thank you for calling Bright Smile Dental. Goodbye.\"\n      )\n      # Disconnect the SIP participant to end the call\n      await self.session.room.disconnect()\n\n  async def on_enter(self):\n      await self.session.say(\n          \"Thank you for calling Bright Smile Dental. \"\n          \"This call may be recorded for quality purposes. \"\n          \"Do you consent to being recorded?\"\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { AgentTask, functionTool } from \"@livekit/agents\";\n\nclass CollectConsent extends AgentTask {\nconstructor() {\n  super({\n    instructions: `You are collecting recording consent from a caller.\n      Ask if they consent to being recorded. If they say yes or agree,\n      call the consent_given tool. If they say no or refuse, call the\n      consent_refused tool. Be brief and professional.`,\n  });\n}\n\n@functionTool()\nasync consentGiven(context: any) {\n  /** Called when the caller gives consent to recording. */\n  this.complete();\n}\n\n@functionTool()\nasync consentRefused(context: any) {\n  /** Called when the caller refuses consent to recording. */\n  await this.session.say(\n    \"I understand. Thank you for calling Bright Smile Dental. Goodbye.\"\n  );\n  await this.session.room.disconnect();\n}\n\nasync onEnter() {\n  await this.session.say(\n    \"Thank you for calling Bright Smile Dental. \" +\n    \"This call may be recorded for quality purposes. \" +\n    \"Do you consent to being recorded?\"\n  );\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, AgentTask, AgentSession, AgentServer, function_tool\nfrom livekit.plugins import openai, deepgram, cartesia\n\nserver = AgentServer()\n\n\nclass CollectConsent(AgentTask):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are collecting recording consent from a caller.\n          Ask if they consent to being recorded. If they say yes or agree,\n          call the consent_given tool. If they say no or refuse, call the\n          consent_refused tool. Be brief and professional.\"\"\"\n      )\n\n  @function_tool\n  async def consent_given(self, context):\n      \"\"\"Called when the caller gives consent to recording.\"\"\"\n      self.complete()\n\n  @function_tool\n  async def consent_refused(self, context):\n      \"\"\"Called when the caller refuses consent to recording.\"\"\"\n      await self.session.say(\n          \"I understand. Thank you for calling Bright Smile Dental. Goodbye.\"\n      )\n      await self.session.room.disconnect()\n\n  async def on_enter(self):\n      await self.session.say(\n          \"Thank you for calling Bright Smile Dental. \"\n          \"This call may be recorded for quality purposes. \"\n          \"Do you consent to being recorded?\"\n      )\n\n\n@server.rtc_session\nasync def entrypoint(session: AgentSession):\n  await session.start(\n      agent=Agent(\n          instructions=\"\"\"You are a friendly receptionist at Bright Smile Dental clinic.\n          Keep responses brief and conversational. Never use markdown or emojis.\n          Help callers with appointment inquiries, clinic hours, and general questions.\"\"\",\n          tasks=[CollectConsent()],\n      ),\n      room=session.room,\n      stt=deepgram.STT(model=\"nova-3\"),\n      llm=openai.LLM(model=\"gpt-4o-mini\"),\n      tts=cartesia.TTS(voice=\"<voice-id>\"),\n  )\n\n\nif __name__ == \"__main__\":\n  server.run()"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, AgentSession, AgentServer, AgentTask, functionTool } from \"@livekit/agents\";\nimport { DeepgramSTT } from \"@livekit/agents-plugin-deepgram\";\nimport { OpenAILLM } from \"@livekit/agents-plugin-openai\";\nimport { CartesiaTTS } from \"@livekit/agents-plugin-cartesia\";\n\nclass CollectConsent extends AgentTask {\nconstructor() {\n  super({\n    instructions: `You are collecting recording consent from a caller.\n      Ask if they consent to being recorded. If they say yes or agree,\n      call the consent_given tool. If they say no or refuse, call the\n      consent_refused tool. Be brief and professional.`,\n  });\n}\n\n@functionTool()\nasync consentGiven(context: any) {\n  /** Called when the caller gives consent to recording. */\n  this.complete();\n}\n\n@functionTool()\nasync consentRefused(context: any) {\n  /** Called when the caller refuses consent to recording. */\n  await this.session.say(\n    \"I understand. Thank you for calling Bright Smile Dental. Goodbye.\"\n  );\n  await this.session.room.disconnect();\n}\n\nasync onEnter() {\n  await this.session.say(\n    \"Thank you for calling Bright Smile Dental. \" +\n    \"This call may be recorded for quality purposes. \" +\n    \"Do you consent to being recorded?\"\n  );\n}\n}\n\nconst server = new AgentServer();\n\nserver.rtcSession(async (session: AgentSession) => {\nawait session.start({\n  agent: new Agent({\n    instructions: `You are a friendly receptionist at Bright Smile Dental clinic.\n      Keep responses brief and conversational. Never use markdown or emojis.\n      Help callers with appointment inquiries, clinic hours, and general questions.`,\n    tasks: [new CollectConsent()],\n  }),\n  room: session.room,\n  stt: new DeepgramSTT({ model: \"nova-3\" }),\n  llm: new OpenAILLM({ model: \"gpt-4o-mini\" }),\n  tts: new CartesiaTTS({ voice: \"<voice-id>\" }),\n});\n});\n\nserver.run();"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "class CollectConsent(AgentTask):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are collecting recording consent from a caller.\n          Ask if they consent to being recorded.\n\n          If they clearly agree (yes, sure, okay, that's fine, go ahead),\n          call the consent_given tool.\n\n          If they clearly refuse (no, I don't want to, absolutely not),\n          call the consent_refused tool.\n\n          If their answer is ambiguous, ask once more for a clear yes or no.\n          Do not ask more than twice.\"\"\"\n      )"
+  }
+]

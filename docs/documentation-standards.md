@@ -243,7 +243,7 @@ and POC means proof of concept.
 | G scripted profile | Uses declared fixtures rather than general inference |
 | `local_real` | Implements prepared local Whisper/Qwen/Piper inference; actual engine, model and media qualification is tracked separately |
 | `provider_real` | Uses Deepgram/OpenAI/ElevenLabs with native-only private keys; the selected v2 gate passed both actual browser cases with cleanup, and P1 V1 is qualified for the local POC with it |
-| Specialist analysis | No current profile implements P2/P3 specialist analysis |
+| Specialist analysis | Current P3 policy and image capabilities use bounded deterministic fixtures; general model-based specialist reasoning remains planned |
 | Product scenarios | Working infrastructure does not complete any of the 54 product scenarios (55 catalog definitions including the baseline) |
 
 ### Identities and scope

@@ -22,6 +22,43 @@ current capability summary.
 - The [documentation map](README.md#history) lists every work item, including
   0001 to 0028.
 
+## Lifecycle drains and documentation cleanup (0050)
+
+The [0050 repair](work-items/0050-lifecycle-drain-and-documentation-cleanup.md)
+keeps original native input dependencies alive through dispatch, then quiesces
+gateway dispatch before closing Parent origins. Retained cleanup makes progress
+after an incomplete observation without requiring a second stop signal.
+
+| Evidence | Boundary |
+| --- | --- |
+| Six supplemental PostgreSQL/HTTP schedules | Original identities progress through held calls and lost acknowledgements; expired, revoked and exhausted inputs remain blocked |
+| Existing six-group native regression | Actual local PostgreSQL, SDK, managed browser, scripted text/voice and owned cleanup; no physical microphone or full room-resumption claim |
+| Joined scripted observations | Eleven journey stages and one-signal child closure observed; the desktop update interrupted the browser controller's final result write, which remains explicitly incomplete |
+| Documentation review | All 137 maintained files reviewed with explicit full, targeted and historical-retention coverage; current guidance and historical qualifications remain distinct |
+
+The work item owns the aggregate checks and installed-package results. It adds
+no acceptance registration or full joined 45B/45C/45D release claim.
+
+## SDK compatibility and code review (0049)
+
+The [0049 review](work-items/0049-sdk-compatibility-and-code-review.md) checks
+public interfaces against installed SDK contracts and tests. It records
+contained native-close, native-capacity, diagnostic and provider-prompt repairs.
+
+| Evidence | Boundary |
+| --- | --- |
+| Offline Python, TypeScript, typing and formatting checks | The audit records the selected counts, exact Node prerequisite and failed-run diagnosis |
+| Existing PostgreSQL, browser/media and provider qualifications | Preserved as historical evidence; those lanes were not freshly rerun in this audit |
+| Broader lifecycle findings | Remained open at this checkpoint; no P2/P3 acceptance row was added |
+
+## Repository code and documentation audit (0048)
+
+The [0048 audit](work-items/0048-code-audit-fixes-and-documentation-cleanup.md)
+records contained API, storage, transport, setup and documentation corrections.
+Its validation table distinguishes full runs, targeted reruns and initial
+failures. The open-findings table preserves the lifecycle and design decisions
+left for subsequent work; it is not a new passing release claim.
+
 ## Review findings, schema upgrades and landing page (0047)
 
 The [0047 work item](work-items/0047-open-findings-schema-upgrades-and-landing.md)

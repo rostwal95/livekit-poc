@@ -1,0 +1,197 @@
+1Deployment architecture
+
+2Docker configuration
+
+3LiveKit Cloud deployment
+
+4Monitoring setup
+
+5Custom metrics & data hooks
+
+6Alerting & incident response
+
+7Multi-tenant architecture
+
+8Auto-scaling
+
+9Cost optimization
+
+10Blue-green deployments
+
+11Operational runbook
+
+Cost optimization
+
+Optimizing voice AI costs
+
+A voice agent that works perfectly but costs three dollars per conversation will not survive its first invoice review. The three biggest cost drivers are LLM tokens, STT minutes, and TTS characters. In this chapter, you will learn to track, analyze, and reduce each one without sacrificing conversation quality.
+
+What you'll learn
+
+How to track per-session costs across all AI providers
+
+How to use model tiering to route simple queries to cheaper models
+
+How to implement caching strategies that cut repeated work
+
+How different provider choices compare on cost
+
+Tracking per-session costs
+
+You cannot optimize what you do not measure. Instrument your agent to emit cost metrics for every session.
+
+from dataclasses import dataclass, field
+from livekit.agents import Agent, AgentSession
+
+@dataclass
+class SessionCosts:
+  llm_input_tokens: int = 0
+  llm_output_tokens: int = 0
+  stt_audio_seconds: float = 0.0
+  tts_characters: int = 0
+
+  @property
+  def estimated_cost_usd(self) -> float:
+      # Adjust rates to match your provider pricing
+      llm_input = self.llm_input_tokens * 0.15 / 1_000_000   # $0.15/M input
+      llm_output = self.llm_output_tokens * 0.60 / 1_000_000  # $0.60/M output
+      stt = self.stt_audio_seconds * 0.006 / 60               # $0.006/min
+      tts = self.tts_characters * 15.00 / 1_000_000           # $15/M chars
+      return llm_input + llm_output + stt + tts
+
+
+class CostTrackedAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="You are a helpful voice assistant.",
+      )
+      self.costs = SessionCosts()
+
+  async def llm_node(self, chat_ctx, tools):
+      async for chunk in Agent.default.llm_node(self, chat_ctx, tools):
+          if hasattr(chunk, "usage"):
+              self.costs.llm_input_tokens += chunk.usage.prompt_tokens or 0
+              self.costs.llm_output_tokens += chunk.usage.completion_tokens or 0
+          yield chunk
+
+  async def on_agent_session_end(self):
+      print(f"Session cost: ${self.costs.estimated_cost_usd:.4f}")
+      # Send to your analytics pipeline
+      await report_cost(self.costs)
+
+import { Agent } from "@livekit/agents";
+
+interface SessionCosts {
+llmInputTokens: number;
+llmOutputTokens: number;
+sttAudioSeconds: number;
+ttsCharacters: number;
+}
+
+function estimateCostUsd(costs: SessionCosts): number {
+const llmInput = costs.llmInputTokens * 0.15 / 1_000_000;
+const llmOutput = costs.llmOutputTokens * 0.60 / 1_000_000;
+const stt = costs.sttAudioSeconds * 0.006 / 60;
+const tts = costs.ttsCharacters * 15.0 / 1_000_000;
+return llmInput + llmOutput + stt + tts;
+}
+
+class CostTrackedAgent extends Agent {
+private costs: SessionCosts = {
+  llmInputTokens: 0,
+  llmOutputTokens: 0,
+  sttAudioSeconds: 0,
+  ttsCharacters: 0,
+};
+
+constructor() {
+  super({ instructions: "You are a helpful voice assistant." });
+}
+}
+
+Model tiering
+
+Not every caller utterance needs your most powerful model. A simple "yes" or "what are your hours?" can be handled by a fast, cheap model. Reserve the expensive model for complex reasoning.
+
+from livekit.agents import Agent
+from livekit.plugins import openai
+
+FAST_LLM = openai.LLM(model="gpt-4o-mini")      # ~10x cheaper
+POWERFUL_LLM = openai.LLM(model="gpt-4o")         # Higher quality
+
+# Simple heuristic: short messages with common intents use the fast model
+SIMPLE_PATTERNS = [
+  "yes", "no", "thanks", "bye", "hello", "hi",
+  "what are your hours", "where are you located",
+  "can i speak to someone",
+]
+
+
+class TieredAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="You are a helpful voice assistant.",
+      )
+
+  async def llm_node(self, chat_ctx, tools):
+      last_message = chat_ctx.messages[-1].text.lower().strip()
+      is_simple = (
+          len(last_message.split()) < 8
+          or any(p in last_message for p in SIMPLE_PATTERNS)
+      )
+      model = FAST_LLM if is_simple else POWERFUL_LLM
+      async for chunk in model.chat(chat_ctx=chat_ctx, tools=tools):
+          yield chunk
+
+Test tiering thoroughly
+
+A misrouted complex query to the fast model produces a bad answer the caller hears immediately. Start with conservative routing (only the most obvious simple patterns) and expand gradually based on quality metrics.
+
+Caching strategies
+
+Many voice agents answer the same questions repeatedly. Caching avoids paying for the same LLM call twice.
+
+Hash the last user message plus system instructions. If you have seen a sufficiently similar query before, return the cached response. Use an embedding similarity threshold (e.g., cosine similarity above 0.95) rather than exact string matching, since callers phrase the same question differently.
+
+The same response text produces the same audio. Cache synthesized audio keyed on the text content and voice ID. This is especially effective for greetings, hold messages, and common answers. TTS caching alone can reduce costs by 20-30% for repetitive workloads.
+
+If your agent handles many simultaneous calls to the same IVR menu, callers often say the same things. While STT caching is harder (audio varies), you can cache the downstream processing of common transcription results.
+
+import hashlib
+from typing import Optional
+
+# Simple in-memory TTS cache — use Redis in production
+_tts_cache: dict[str, bytes] = {}
+
+
+def cache_key(text: str, voice_id: str) -> str:
+  return hashlib.sha256(f"{voice_id}:{text}".encode()).hexdigest()
+
+
+def get_cached_audio(text: str, voice_id: str) -> Optional[bytes]:
+  return _tts_cache.get(cache_key(text, voice_id))
+
+
+def store_cached_audio(text: str, voice_id: str, audio: bytes) -> None:
+  key = cache_key(text, voice_id)
+  _tts_cache[key] = audio
+
+Cost comparison reference
+
+Use this table as a starting point when choosing providers. Prices change frequently, so verify against current provider pricing.
+
+Component | Provider | Cost | Notes
+LLM | GPT-4o-mini | $0.15 / $0.60 per M tokens (in/out) | Good for simple routing
+LLM | GPT-4o | $2.50 / $10.00 per M tokens (in/out) | Complex reasoning
+STT | Deepgram Nova-3 | $0.0059 / min | Low latency streaming
+STT | Google Chirp | $0.016 / min | High accuracy
+TTS | Cartesia Sonic | $0.015 / 1K chars | Fast, natural voice
+TTS | ElevenLabs | $0.30 / 1K chars | Premium voice quality
+
+Cost optimization is a continuous process, not a one-time setup. Track costs per session, set budgets and alerts when per-session costs exceed thresholds, and revisit your model tiering and caching strategies monthly as provider pricing and model capabilities evolve.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why should model tiering start with conservative routing rather than aggressively sending most queries to the cheaper model?

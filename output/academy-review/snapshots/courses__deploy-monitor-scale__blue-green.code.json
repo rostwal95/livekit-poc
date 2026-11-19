@@ -1,0 +1,34 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\nname: voice-agent-green\nnamespace: livekit\nlabels:\n  app: voice-agent\n  version: green\nspec:\nreplicas: 4\nselector:\n  matchLabels:\n    app: voice-agent\n    version: green\ntemplate:\n  metadata:\n    labels:\n      app: voice-agent\n      version: green\n  spec:\n    terminationGracePeriodSeconds: 900  # 15 min for calls to finish\n    containers:\n      - name: agent\n        image: registry.example.com/voice-agent:v2.1.0\n        lifecycle:\n          preStop:\n            exec:\n              command:\n                - /bin/sh\n                - -c\n                - \"sleep 5 && kill -SIGTERM 1\"\n        ports:\n          - containerPort: 8080"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import random\nfrom livekit.agents import AgentServer, AgentSession, Agent\n\nserver = AgentServer()\n\nCANARY_PERCENTAGE = 10  # Start with 10% of new calls\n\n\nclass ProductionAgent(Agent):\n  \"\"\"Current stable version.\"\"\"\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a helpful assistant. Version 2.0.\",\n      )\n\n\nclass CanaryAgent(Agent):\n  \"\"\"New version under evaluation.\"\"\"\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a helpful assistant. Version 2.1.\",\n      )\n\n\n@server.rtc_session\nasync def entrypoint(session: AgentSession):\n  if random.randint(1, 100) <= CANARY_PERCENTAGE:\n      agent = CanaryAgent()\n      version = \"canary\"\n  else:\n      agent = ProductionAgent()\n      version = \"stable\"\n\n  # Tag the session for monitoring\n  session.room.metadata = f'{{\"agent_version\": \"{version}\"}}'\n\n  await session.start(\n      agent=agent,\n      room=session.room,\n  )\n\n\nif __name__ == \"__main__\":\n  server.run()"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, AgentServer, AgentSession } from \"@livekit/agents\";\n\nconst CANARY_PERCENTAGE = 10;\n\nclass ProductionAgent extends Agent {\nconstructor() {\n  super({ instructions: \"You are a helpful assistant. Version 2.0.\" });\n}\n}\n\nclass CanaryAgent extends Agent {\nconstructor() {\n  super({ instructions: \"You are a helpful assistant. Version 2.1.\" });\n}\n}\n\nconst server = new AgentServer();\n\nserver.rtcSession(async (session: AgentSession) => {\nconst isCanary = Math.random() * 100 < CANARY_PERCENTAGE;\nconst agent = isCanary ? new CanaryAgent() : new ProductionAgent();\n\nawait session.start({\n  agent,\n  room: session.room,\n});\n});\n\nserver.run();"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import os\nfrom livekit.agents import Agent\n\n# Feature flags from environment or a remote config service\nFLAGS = {\n  \"new_greeting\": os.getenv(\"FF_NEW_GREETING\", \"false\") == \"true\",\n  \"use_cartesia_v2\": os.getenv(\"FF_CARTESIA_V2\", \"false\") == \"true\",\n  \"enable_sentiment\": os.getenv(\"FF_SENTIMENT\", \"false\") == \"true\",\n}\n\n\nclass FeatureFlaggedAgent(Agent):\n  def __init__(self):\n      greeting = (\n          \"Welcome! How can I help you today?\"\n          if FLAGS[\"new_greeting\"]\n          else \"Hello, thanks for calling. What can I do for you?\"\n      )\n      super().__init__(\n          instructions=f\"\"\"You are a helpful voice assistant.\n          Greet the caller with: {greeting}\"\"\",\n      )\n\n  async def tts_node(self, text):\n      if FLAGS[\"use_cartesia_v2\"]:\n          # Use new TTS model\n          pass\n      async for audio in Agent.default.tts_node(self, text):\n          yield audio"
+  }
+]

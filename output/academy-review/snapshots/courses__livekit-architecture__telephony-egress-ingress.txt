@@ -1,0 +1,115 @@
+1Why WebRTC? The latency problem in voice AI
+
+2P2P vs MCU vs SFU: why LiveKit chose the SFU
+
+3Rooms, Participants & Tracks: universal primitives
+
+4AI agents as room participants
+
+5The data plane: streams, RPC & state sync
+
+6Extending the room: telephony, egress & ingress
+
+7Security, encryption & self-hosting
+
+8The universal SDK ecosystem
+
+Extending the room: telephony, egress & ingress
+
+Extending the room: telephony, egress & ingress
+
+In this chapter, you will learn how LiveKit extends the room model to encompass telephone calls, recording and livestreaming, and external media sources. You will see a powerful architectural pattern at work: every integration — SIP phone calls, MP4 recordings, RTMP streams from OBS — maps back to the same rooms, participants, and tracks primitives you already understand. Nothing requires a separate system. Everything is just another participant in the room.
+
+The room is the universal abstraction
+
+In the previous chapters, you learned that a Room is a virtual space, a Participant is anything that connects, and a Track is a media stream. The elegance of this model becomes fully apparent when you see how LiveKit handles integrations that other platforms treat as entirely separate products.
+
+Most competing platforms offer telephony as a separate service with a separate API. Recording lives in yet another system. Livestreaming is a third. Each has its own authentication, its own concepts, its own failure modes. LiveKit takes a radically different approach: every external integration becomes a participant in a room, publishing and subscribing to tracks just like any browser client or AI agent.
+
+This is not a cosmetic detail. It means your application logic does not change when a phone caller joins. It means recording does not require a different mental model. It means an RTMP stream from a broadcast studio and a WebRTC stream from a laptop are, from your application's perspective, the same thing.
+
+SIP and PSTN: phone callers as room participants
+
+SIP (Session Initiation Protocol) is the standard for telephone networks. PSTN (Public Switched Telephone Network) is the global phone system. LiveKit bridges both into the room model through a two-step process: SIP trunks and dispatch rules.
+
+A SIP trunk is a connection between LiveKit and a telephony provider (like Twilio, Telnyx, or your own SIP infrastructure). It defines the phone numbers and credentials that LiveKit uses to send and receive calls. Think of it as the "phone line" connecting LiveKit to the telephone network.
+
+Dispatch rules determine what happens when a call arrives on a trunk. When someone dials one of your phone numbers, the dispatch rule decides which room to place them in. Rules can route calls to a specific room, create a new room per call, or use custom logic to determine placement.
+
+Once routed, the phone caller becomes a participant in the room — specifically, a participant with ParticipantKind.SIP. Their telephone audio becomes an audio track, published into the room exactly like a microphone track from a browser. Other participants — humans, AI agents, other phone callers — can subscribe to that track and hear the caller. When other participants publish audio, it is mixed and sent back to the caller as standard telephone audio.
+
+The caller does not know they are in a room
+
+From the phone caller's perspective, they dialed a phone number and are having a conversation. They have no awareness of rooms, participants, or tracks. From your application's perspective, they are just another participant. This asymmetry is powerful: your application code handles every participant type uniformly.
+
+The implications for voice AI are profound. A voice AI agent running in a LiveKit room can answer phone calls with zero changes to its logic. The agent subscribes to audio tracks, runs its STT-LLM-TTS pipeline, and publishes audio back — regardless of whether the audio originated from a browser microphone or a telephone handset. The same agent, the same room, the same code.
+
+Egress: getting media out of rooms
+
+Egress is the process of extracting media from a room — recording it to a file, streaming it to an external platform, or both. LiveKit provides three egress modes, each suited to different needs.
+
+Room composite egress records or streams the entire room as a single output. LiveKit renders all visible participants into a composite layout — think of it as recording what a viewer would see on screen, with all video tiles arranged and all audio mixed. The output can be an MP4 file saved to cloud storage (S3, GCS, Azure Blob), an HLS stream for web playback, or an RTMP stream pushed to YouTube Live, Twitch, or any RTMP-compatible platform.
+
+Track composite egress is similar but gives you more control over which tracks are included and how they are arranged. You select specific audio and video tracks rather than recording everything in the room.
+
+Track egress records individual tracks in isolation. If you need just the agent's audio output as a separate file, or just one participant's video, track egress delivers that without the overhead of compositing.
+
+Egress mode | What it captures | Output formats | Best for
+Room composite | All participants, composited layout | MP4, HLS, RTMP | Livestreaming, full room recording
+Track composite | Selected tracks, composited | MP4, HLS, RTMP | Custom layouts, selective recording
+Track | Individual track, isolated | OGG, MP4, WebM | Archiving single streams, post-processing
+
+Egress destinations
+
+Egress outputs can be sent to Amazon S3, Google Cloud Storage, Azure Blob Storage, or any S3-compatible storage. For livestreaming, RTMP output can target YouTube Live, Twitch, Facebook Live, or any custom RTMP endpoint. You can even output to multiple destinations simultaneously.
+
+Egress is not a separate recording service with its own connection to participants. Internally, an egress process joins the room as a hidden participant, subscribes to the relevant tracks, and processes them. The room model remains the single source of truth.
+
+Ingress: bringing external media into rooms
+
+Ingress is the inverse of egress — it brings external media into a room. An external media source is wrapped as a room participant, publishing tracks just like any other participant.
+
+LiveKit supports two primary ingress protocols:
+
+RTMP ingress accepts streams from broadcasting software like OBS Studio, Streamlabs, or any tool that outputs RTMP. A broadcaster configures their software to push to a LiveKit RTMP endpoint, and that stream appears in the room as a participant with audio and video tracks. This is how professional production setups — with multicamera switching, overlays, and branded graphics — feed into LiveKit rooms.
+
+WHIP ingress uses the WebRTC-HTTP Ingestion Protocol, a newer standard that allows WebRTC-native sources to push media into LiveKit. Because WHIP uses WebRTC natively, it avoids the transcoding overhead of RTMP and delivers lower latency.
+
+Ingress protocol | Source examples | Latency | Best for
+RTMP | OBS, Streamlabs, hardware encoders | Higher (transcoding required) | Professional broadcasts, existing streaming setups
+WHIP | WebRTC-native sources, WHIP clients | Lower (native WebRTC) | Low-latency ingest, WebRTC-first workflows
+
+The pattern is consistent. An RTMP stream from OBS does not get special treatment in the LiveKit data model. It becomes a participant. It publishes tracks. Other participants subscribe to those tracks. Your application code does not need an "RTMP handler" — it just sees another participant with audio and video tracks.
+
+The pattern: everything extends the room
+
+Step back and look at what LiveKit has done architecturally:
+
+Integration | How it maps to the room model
+Browser client | Participant publishes/subscribes to tracks
+AI agent | Participant publishes/subscribes to tracks
+Phone caller (SIP) | Participant publishes/subscribes to tracks
+Recording (Egress) | Hidden participant subscribes to tracks, writes to storage
+Livestream (Egress) | Hidden participant subscribes to tracks, pushes to RTMP
+OBS stream (Ingress) | Participant publishes tracks from RTMP source
+WHIP source (Ingress) | Participant publishes tracks from WebRTC source
+
+Every row in that table uses the same three primitives: rooms, participants, and tracks. This is not an accident — it is a deliberate architectural decision that pays dividends in every layer of your application.
+
+Why uniform modeling matters
+
+When every integration maps to the same primitives, your permission model is uniform (access tokens govern all participants the same way), your event system is uniform (participant-joined fires for humans, agents, and phone callers alike), and your client code is uniform (no special cases for different participant types). The complexity of supporting telephony, recording, and external streams is absorbed by the infrastructure, not by your application.
+
+Test your knowledge
+
+Question 1 of 2
+
+How does a phone caller connect to a LiveKit room via SIP?
+
+The competitive picture
+
+Most platforms treat telephony, recording, and streaming as add-on products. You buy a WebRTC service for video calls, a separate telephony API for phone integration, a separate recording service for archiving, and a separate streaming service for broadcasts. Each has its own dashboard, its own billing, its own API surface, its own failure modes.
+
+LiveKit's approach — collapsing all of these into the room model — is architecturally unusual and practically powerful. It means a voice AI agent that works in a browser also works over the phone. It means recording is a property of a room, not a feature of a separate product. It means an OBS broadcast and a laptop webcam are interchangeable from the application's perspective.
+
+The room abstraction is doing enormous architectural work. By insisting that every form of media input and output maps to rooms, participants, and tracks, LiveKit eliminates entire categories of integration complexity. You do not need to learn six different systems — you need to understand one model deeply, and everything follows from it.

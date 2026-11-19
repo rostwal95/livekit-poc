@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Why is it insufficient to optimize for a single metric like interruption rate when evaluating turn detection configurations?",
+    "options": [
+      "Because A/B tests require at least three metrics to be statistically valid",
+      "Because metrics like interruption rate and response latency pull in opposite directions, so optimizing one can worsen the other",
+      "Because single metrics cannot be visualized in a comparison table",
+      "Because single metrics are harder to compute"
+    ],
+    "correctIndex": 1,
+    "explanation": "Turn detection metrics are inherently in tension. A low interruption rate is good, but not if it comes with high response latency because the agent waits too long to speak. You need to optimize across multiple metrics to find the configuration that balances responsiveness against patience for your specific use case."
+  },
+  {
+    "question": "A customer service agent gives long, detailed explanations. Which A/B test result would lead you to choose the conservative configuration?",
+    "options": [
+      "Higher false interruption rate in the conservative config",
+      "Higher completion rate and lower interruption rate in the conservative config",
+      "Lower completion rate in the conservative config",
+      "Lower response latency in the conservative config"
+    ],
+    "correctIndex": 1,
+    "explanation": "For agents that give long, detailed answers, completion rate and interruption rate matter most. A conservative configuration with higher completion rate and fewer interruptions ensures users hear the full answer, even though response latency is higher."
+  }
+]

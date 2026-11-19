@@ -1,0 +1,33 @@
+LiveKit Expert Certification
+
+Prove your expertise across the entire platform
+
+A comprehensive certification exam covering every aspect of LiveKit: architecture, voice pipeline, agent design, telephony, frontends, production operations, and integrations. Pass to demonstrate expert-level knowledge for consulting and implementation.
+
+What You Build
+
+Pass a comprehensive multi-domain certification exam covering all LiveKit concepts from the academy.
+
+Prerequisites
+
+->All previous tracks recommended
+
+Certification exam on LiveKit core architecture: WebRTC, SFU routing, rooms, participants, tracks, and the real-time infrastructure that powers everything.
+
+Certification exam on the voice AI pipeline: STT providers, LLM integration, TTS streaming, turn detection strategies, pipeline vs realtime architecture, and latency optimization.
+
+Certification exam on agent design: writing effective instructions, tool design, multi-agent orchestration, session lifecycle, context passing, and separation of concerns.
+
+Certification exam on telephony: SIP integration, PSTN connectivity, AI intent routing that replaces IVR, human escalation with context transfer, and CRM enrichment patterns.
+
+Certification exam on the client SDK: Session API, token authentication, track subscription, agent state machine, RPC integration, data channels, and text streams.
+
+Certification exam on production operations: testing strategies, evaluation metrics, monitoring, horizontal scaling, self-hosting considerations, and deployment patterns.
+
+Certification exam on the integration ecosystem: RAG patterns, LangChain/LangGraph integration, provider selection criteria, and the plugin architecture.
+
+Real-world consulting scenarios: design an architecture for a given business requirement, evaluate trade-offs, recommend solutions, and defend your decisions.
+
+What You Walk Away With
+
+LiveKit Expert certification demonstrating deep knowledge across architecture, agents, telephony, frontends, production operations, and integrations.

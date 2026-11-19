@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Why should Call Detail Records (CDRs) be generated from webhook events rather than constructed after the call ends?",
+    "options": [
+      "Because webhook events include billing information that post-call data does not",
+      "Because post-call CDR construction is not supported by LiveKit",
+      "Because building CDRs from events during the call creates an append-only timeline that captures the full lifecycle, enables streaming analytics, and supports debugging via event replay",
+      "Because webhook events are cheaper to process"
+    ],
+    "correctIndex": 2,
+    "explanation": "CDRs built from webhook events (participant_joined, participant_left, room_finished) capture a complete timeline of everything that happened during the call. This append-only approach enables real-time streaming to analytics, easy replay for debugging, and ensures no data is lost if the system crashes before a post-call summary can be generated."
+  },
+  {
+    "question": "What distinguishes a useful telephony dashboard from raw metric displays?",
+    "options": [
+      "A useful dashboard only shows metrics from the last hour",
+      "A useful dashboard answers three questions at a glance: is the system healthy now, how did we perform today, and are there concerning trends",
+      "A useful dashboard displays every possible metric simultaneously",
+      "A useful dashboard only shows alerts when something is wrong"
+    ],
+    "correctIndex": 1,
+    "explanation": "An effective dashboard is structured around three views: a real-time panel showing current state (active calls, queue depth), a daily summary compared to benchmarks, and trend charts over 7-30 days. This structure lets operations teams spot immediate problems, assess daily performance, and catch gradual degradation before it becomes a crisis."
+  }
+]

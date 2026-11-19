@@ -87,7 +87,9 @@ qualification counts and remaining limits.
 P3-I01 through P3-I17 completed their selected gates. P3-I18's durable
 prerequisite (P3-I18A) and native real-time communication (RTC) text slice
 (P3-I18B) passed selected qualification. P3-I19's 0043 and 0044 prerequisites
-are qualified. P3-I20 through P3-I24 remain planned.
+are qualified. P3-I19 and P3-I22 have partial joined composition in
+[0045](../work-items/0045-joined-native-channel-policy.md); their complete gates
+remain open. P3-I20, P3-I21, P3-I23 and P3-I24 remain planned.
 
 P3-01, P3-03 and P3-11 have registered passing lab assertions. The remaining 14
 cases stay planned, and full release remains pending. The harness catalog's
@@ -99,18 +101,19 @@ fifty-five definitions and twenty-four registered runners remain unchanged.
 | [P3-B](#phase-p3-b-one-authenticated-capability-and-useful-result) | P3-I03 to P3-I08, including P3-I07A and P3-I07B | Completed (selected scope) | [0025](../work-items/0025-p3-specialist-contracts-and-trust.md), [0027](../work-items/0027-p2-standalone-and-p3-http.md), [0028](../work-items/0028-p2-dispatch-and-p3-coordinator.md), [0029](../work-items/0029-p2-gateway-and-p3-issued-execution.md), [0030](../work-items/0030-p2-agent-recovery-and-p3-completion.md), [0031](../work-items/0031-revision-routing-and-delegation-acceptance.md) |
 | [P3-C](#phase-p3-c-durable-applicability-races-and-recovery) | P3-I09 to P3-I15 | Completed (selected scope) | [0032](../work-items/0032-linked-confirmation-and-result-projections.md), [0033](../work-items/0033-outbound-replies-and-completion-processing.md), [0034](../work-items/0034-callback-evidence-and-applicability-refresh.md), [0035](../work-items/0035-send-policy-and-action-races.md), [0036](../work-items/0036-native-input-and-deadline-cancellation.md), [0037](../work-items/0037-playback-evidence-and-process-recovery.md), [0038](../work-items/0038-case-rehydration-and-standalone-release.md) |
 | [P3-D](#phase-p3-d-two-bounded-read-only-capabilities) | P3-I16, P3-I17 | Completed (selected scope) | [0039](../work-items/0039-bounded-channel-workloads-and-image-evidence.md), [0040](../work-items/0040-operations-ui-and-fixed-policy-evidence.md) |
-| [P3-E](#phase-p3-e-responsive-conversation-route-continuity-and-local-runtime) | P3-I18 to P3-I22 | P3-I18A and P3-I18B completed (selected scope); P3-I19 prerequisites completed; P3-I20 to P3-I22 planned | [0041](../work-items/0041-standalone-channel-and-durable-policy.md), [0042](../work-items/0042-responsive-native-policy-and-compact-demo.md), [0043](../work-items/0043-stable-result-delivery-and-return-context.md), [0044](../work-items/0044-origin-bound-channel-policy.md) |
+| [P3-E](#phase-p3-e-responsive-conversation-route-continuity-and-local-runtime) | P3-I18 to P3-I22 | P3-I18A/B completed (selected scope); P3-I19/I22 partial; P3-I20/I21 planned | [0041](../work-items/0041-standalone-channel-and-durable-policy.md), [0042](../work-items/0042-responsive-native-policy-and-compact-demo.md), [0043](../work-items/0043-stable-result-delivery-and-return-context.md), [0044](../work-items/0044-origin-bound-channel-policy.md), [0045](../work-items/0045-joined-native-channel-policy.md) |
 | [P3-F](#phase-p3-f-comparable-evidence-and-release-handoff) | P3-I23, P3-I24 | Planned | None yet |
 
 ### Open work
 
-- Integrated voice, text and SMS handoff, restart and discovery, applicable
-  provider runs, complete release and the final video retain their later gates.
+- Integrated voice/text/SMS qualification, restart/discovery and complete release
+  remain open. The [0046 provider journeys and recorded demo](../work-items/0046-joined-showcase-providers-and-demo.md)
+  retain their own scope and do not close those gates.
 - All fourteen remaining full P3 acceptance rows remain planned.
 - Broader platform, media and full charter release remain separately planned.
-- This plan remains active. Unimplemented tasks and all full project acceptance
-  rows remain pending. Phase completion requires the actual exit evidence in each
-  phase.
+- This plan remains active. Unimplemented tasks and the fourteen remaining full
+  acceptance rows stay pending. Phase completion requires each phase's actual
+  exit evidence.
 
 ## Starting point and dependencies
 
@@ -649,9 +652,10 @@ charter rows remain planned.
   original P2-origin prerequisite with focused unit and socket evidence and
   passing isolated package and fake-port qualification. Its fourteen selected
   actual source assertions passed.
-- Integrated room handoff and voice, text and SMS, the later load, runtime and
-  restart gates, applicable provider runs and the final demo video remain
-  planned.
+- Joined composition is partial under [0045](../work-items/0045-joined-native-channel-policy.md).
+  Its complete handoff, load, runtime and restart gates remain open. Later
+  [provider journeys and the recorded demo](../work-items/0046-joined-showcase-providers-and-demo.md)
+  do not replace those assertions.
 - Keep the standalone image capability separate. This work adds no image
   operation to P1 or to the v2/v3 projection, refresh or guarded-action adapter.
 
@@ -670,10 +674,10 @@ charter rows remain planned.
 | Task | PLAN | Prerequisites | Acceptance | Estimate | Status | Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
 | P3-I18 | PLAN-20 | P3-I17; G-P1-MEDIA | P3-02; P3-17 preparation | 3–4h | P3-I18A and P3-I18B completed (selected scope) | [0041](../work-items/0041-standalone-channel-and-durable-policy.md), [0042](../work-items/0042-responsive-native-policy-and-compact-demo.md) |
-| P3-I19 | PLAN-20 | P3-I18; G-DELIVERY; G-P2-ROUTE for integrated adapter | P3-12 | 2–4h | Open; 0043 and 0044 prerequisites completed | [0043](../work-items/0043-stable-result-delivery-and-return-context.md), [0044](../work-items/0044-origin-bound-channel-policy.md) |
+| P3-I19 | PLAN-20 | P3-I18; G-DELIVERY; G-P2-ROUTE for integrated adapter | P3-12 | 2–4h | Partial; qualified prerequisites, joined gate open | [0043](../work-items/0043-stable-result-delivery-and-return-context.md), [0044](../work-items/0044-origin-bound-channel-policy.md), [0045](../work-items/0045-joined-native-channel-policy.md) |
 | P3-I20 | PLAN-20 | P3-I18; P1 admission limits | P3-13 | 3–4h | Planned | None yet |
 | P3-I21 | PLAN-20 and PLAN-09 extension | P3-I14, P3-I19; versioned P3 storage; S-I05 applied to P3 services/configuration | P3-14 | 2–3h | Planned | None yet |
-| P3-I22 | PLAN-20 and PLAN-11/15 integration | P3-I18 through P3-I21; G-P2-ROUTE for integrated P2 repetition | P3-17, P3-02, P3-12 | 3–4h | Planned | None yet |
+| P3-I22 | PLAN-20 and PLAN-11/15 integration | P3-I18 through P3-I21; G-P2-ROUTE for integrated P2 repetition | P3-17, P3-02, P3-12 | 3–4h | Partial; complete joined gate open | [0045](../work-items/0045-joined-native-channel-policy.md) · [0046](../work-items/0046-joined-showcase-providers-and-demo.md) |
 
 **Task details:**
 

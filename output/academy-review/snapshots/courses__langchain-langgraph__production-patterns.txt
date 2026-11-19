@@ -1,0 +1,267 @@
+1LangChain as LLM provider
+
+2LangGraph conversation workflows
+
+3Production patterns
+
+Production patterns
+
+Production patterns for LangChain and LiveKit
+
+You have built LangGraph flows with multi-step reasoning, parallel tool execution, error handling, and persistent memory. Now you need to run them in production. This final chapter covers the operational patterns that separate a working demo from a reliable production system: structured error handling, LangSmith observability, and automated testing for LangGraph flows.
+
+What you'll learn
+
+How to implement defensive error handling across your LangGraph flows
+
+How to integrate LangSmith for tracing and monitoring
+
+How to write automated tests for LangGraph graphs
+
+Key patterns for operating LangChain-powered voice agents at scale
+
+Defensive error handling
+
+In earlier chapters, you added error handling to individual tool nodes. In production, you need a systematic approach that catches failures at every layer: LLM calls, tool execution, graph orchestration, and the LiveKit integration boundary.
+
+import logging
+from typing import TypedDict, Optional
+from langgraph.graph import StateGraph, END
+from langchain_openai import ChatOpenAI
+
+logger = logging.getLogger("voice-agent")
+
+
+class AgentState(TypedDict):
+  user_message: str
+  response: str
+  error: Optional[str]
+  error_count: int
+
+
+def safe_llm_call(prompt: str, fallback: str = "I'm sorry, let me try that again.") -> str:
+  """Wrap LLM calls with error handling."""
+  llm = ChatOpenAI(model="gpt-4o", streaming=True, request_timeout=10)
+  try:
+      result = llm.invoke(prompt)
+      return result.content
+  except Exception as e:
+      logger.error(f"LLM call failed: {e}")
+      return fallback
+
+
+def process_with_guard(state: AgentState) -> dict:
+  """Process a message with full error guarding."""
+  error_count = state.get("error_count", 0)
+
+  try:
+      response = safe_llm_call(
+          f"Respond helpfully to: {state['user_message']}",
+          fallback="I apologize, I'm having a brief technical issue."
+      )
+      return {"response": response, "error": None, "error_count": 0}
+  except Exception as e:
+      logger.error(f"Process node failed: {e}", exc_info=True)
+      return {
+          "response": "I'm sorry, something went wrong. Could you repeat that?",
+          "error": str(e),
+          "error_count": error_count + 1,
+      }
+
+Never let exceptions reach the caller as silence
+
+An unhandled exception in a graph node can crash the graph execution. In a voice agent, this means the caller hears nothing — the worst possible user experience. Every node should catch exceptions and return a graceful spoken fallback.
+
+Timeout management
+
+Voice agents need strict timeout budgets. Wrap your graph invocations with timeouts to ensure the caller always gets a response:
+
+import asyncio
+from livekit.agents import function_tool, RunContext
+
+
+@function_tool
+async def process_query(context: RunContext, query: str) -> str:
+  """Process a user query through the LangGraph pipeline.
+
+  Args:
+      query: The user's question or request.
+  """
+  try:
+      result = await asyncio.wait_for(
+          compiled.ainvoke({"user_message": query}),
+          timeout=8.0,  # 8-second hard limit
+      )
+      return result["response"]
+  except asyncio.TimeoutError:
+      logger.warning(f"Graph execution timed out for query: {query[:50]}...")
+      return "I'm taking too long to look that up. Let me give you a simpler answer."
+  except Exception as e:
+      logger.error(f"Graph execution failed: {e}", exc_info=True)
+      return "I ran into an issue. Could you try asking that differently?"
+
+The 8-second timeout is a guideline, not a rule. The right timeout depends on your graph's complexity. A simple two-node graph might complete in under 2 seconds. A five-node graph with external API calls might need 6-8 seconds. Measure your actual latency and set the timeout to your 99th percentile plus a buffer.
+
+LangSmith monitoring
+
+LangSmith provides tracing, evaluation, and monitoring for LangChain and LangGraph applications. Enable it to see exactly what happens inside your graphs in production:
+
+LangSmith tracing activates automatically when the environment variables are set. No code changes required.
+
+Every graph invocation appears as a trace with timing, inputs, outputs, and token usage for each node.
+
+Configure alerts for error rates, latency spikes, and token usage anomalies.
+
+# Set these environment variables to enable LangSmith tracing
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_API_KEY="ls__your_api_key_here"
+export LANGCHAIN_PROJECT="voice-agent-production"
+
+For more granular control, add metadata to your graph invocations:
+
+from langsmith import traceable
+
+
+@traceable(name="voice_graph_invocation", tags=["voice", "production"])
+async def invoke_graph(user_message: str, thread_id: str) -> str:
+  config = {
+      "configurable": {"thread_id": thread_id},
+      "metadata": {
+          "thread_id": thread_id,
+          "source": "voice_agent",
+      },
+  }
+  result = await compiled.ainvoke({"user_message": user_message}, config=config)
+  return result["response"]
+
+LangSmith traces show the full graph execution
+
+Each trace shows every node that executed, the input and output of each node, LLM token counts, and wall-clock timing. This is invaluable for debugging why a particular conversation went wrong or identifying which nodes are the latency bottlenecks.
+
+Testing LangGraph flows
+
+Automated tests for LangGraph graphs verify that your routing logic, state management, and error handling work correctly. Test the graph structure, individual nodes, and end-to-end flows:
+
+import pytest
+
+
+@pytest.mark.asyncio
+async def test_intent_classification():
+  """Test that the graph correctly classifies greeting intent."""
+  result = await compiled.ainvoke({"user_message": "Hello there!"})
+  assert result.get("intent") == "greeting"
+  assert result.get("response") is not None
+  assert len(result["response"]) > 0
+
+
+@pytest.mark.asyncio
+async def test_complaint_routing():
+  """Test that complaints route to the complaint handler."""
+  result = await compiled.ainvoke({
+      "user_message": "I've been waiting three weeks for my order and nobody is helping me!"
+  })
+  assert result.get("intent") == "complaint"
+  assert result.get("response") is not None
+
+
+@pytest.mark.asyncio
+async def test_error_fallback():
+  """Test that the graph returns a graceful response on failure."""
+  # Invoke with edge-case input
+  result = await compiled.ainvoke({"user_message": ""})
+  assert result.get("response") is not None  # Should not crash
+
+Test individual nodes in isolation by calling them directly:
+
+@pytest.mark.asyncio
+async def test_extract_order_id():
+  """Test order ID extraction from a message."""
+  state = {"user_message": "My order number is ORD-1234"}
+  result = extract_order_id(state)
+  assert result["order_id"] == "ORD-1234"
+
+
+@pytest.mark.asyncio
+async def test_extract_order_id_missing():
+  """Test graceful handling when no order ID is present."""
+  state = {"user_message": "I have a question about my order"}
+  result = extract_order_id(state)
+  assert result["order_id"] is None
+
+Test memory and checkpointing:
+
+from langgraph.checkpoint.memory import MemorySaver
+
+
+@pytest.mark.asyncio
+async def test_conversation_memory():
+  """Test that state persists across invocations."""
+  memory = MemorySaver()
+  test_compiled = graph.compile(checkpointer=memory)
+  config = {"configurable": {"thread_id": "test-thread-1"}}
+
+  # First turn: introduce yourself
+  await test_compiled.ainvoke(
+      {"user_message": "Hi, I'm Alice"},
+      config=config,
+  )
+
+  # Second turn: the graph should remember the name
+  state = await test_compiled.aget_state(config)
+  assert state.values.get("customer_name") == "Alice"
+
+Use deterministic inputs for reliable tests
+
+LLM outputs are non-deterministic. For unit tests, consider mocking the LLM with fixed responses so your tests verify graph logic and routing rather than LLM behavior. Use real LLM calls in integration tests where you check that the full pipeline produces reasonable results.
+
+Production checklist
+
+Before deploying a LangChain-powered voice agent, verify these items:
+
+Item | Why it matters
+Streaming enabled on all LLM instances | Without streaming, voice latency is unacceptable
+Timeouts on every external call | Prevents indefinite hangs during calls
+Fallback responses in every error path | Callers should never hear silence
+LangSmith tracing enabled | Debugging production issues without tracing is guesswork
+Memory windows or summarization configured | Unbounded history increases cost and can exceed context limits
+Async checkpointers used (not sync) | Sync checkpointers block the event loop
+Graph iteration limits set | Prevents infinite loops in cyclic graphs
+Tests for routing logic and edge cases | Catches regressions before they reach callers
+
+Course summary
+
+Over these seven chapters, you have built a complete understanding of how LangChain and LangGraph integrate with LiveKit voice agents:
+
+LangChain overview — why the LangChain ecosystem complements LiveKit's real-time voice pipeline
+
+LangChain LLM — using the LangChainLLM wrapper to plug any LangChain provider into your agent
+
+LangGraph basics — modeling conversation flows as state machines with nodes, edges, and conditional routing
+
+Complex chains — multi-step reasoning, chain of thought, and composed tool chains
+
+Tool orchestration — parallel execution, error handling, and fallback chains for external tools
+
+Memory and persistence — checkpointing conversation state for cross-session continuity
+
+Production patterns — error handling, LangSmith monitoring, and automated testing
+
+You now have the tools to build voice agents that go beyond simple prompt-response interactions. LangGraph gives you the orchestration layer to handle complex, multi-step conversations with the reliability that production systems demand.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why is silence considered the worst failure mode for a voice agent, and how should graph nodes handle errors to prevent it?
+
+What you learned
+
+Defensive error handling with fallbacks ensures callers never experience silence
+
+Timeout wrappers guarantee a response within your latency budget
+
+LangSmith tracing provides full visibility into graph execution in production
+
+Automated tests should cover routing logic, individual nodes, memory, and edge cases
+
+Production readiness requires streaming, timeouts, fallbacks, monitoring, and bounded memory

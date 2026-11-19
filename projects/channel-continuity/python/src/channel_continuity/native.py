@@ -294,7 +294,14 @@ class NativeRuntime:
 
     def _start_owned_close(self) -> None:
         if self._close_task is not None:
-            return
+            if not self._close_task.done():
+                return
+            if not self._close_task.cancelled() and self._close_task.exception() is None:
+                return
+            # Keep pending/successful attempts shared. After a failed attempt
+            # settles, public retry must still be able to close retained owners
+            # and a dependency whose previous close actually failed.
+            self._close_task = None
         operation = self._close_owned()
         try:
             self._close_task = asyncio.create_task(

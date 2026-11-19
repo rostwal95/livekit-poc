@@ -1,0 +1,18 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Install SIPp\nsudo apt-get install sipp\n\n# Basic load test: 50 concurrent calls, 10 new calls per second\nsipp your-livekit-server:5060 \\\n-sf call_scenario.xml \\\n-l 50 \\\n-r 10 \\\n-d 60000 \\\n-trace_stat"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<scenario name=\"Basic call load test\">\n<!-- Send INVITE -->\n<send>\n  <![CDATA[\n    INVITE sip:+15551234567@[remote_ip]:[remote_port] SIP/2.0\n    Via: SIP/2.0/UDP [local_ip]:[local_port]\n    From: <sip:loadtest@[local_ip]>;tag=[call_number]\n    To: <sip:+15551234567@[remote_ip]>\n    Call-ID: [call_id]\n    CSeq: 1 INVITE\n    Contact: <sip:loadtest@[local_ip]:[local_port]>\n    Content-Length: 0\n  ]]>\n</send>\n\n<!-- Wait for 200 OK -->\n<recv response=\"200\" />\n\n<!-- Send ACK -->\n<send>\n  <![CDATA[\n    ACK sip:+15551234567@[remote_ip]:[remote_port] SIP/2.0\n    Via: SIP/2.0/UDP [local_ip]:[local_port]\n    From: <sip:loadtest@[local_ip]>;tag=[call_number]\n    To: <sip:+15551234567@[remote_ip]>[peer_tag_param]\n    Call-ID: [call_id]\n    CSeq: 1 ACK\n    Content-Length: 0\n  ]]>\n</send>\n\n<!-- Hold the call for 60 seconds (simulating a conversation) -->\n<pause milliseconds=\"60000\" />\n\n<!-- Send BYE -->\n<send>\n  <![CDATA[\n    BYE sip:+15551234567@[remote_ip]:[remote_port] SIP/2.0\n    Via: SIP/2.0/UDP [local_ip]:[local_port]\n    From: <sip:loadtest@[local_ip]>;tag=[call_number]\n    To: <sip:+15551234567@[remote_ip]>[peer_tag_param]\n    Call-ID: [call_id]\n    CSeq: 2 BYE\n    Content-Length: 0\n  ]]>\n</send>\n\n<!-- Wait for 200 OK to BYE -->\n<recv response=\"200\" />\n</scenario>"
+  }
+]

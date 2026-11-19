@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why should agent test assertions focus on structural outcomes (like handoffs and state changes) rather than exact response text?",
+    "options": [
+      "Because exact text matching is faster to write",
+      "Because LLMs generate non-deterministic responses that vary between runs",
+      "Because the testing framework does not support string assertions",
+      "Because structural outcomes are easier to read in test reports"
+    ],
+    "correctIndex": 1,
+    "explanation": "AgentTest runs the full agent pipeline including real LLM calls, so the exact wording of responses varies between runs. Asserting on structural outcomes like handoffs, state changes, and tool calls provides deterministic, reliable tests despite LLM variability."
+  },
+  {
+    "question": "What is the advantage of testing AgentTask instances in isolation before testing full workflows?",
+    "options": [
+      "Tasks have clear typed inputs and outputs, making them the most testable unit",
+      "Tasks cannot be tested within a full workflow",
+      "Tasks run faster than agents",
+      "Tasks do not require API credentials"
+    ],
+    "correctIndex": 0,
+    "explanation": "Tasks are the most testable unit because they have clear inputs (conversation) and typed outputs (structured results). Testing them in isolation lets you verify data collection logic independently before dealing with the complexity of multi-agent handoff chains."
+  },
+  {
+    "question": "What does test.is_agent_handoff() verify in the testing framework?",
+    "options": [
+      "That the agent's tools were called successfully",
+      "That the test session has ended",
+      "That the last interaction triggered a transition to a different agent",
+      "That the agent responded with text"
+    ],
+    "correctIndex": 2,
+    "explanation": "is_agent_handoff() returns true if the last interaction triggered a handoff to a different agent. Combined with current_agent_type, it lets you verify that the correct agent transition occurred in your multi-agent workflow."
+  }
+]

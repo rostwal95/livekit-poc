@@ -535,7 +535,15 @@ class NativePolicyApplication:
         self._waiter = "waiting"
         self._counts["tool_started"] += 1
         try:
-            accepted = await self._coordinator.submit(self._request)
+            try:
+                accepted = await self._coordinator.submit(self._request)
+            except CoordinatorError as error:
+                # Capacity rejects acceptance. Permit a later explicit call with
+                # the same frozen identity; retain actual pending ownership.
+                # Unknown acceptance and post-acceptance failures stay read-only.
+                if error.code == "capacity":
+                    self._attempted = False
+                raise
             if (
                 type(accepted) is not FixedPolicySubmission
                 or type(accepted.view) is not FixedPolicyView

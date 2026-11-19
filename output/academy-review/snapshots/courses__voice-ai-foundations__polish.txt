@@ -1,0 +1,348 @@
+1What is voice AI? Why WebRTC matters
+
+2Project setup & your first agent
+
+3Understanding AgentSession
+
+4Writing great agent instructions
+
+5Adding your first tool: check availability
+
+6RunContext, state & the booking tool
+
+7Noise cancellation & room configuration
+
+8Testing your agent
+
+9Turn detection deep dive
+
+10Conversation context & multi-turn state
+
+11Beyond audio: the data plane
+
+12Deploy to LiveKit Cloud
+
+13Polish & production readiness
+
+Polish & production readiness
+
+Polish & production readiness
+
+Your dental receptionist is deployed and handling calls. But there is a gap between "works in a demo" and "ready for production." In this final chapter, you will add the finishing touches: filtering markdown from spoken output, handling abandoned calls, adding cached greetings for instant responses, playing hold music, and locking down prompt guardrails. Then you will see the complete agent with every feature assembled in one file.
+
+TTS text transforms: cleaning up spoken output
+
+LLMs love markdown. They produce asterisks for emphasis, bullet lists, numbered steps, and emoji. These are great for text interfaces but terrible for speech. Your TTS engine will literally say "asterisk asterisk bold text asterisk asterisk" or stumble over emoji characters.
+
+LiveKit Agents provides built-in text transforms that strip this formatting before it reaches the TTS engine:
+
+from livekit.agents import Agent
+
+agent = Agent(
+  instructions="You are a friendly receptionist at Bright Smile Dental clinic.",
+  tts_text_transforms=["filter_markdown", "filter_emoji"],
+)
+
+filter_markdown strips asterisks, underscores, headers, bullet markers, and other markdown syntax. filter_emoji removes emoji characters entirely. The LLM can still use markdown in its reasoning — the filters only apply to what gets spoken.
+
+Combine with instructions
+
+Text transforms are a safety net, not a replacement for good instructions. Tell the LLM "Never use markdown or emojis in your responses" in the system prompt, and use transforms to catch the cases where it does anyway.
+
+Prompt guardrails: staying on topic
+
+A dental receptionist should not discuss politics, provide medical diagnoses, or help someone write code. Without guardrails, an LLM will happily engage with any topic. Add explicit boundaries in your instructions:
+
+instructions = """You are a friendly receptionist at Bright Smile Dental clinic.
+
+SCOPE: You help with appointment scheduling, clinic hours, location,
+insurance questions, and general dental visit information.
+
+BOUNDARIES:
+- If asked about topics outside dental clinic operations, politely redirect:
+"I'm only able to help with Bright Smile Dental appointments and information.
+Is there something I can help you with regarding your dental care?"
+- Never provide medical advice or diagnoses. If a caller describes symptoms,
+say: "That sounds like something our dentists should look at. Would you
+like me to book an appointment?"
+- Never share information about other patients.
+- If a caller is abusive, remain calm and professional. Offer to transfer
+to office staff if available.
+
+STYLE:
+- Keep responses to 1-2 sentences when possible.
+- Never use markdown, emojis, or formatting.
+- Use natural spoken language, not written language."""
+
+These guardrails work because the LLM reads them on every turn. They are not foolproof — a determined adversary can sometimes bypass them — but they handle the vast majority of real-world off-topic conversations gracefully.
+
+Handling abandoned calls with user_away_timeout
+
+Callers sometimes put the phone down, get distracted, or walk away mid-conversation. Without a timeout, your agent sits in silence indefinitely, consuming resources. The user_away_timeout setting handles this:
+
+from livekit.agents import Agent
+
+agent = Agent(
+  instructions="...",
+  user_away_timeout=30.0,  # seconds
+)
+
+When no user speech is detected for 30 seconds, the agent can respond appropriately. You can handle this event to issue a gentle prompt before disconnecting:
+
+from livekit.agents import Agent
+
+class DentalReceptionist(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="...",
+          user_away_timeout=30.0,
+      )
+
+  async def on_user_away_timeout(self):
+      await self.session.say(
+          "Are you still there? I'm here if you need help with anything.",
+          allow_interruptions=True,
+      )
+      # If they still don't respond, the next timeout will fire again
+
+In a dental clinic, 30 seconds is a reasonable timeout. The caller might be checking their calendar or talking to someone in the room. A gentle prompt after 30 seconds feels natural. If they remain silent, you can escalate — send a second prompt, then disconnect to free resources.
+
+Cached TTS for instant greetings
+
+The very first thing a caller hears sets the tone. If there is a 500ms pause before "Hi, thanks for calling Bright Smile Dental" — the standard pipeline latency — it feels slightly off. You can eliminate this entirely with session.say() and pre-cached audio.
+
+from livekit.agents import Agent
+
+class DentalReceptionist(Agent):
+  async def on_enter(self):
+      # say() with a static string can be cached by the TTS engine
+      # This fires immediately without waiting for LLM generation
+      await self.session.say(
+          "Thanks for calling Bright Smile Dental! How can I help you today?",
+          allow_interruptions=True,
+      )
+
+session.say() bypasses the LLM entirely and sends text straight to TTS. For static greetings, the TTS output can be cached on subsequent calls, delivering near-instant audio. The allow_interruptions=True flag lets the caller jump in if they are in a hurry.
+
+say() vs generate_reply()
+
+Use session.say() for static, predetermined messages — greetings, hold messages, goodbyes. Use session.generate_reply() when you need the LLM to craft a contextual response. They serve different purposes and can be combined in the same agent.
+
+Background audio for hold music
+
+When the agent needs to do something time-consuming — querying an external system, waiting for a callback — silence feels broken. BackgroundAudioPlayer lets you fill the gap with hold music or ambient sound:
+
+from livekit.agents import BackgroundAudioPlayer, Agent
+
+class DentalReceptionist(Agent):
+  async def on_enter(self):
+      self.bg_audio = BackgroundAudioPlayer(
+          audio_url="https://example.com/hold-music.mp3",
+          loop=True,
+          volume=0.3,
+      )
+      await self.bg_audio.start(self.session.room)
+
+      await self.session.say(
+          "Thanks for calling Bright Smile Dental! How can I help you today?",
+          allow_interruptions=True,
+      )
+
+      # Stop background audio when the conversation starts
+      await self.bg_audio.stop()
+
+The background audio plays at a low volume and stops automatically when the agent speaks. You can restart it during long pauses or while the agent is performing tool calls.
+
+The complete dental receptionist
+
+Here is the final agent.py with every feature from this course assembled into one file. This is your production dental receptionist:
+
+from livekit.agents import (
+  Agent,
+  AgentServer,
+  AgentSession,
+  BackgroundAudioPlayer,
+  MultilingualModel,
+  RunContext,
+  TurnHandlingOptions,
+  function_tool,
+)
+from livekit.plugins import openai, deepgram, cartesia, silero
+
+server = AgentServer()
+
+
+# --- Tools ---
+
+@function_tool
+async def check_availability(context: RunContext, date: str) -> str:
+  """Check available appointment slots for a given date.
+
+  Args:
+      date: The date to check availability for (e.g., "next Tuesday", "March 15")
+  """
+  available_slots = ["9:00 AM", "11:30 AM", "2:00 PM", "4:30 PM"]
+  return f"Available slots for {date}: {', '.join(available_slots)}"
+
+
+@function_tool
+async def book_appointment(context: RunContext, name: str, date: str, time: str) -> str:
+  """Book an appointment for a patient.
+
+  Args:
+      name: Patient's full name
+      date: Desired appointment date
+      time: Desired appointment time
+  """
+  agent: DentalReceptionist = context.agent
+  booking = {"name": name, "date": date, "time": time}
+
+  # Update frontend state
+  await agent.update_agent_state("booking", patient_name=name)
+
+  # Store in session
+  context.session.userdata["last_booking"] = booking
+
+  # Send text stream confirmation to frontend
+  await agent.send_booking_confirmation(booking)
+
+  # Update state to confirmed
+  await agent.update_agent_state("confirmed", patient_name=name)
+
+  return f"Appointment booked for {name} on {date} at {time}."
+
+
+# --- Agent ---
+
+class DentalReceptionist(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are a friendly receptionist at Bright Smile Dental clinic.
+
+SCOPE: Help with appointment scheduling, clinic hours, location,
+insurance questions, and general dental visit information.
+
+BOUNDARIES:
+- If asked about topics outside dental clinic operations, politely redirect.
+- Never provide medical advice. Suggest booking an appointment instead.
+- Never share information about other patients.
+
+STYLE:
+- Keep responses to 1-2 sentences when possible.
+- Never use markdown, emojis, or formatting.
+- Use natural spoken language.""",
+          tools=[check_availability, book_appointment],
+          turn_handling=TurnHandlingOptions(
+              turn_detection=MultilingualModel(),
+              min_endpointing_delay=0.5,
+              max_endpointing_delay=1.5,
+              interruption_mode="adaptive",
+              false_interruption_timeout=0.6,
+              resume_false_interruption=True,
+          ),
+          tts_text_transforms=["filter_markdown", "filter_emoji"],
+          user_away_timeout=30.0,
+      )
+
+  async def on_enter(self):
+      # Inject returning patient info if available
+      patient_info = self.session.userdata.get("patient_info")
+      if patient_info:
+          ctx = self.chat_ctx.copy()
+          ctx.add_message(
+              role="system",
+              content=f"Returning patient: {patient_info['name']}, "
+                      f"last visit: {patient_info['last_visit']}",
+          )
+          await self.update_chat_ctx(ctx)
+
+      # Set initial state for frontend
+      await self.update_agent_state("greeting")
+
+      # Fast cached greeting
+      await self.session.say(
+          "Thanks for calling Bright Smile Dental! How can I help you today?",
+          allow_interruptions=True,
+      )
+
+  async def on_user_away_timeout(self):
+      await self.session.say(
+          "Are you still there? I'm here if you need help.",
+          allow_interruptions=True,
+      )
+
+  async def send_booking_confirmation(self, booking: dict):
+      stream = await self.session.room.local_participant.stream_text(
+          topic="booking-confirmation",
+      )
+      await stream.write(
+          f"Booking confirmed: {booking['name']} on {booking['date']} "
+          f"at {booking['time']}. Bright Smile Dental, 123 Main St."
+      )
+      await stream.close()
+
+  async def update_agent_state(self, state: str, **extra):
+      attributes = {"agent_state": state}
+      attributes.update(extra)
+      await self.session.room.local_participant.set_attributes(attributes)
+
+
+# --- Entrypoint ---
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  await session.start(
+      agent=DentalReceptionist(),
+      room=session.room,
+      stt=deepgram.STT(model="nova-3"),
+      llm=openai.LLM(model="gpt-4o-mini"),
+      tts=cartesia.TTS(voice="<your-voice-id>"),
+  )
+
+
+if __name__ == "__main__":
+  server.run()
+
+Replace the voice ID
+
+The <your-voice-id> placeholder must be replaced with an actual Cartesia voice ID. Browse the Cartesia voice library to find one that fits a friendly dental receptionist.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why should you use both tts_text_transforms AND instructions that say 'never use markdown' rather than relying on just one approach?
+
+What you have built
+
+Take a moment to appreciate what this agent does:
+
+WebRTC audio transport with sub-30ms latency. Streaming STT, LLM, and TTS for natural conversational pacing.
+
+Multilingual turn detection with adaptive interruptions, false interruption recovery, and backchannel awareness. It feels like talking to a human.
+
+Checks real availability and books real appointments through typed Python functions the LLM calls autonomously.
+
+Recognizes returning patients, maintains multi-turn conversation state, and manages context length for long calls.
+
+Sends booking confirmations via text streams and tracks agent state with participant attributes for frontend integration.
+
+Cached greetings, markdown filtering, emoji removal, abandoned call handling, prompt guardrails, and background audio.
+
+Deployed to LiveKit Cloud with secrets management, monitoring, transcripts, traces, and rollback capability.
+
+What is next
+
+This course gave you the foundation. There is much more to build:
+
+Course 1.2: Your First Frontend — Build a React frontend that connects to your agent. Display live transcriptions, show booking confirmations from the text stream, and create a visual UI that responds to agent state changes.
+
+Course 1.3: Telephony — Connect your agent to the phone network with SIP trunking. Real callers dial a real phone number and talk to your dental receptionist. No browser required.
+
+Course 2.x: Advanced Patterns — Multi-agent handoffs (transfer to a specialist agent), speech-to-speech with realtime models, guardrail pipelines, vision capabilities, and building agents that operate in the physical world.
+
+You started this course with zero lines of code and a concept — an AI dental receptionist. You now have a production voice AI agent deployed to the cloud, handling real conversations with real people. Every concept you learned — rooms, sessions, agents, tools, context, turn detection, data plane, deployment — transfers directly to any voice AI application you build next.
+
+You did it
+
+You have built and deployed a production voice AI agent. Not a toy, not a demo — a real agent that handles real conversations. The dental receptionist is just the beginning. Take what you have learned and build something that matters to you.

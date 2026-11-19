@@ -1,7 +1,13 @@
 # Delegation specialist contracts and local HTTP
 
-Status: Active
-Last reviewed: 15 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Active |
+| Purpose | Explain the specialist contracts, authenticated local HTTP boundary and supported consumer commands |
+| Audience | Engineers using or changing the TypeScript specialist package |
+| Scope | Read-only policy/document capabilities and local fixtures; excludes durable execution authority |
+| Owns | TypeScript specialist onboarding, exports, requirements and validation limits |
+| Related | [Project guide](../README.md) · [Project design](../Design.md) · [Coding instructions](../AGENTS.md) · [Python guide](../python/README.md) |
 
 ## Overview
 
@@ -90,28 +96,36 @@ outside this HTTP slice. Fourteen P3 rows remain planned.
 
 ## Documentation
 
-- [Project guide](../README.md)
-- [Python package guide](../python/README.md)
-- [Project design](../Design.md)
-- [Project coding instructions](../AGENTS.md)
-- [Contract and trust checkpoint](../../../docs/work-items/0025-p3-specialist-contracts-and-trust.md)
-- [HTTP/standalone handoff](../../../docs/work-items/0027-p2-standalone-and-p3-http.md)
-- [Issued execution checkpoint](../../../docs/work-items/0029-p2-gateway-and-p3-issued-execution.md)
-- [Shared version-one fixtures](../../../contracts/delegation/v1.json)
+| Document | Use |
+| --- | --- |
+| [Project guide](../README.md) | Project scope and entry points |
+| [Python package guide](../python/README.md) | Coordinator and durable integration |
+| [Project design](../Design.md) | Ownership and failure boundaries |
+| [Project coding instructions](../AGENTS.md) | Change and validation rules |
+| [Contract and trust checkpoint](../../../docs/work-items/0025-p3-specialist-contracts-and-trust.md) | Contract/trust evidence |
+| [HTTP/standalone handoff](../../../docs/work-items/0027-p2-standalone-and-p3-http.md) | HTTP and standalone qualification |
+| [Issued execution checkpoint](../../../docs/work-items/0029-p2-gateway-and-p3-issued-execution.md) | Issuance integration evidence |
+| [Shared version-one fixtures](../../../contracts/delegation/v1.json) | Language-neutral contract examples |
 
 ## Requirements
 
-- Use the frozen root pnpm environment with Node 24.22.2 or 26.13.0 and pinned
-  TypeScript and Vitest.
-- Contract parity tests also require the installed Python 3.14 workspace.
-- HTTP tests use actual, owned loopback sockets. No Docker, provider, model download
-  or paid credential is required.
-- Supply runtime token digests and source bytes through trusted application
-  configuration. The example uses synthetic facts and a newly generated local token.
+| Requirement | Detail |
+| --- | --- |
+| Node tooling | Frozen root pnpm environment, Node 24.22.2 or 26.13.0, pinned TypeScript and Vitest |
+| Contract parity | Installed Python 3.14 workspace |
+| HTTP tests | Actual owned loopback sockets; no Docker, provider, model download or paid credential |
+| Runtime inputs | Token digests and source bytes from trusted configuration; the example uses synthetic facts and a newly generated local token |
 
 ## Commands
 
 From the repository root after frozen dependency installation:
+
+| Command suffix | Purpose |
+| --- | --- |
+| `typecheck` | Check the declared TypeScript surfaces |
+| `test` | Run the package tests with their stated local prerequisites |
+| `build` | Produce the package artifacts |
+| `demo` | Build and run the owned local policy HTTP example |
 
 ```sh
 corepack pnpm --filter @livekit-ecosystem/delegation-specialist typecheck
@@ -445,10 +459,8 @@ both languages; the
 [I18A handoff](../../../docs/work-items/0041-standalone-channel-and-durable-policy.md)
 records its implementation and selected qualification.
 
-Remaining work:
-
-- The I18B native application's text profile and broader real-model and modality
-  qualification retain separate phase gates.
-- Autonomous recovery, real models, media and complete P3 acceptance rows remain
-  outside this HTTP slice.
-- Fourteen full charter rows and broader integrated release remain planned.
+| Remaining work | Boundary |
+| --- | --- |
+| Broader real-model and modality qualification | Separate from the selected I18B RTC-text gate recorded in [0042](../../../docs/work-items/0042-responsive-native-policy-and-compact-demo.md) |
+| Autonomous recovery, real models, media and complete P3 acceptance | Outside this HTTP slice |
+| Fourteen full charter rows and broader integrated release | Planned |

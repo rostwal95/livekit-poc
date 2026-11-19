@@ -39,8 +39,10 @@ implements these tasks:
 - The [phase work item](work-items/0012-p1-phase-f-leases-and-deployment.md)
   records the completed final combined verification gate.
 - Existing registered runners retain their exact assertion scope. The harness
-  catalog owns current registrations; full product acceptance coverage remains
-  pending.
+  catalog owns current registrations. P1's retained local qualification and its
+  open post-v5 provider rerun are recorded in the
+  [qualification guide](qualification-gates.md); full P2/P3 charter acceptance
+  remains separate.
 
 ### Related guides and boundaries
 

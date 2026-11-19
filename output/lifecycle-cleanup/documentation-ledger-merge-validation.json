@@ -1,0 +1,96 @@
+{
+  "status": "passed",
+  "sources": [
+    {
+      "source": "root-documentation-review.json",
+      "status": "validated",
+      "rows": 40,
+      "sha256": "e6769c606786716618613ed531d4c0f7a11900a52712d31fa6f0c60be588b120"
+    },
+    {
+      "source": "p1-documentation-review.json",
+      "status": "validated",
+      "rows": 7,
+      "sha256": "7288806f6ce0e1d1edb5d1e63706b19da801e204b39cbc6114bdc35e8b05c31d"
+    },
+    {
+      "source": "p2-documentation-review.json",
+      "status": "validated",
+      "rows": 4,
+      "sha256": "52eaace908aa97c11d4c405a6156878e1a5f7fc3c97372aab237b8a3777d71ce"
+    },
+    {
+      "source": "p3-documentation-review.json",
+      "status": "validated",
+      "rows": 81,
+      "sha256": "17e74adcdd4e73a76d5427687d112d00078720bfde59185d61c7065d73ec2acf"
+    },
+    {
+      "source": "p3-secondary-documentation-review.json",
+      "status": "validated",
+      "rows": 6,
+      "sha256": "542a298b0fdfb648c4adae7cfc91994a28d549153b752cd9376b4e7d54759f48"
+    }
+  ],
+  "maintained_documents": 137,
+  "primary_review_rows": 137,
+  "classification_counts": {
+    "prior_full_current_contract_review": 8,
+    "full": 67,
+    "targeted": 18,
+    "historical_retention": 44
+  },
+  "primary_owner_counts": {
+    "root": 40,
+    "p1_book": 7,
+    "p2_book": 4,
+    "p3_book": 86
+  },
+  "missing_reviews": [],
+  "unexpected_rows": [],
+  "hash_refresh": "complete_after_root_final_stable_corpus_notice",
+  "0049_primary_source": "root-documentation-review.json",
+  "0049_historical_provenance_rows": 1,
+  "schema_exception": "New0050has null before_sha256; no pre-existing document bytes are claimed.",
+  "final_hashed_documents": 137,
+  "duplicate_primary_rows": [],
+  "pending_final_hashes": [],
+  "final_inventory": "documentation-final-inventory.json",
+  "final_inventory_sha256": "f25a0624af5ff373c6f739911c4d4c70b3f3a4ec8909685d8feeae3731951839",
+  "final_ledger_sha256": "e9ed30ce27bbbc086ebdb4d7eb7b0d73515ffa091d7287eba907bb78a58e8a69",
+  "baseline_inventory_preserved": {
+    "path": "documentation-inventory.json",
+    "sha256": "e40efe6bec3c48849cd2b09b1d022317cc2a5d3a75533a034ba6543e880336ab",
+    "count": 136,
+    "preserved_unchanged": true
+  },
+  "supplemental_reviews": 10,
+  "changed_after_primary_review": [
+    "docs/checkpoint-history.md",
+    "docs/work-items/0049-sdk-compatibility-and-code-review.md",
+    "docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md",
+    "local-setup/AGENTS.md",
+    "local-setup/Design.md",
+    "local-setup/README.md",
+    "services/channel-policy-gateway/Design.md",
+    "services/channel-policy-gateway/README.md",
+    "services/channel_policy_demo/Design.md",
+    "services/channel_policy_demo/README.md"
+  ],
+  "old_maintained_name_references": [],
+  "old_filename_absent": true,
+  "documentation_check": {
+    "path": "documentation-final-check.json",
+    "sha256": "0f6b34c2ddb55a75caf3795d7d73d2226d9f9eec42513339be988c23ac459e7f",
+    "documents": 137,
+    "violations": 0
+  },
+  "mermaid": {
+    "path": "mermaid-syntax.json",
+    "sha256": "e7827dd63bdf6ed578ea3f4c28e558dae102feeb412ba9960192f7a6776cd7a2",
+    "diagrams": 53,
+    "files": 17,
+    "passed": 53,
+    "rendered_layout_claim": false
+  }
+}

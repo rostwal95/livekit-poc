@@ -1,0 +1,13 @@
+[
+  {
+    "question": "What is the primary advantage of LiveKit over managed platforms at scale?",
+    "options": [
+      "LiveKit has more voice options than managed platforms",
+      "LiveKit's visual flow editor is more advanced",
+      "LiveKit's open-source framework and lower platform costs compound into significant savings at high volume",
+      "LiveKit is easier to set up than managed platforms"
+    ],
+    "correctIndex": 2,
+    "explanation": "At scale, the per-minute platform fees charged by managed platforms (Vapi: $0.05/min, Retell: $0.07/min) compound significantly. LiveKit Cloud charges $0.004/min for audio, and self-hosting eliminates the platform fee entirely. At 100,000 minutes/month, these differences become tens of thousands of dollars."
+  }
+]

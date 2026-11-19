@@ -1,0 +1,302 @@
+1RAG architecture for voice
+
+2MCP tools for structured data
+
+3Citation in spoken conversation
+
+4Production RAG: caching, monitoring, evaluation
+
+Citation in spoken conversation
+
+Citation in spoken conversation
+
+A voice agent that answers questions from a knowledge base is only trustworthy if users can verify where the information came from. Citation is not just a nice-to-have — in regulated industries, you may be legally required to identify the source of advice. Even in general customer service, saying "According to our return policy document..." is vastly more credible than stating facts without attribution.
+
+What you'll learn
+
+How to track which sources informed each agent response
+
+How to instruct the LLM to cite sources naturally in voice responses
+
+How to store citation metadata for audit trails
+
+Patterns for presenting citations in voice versus text channels
+
+How reranked hybrid search results carry source metadata through to citations
+
+Source tracking through the pipeline
+
+Citation starts at ingestion time. Every chunk stored in your vector database must carry metadata identifying its source — the document name, section, page number, or URL. When retrieval returns results, this metadata flows through to the LLM prompt so the model knows where each piece of context came from.
+
+from dataclasses import dataclass
+
+@dataclass
+class ChunkMetadata:
+  source_document: str
+  section: str
+  page: int | None = None
+  url: str | None = None
+  last_updated: str | None = None
+
+@dataclass
+class SearchResult:
+  text: str
+  metadata: ChunkMetadata
+  score: float
+
+def format_context_with_sources(results: list[SearchResult]) -> str:
+  """Format retrieved results with source labels for the LLM prompt."""
+  sections = []
+  for i, r in enumerate(results, 1):
+      source_label = f"{r.metadata.source_document}"
+      if r.metadata.section:
+          source_label += f", Section: {r.metadata.section}"
+      if r.metadata.page:
+          source_label += f", Page {r.metadata.page}"
+      sections.append(f"[Source {i}: {source_label}]\n{r.text}")
+  return "\n---\n".join(sections)
+
+interface ChunkMetadata {
+sourceDocument: string;
+section: string;
+page?: number;
+url?: string;
+lastUpdated?: string;
+}
+
+interface SearchResult {
+text: string;
+metadata: ChunkMetadata;
+score: number;
+}
+
+function formatContextWithSources(results: SearchResult[]): string {
+return results
+  .map((r, i) => {
+    let label = r.metadata.sourceDocument;
+    if (r.metadata.section) label += `, Section: ${r.metadata.section}`;
+    if (r.metadata.page) label += `, Page ${r.metadata.page}`;
+    return `[Source ${i + 1}: ${label}]\n${r.text}`;
+  })
+  .join("\n---\n");
+}
+
+Instructing the LLM to cite sources
+
+The LLM will not cite sources unless you tell it to. Add explicit citation instructions to your agent's system prompt, and format the retrieved context with clear source labels:
+
+from livekit.agents import Agent
+
+CITATION_INSTRUCTIONS = """You are a knowledge assistant with access to company documents.
+
+Rules for citations:
+1. When answering from provided context, mention the source naturally.
+ Good: "According to our return policy, you have 30 days to return items."
+ Good: "Based on the employee handbook, section 4.2, vacation requests require..."
+ Bad: "[Source 1] states that..." (too robotic for voice)
+2. If multiple sources support your answer, cite the most specific one.
+3. If the context does not contain the answer, say so honestly.
+4. Never fabricate a source that was not provided in the context.
+"""
+
+class CitingRAGAgent(Agent):
+  def __init__(self, vector_store):
+      super().__init__(instructions=CITATION_INSTRUCTIONS)
+      self.vector_store = vector_store
+
+  async def on_user_turn_completed(self, turn_ctx):
+      query = turn_ctx.user_message
+      results = await self.vector_store.search(query, top_k=3)
+      relevant = [r for r in results if r.score >= 0.7]
+
+      if relevant:
+          context = format_context_with_sources(relevant)
+          turn_ctx.add_system_message(f"Retrieved context:\n{context}")
+
+          # Store source metadata for audit logging
+          turn_ctx.set_metadata("sources", [
+              {
+                  "document": r.metadata.source_document,
+                  "section": r.metadata.section,
+                  "score": r.score,
+              }
+              for r in relevant
+          ])
+
+      await Agent.default.on_user_turn_completed(self, turn_ctx)
+
+The citation instructions tell the LLM to weave source references into its response naturally. For voice agents, this means phrases like "According to our policy..." or "Based on the product documentation..." rather than bracketed citation numbers. The system message includes labeled sources so the model knows which document to reference.
+
+Voice-friendly citation patterns
+
+Voice is different from text. A user cannot click a footnote or hover over a citation number. Citations in voice must be woven into the natural flow of speech:
+
+Pattern | Example | Best for
+Document reference | "According to our return policy..." | Policy documents
+Section reference | "In section 3 of the employee handbook..." | Long documents with sections
+Temporal reference | "Based on our pricing update from January..." | Time-sensitive information
+Confidence qualifier | "Our documentation indicates that..." | Lower-confidence matches
+Explicit disclaimer | "I could not find a specific policy on that..." | No relevant results
+
+Do not over-cite
+
+In voice, every citation adds words the user must listen to. Cite the source once at the beginning of your answer, not for every sentence. If the entire answer comes from one document, one citation is enough.
+
+Handling no-source scenarios
+
+When retrieval returns nothing relevant, the agent must be transparent. Do not let the model fall back to its training data and present it as if it came from your knowledge base:
+
+async def on_user_turn_completed(self, turn_ctx):
+  query = turn_ctx.user_message
+  results = await self.vector_store.search(query, top_k=5)
+  relevant = [r for r in results if r.score >= 0.7]
+
+  if not relevant:
+      turn_ctx.add_system_message(
+          "IMPORTANT: No relevant documents were found for this query. "
+          "Do NOT answer from general knowledge as if it came from our documents. "
+          "Instead, tell the user you do not have specific information on that topic "
+          "and suggest they contact support or check our website."
+      )
+  else:
+      context = format_context_with_sources(relevant)
+      turn_ctx.add_system_message(f"Retrieved context:\n{context}")
+
+  await Agent.default.on_user_turn_completed(self, turn_ctx)
+
+Hallucination risk
+
+The biggest risk with RAG citation is the model citing a source that does not actually support its claim. Mitigate this by keeping chunks focused, filtering by relevance score, and including explicit instructions not to fabricate citations. Test your agent by asking questions that are close to but not covered by your knowledge base.
+
+Hybrid search and citation metadata
+
+When you use hybrid search with reranking (covered in the architecture chapter), the reranked results carry source metadata through the pipeline. This means your citation system works identically whether results come from semantic search, keyword search, or a fused and reranked combination:
+
+from cohere import AsyncClient as CohereClient
+
+class HybridCitingAgent(Agent):
+  def __init__(self, hybrid_store, reranker, min_score=0.7):
+      super().__init__(instructions=CITATION_INSTRUCTIONS)
+      self.hybrid_store = hybrid_store
+      self.reranker = reranker
+      self.min_score = min_score
+
+  async def on_user_turn_completed(self, turn_ctx):
+      query = turn_ctx.user_message
+
+      # Hybrid search returns candidates with source metadata intact
+      candidates = await self.hybrid_store.search(query, top_k=10)
+      candidate_dicts = [
+          {"content": r.text, "source": r.metadata.source_document,
+           "section": r.metadata.section, "page": r.metadata.page}
+          for r in candidates
+      ]
+
+      # Reranker selects top results — metadata passes through
+      reranked = await self.reranker.rerank(query, candidate_dicts, top_k=3)
+
+      if reranked:
+          context = "\n---\n".join(
+              f"[Source: {r['source']}, Section: {r['section']}]\n{r['content']}"
+              for r in reranked
+          )
+          turn_ctx.add_system_message(f"Retrieved context:\n{context}")
+
+          turn_ctx.set_metadata("sources", [
+              {"document": r["source"], "section": r["section"],
+               "rerank_score": r["rerank_score"]}
+              for r in reranked
+          ])
+
+      await Agent.default.on_user_turn_completed(self, turn_ctx)
+
+The key insight is that source metadata flows through every stage: ingestion attaches it to chunks, hybrid search preserves it in results, RRF fusion carries it through merging, and the reranker passes it along with relevance scores. Your citation system does not need to know how the results were found — it only needs the metadata that arrives with them.
+
+Audit trail and logging
+
+For compliance and debugging, log which sources were used for each response. This creates an audit trail that can answer: "Why did the agent say X?"
+
+import json
+import logging
+from datetime import datetime
+
+logger = logging.getLogger("citations")
+
+class CitationLogger:
+  def __init__(self, storage_backend):
+      self.storage = storage_backend
+
+  async def log_interaction(
+      self,
+      session_id: str,
+      user_query: str,
+      sources: list[dict],
+      agent_response: str,
+  ):
+      record = {
+          "session_id": session_id,
+          "timestamp": datetime.utcnow().isoformat(),
+          "query": user_query,
+          "sources_used": sources,
+          "response": agent_response,
+          "source_count": len(sources),
+          "avg_relevance": (
+              sum(s["score"] for s in sources) / len(sources) if sources else 0
+          ),
+      }
+      await self.storage.insert("citation_audit", record)
+      logger.info(f"Session {session_id}: {len(sources)} sources cited")
+
+interface CitationRecord {
+sessionId: string;
+timestamp: string;
+query: string;
+sourcesUsed: { document: string; section: string; score: number }[];
+response: string;
+}
+
+class CitationLogger {
+private storage: any;
+
+constructor(storage: any) {
+  this.storage = storage;
+}
+
+async logInteraction(
+  sessionId: string,
+  userQuery: string,
+  sources: { document: string; section: string; score: number }[],
+  agentResponse: string
+): Promise<void> {
+  const record: CitationRecord = {
+    sessionId,
+    timestamp: new Date().toISOString(),
+    query: userQuery,
+    sourcesUsed: sources,
+    response: agentResponse,
+  };
+  await this.storage.insert("citation_audit", record);
+}
+}
+
+Test your knowledge
+
+Question 1 of 2
+
+Why should a voice agent use natural language phrases like 'According to our return policy...' instead of bracketed citation numbers like '[Source 1]'?
+
+What you learned
+
+Source metadata must be attached to chunks at ingestion time and carried through retrieval to the LLM prompt.
+
+Voice-friendly citations use natural language phrases rather than bracketed numbers or footnotes.
+
+Hybrid search with reranking preserves source metadata through every stage — fusion, reranking, and citation all work on the same metadata.
+
+Audit logging creates a traceable record of which sources informed each response, essential for compliance.
+
+When no relevant sources are found, the agent must be transparent rather than hallucinating citations.
+
+Next up
+
+In the final chapter, you will learn production RAG patterns — caching, monitoring, and quality metrics to keep your retrieval system reliable at scale.

@@ -1,0 +1,35 @@
+[
+  {
+    "question": "What does the generic type parameter in AgentTask[OrderItem] enforce?",
+    "options": [
+      "It sets the type of instructions the task accepts",
+      "It determines which tools the task can use",
+      "It ensures complete() can only be called with a valid OrderItem (or None)",
+      "It controls which LLM model the task uses"
+    ],
+    "correctIndex": 2,
+    "explanation": "The generic type parameter AgentTask[OrderItem] means the task will return an OrderItem when it completes. The framework enforces this type constraint so you cannot call complete() with the wrong type. This ensures the parent agent always receives validated, structured data."
+  },
+  {
+    "question": "What happens to the parent agent's tools while an AgentTask is running?",
+    "options": [
+      "They are not available \u2014 the task has its own isolated set of tools and instructions",
+      "They are passed to the task automatically",
+      "They are disabled but can be re-enabled with update_tools()",
+      "They remain available alongside the task's tools"
+    ],
+    "correctIndex": 0,
+    "explanation": "While a task is running, it has its own instructions and tools, completely separate from the parent agent. The parent agent's tools are not available to the user. This keeps the conversation focused on the task's specific data collection goal. When the task completes, the parent agent resumes with its own tools."
+  },
+  {
+    "question": "How does a task signal that the user cancelled mid-collection?",
+    "options": [
+      "By not calling complete() at all",
+      "By calling self.cancel()",
+      "By raising a TaskCancelled exception",
+      "By calling self.complete(None)"
+    ],
+    "correctIndex": 3,
+    "explanation": "When a user changes their mind mid-task, the task can call self.complete(None) to signal cancellation. The parent agent must then check for a None result before using the data, handling the cancellation case gracefully."
+  }
+]

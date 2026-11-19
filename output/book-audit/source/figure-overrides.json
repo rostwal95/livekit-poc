@@ -1,0 +1,201 @@
+{
+  "authority": {
+    "id": "F01",
+    "title": "Who owns each fact",
+    "kind": "authority",
+    "refs": [
+      "SYS-02",
+      "D4-04"
+    ],
+    "caption": "Application composition borrows public ports. Dashed boundaries separate ownership. P3 uses public P1 grants/results; none of the three libraries gains permission to copy sibling storage."
+  },
+  "commit": {
+    "id": "F02",
+    "title": "The two orders of revision and intent",
+    "kind": "commit",
+    "refs": [
+      "P1-07",
+      "P3-16"
+    ],
+    "caption": "Both schedules use P1\u2019s protected authority: revision-first rejects the old quote; intent-first rejects revision. Client timestamps and response order do not decide the winner."
+  },
+  "effect": {
+    "id": "F03",
+    "title": "A possible external effect stays possible",
+    "kind": "effect",
+    "refs": [
+      "P1-11",
+      "D1-12"
+    ],
+    "caption": "Conceptual knowledge states, not the exact storage enum. A prior reservation stays possible after a lookup miss. In the illustrated takeover, P1 retains terminal uncertainty even when the old call later applies."
+  },
+  "lease": {
+    "id": "F04",
+    "title": "A lease check after the lock wait",
+    "kind": "lease",
+    "refs": [
+      "P1-14",
+      "D1-01"
+    ],
+    "caption": "Illustrative order, not measured durations. The lease can expire during the lock wait, so the guarded decision uses fresh database time afterward. This local write fence does not cancel a prior supplier request."
+  },
+  "feedcommit": {
+    "id": "F05",
+    "title": "Feed sequence follows visible commit order",
+    "kind": "feedcommit",
+    "refs": [
+      "D1-14",
+      "D3-13",
+      "P1-25"
+    ],
+    "caption": "Live result, scoped head and event commit together under shared work admission. The global precommit-sequence counterexample is an unimplemented alternative. adopted_history has upgrade adoption order, not reconstructed original commit order."
+  },
+  "intake": {
+    "id": "F06",
+    "title": "Durable input before dispatched generation",
+    "kind": "intake",
+    "refs": [
+      "P2-12",
+      "P2-13",
+      "D4-11"
+    ],
+    "caption": "The opt-in native adapter accepts input before dispatched generation. One accepted input may have multiple generation/response identities; neither repeat-commit safety nor the two-handle SDK lifecycle proves exactly-once generation or playback."
+  },
+  "context": {
+    "id": "F07",
+    "title": "Rehydrate without inventing an atomic snapshot",
+    "kind": "context",
+    "refs": [
+      "P2-17",
+      "P2-25",
+      "D4-12"
+    ],
+    "caption": "P2 and public P1 observations occur at different times. The final permission check restricts disclosure but does not make the earlier reads a cross-store atomic transaction."
+  },
+  "outbound": {
+    "id": "F08",
+    "title": "Reserve permission before carrier I O",
+    "kind": "outbound",
+    "refs": [
+      "P2-20",
+      "P2-23"
+    ],
+    "caption": "Reservation commits local permission before carrier I/O and shares admission with callback evidence. Any retained callback vetoes a new reservation; neither later callback nor revocation retracts an already admitted possible call."
+  },
+  "auth": {
+    "id": "F09",
+    "title": "Authenticate twice for two different questions",
+    "kind": "auth",
+    "refs": [
+      "D2-01",
+      "D2-09"
+    ],
+    "caption": "After local call admission, the cheap pass authenticates signed bytes before SQL but cannot establish current freshness. Protected intake checks freshness again with database time after the shared admission lock."
+  },
+  "delegation": {
+    "id": "F10",
+    "title": "Acceptance issuance result and action",
+    "kind": "delegation",
+    "refs": [
+      "P3-06",
+      "P3-10",
+      "P3-15"
+    ],
+    "caption": "These are separate authority gates. The fresh running-grant read is a preflight, not a remote cancellation fence. Original v1 action and newer policy delivery facades have distinct support; the flow grants no automatic version compatibility."
+  },
+  "feed": {
+    "id": "F11",
+    "title": "Scan progress is not the terminal watermark",
+    "kind": "feed",
+    "refs": [
+      "P3-18",
+      "D3-10"
+    ],
+    "caption": "This is a retained eight-event window, not one returned processing page. Terminally ACKed rows are excluded from discovery; later useful events can finish while an earlier unknown holds the contiguous watermark behind the gap."
+  },
+  "facts": {
+    "id": "F12",
+    "title": "Valid bytes can still be unsupported facts",
+    "kind": "facts",
+    "refs": [
+      "D3-01",
+      "D3-03",
+      "P3-11"
+    ],
+    "caption": "Conceptual gates across supported paths, not an implemented v2/v3 action pipeline. Both policy verifiers reject unsupported facts before returning expiry; v1 and v2 have different witness and uncertainty rules."
+  },
+  "singleflight": {
+    "id": "F13",
+    "title": "Shared scan and independent observers",
+    "kind": "singleflight",
+    "refs": [
+      "D4-01",
+      "D4-02"
+    ],
+    "caption": "One published scan can serve two observers. Canceling the first does not cancel the second; losing the last observer abandons interest while actual ownership remains until settled."
+  },
+  "webrtc": {
+    "id": "F14",
+    "title": "Signaling and media use different paths",
+    "kind": "webrtc",
+    "refs": [
+      "RTC-01",
+      "RTC-03",
+      "RTC-04"
+    ],
+    "caption": "Protocol overview. A control connection is not proof of a working media path. TURN relays a path; it does not become application consent or a durable inbox."
+  },
+  "pipeline": {
+    "id": "F15",
+    "title": "Where a voice answer can pause",
+    "kind": "pipeline",
+    "refs": [
+      "LK-03",
+      "FAIL-02"
+    ],
+    "caption": "Conceptual cascaded pipeline for the opt-in P2/joined admission path, not measured latency or every LiveKit model mode. Streaming stages can overlap; arbitrary duration sums are not an observed end-to-end delay."
+  },
+  "triage": {
+    "id": "F16",
+    "title": "Start with the missing observation",
+    "kind": "triage",
+    "refs": [
+      "FAIL-01",
+      "FAIL-02",
+      "FAIL-03"
+    ],
+    "caption": "A diagnostic decision guide. Follow the evidence for the failing layer instead of treating every silence, delay or missing receipt as one retryable error."
+  },
+  "lifetime": {
+    "id": "F17",
+    "title": "One timeout and three remaining lifetimes",
+    "kind": "lifetime",
+    "refs": [
+      "ROLE-01",
+      "D4-05",
+      "D4-09"
+    ],
+    "caption": "Composite example for retained loopback/media owners, not every slot in the repo. Ordinal stages are not measurements. Each slot releases when its own protected actual resource settles; some require writer closure."
+  },
+  "nats": {
+    "id": "F18",
+    "title": "Three acknowledgments with different meanings",
+    "kind": "nats",
+    "refs": [
+      "NATS-05",
+      "NATS-06",
+      "BUS-05"
+    ],
+    "caption": "Hypothetical integration: configured stream storage acceptance, consumer progress and an application receipt are distinct. Quorum acknowledgment does not alone establish per-write filesystem sync."
+  },
+  "planes": {
+    "id": "F19",
+    "title": "LiveKit transport bus and application authority",
+    "kind": "planes",
+    "refs": [
+      "BUS-01",
+      "BUS-02"
+    ],
+    "caption": "Inspected upstream source snapshots show Redis/local server construction and a NATS-capable PSRPC library. They are separate from the POC image, and establish no private Cloud topology or NATS service here."
+  }
+}

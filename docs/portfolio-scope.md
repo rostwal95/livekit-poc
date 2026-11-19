@@ -133,10 +133,12 @@ release remain pending.
 
 ### Current local P1 qualification
 
-P1 V1 is implemented and locally qualified with selected provider_real v2. The final
-20-case index, the current P1-18, P1-14 and P1-20 runs, full H2, PostgreSQL,
-installed host/Linux artifacts and shared quality gates passed with independent
-reviews. Historical checkpoints retain their original scope.
+P1 V1 retains its selected provider_real v2 local qualification from
+[0019](work-items/0019-p1-phase-h-release-qualification.md). After the booking
+schema v5 upgrade, [0047](work-items/0047-open-findings-schema-upgrades-and-landing.md)
+passed BASE-01 and P1-01 through P1-19; its fresh P1-20 rerun with the approved
+certificate bundle remains open. The [build plan](build-plan.md#p1-qualification)
+keeps the qualification summary. Historical reports retain their original scope.
 
 local_real remains unqualified. Complete P2/P3 acceptance remains pending. Hosted CI
 and publication are outside this local POC.
@@ -331,10 +333,11 @@ application responsibilities above. See
 ## Local execution modes
 
 The [local setup README](../local-setup/README.md) owns the implemented
-lab-foundation commands. The mode contracts below describe full product coverage to
-build. The current lab stack provides transport diagnostics and M1 intake, not the
-completed project scenarios. Future mode commands enter the quickstart only after
-implementation and validation.
+lab-foundation commands. The default transport profile provides diagnostics and
+M1 intake. Opt-in business and joined profiles add the selected capabilities
+listed under [Implementation status](#implementation-status). The mode contracts
+below describe required coverage; they do not declare every product scenario
+complete. Commands enter the quickstart only after implementation and validation.
 
 | Mode | Required behavior | External services |
 | --- | --- | --- |
@@ -440,7 +443,7 @@ qualification.
 | P1 A | Schema-safe SQLite M1 extension, one independent worker, persisted inquiry and deterministic crash/reconciliation. The early PostgreSQL adapter follows before lifecycle expansion. |
 | P1 backend and integration | Phases A–G, H1 and H2 retain their passed local evidence. P1-I26 host/Linux artifacts, independent API/failure review and genuine native consumer passed. All twenty P1 rows are registered. |
 | P2 | Preserve the selected native (P2-I15/I16), P2-I17 playback, P2-I18 current-case and P2-I19 workload qualification. P2-I22 and full acceptance remain separate. |
-| P3 | Preserve the selected P3-I14 recovery, P3-I15 standalone and P3-I16 image qualification. After P3-I17, P3-I18 native background integration and final comparison/release follow. |
+| P3 | Preserve selected recovery, standalone, image, fixed-policy and native RTC-text qualification through P3-I18B. Complete joined handoff, comparison and release remain open. |
 | Integrated release | All acceptance IDs, standalone examples, local deployment, live evidence, benchmarks and documentation pass their release gates. |
 
 ### Current stage status
@@ -568,5 +571,6 @@ The [local setup guide](../local-setup/README.md) and [build plan](build-plan.md
 separate this evidence from missing product behavior and remaining compatibility
 checks.
 
-Channel SDK, delegation runtime and complete product release evidence remain open.
-Remote CI is outside scope.
+Selected channel and delegation slices have the evidence recorded above and in
+their charters. Complete P2/P3 acceptance and the integrated product release
+remain open. Remote CI is outside scope.

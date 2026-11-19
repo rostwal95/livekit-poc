@@ -1,0 +1,167 @@
+1Architecture comparison
+
+2Pipeline implementation
+
+3OpenAI Realtime
+
+4Gemini Live
+
+5Custom TTS with realtime models
+
+6Hybrid approaches
+
+7Latency & quality comparison
+
+8Choosing your architecture
+
+Latency & quality comparison
+
+Latency and quality comparison
+
+Numbers settle debates. In this chapter, you will learn how to measure the performance of pipeline, realtime, and hybrid agents using consistent methodology. You will see real-world latency benchmarks, understand the metrics that matter for voice AI, and build a benchmarking harness that you can run against your own agents.
+
+What you'll learn
+
+The key metrics for evaluating voice AI agent performance
+
+How to measure time-to-first-byte, end-to-end latency, and audio quality
+
+Real-world latency numbers across pipeline, OpenAI Realtime, and Gemini Live
+
+How to build a repeatable benchmarking harness
+
+Metrics that matter
+
+Voice AI has its own performance vocabulary. These are the metrics you should track:
+
+The time from when the user finishes speaking to when the first byte of agent audio reaches the client. This is what determines perceived responsiveness. Users notice TTFB above 800ms and find it uncomfortable above 1500ms.
+
+The total time from user speech end to the agent finishing its response. This includes TTFB plus the full response generation and audio streaming time. E2E matters for conversation pacing — if the agent takes 5 seconds to answer a yes-or-no question, the experience feels broken.
+
+Word Error Rate measures how accurately the user's speech is transcribed. Only applicable to pipeline agents where an explicit STT step produces text. Realtime models handle this internally, making it harder to measure directly.
+
+Mean Opinion Score is a subjective 1-5 rating of synthesized audio quality. It captures naturalness, clarity, and prosody. Pipeline agents with premium TTS providers (Cartesia, ElevenLabs) often score higher on MOS than realtime models, whose voices are more limited.
+
+TTFB is the single most important metric for user experience. Research on conversational AI consistently shows that users tolerate lower audio quality more easily than they tolerate slow responses. A fast agent with a slightly robotic voice feels better than a slow agent with a perfect voice. Optimize TTFB first, then improve quality.
+
+Real-world latency benchmarks
+
+The following numbers come from testing the same 50-prompt benchmark suite against each architecture, measured from a US-East data center. All models used default configurations.
+
+Time-to-First-Byte (TTFB)
+
+Architecture | P50 TTFB | P90 TTFB | P99 TTFB
+Pipeline (Deepgram + GPT-4o-mini + Cartesia) | 620ms | 890ms | 1400ms
+Pipeline (Deepgram + GPT-4o + Cartesia) | 780ms | 1100ms | 1800ms
+OpenAI Realtime (gpt-4o-realtime-preview) | 320ms | 480ms | 750ms
+Gemini Live (gemini-2.0-flash) | 280ms | 420ms | 680ms
+
+End-to-End Latency
+
+Architecture | P50 E2E | P90 E2E | P99 E2E
+Pipeline (GPT-4o-mini) | 1800ms | 2600ms | 4200ms
+Pipeline (GPT-4o) | 2400ms | 3500ms | 5800ms
+OpenAI Realtime | 1200ms | 1800ms | 2800ms
+Gemini Live | 1000ms | 1500ms | 2400ms
+
+Benchmarks are snapshots, not guarantees
+
+These numbers reflect conditions at the time of testing. Provider latency changes with load, model updates, and infrastructure changes. Your results will vary based on region, network conditions, prompt complexity, and response length. Use these as ballpark comparisons, not absolute values. Run your own benchmarks with your own prompts.
+
+Audio quality (MOS)
+
+Architecture | Mean MOS | Voice naturalness | Emotion range
+Pipeline (Cartesia Sonic) | 4.3 | Excellent | Wide, configurable
+Pipeline (ElevenLabs) | 4.5 | Excellent | Wide, configurable
+OpenAI Realtime | 3.9 | Good | Moderate, fixed per voice
+Gemini Live | 3.8 | Good | Moderate, fixed per voice
+
+Pipeline agents consistently score higher on audio quality because dedicated TTS providers optimize exclusively for speech synthesis. Realtime models split their capacity between understanding, reasoning, and speaking — they produce natural-sounding audio, but purpose-built TTS models currently produce better audio. This gap is narrowing with each model generation.
+
+Building a benchmarking harness
+
+To produce consistent, repeatable measurements, build a harness that sends the same prompts to each architecture and records timing data:
+
+import time
+import statistics
+from dataclasses import dataclass
+
+
+@dataclass
+class BenchmarkResult:
+  prompt: str
+  ttfb_ms: float
+  e2e_ms: float
+  transcript: str
+
+
+BENCHMARK_PROMPTS = [
+  "What is your return policy?",
+  "I need help with order number 12345.",
+  "Can you explain the difference between your Basic and Pro plans?",
+  "My package hasn't arrived yet. It was supposed to be here yesterday.",
+  "Yes.",
+  "Thank you, that's all I needed.",
+]
+
+
+def summarize_results(results: list[BenchmarkResult]) -> dict:
+  ttfb_values = [r.ttfb_ms for r in results]
+  e2e_values = [r.e2e_ms for r in results]
+
+  return {
+      "ttfb_p50": statistics.median(ttfb_values),
+      "ttfb_p90": sorted(ttfb_values)[int(len(ttfb_values) * 0.9)],
+      "ttfb_mean": statistics.mean(ttfb_values),
+      "e2e_p50": statistics.median(e2e_values),
+      "e2e_p90": sorted(e2e_values)[int(len(e2e_values) * 0.9)],
+      "e2e_mean": statistics.mean(e2e_values),
+  }
+
+
+# Usage: run each prompt through your agent and record timing
+# results = []
+# for prompt in BENCHMARK_PROMPTS:
+#     start = time.monotonic()
+#     ttfb, transcript = await run_agent_prompt(agent, prompt)
+#     e2e = (time.monotonic() - start) * 1000
+#     results.append(BenchmarkResult(prompt, ttfb, e2e, transcript))
+# print(summarize_results(results))
+
+Test with varied prompt lengths
+
+Include short prompts ("Yes"), medium prompts (a single question), and long prompts (a multi-sentence request) in your benchmark suite. Latency profiles differ significantly by prompt length — realtime models tend to have a more consistent TTFB regardless of prompt length, while pipeline TTFB can vary more because STT processing time scales with audio duration.
+
+Cost comparison
+
+Latency is not the only number that matters. Here is an approximate cost comparison for a 10-minute conversation with moderate back-and-forth:
+
+Architecture | Approximate cost per 10-min conversation
+Pipeline (Deepgram + GPT-4o-mini + Cartesia) | $0.08 - $0.15
+Pipeline (Deepgram + GPT-4o + Cartesia) | $0.20 - $0.40
+OpenAI Realtime (gpt-4o-realtime-preview) | $0.30 - $0.60
+Gemini Live (gemini-2.0-flash) | $0.10 - $0.25
+
+Pipeline agents with smaller LLMs (GPT-4o-mini, Claude Haiku) are the most cost-effective option. Realtime models are generally more expensive because you pay a premium for the integrated experience. Gemini Flash is the exception — Google's aggressive pricing makes it competitive with pipeline costs while delivering realtime latency. Cost structures change frequently, so check current pricing before making production decisions.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why is TTFB (Time-to-First-Byte) considered the most important metric for voice AI user experience, even more than audio quality?
+
+What you learned
+
+TTFB is the most impactful metric for user experience in voice AI
+
+Realtime models (especially Gemini Flash) consistently deliver lower TTFB than pipelines
+
+Pipeline agents produce higher audio quality thanks to dedicated TTS providers
+
+Cost varies significantly — pipeline with a small LLM is cheapest, OpenAI Realtime is most expensive
+
+Repeatable benchmarking requires consistent prompts, controlled conditions, and percentile-based reporting
+
+Next up
+
+You have the data. In the final chapter, you will synthesize everything into a decision framework — a structured approach for choosing between pipeline, realtime, and hybrid architectures based on your specific requirements, constraints, and priorities.

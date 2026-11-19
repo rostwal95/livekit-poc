@@ -1,0 +1,58 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit import rtc\n\nfor participant in session.room.remote_participants.values():\n  if participant.kind == rtc.ParticipantKind.PARTICIPANT_KIND_SIP:\n      # This participant is on a phone\n      print(f\"Phone caller: {participant.identity}\")"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { ParticipantKind } from \"@livekit/rtc-node\";\n\nfor (const participant of session.room.remoteParticipants.values()) {\nif (participant.kind === ParticipantKind.SIP) {\n  // This participant is on a phone\n  console.log(`Phone caller: ${participant.identity}`);\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "INVITE sip:+15551234567@sip.livekit.io SIP/2.0\nVia: SIP/2.0/UDP 203.0.113.10:5060;branch=z9hG4bK776asdhds\nFrom: \"Patient\" <sip:+15559876543@trunk.twilio.com>;tag=1928301774\nTo: <sip:+15551234567@sip.livekit.io>\nCall-ID: a84b4c76e66710@203.0.113.10\nCSeq: 314159 INVITE\nContact: <sip:+15559876543@203.0.113.10:5060>\nContent-Type: application/sdp\nContent-Length: 142\n\nv=0\no=- 2890844526 2890844526 IN IP4 203.0.113.10\ns=-\nc=IN IP4 203.0.113.10\nt=0 0\nm=audio 49170 RTP/AVP 0 8 96\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:96 opus/48000/2"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "Caller (Trunk)              LiveKit SIP Bridge\n   |                              |\n   |------- INVITE (SDP offer) -->|  \"I want to call +15551234567\"\n   |                              |\n   |<------ 100 Trying -----------|  \"Working on it\"\n   |                              |\n   |<------ 180 Ringing ----------|  \"Ringing the destination\"\n   |                              |\n   |<------ 200 OK (SDP answer) --|  \"Call accepted, here are my media params\"\n   |                              |\n   |------- ACK ----------------->|  \"Got it, let's talk\"\n   |                              |\n   |<======= RTP audio =========>|  Bidirectional audio flows\n   |                              |\n   |------- BYE ----------------->|  \"Hanging up\"\n   |                              |\n   |<------ 200 OK ---------------|  \"Goodbye acknowledged\"\n   |                              |"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Capture SIP signaling on port 5060 (save to file for analysis)\nsudo tcpdump -i any -s 0 -w sip-debug.pcap port 5060\n\n# Capture both SIP signaling and RTP media\nsudo tcpdump -i any -s 0 -w full-call.pcap \"port 5060 or portrange 10000-60000\"\n\n# Filter to a specific trunk provider IP\nsudo tcpdump -i any -s 0 -w trunk-debug.pcap host 54.172.60.0 and port 5060\n\n# Capture TLS-encrypted SIP on port 5061\nsudo tcpdump -i any -s 0 -w sip-tls.pcap port 5061"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "1. Open sip-debug.pcap in Wireshark\n2. Filter: \"sip\" to see only SIP messages\n3. Telephony -> SIP Flows \u2014 shows the complete call ladder diagram\n4. Select an INVITE -> inspect the SDP body for codec offers\n5. Select the 200 OK -> inspect the SDP answer for negotiated codecs\n6. Filter: \"rtp\" to see media packets\n7. Telephony -> RTP -> RTP Streams \u2014 shows jitter, packet loss, codec in use\n8. Telephony -> RTP -> RTP Stream Analysis \u2014 graphs jitter over time"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Install sngrep\n# Debian/Ubuntu: sudo apt install sngrep\n# macOS: brew install sngrep\n\n# Watch live SIP traffic\nsudo sngrep\n\n# Filter to a specific call\nsudo sngrep -d any -c \"INVITE\"\n\n# Watch only traffic to/from your trunk provider\nsudo sngrep -d any host 54.172.60.0"
+  }
+]

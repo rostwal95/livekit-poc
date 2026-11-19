@@ -1,7 +1,13 @@
 # Exact effects and durable completion guide
 
-Status: Active
-Last reviewed: 15 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Active |
+| Purpose | Explain exact supplier effects, cancellation, reconciliation and durable completion delivery |
+| Audience | Engineers who change P1 mutation, cancellation, provider or receiver binding and outbox behavior |
+| Scope | P1 supplier effects and completion contracts, operations and evidence; excludes conversational and worker lifecycle detail |
+| Owns | Mutation reservation and reconciliation, cancellation dispositions, outcome commitment and completion delivery |
+| Related | [Case and continuation](case-and-continuation.md) · [Leases and workers](leases-and-workers.md) · [P1 guide](../projects/agent-continuity/README.md) · [Phase E work item](work-items/0011-p1-phase-e-effects-and-completion.md) |
 
 ## Overview
 
@@ -27,8 +33,10 @@ acknowledgement. The
 verification.
 
 Implementation task completion does not complete every charter acceptance row.
-The six existing runners, BASE-01 and P1-01 through P1-05, retain their existing
-scope.
+At the Phase E checkpoint the six runners, BASE-01 and P1-01 through P1-05,
+retained their inquiry scope. The [qualification guide](qualification-gates.md)
+and harness catalog own current registrations and the open post-v5 provider
+rerun; historical phase results are not fresh evidence for later changes.
 
 ### Later phases
 
@@ -107,8 +115,9 @@ is not an interchangeable mutation authority.
 ## Claim, dispatch and reconciliation
 
 PostgresEffects uses the shared protected admission and case transaction and the
-original managed control. MutationWorker holds the existing cooperative worker
-session slot for one bounded invocation. Supplier lookup and apply happen after
+original managed control. On v3, MutationWorker holds the cooperative worker
+session slot for one bounded invocation; v4/v5 use the explicit lease and epoch
+guards in the [worker guide](leases-and-workers.md). Supplier lookup and apply happen after
 each database transaction closes. No new execution queue, sleeping task or broker
 is created.
 
@@ -389,5 +398,6 @@ phase work item for the final observed commands and results.
   first-version scope) release.
 - The [release handoff](work-items/0019-p1-phase-h-release-qualification.md) owns
   exact qualification and limits.
-- The [implementation plan](implementation/p1-agent-continuity.md) keeps P2/P3
-  planned and local_real independently unqualified.
+- The [implementation plan](implementation/p1-agent-continuity.md) records the
+  implemented P2/P3 slices and their remaining charter release work, while
+  local_real remains independently unqualified.

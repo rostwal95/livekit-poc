@@ -1,0 +1,355 @@
+{
+  "input": "/private/tmp/livekit-content-audit/parent-revised.json",
+  "input_sha256": "e98fb48023913238282b89206d013040f5b3d6f54c07f7fc241d90148d0d5b61",
+  "scope": "Independent material factual/proof red-team only; no cosmetic rewrite or parent mutation.",
+  "reviewed_question_count": 28,
+  "reviewed_followup_count": 56,
+  "blocking": false,
+  "findings": [],
+  "verdict": "No remaining material factual error or proof overclaim identified in the 28 assigned questions and their 56 followups.",
+  "question_checks": [
+    {
+      "id": "NATS-01",
+      "verdict": "no_material_issue_identified",
+      "checked": "Core delivery and JetStream storage/consumer progress remain separate; storage durability is correctly configuration-dependent."
+    },
+    {
+      "id": "NATS-02",
+      "verdict": "no_material_issue_identified",
+      "checked": "Wildcard examples use one token for * and one-or-more terminal tokens for >; subjects grant no application authority."
+    },
+    {
+      "id": "NATS-03",
+      "verdict": "no_material_issue_identified",
+      "checked": "Queue-group routing is not presented as retained redelivery, a durable claim or exactly-once processing."
+    },
+    {
+      "id": "NATS-04",
+      "verdict": "no_material_issue_identified",
+      "checked": "No-responders and timeout are scoped to the exchange and do not erase an older possible operation."
+    },
+    {
+      "id": "NATS-05",
+      "verdict": "no_material_issue_identified",
+      "checked": "ACK, double ACK, retention and delivery limits are kept separate from database/effect commitment."
+    },
+    {
+      "id": "NATS-06",
+      "verdict": "no_material_issue_identified",
+      "checked": "Message deduplication is bounded and does not establish permanent business identity or atomic supplier effects."
+    },
+    {
+      "id": "NATS-07",
+      "verdict": "no_material_issue_identified",
+      "checked": "Append order is distinguished from handler completion; business revision checks remain authoritative."
+    },
+    {
+      "id": "NATS-08",
+      "verdict": "no_material_issue_identified",
+      "checked": "Pull batch, unACKed count, bytes and real operation lifetime are separate resource bounds."
+    },
+    {
+      "id": "NATS-09",
+      "verdict": "no_material_issue_identified",
+      "checked": "Two-of-three quorum is distinguished from all replicas applying or all disks syncing; the fault model is explicit."
+    },
+    {
+      "id": "NATS-10",
+      "verdict": "no_material_issue_identified",
+      "checked": "Broker subject/account permission is distinguished from tenant labels, consent and already admitted work."
+    },
+    {
+      "id": "BUS-01",
+      "verdict": "no_material_issue_identified",
+      "checked": "Current public LiveKit self-hosting documentation confirms Redis routing and single-node room scope."
+    },
+    {
+      "id": "BUS-02",
+      "verdict": "no_material_issue_identified",
+      "checked": "Pinned PSRPC README confirms localbus/natsbus/redisbus injection and package constructor migration."
+    },
+    {
+      "id": "BUS-03",
+      "verdict": "no_material_issue_identified",
+      "checked": "Pinned LiveKit constructor selects local bus for nil Redis client and redisbus otherwise; upstream image identity is separated."
+    },
+    {
+      "id": "BUS-04",
+      "verdict": "no_material_issue_identified",
+      "checked": "All three maintained Compose files lack NATS; PostgreSQL/HTTP/owned-worker scope is consistent with repository documents."
+    },
+    {
+      "id": "BUS-05",
+      "verdict": "no_material_issue_identified",
+      "checked": "Wake-up hints and a transactional event outbox are clearly hypothetical; P1 retains execution/action authority."
+    },
+    {
+      "id": "BUS-06",
+      "verdict": "no_material_issue_identified",
+      "checked": "Proposed fault experiment requires independent identities, effects, useful progress and actual cleanup; no NATS gate is claimed."
+    },
+    {
+      "id": "ROLE-01",
+      "verdict": "no_material_issue_identified",
+      "checked": "Async syntax does not offload work; cancellation of a thread waiter does not prove stopped worker or released capacity."
+    },
+    {
+      "id": "ROLE-02",
+      "verdict": "no_material_issue_identified",
+      "checked": "TaskGroup sibling failure/closure semantics and separately retained actual work are described with appropriate scope."
+    },
+    {
+      "id": "ROLE-03",
+      "verdict": "no_material_issue_identified",
+      "checked": "Protocols, runtime validation, frozen dataclasses and nested mutation are correctly distinguished."
+    },
+    {
+      "id": "ROLE-04",
+      "verdict": "no_material_issue_identified",
+      "checked": "Lost submit ACK is caller uncertainty; inspected composition replays the frozen request before get/cancel."
+    },
+    {
+      "id": "ROLE-05",
+      "verdict": "no_material_issue_identified",
+      "checked": "Compile-time exhaustiveness is distinguished from validation/authenticity; compatibility choices are proposed, not asserted."
+    },
+    {
+      "id": "ROLE-06",
+      "verdict": "no_material_issue_identified",
+      "checked": "Promise.race is not cancellation; supported abort and durable cancellation retain their separate meanings."
+    },
+    {
+      "id": "ROLE-07",
+      "verdict": "no_material_issue_identified",
+      "checked": "The proposed testing strategy distinguishes independent facts, real boundaries and nonpassing missing/skipped evidence."
+    },
+    {
+      "id": "ROLE-08",
+      "verdict": "no_material_issue_identified",
+      "checked": "Installed-consumer usability is separated from source tests and finite capabilities from caller-selected workflow code."
+    },
+    {
+      "id": "ROLE-09",
+      "verdict": "no_material_issue_identified",
+      "checked": "Storage and wire version namespaces, owner-only upgrades and legacy consent authority are kept distinct."
+    },
+    {
+      "id": "ROLE-10",
+      "verdict": "no_material_issue_identified",
+      "checked": "Customer feedback, measurement and recovery improvements are proposed response patterns rather than invented achievements."
+    },
+    {
+      "id": "ROLE-11",
+      "verdict": "no_material_issue_identified",
+      "checked": "Repository content, personal authorship and AI assistance are explicitly separated, matching the handoff rule."
+    },
+    {
+      "id": "ROLE-12",
+      "verdict": "no_material_issue_identified",
+      "checked": "GW-A1 and GW-A2 remain documented open lifecycle risks; the second retains its medium-confidence qualification in the source."
+    }
+  ],
+  "upstream_snapshots": [
+    {
+      "path": "/private/tmp/livekit-content-audit/psrpc-readme.txt",
+      "revision": "aa91db868a4c00b61fcb46e9cb5db7ba7cd94267",
+      "lines": [
+        7,
+        10,
+        11,
+        12,
+        13,
+        260,
+        269,
+        280,
+        281,
+        282,
+        285
+      ]
+    },
+    {
+      "path": "/private/tmp/livekit-content-audit/livekit-wire.txt",
+      "revision": "80cfa6e73f1d4fcbe5ec5e56669e16f5ce42a570",
+      "lines": [
+        45,
+        175,
+        264,
+        267,
+        269
+      ]
+    },
+    {
+      "path": "/private/tmp/livekit-content-audit/livekit-config.txt",
+      "revision": "80cfa6e73f1d4fcbe5ec5e56669e16f5ce42a570",
+      "lines": [
+        19,
+        20,
+        21
+      ]
+    }
+  ],
+  "local_evidence_checked": [
+    {
+      "path": "local-setup/docker-compose.yaml",
+      "claim": "Maintained main topology contains no NATS service."
+    },
+    {
+      "path": "local-setup/docker-compose.providers.yaml",
+      "claim": "Provider overlay contains no NATS service."
+    },
+    {
+      "path": "local-setup/docker-compose.provider-ca.yaml",
+      "claim": "Provider CA overlay contains no NATS service."
+    },
+    {
+      "path": "docs/portfolio-scope.md",
+      "lines": [
+        313,
+        319,
+        320,
+        321,
+        322
+      ],
+      "claim": "PostgreSQL application authority and one local SFU remain explicit scope."
+    },
+    {
+      "path": "docs/python-engineering.md",
+      "lines": [
+        40,
+        41,
+        48,
+        49,
+        50,
+        51,
+        58,
+        59,
+        93,
+        94,
+        95,
+        96,
+        98,
+        100,
+        112,
+        114,
+        124,
+        126
+      ],
+      "claim": "Typing, mutation snapshots, task ownership and closure limits match the role answers."
+    },
+    {
+      "path": "services/channel_policy_demo/executor.py",
+      "lines": [
+        199,
+        209,
+        213,
+        234,
+        235,
+        236
+      ],
+      "claim": "Created tasks have outcome observers; incomplete close retains the owner/slot."
+    },
+    {
+      "path": "services/conversation_agent/composition.py",
+      "lines": [
+        75,
+        78,
+        79,
+        85,
+        88,
+        93,
+        98,
+        103,
+        108
+      ],
+      "claim": "Unknown submit acknowledgement reuses the frozen original request before get/cancel."
+    },
+    {
+      "path": "tests/test_conversation_composition.py",
+      "lines": [
+        99,
+        101,
+        125,
+        127,
+        130,
+        132,
+        136,
+        138,
+        143,
+        147,
+        148,
+        153
+      ],
+      "claim": "Read test body forces held submit, timeouts and original replay for both get/cancel; no rerun claimed."
+    },
+    {
+      "path": "projects/channel-continuity/src/dispatch-store.ts",
+      "lines": [
+        519,
+        521,
+        523,
+        527,
+        538
+      ],
+      "claim": "Eligibility is persisted, scoped and bounded."
+    },
+    {
+      "path": "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+      "lines": [
+        53,
+        103,
+        105,
+        110,
+        111
+      ],
+      "claim": "Submit recovery fix and remaining gateway lifecycle risks are accurately scoped."
+    },
+    {
+      "path": "AGENTS.md",
+      "lines": [
+        983,
+        985,
+        990,
+        991
+      ],
+      "claim": "AI assistance and personal contribution require accurate, explainable evidence."
+    }
+  ],
+  "primary_web_checks": [
+    {
+      "url": "https://docs.livekit.io/transport/self-hosting/distributed/",
+      "checked": "Redis room-data/message-bus architecture, signaling proxy and single-node room limit."
+    },
+    {
+      "url": "https://docs.nats.io/concepts/jetstream",
+      "checked": "Core versus stream persistence and consumer progress."
+    },
+    {
+      "url": "https://docs.nats.io/learn/core-nats/request-reply",
+      "checked": "Request/reply transport and no-responders status."
+    },
+    {
+      "url": "https://docs.nats.io/learn/jetstream/delivery-and-acknowledgment",
+      "checked": "ACK and confirmed ACK do not constitute an external transaction."
+    },
+    {
+      "url": "https://docs.nats.io/learn/jetstream/pull-consumers",
+      "checked": "MaxAckPending is shared across the consumer; message count differs from bytes."
+    },
+    {
+      "url": "https://docs.nats.io/learn/clustering/replication-and-r3",
+      "checked": "Quorum commitment and later disk sync are distinct boundaries."
+    },
+    {
+      "url": "https://docs.nats.io/learn/jetstream/advanced-publishing",
+      "checked": "Publish acknowledgement and arrival/storage order are transport facts."
+    }
+  ],
+  "limitations": [
+    "No runtime tests, provider calls, deployment experiment or gate execution performed.",
+    "The upstream source snapshots establish the pinned construction paths, not the POC image contents or private Cloud topology.",
+    "No new claim is made that the hypothetical NATS integration exists or has been qualified."
+  ],
+  "files_mutated": [
+    "/private/tmp/livekit-content-audit/p3-cross-review.json"
+  ]
+}

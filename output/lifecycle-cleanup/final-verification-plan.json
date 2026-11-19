@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "status": "prepared_not_executed_by_ledger_owner",
+  "workingDirectory": "/Users/rostwal/Downloads/livekit-poc",
+  "pinnedNode": "/private/tmp/livekit-academy-node-24.22.2-n1rqgu__/node-v24.22.2-darwin-arm64/bin/node",
+  "order": "Narrow regressions and affected integration first; serial final broad checks after source/docs are stable. Root owns broad execution.",
+  "commands": [
+    {
+      "command": "make check",
+      "requirement": "Standard Python/shared full fast before handoff",
+      "source": "Makefile:192; AGENTS.md:832",
+      "expands_to": [
+        "HARNESS_PYTHON=.venv/bin/python sh scripts/harness-check.sh",
+        ".venv/bin/ruff check $(QUALITY_PATHS)",
+        ".venv/bin/mypy services $(P1_SOURCE) $(P2_SOURCE) $(P3_SOURCE) --check-untyped-defs",
+        ".venv/bin/mypy --strict --follow-imports=silent $(STRICT_TYPE_PATHS)"
+      ],
+      "note": "Run serially; the first recipe includes documentation/structural/offline Python tests. Existing required discovery/timeouts remain unchanged."
+    },
+    {
+      "command": "make format-check",
+      "requirement": "Python formatting for maintained quality paths",
+      "source": "Makefile:205",
+      "note": "Separate from make check; no source rewriting."
+    },
+    {
+      "command": "make frontend-check",
+      "requirement": "Standard complete TypeScript validation after stable source",
+      "source": "Makefile:213; AGENTS.md:833",
+      "expands_to": [
+        "corepack pnpm format:check",
+        "corepack pnpm check",
+        "corepack pnpm test",
+        "corepack pnpm build",
+        "corepack pnpm --filter @livekit-ecosystem/local-console exec vite build --config vite.operations.config.ts",
+        "corepack pnpm --filter @livekit-ecosystem/local-console exec vite build --config vite.p3-background.config.ts",
+        "VITE_P1_CONSOLE_URL=$(P1_CONSOLE_URL) corepack pnpm --filter @livekit-ecosystem/local-console run channel-policy:build"
+      ],
+      "note": "Use pinned Node24.22.2 on PATH and an available pnpm shim. Recipe includes four packages: console,P2,specialist,Nodegateway. P1_CONSOLE_URL uses maintained nonsecret UI-port loader."
+    },
+    {
+      "command": ".venv/bin/python -m harness validate",
+      "requirement": "Standard catalogue metadata/registration check",
+      "source": "AGENTS.md:834",
+      "note": "Metadata only; does not establish product assertions."
+    },
+    {
+      "command": ".venv/bin/python -m harness run BASE-01",
+      "requirement": "Standard baseline M1 case",
+      "source": "AGENTS.md:835",
+      "note": "Retain exact outcome; no release promotion."
+    },
+    {
+      "command": "HARNESS_PYTHON=.venv/bin/python sh scripts/harness-check.sh",
+      "requirement": "Exact full fast command if invoked independently",
+      "source": "AGENTS.md:836; scripts/harness-check.sh",
+      "note": "Already included by make check. Avoid unnecessary duplicate execution once final unchanged source passes."
+    },
+    {
+      "command": "make channel-policy-package-check",
+      "requirement": "Affected joined application installed-consumer boundary",
+      "source": "Makefile:459",
+      "note": "Explicit root-application package fixture, separate from source tests and actual PG/media. Root owns execution serially."
+    },
+    {
+      "command": ".venv/bin/python local-setup/stack.py smoke",
+      "requirement": "Runtime change local-stack transport smoke",
+      "source": "AGENTS.md:841,883; Makefile:222",
+      "note": "Ordinary existing-stack readiness/text/audio transport only; root already recorded an8-check/10-frame pass earlier in this slice. Root decides whether final source invalidates that observation."
+    },
+    {
+      "command": "make p2-native-check",
+      "requirement": "Conditional full selected native PG/SDK/media lane after changing native ingress/lifetime",
+      "source": "Makefile:330; projects/channel-continuity/AGENTS.md",
+      "note": "Requires explicit isolated prerequisites. Supplemental six-scenario PG fixture plus selected joined browser observations cannot be relabeled as this complete gate."
+    },
+    {
+      "command": "make channel-policy-unit",
+      "requirement": "Affected targeted joined tests if separately needed",
+      "source": "Makefile:449",
+      "note": "Covered across final full discovery/TypeScript suites; no need repeat on unchanged source after those pass."
+    },
+    {
+      "command": "make postgres-check",
+      "requirement": "Conditional P1 storage/migration/authorization lane",
+      "source": "AGENTS.md:840,880; Makefile:225",
+      "note": "No P1 storage/schema change in GW-A1. Do not claim supplemental P2 fixture is this full P1 gate."
+    },
+    {
+      "command": "HARNESS_PYTHON=.venv/bin/python sh scripts/harness-deep.sh --module p1",
+      "requirement": "Separate deep acceptance gate with real PostgreSQL/browser/inference prerequisites",
+      "source": "AGENTS.md:838,856",
+      "note": "Not authorized as provider work in this slice. Default P1-20 local_real remains unqualified; never silently switch to provider_real or read provider secrets."
+    }
+  ],
+  "limits": [
+    "Exact recipe expansions show Make variable names where authoritative target owns maintained discovery lists.",
+    "No new deadlines, skips or zero-test passes.",
+    "Final documentation hashes remain pending root stable-doc notice."
+  ]
+}

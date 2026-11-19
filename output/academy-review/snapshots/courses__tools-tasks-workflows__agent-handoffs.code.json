@@ -1,0 +1,66 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, function_tool, RunContext\nimport time\n\n\nclass GreeterAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"You are a friendly host at Bella Vista...\",\n      )\n      self.entered_at = None\n\n  async def on_enter(self):\n      self.entered_at = time.time()\n      self.session.generate_reply(\n          instructions=\"Greet the guest warmly and ask how you can help.\"\n      )\n\n  async def on_exit(self):\n      if self.entered_at:\n          duration = time.time() - self.entered_at\n          print(f\"Greeter session lasted {duration:.1f} seconds\")\n      # Save any greeter-specific state before handing off\n      self.session.userdata[\"greeted\"] = True\n\n  @function_tool\n  async def transfer_to_order_taker(self, context: RunContext) -> str:\n      \"\"\"Transfer to the order taker.\"\"\"\n      from order_taker_agent import OrderTakerAgent\n      self.hand_off(OrderTakerAgent())\n      return \"Transferring you to our order taker now.\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, functionTool, RunContext } from \"@livekit/agents\";\n\nclass GreeterAgent extends Agent {\nprivate enteredAt: number | null = null;\n\nconstructor() {\n  super({\n    instructions: \"You are a friendly host at Bella Vista...\",\n  });\n}\n\nasync onEnter() {\n  this.enteredAt = Date.now();\n  this.session.generateReply({\n    instructions: \"Greet the guest warmly and ask how you can help.\",\n  });\n}\n\nasync onExit() {\n  if (this.enteredAt) {\n    const duration = (Date.now() - this.enteredAt) / 1000;\n    console.log(`Greeter session lasted ${duration.toFixed(1)} seconds`);\n  }\n  this.session.userdata.greeted = true;\n}\n\n@functionTool({ description: \"Transfer to the order taker.\" })\nasync transferToOrderTaker(context: RunContext): Promise<string> {\n  this.handOff(new (await import(\"./orderTakerAgent\")).OrderTakerAgent());\n  return \"Transferring you to our order taker now.\";\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, AgentConfigUpdate, function_tool, RunContext\n\n\nclass OrderTakerAgent(Agent):\n  def __init__(self):\n      super().__init__(\n          instructions=\"\"\"You are the precise order taker at Bella Vista.\n          Confirm every detail. Read items back to the customer.\n          Be methodical and accurate.\"\"\",\n      )\n\n  async def on_enter(self):\n      # Update session config for the order-taking phase\n      await self.session.update_config(\n          AgentConfigUpdate(\n              # Use a more capable model for order accuracy\n              turn_detection_silence_threshold=0.8,  # Longer pause tolerance\n          )\n      )\n\n      # Check if the customer was already greeted\n      greeted = self.session.userdata.get(\"greeted\", False)\n      if greeted:\n          self.session.generate_reply(\n              instructions=\"The guest has already been greeted. Introduce yourself as the order taker and ask what they would like.\"\n          )\n      else:\n          self.session.generate_reply(\n              instructions=\"Welcome the guest and ask what they would like to order.\"\n          )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, AgentConfigUpdate, functionTool, RunContext } from \"@livekit/agents\";\n\nclass OrderTakerAgent extends Agent {\nconstructor() {\n  super({\n    instructions: `You are the precise order taker at Bella Vista.\n      Confirm every detail. Read items back to the customer.\n      Be methodical and accurate.`,\n  });\n}\n\nasync onEnter() {\n  await this.session.updateConfig(\n    new AgentConfigUpdate({\n      turnDetectionSilenceThreshold: 0.8,\n    })\n  );\n\n  const greeted = this.session.userdata.greeted ?? false;\n  if (greeted) {\n    this.session.generateReply({\n      instructions: \"The guest has already been greeted. Introduce yourself as the order taker and ask what they would like.\",\n    });\n  } else {\n    this.session.generateReply({\n      instructions: \"Welcome the guest and ask what they would like to order.\",\n    });\n  }\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import Agent, function_tool, RunContext\n\n\nclass FeedbackAgent(Agent):\n  def __init__(self, order_summary: str = \"\"):\n      super().__init__(\n          instructions=f\"\"\"You are the feedback collector at Bella Vista.\n          The customer just completed their order: {order_summary}\n\n          Thank them for their order. Ask how their experience was.\n          Keep it brief and genuine. If they have complaints, empathize\n          and offer to connect them with a manager.\"\"\",\n      )\n      self.order_summary = order_summary\n\n  async def on_enter(self):\n      self.session.generate_reply(\n          instructions=f\"Thank the customer for ordering {self.order_summary} and ask about their experience.\"\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Agent, functionTool, RunContext } from \"@livekit/agents\";\n\nclass FeedbackAgent extends Agent {\nprivate orderSummary: string;\n\nconstructor(orderSummary: string = \"\") {\n  super({\n    instructions: `You are the feedback collector at Bella Vista.\n      The customer just completed their order: ${orderSummary}\n\n      Thank them for their order. Ask how their experience was.\n      Keep it brief and genuine. If they have complaints, empathize\n      and offer to connect them with a manager.`,\n  });\n  this.orderSummary = orderSummary;\n}\n\nasync onEnter() {\n  this.session.generateReply({\n    instructions: `Thank the customer for ordering ${this.orderSummary} and ask about their experience.`,\n  });\n}\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "class OrderTakerAgent(Agent):\n  # ... previous code ...\n\n  @function_tool\n  async def transfer_to_feedback(self, context: RunContext) -> str:\n      \"\"\"Transfer to the feedback collector after the order is complete.\"\"\"\n      items = self.session.userdata.get(\"order_items\", [])\n      summary = \", \".join(f\"{i['quantity']}x {i['name']}\" for i in items)\n      self.hand_off(FeedbackAgent(order_summary=summary))\n      return \"Your order is confirmed. Let me connect you with someone for a quick feedback.\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "class OrderTakerAgent extends Agent {\n// ... previous code ...\n\n@functionTool({ description: \"Transfer to the feedback collector after the order is complete.\" })\nasync transferToFeedback(context: RunContext): Promise<string> {\n  const items = this.session.userdata.orderItems ?? [];\n  const summary = items.map((i: any) => `${i.quantity}x ${i.name}`).join(\", \");\n  this.handOff(new FeedbackAgent(summary));\n  return \"Your order is confirmed. Let me connect you with someone for a quick feedback.\";\n}\n}"
+  }
+]

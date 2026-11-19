@@ -113,7 +113,7 @@ caches, temporary download files and Docker layers need additional disk.
 - Models live under the ignored local-setup/.local/models directory.
 - models-fetch is the only network-fetch action. Verification and runtime never
   fetch weights.
-- Preparation owns a file lock, a bounded child process and an 1,800-second
+- Preparation owns a file lock, a bounded child process and a 1,800-second
   deadline with terminate, kill and reap.
 - Missing, corrupt or unexpected cache content fails. Runtime does not silently
   replace corrupt files.
@@ -424,7 +424,8 @@ actor, transcript or model-generated strings as metric labels.
 ### Retained evidence and privacy
 
 - Private request files and raw child or provider capture are removed after
-  completion or controlled failure.
+  completion or controlled failure only when their actual owners have settled.
+  Unresolved ownership retains private work and a failing cleanup observation.
 - Retained evidence uses fixed codes, booleans, counts, validated model names,
   timing and resource observations, and provenance digests.
 - Prompts, transcripts, audio bodies, headers, credentials and exception chains

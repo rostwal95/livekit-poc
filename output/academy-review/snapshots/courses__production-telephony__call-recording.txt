@@ -1,0 +1,160 @@
+1Production telephony patterns overview
+
+2Warm transfers
+
+3Cold transfers
+
+4Call recording & compliance
+
+5Building the outbound system
+
+6Queue management
+
+7Error handling & retries
+
+8Monitoring & analytics
+
+9Load testing
+
+Call recording & compliance
+
+Call recording with LiveKit Egress
+
+Every production telephony deployment needs call recording. Regulators expect it, customers may demand it, and your own quality assurance team cannot function without it. This chapter shows you how to record calls with LiveKit Egress, store them in S3, and build the compliance controls that keep you out of trouble.
+
+What you'll learn
+
+How LiveKit Egress captures call audio from a room
+
+How to configure RoomCompositeEgressRequest for telephony recording
+
+How to store recordings in S3 with organized key structures
+
+Compliance fundamentals: consent, retention policies, and access controls
+
+How Egress recording works
+
+LiveKit Egress is a separate service that subscribes to a room and captures its media. For telephony, you typically want a composite recording — a single audio file that captures all participants in the room mixed together. Egress runs as its own process, so it does not affect call quality or agent performance.
+
+A caller connects through your SIP trunk and joins a LiveKit room. Your AI agent is already in the room, handling the conversation.
+
+Your backend sends a RoomCompositeEgressRequest to the LiveKit API. Egress subscribes to the room and begins capturing audio.
+
+When the room closes or you explicitly stop the egress, the recording is finalized and uploaded to your configured S3 bucket.
+
+Your backend stores the S3 key alongside the call metadata — caller ID, timestamp, duration — so the recording is searchable and retrievable.
+
+Configuring room composite egress
+
+The RoomCompositeEgressRequest tells Egress what to capture and where to put it. For telephony, you want audio-only output in a format suitable for long-term storage.
+
+from livekit.api import LiveKitAPI, RoomCompositeEgressRequest, EncodedFileOutput, S3Upload
+
+async def start_recording(room_name: str, call_id: str):
+  api = LiveKitAPI()
+
+  output = EncodedFileOutput(
+      file_type="OGG",
+      filepath=f"recordings/{call_id}.ogg",
+      s3=S3Upload(
+          access_key="YOUR_AWS_ACCESS_KEY",
+          secret="YOUR_AWS_SECRET_KEY",
+          region="us-east-1",
+          bucket="your-call-recordings",
+      ),
+  )
+
+  request = RoomCompositeEgressRequest(
+      room_name=room_name,
+      file_outputs=[output],
+      audio_only=True,
+  )
+
+  egress_info = await api.egress.start_room_composite_egress(request)
+  return egress_info.egress_id
+
+import { LiveKitAPI, RoomCompositeEgressRequest } from "@livekit/server-sdk";
+
+async function startRecording(roomName: string, callId: string) {
+const api = new LiveKitAPI();
+
+const request: RoomCompositeEgressRequest = {
+  roomName,
+  audioOnly: true,
+  fileOutputs: [
+    {
+      fileType: "OGG",
+      filepath: `recordings/${callId}.ogg`,
+      s3: {
+        accessKey: "YOUR_AWS_ACCESS_KEY",
+        secret: "YOUR_AWS_SECRET_KEY",
+        region: "us-east-1",
+        bucket: "your-call-recordings",
+      },
+    },
+  ],
+};
+
+const egressInfo = await api.egress.startRoomCompositeEgress(request);
+return egressInfo.egressId;
+}
+
+Audio-only recording in OGG format keeps file sizes small — a typical 10-minute call produces roughly 1 to 2 MB. This matters when you are storing thousands of recordings per day. OGG provides good quality at low bitrates, but you can also use MP4 or WAV if your compliance team requires a specific format.
+
+Do not hardcode credentials
+
+The S3 credentials shown above are for illustration. In production, use environment variables or a secrets manager. Egress also supports IAM roles when running on AWS, which eliminates the need for static credentials entirely.
+
+Compliance controls
+
+Recording calls without proper controls is a liability. Three areas require your attention: consent, retention, and access.
+
+Consent. Many jurisdictions require that all parties on a call are informed that recording is in progress. Some require explicit consent. Your AI agent should announce recording at the start of every call — "This call may be recorded for quality and training purposes" — before any substantive conversation begins. In two-party consent states or countries, you must obtain affirmative consent and log it.
+
+Retention. Recordings should not live forever. Define a retention policy — 90 days, one year, seven years — based on your regulatory requirements. Use S3 lifecycle rules to automatically transition recordings to cheaper storage tiers and eventually delete them.
+
+# Example: S3 lifecycle configuration for call recordings
+lifecycle_rules = {
+  "Rules": [
+      {
+          "ID": "TransitionToGlacier",
+          "Filter": {"Prefix": "recordings/"},
+          "Status": "Enabled",
+          "Transitions": [
+              {"Days": 90, "StorageClass": "GLACIER"},
+          ],
+      },
+      {
+          "ID": "DeleteOldRecordings",
+          "Filter": {"Prefix": "recordings/"},
+          "Status": "Enabled",
+          "Expiration": {"Days": 365},
+      },
+  ]
+}
+
+Access control. Not everyone in your organization should be able to listen to call recordings. Use S3 bucket policies and IAM roles to restrict access to authorized personnel. Log every access event for audit trails.
+
+Know your regulations
+
+PCI-DSS prohibits recording credit card numbers. HIPAA requires encryption at rest and in transit for health information. GDPR gives callers the right to request deletion of their recordings. Your compliance team should define the specific requirements before you build the recording system.
+
+Test your knowledge
+
+Question 1 of 2
+
+Why does LiveKit Egress run as a separate process rather than recording directly within the agent?
+
+What you learned
+
+LiveKit Egress records calls by subscribing to a room and capturing mixed audio.
+
+RoomCompositeEgressRequest with audio_only=True is the standard configuration for telephony recording.
+
+S3 provides durable storage with lifecycle rules for automatic retention management.
+
+Compliance requires consent announcements, defined retention policies, and strict access controls.
+
+Next up
+
+In the next chapter, you will build an outbound calling system that initiates calls for campaigns, reminders, and follow-ups.

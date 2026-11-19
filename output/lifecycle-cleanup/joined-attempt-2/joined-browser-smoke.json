@@ -1,0 +1,190 @@
+{
+  "mode": "scripted",
+  "status": "running",
+  "stages": [
+    {
+      "stage": "operator_ready",
+      "elapsedMs": 601,
+      "observed": {
+        "state": "Ready to join",
+        "policy": "No result observed",
+        "progress": "0 inputs observed · 0 linked to durable work",
+        "sms": "",
+        "acceptedInputs": 0,
+        "sdkGenerations": 0,
+        "roomOwned": false,
+        "previousRows": 0,
+        "played": false,
+        "lastInput": null
+      }
+    },
+    {
+      "stage": "room_a_ready",
+      "elapsedMs": 8574,
+      "observed": {
+        "state": "Ready",
+        "policy": "No result observed",
+        "progress": "0 inputs observed · 0 linked to durable work",
+        "sms": "",
+        "acceptedInputs": 0,
+        "sdkGenerations": 0,
+        "roomOwned": true,
+        "previousRows": 0,
+        "played": true,
+        "lastInput": null
+      }
+    },
+    {
+      "stage": "a_original_input_ack",
+      "elapsedMs": 8772,
+      "observed": {
+        "state": "Ready",
+        "policy": "No result observed",
+        "progress": "0 inputs observed · 0 linked to durable work",
+        "sms": "",
+        "acceptedInputs": 1,
+        "sdkGenerations": 0,
+        "roomOwned": true,
+        "previousRows": 0,
+        "played": true,
+        "lastInput": "accepted"
+      }
+    },
+    {
+      "stage": "room_a_ended",
+      "elapsedMs": 10632,
+      "observed": {
+        "state": "Session ended",
+        "policy": "No result observed",
+        "progress": "0 inputs observed · 0 linked to durable work",
+        "sms": "",
+        "acceptedInputs": 1,
+        "sdkGenerations": 0,
+        "roomOwned": false,
+        "previousRows": 1,
+        "played": false,
+        "lastInput": "accepted"
+      }
+    },
+    {
+      "stage": "original_input_linked_after_end",
+      "elapsedMs": 12778,
+      "observed": {
+        "state": "Session ended",
+        "policy": "No result observed",
+        "progress": "1 input observed · 1 linked to durable work",
+        "sms": "",
+        "acceptedInputs": 1,
+        "sdkGenerations": 0,
+        "roomOwned": false,
+        "previousRows": 1,
+        "played": false,
+        "lastInput": "accepted"
+      }
+    },
+    {
+      "stage": "dormant_sms_accepted",
+      "elapsedMs": 13134,
+      "observed": {
+        "state": "Session ended",
+        "policy": "No result observed",
+        "progress": "1 input observed · 1 linked to durable work",
+        "sms": "The original SMS receipt was observed. Case revision is unchanged by sending.",
+        "acceptedInputs": 1,
+        "sdkGenerations": 0,
+        "roomOwned": false,
+        "previousRows": 1,
+        "played": false,
+        "lastInput": "accepted"
+      }
+    },
+    {
+      "stage": "dormant_sms_linked",
+      "elapsedMs": 14866,
+      "observed": {
+        "state": "Session ended",
+        "policy": "No result observed",
+        "progress": "2 inputs observed · 2 linked to durable work",
+        "sms": "The original SMS receipt was observed. Case revision is unchanged by sending.",
+        "acceptedInputs": 1,
+        "sdkGenerations": 0,
+        "roomOwned": false,
+        "previousRows": 1,
+        "played": false,
+        "lastInput": "accepted"
+      }
+    },
+    {
+      "stage": "room_b_ready_with_history",
+      "elapsedMs": 19779,
+      "observed": {
+        "state": "Ready",
+        "policy": "Eligible under the policy",
+        "progress": "2 inputs observed · 2 linked to durable work",
+        "sms": "The original SMS receipt was observed. Case revision is unchanged by sending.",
+        "acceptedInputs": 0,
+        "sdkGenerations": 0,
+        "roomOwned": true,
+        "previousRows": 1,
+        "played": true,
+        "lastInput": null
+      }
+    },
+    {
+      "stage": "b_recorded_voice_accepted",
+      "elapsedMs": 21699,
+      "observed": {
+        "state": "Ready",
+        "policy": "Eligible under the policy",
+        "progress": "2 inputs observed · 2 linked to durable work",
+        "sms": "The original SMS receipt was observed. Case revision is unchanged by sending.",
+        "acceptedInputs": 1,
+        "sdkGenerations": 0,
+        "roomOwned": true,
+        "previousRows": 1,
+        "played": true,
+        "lastInput": "accepted"
+      }
+    },
+    {
+      "stage": "b_recorded_voice_linked",
+      "elapsedMs": 26186,
+      "observed": {
+        "state": "Ready",
+        "policy": "Eligible under the policy",
+        "progress": "3 inputs observed · 3 linked to durable work",
+        "sms": "The original SMS receipt was observed. Case revision is unchanged by sending.",
+        "acceptedInputs": 1,
+        "sdkGenerations": 1,
+        "roomOwned": true,
+        "previousRows": 1,
+        "played": true,
+        "lastInput": "accepted"
+      }
+    },
+    {
+      "stage": "b_current_policy_and_playback",
+      "elapsedMs": 26188,
+      "observed": {
+        "state": "Ready",
+        "policy": "Eligible under the policy",
+        "progress": "3 inputs observed · 3 linked to durable work",
+        "sms": "The original SMS receipt was observed. Case revision is unchanged by sending.",
+        "acceptedInputs": 1,
+        "sdkGenerations": 1,
+        "roomOwned": true,
+        "previousRows": 1,
+        "played": true,
+        "lastInput": "accepted"
+      }
+    }
+  ],
+  "pageErrors": 0,
+  "limits": "Actual joined SDK/browser text, recorded voice and End smoke; no forced browser fault, provider or full release qualification.",
+  "endSchedule": {
+    "acceptedInputAckObserved": true,
+    "linkedBeforeEnd": 0,
+    "sdkGenerationsBeforeEnd": 0,
+    "forcedDispatchHold": false
+  }
+}

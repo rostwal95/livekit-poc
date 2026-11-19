@@ -1,0 +1,219 @@
+1Embedded voice architecture
+
+2Wake word detection & audio streaming
+
+3Hardware control via agent tools
+
+4Production: OTA updates & fleet management
+
+Production: OTA updates & fleet management
+
+Production: OTA updates & fleet management
+
+A prototype on your desk is not a product. Shipping embedded voice devices means solving firmware updates without physical access, keeping devices functional when WiFi drops, and monitoring a fleet that could grow to thousands of units. This chapter covers OTA updates, offline fallback, health telemetry, and fleet operations.
+
+OTA firmware updates
+
+The ESP32 supports OTA natively through a dual-partition scheme: run from one partition, write the update to the other, reboot into the new firmware. If the update fails, the device still has a working partition.
+
+#include <HTTPUpdate.h>
+#include <WiFiClientSecure.h>
+
+const char* FIRMWARE_URL = "https://ota.example.com/firmware/latest.bin";
+const char* CURRENT_VERSION = "1.2.0";
+
+void checkForUpdate() {
+  WiFiClientSecure client;
+  client.setCACert(root_ca);  // Pin your CA certificate
+
+  HTTPClient http;
+  http.begin(client, String(FIRMWARE_URL) + "?current=" + CURRENT_VERSION);
+  int code = http.GET();
+
+  if (code == 200) {
+      Serial.println("Update available — downloading");
+      t_httpUpdate_return ret = httpUpdate.update(client, FIRMWARE_URL);
+
+      switch (ret) {
+          case HTTP_UPDATE_OK:
+              Serial.println("Update success — rebooting");
+              ESP.restart();
+              break;
+          case HTTP_UPDATE_FAILED:
+              Serial.printf("Update failed: %s\n",
+                  httpUpdate.getLastErrorString().c_str());
+              break;
+      }
+  }
+  http.end();
+}
+
+Sign your firmware
+
+In production, sign firmware binaries and verify signatures on-device before flashing. The ESP32 supports secure boot and flash encryption. Unsigned OTA is a critical vulnerability — an attacker on the same network could push malicious firmware.
+
+Graceful offline fallback
+
+WiFi drops. Cloud services have outages. A wall-mounted device cannot show an error page. It must keep working with reduced capabilities.
+
+Connection state machine
+
+enum ConnectionState {
+  FULLY_CONNECTED,    // WiFi + LiveKit active
+  WIFI_ONLY,          // WiFi up, LiveKit disconnected
+  OFFLINE             // No WiFi
+};
+
+ConnectionState connState = OFFLINE;
+
+void onWiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
+  connState = OFFLINE;
+  enterOfflineMode();
+}
+
+void onWiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
+  connState = WIFI_ONLY;
+  reconnectLiveKit();
+}
+
+void setup() {
+  WiFi.onEvent(onWiFiDisconnected, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+  WiFi.onEvent(onWiFiConnected, ARDUINO_EVENT_WIFI_STA_CONNECTED);
+}
+
+Local command recognition
+
+ESP-SR recognizes a small vocabulary entirely on the ESP32 — no network needed:
+
+#include <esp_sr.h>
+
+const char* offline_commands[] = {
+  "turn on lights",
+  "turn off lights",
+  "what is the temperature",
+  "help",
+  NULL
+};
+
+void offlineLoop() {
+  int16_t pcm[512];
+  readI2SAudio(pcm, 512);
+  int command_id = esp_sr_detect(pcm, 512);
+
+  switch (command_id) {
+      case 0:
+          digitalWrite(LED_PIN, HIGH);
+          playLocalAudio("lights_on.wav");  // Pre-recorded in flash
+          queueAction("set_led", 1);
+          break;
+      case 1:
+          digitalWrite(LED_PIN, LOW);
+          playLocalAudio("lights_off.wav");
+          queueAction("set_led", 0);
+          break;
+  }
+}
+
+Action queue for sync
+
+Commands executed offline queue to flash storage and sync when connectivity returns:
+
+#include <SPIFFS.h>
+#include <ArduinoJson.h>
+
+void queueAction(const char* action, int value) {
+  File file = SPIFFS.open("/action_queue.json", FILE_APPEND);
+  StaticJsonDocument<128> doc;
+  doc["action"] = action;
+  doc["value"] = value;
+  doc["timestamp"] = millis();
+  serializeJson(doc, file);
+  file.println();
+  file.close();
+}
+
+void syncQueuedActions() {
+  File file = SPIFFS.open("/action_queue.json", FILE_READ);
+  if (!file) return;
+
+  while (file.available()) {
+      String line = file.readStringUntil('\n');
+      if (line.length() > 0) {
+          lk.sendData(line.c_str());  // Send via LiveKit data channel
+          delay(50);
+      }
+  }
+  file.close();
+  SPIFFS.remove("/action_queue.json");
+}
+
+Degradation tiers
+
+Tier | Connectivity | Capabilities | Experience
+Full | WiFi + LiveKit | Natural language, all tools, LLM reasoning | Complete voice AI
+Limited | WiFi only | Retrying LiveKit, can reach token server | "Reconnecting" + basic commands
+Offline | No WiFi | Local wake word, fixed command set, local GPIO | Reduced but functional
+Sleep | Battery critical | Deep sleep, GPIO wake only | Button press to wake
+
+Health monitoring
+
+Every device reports telemetry via LiveKit data channel (or HTTPS fallback):
+
+void sendHealthReport() {
+  StaticJsonDocument<256> doc;
+  doc["device_id"] = getDeviceId();
+  doc["firmware"] = CURRENT_VERSION;
+  doc["uptime_sec"] = millis() / 1000;
+  doc["free_heap"] = ESP.getFreeHeap();
+  doc["wifi_rssi"] = WiFi.RSSI();
+  doc["cpu_temp"] = temperatureRead();
+  doc["reboot_reason"] = esp_reset_reason();
+
+  char payload[256];
+  serializeJson(doc, payload);
+
+  if (connState == FULLY_CONNECTED) {
+      lk.sendData(payload);
+  } else if (connState == WIFI_ONLY) {
+      postToMonitoringEndpoint(payload);
+  }
+}
+
+Metric | Warning | Critical | Action
+Free heap | Under 80 KB | Under 40 KB | Memory leak investigation
+WiFi RSSI | Under -70 dBm | Under -80 dBm | Signal strength issue
+Uptime | — | Under 1 hour (repeated) | Crash loop detected
+CPU temp | > 70°C | > 85°C | Thermal design issue
+OTA failures | 1 consecutive | 3 consecutive | Firmware rollback
+
+Fleet management
+
+Each device gets a unique identity burned into flash during manufacturing, mapping to a record in your fleet database with assigned room, firmware version, and config profile.
+
+Group devices by role: "lobby kiosk" vs "warehouse robot" have different wake word sensitivity, volume, and agent instructions. Push config changes without reflashing.
+
+Never push firmware to all devices at once. Roll out to 1% -> monitor 24h -> 10% -> 100%. If error rates spike, halt and auto-rollback affected devices.
+
+Fleet management for embedded devices follows server fleet principles with tighter constraints. You cannot SSH into an ESP32. Every diagnostic capability must be built into the firmware before deployment. Think of each device as a tiny server that communicates only through the channels you programmed.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why does the ESP32 use a dual-partition scheme for OTA updates?
+
+Course summary
+
+Over this course you built a complete embedded voice AI system:
+
+Embedded architecture — ESP32-S3 hardware, I2S wiring, Opus codec, buffer management, and the full ESP32 -> LiveKit Cloud -> Agent data flow.
+
+Wake word & streaming — Local wake word detection with Porcupine/ESP-SR, connect-on-wake vs always-connected, and power management for battery devices.
+
+Device control — Bridging voice commands to physical hardware via LiveKit data channels and agent function tools.
+
+Production deployment — OTA updates with secure boot, graceful offline fallback, health telemetry, and fleet management with staged rollouts.
+
+What comes next
+
+With a working embedded voice device, explore advanced topics: multi-device coordination (two ESP32s in the same LiveKit Room), vision integration (ESP32-CAM for multimodal AI), or building a complete product with enclosure design and certification.

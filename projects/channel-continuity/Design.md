@@ -976,6 +976,36 @@ readiness. Startup and close both check monotonic elapsed time, retain ignored
 work and observe actual resource retirement. A rejected or late bind starts owned
 cleanup.
 
+#### Dispatch quiescence and room retirement
+
+The [public lifecycle methods](README.md#gateway-lifecycle-controls) separate
+admission fencing, actual work settlement and resource closure. They are trusted
+process-local owner controls. They add no HTTP capability, durable queue, schema
+or business cancellation.
+
+| Control | Owned state and order | Limit or failure boundary |
+| --- | --- | --- |
+| Dispatcher quiescence | `quiesce()` permanently rejects new step/reconcile attempts, observes actual tasks and retains the store for prepared/receipt reads | Cleanup observer expiry retains actual work; no resume operation |
+| Gateway quiescence | `quiesceDispatch()` permanently stops new intake/polling and waits for driver/dispatcher quiescence before application origins close | `cleanupMs` bounds observation; it does not close the inbox, dispatcher store or read dependencies |
+| Native admission fence | Publish a hash of one bearer before awaiting every already admitted SQL accept owner; reserve the owner before invoking its dependency | 1,024 retained bearer hashes per gateway instance; direct trusted inbox calls and process restart are outside this HTTP fence |
+| Native accepted-input drain | Read retained history after fencing, match full provider scope and original binding, then observe original receipt/operation identities | Two actual drains; 16 total account/conversation history records before filtering; 20-second monotonic drain budget |
+
+The ordinary dispatcher and application origins stay live during room drain.
+Possible external calls receive lookup-only reconciliation; no fresh ordinary
+attempt is created by the drain itself. Overflow, blocked/exhausted inputs,
+expired/revoked grants or unknown outcomes can keep a room Closing. Grant checks
+before each new prepare/reservation remain authoritative, and an already admitted
+external call cannot be retrospectively fenced.
+
+The joined room owner fences and drains accepted input before revocation and
+worker stop. A prepare already awaiting the same retiring worker can fall through
+to the existing deterministic preparation path within its original claim if its
+signal is not aborted and the room expiry has not passed. The store still checks
+current grant permission. Later whole-gateway quiescence follows room drain.
+Timeout preserves actual owners; neither fence proves closure or grants new
+authority. The [lifecycle work item](../../docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md)
+records focused and integrated evidence separately from earlier qualification.
+
 #### Gateway qualification
 
 The three real gateway cases use owned runtime-only child environments, real
@@ -1858,7 +1888,8 @@ or revocation without creating new work or action authority.
 - Observer promises have an independent eight-task cap with pending and dropped
   metrics. Application observer resources require a separate close.
 - Native capture exports separate finite communication counters and gauges and
-  keeps the original eighteen native metrics (`native18`) stable.
+  keeps the original eighteen native metrics (`native18`) stable as a compatibility
+  subset. Current runtime metrics also include lifecycle and scheduled-reply fields.
 - Logs carry fixed event and code fields without IDs, transcripts or credentials.
 - A failed write may have committed and remains unknown. Explicit original replay
   reconciles its receipt.

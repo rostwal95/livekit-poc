@@ -1,0 +1,83 @@
+{
+  "date": "19 November 2026",
+  "scope": "Full prior baseline review retained;15 new questions,30 new answered probes and10 expanded existing question pages received current content review. No new product qualification.",
+  "new_question_review": {
+    "author": "p1",
+    "independent_reviewers": [
+      "root",
+      "p2"
+    ],
+    "questions": 15,
+    "answered_followups": 30
+  },
+  "existing_expansion_review": {
+    "author": "p2",
+    "independent_reviewers": [
+      "root",
+      "p1"
+    ],
+    "questions": 10
+  },
+  "diagram_review": {
+    "author": "p3",
+    "independent_reviewer": "root",
+    "figures": 5
+  },
+  "material_corrections_incorporated": [
+    {
+      "id": "LK-03",
+      "correction": "Text completion and usable streaming audio have different boundaries; neither imposes a universal temporal order on the other."
+    },
+    {
+      "id": "LK-09",
+      "correction": "AgentTask.cancel settles with ToolError in the inspected pin; a custom complete(None) result is a different contract."
+    },
+    {
+      "id": "LK-08",
+      "correction": "The deprecated usage-tracking event is AgentSession-level metrics_collected; per-plugin events and per-message latency remain distinct."
+    },
+    {
+      "id": "LK-10",
+      "correction": "Current documentation marks the text detector deprecated and plans SDK2.0 removal; pinned and current detector behavior remain separately labeled."
+    },
+    {
+      "id": "LK-12",
+      "correction": "The transcript-filter privacy question explicitly concerns original audio sent to a realtime model."
+    },
+    {
+      "id": "academy-guides",
+      "correction": "Deduplicated official-source keys are remapped in comparison tables and their link targets checked."
+    }
+  ],
+  "new_question_ids": [
+    "LK-09",
+    "LK-10",
+    "LK-11",
+    "LK-12",
+    "LK-13",
+    "LK-14",
+    "LK-15",
+    "LK-16",
+    "LK-17",
+    "ROLE-13",
+    "LK-18",
+    "LK-19",
+    "LK-20",
+    "SCALE-09",
+    "SCALE-10"
+  ],
+  "expanded_existing_ids": [
+    "LK-03",
+    "LK-04",
+    "LK-05",
+    "LK-08",
+    "FAIL-02",
+    "SCALE-01",
+    "SCALE-06",
+    "SCALE-07",
+    "ROLE-07",
+    "ROLE-08"
+  ],
+  "pdf_sha256": "1a4eb79ee8134243b9d69775c21a569dfdb1b2680b8c097e85217d9aa91a389d",
+  "limitations": "Static source/API and document review. No course attempts, providers, new media experiments, telephony calls, graph/RAG application integration or designed-exercise executions."
+}

@@ -74,9 +74,9 @@ origin integration. Verification follows the same order and ends with charter st
 ### Authentication and intake boundary
 
 - Parsing or constructing a TrustedPrincipal object is not authentication.
-- A future gateway must use the implemented raw authenticated intake boundary,
+- Gateways use the implemented raw authenticated intake boundary,
   revalidate current association, and decode untrusted data at the actual boundary.
-- A future gateway must not trust a caller-constructed DecodedEvent or receipt.
+- Gateways must not trust a caller-constructed DecodedEvent or receipt.
 
 ### Storage, exports and runtime limits
 
@@ -141,6 +141,24 @@ origin integration. Verification follows the same order and ends with charter st
   (ACK-before-dispatch) barrier.
 - Keep application-created observer resources outside the listener's cleanup claim.
 - Default Docker/UI, agent crash, revision routing and media remain their own slices.
+
+The [lifecycle controls](README.md#gateway-lifecycle-controls) are trusted
+process-local methods, not new browser or HTTP authority:
+
+| Control | Existing contract to preserve |
+| --- | --- |
+| `ChannelDispatcher.quiesce()` and `ChannelGateway.quiesceDispatch()` | Sticky new-attempt/intake/polling fences retain actual dispatch owners and leave storage/reads available; caller timeout is not actual closure |
+| `NativeGateway.fenceNativeInput(bearer)` | Fence the exact bearer before awaiting admitted actual accepts; register each actual owner before invoking a reentrant dependency; retain at most 1,024 bearer hashes per instance |
+| `NativeGateway.drainNativeInput(accountToken, bindingId, bearer)` | Require the prior same-bearer fence, keep ordinary dispatch/origins live, inspect at most 16 total account/conversation history records before exact-provider/binding filtering; two actual drains and a 20-second monotonic budget |
+
+Room drain precedes grant revocation, worker stop and whole-gateway quiescence.
+Preserve original receipt/operation IDs and lookup-only possible-call
+reconciliation. Blocked/exhausted work, overflow, expiry/revocation or unknown
+outcomes may retain Closing; do not reset attempts, renew permission or invent a
+new key to force cleanup. These HTTP fences do not replace persisted revocation
+or protect against direct trusted inbox calls or process restart. See the
+[lifecycle work item](../../docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md)
+for evidence; earlier selected gates are not automatically requalified.
 
 ### Agent process (I09)
 

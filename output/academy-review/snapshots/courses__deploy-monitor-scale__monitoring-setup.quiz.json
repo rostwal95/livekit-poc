@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why are traces more useful than overall response time for diagnosing voice agent latency issues?",
+    "options": [
+      "Traces break down each turn into pipeline stages (STT, LLM, TTS), so you can identify exactly which stage is slow rather than guessing",
+      "Overall response time includes network latency that traces filter out",
+      "Traces are more accurate than response time measurements",
+      "Traces can be collected without impacting agent performance"
+    ],
+    "correctIndex": 0,
+    "explanation": "Knowing a turn took 1.5 seconds is only the starting point. Traces reveal whether those 1.5 seconds were spent in STT (audio quality issue), LLM (prompt too long or model overloaded), or TTS (provider latency). Without this breakdown, you would be guessing which component to investigate."
+  },
+  {
+    "question": "Why is reading 10-20 random transcripts weekly described as the 'single most effective way to improve your agent'?",
+    "options": [
+      "Reading transcripts is faster than reviewing metrics dashboards",
+      "Automated metrics tell you something is wrong, but transcripts show you the actual conversational failures \u2014 misunderstandings, wrong answers, awkward phrasing \u2014 that reveal what specifically to fix",
+      "Transcript review is required by most voice AI compliance frameworks",
+      "Transcripts contain metadata that automated metrics miss"
+    ],
+    "correctIndex": 1,
+    "explanation": "Metrics like error rate or latency are quantitative signals that something might be wrong. Transcripts are qualitative \u2014 they show you the actual conversation: where the agent misunderstood, gave incorrect information, or confused the caller. This direct observation reveals actionable improvements that metrics alone cannot surface."
+  },
+  {
+    "question": "What does a drop in session completion rate (callers hanging up early) typically signal?",
+    "options": [
+      "Call volume is exceeding the scaling capacity of the workers",
+      "A quality problem with the agent \u2014 callers are frustrated by latency, incorrect responses, or confusing interactions and giving up",
+      "Network connectivity issues between the agent and LiveKit Cloud",
+      "The agent is completing conversations more efficiently"
+    ],
+    "correctIndex": 1,
+    "explanation": "Session completion rate measures whether conversations reach a natural conclusion. When callers hang up early, it usually means the agent is failing to meet their needs \u2014 perhaps due to high latency, misunderstandings, or unhelpful responses. This metric catches quality problems that might not trigger latency or error rate alerts."
+  }
+]

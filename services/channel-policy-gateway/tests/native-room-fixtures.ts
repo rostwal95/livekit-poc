@@ -46,10 +46,14 @@ export async function fixture(recoverBindingId: string | null = null) {
     ready: true,
     published: [] as NativePublication[],
     revoked: [] as string[],
+    fenced: [] as string[],
+    drained: [] as string[],
     native: [] as [string, string][],
     publishHold: undefined as Promise<void> | undefined,
     revokeHold: undefined as Promise<void> | undefined,
     nativeHold: undefined as Promise<void> | undefined,
+    drainHold: undefined as Promise<void> | undefined,
+    drainError: undefined as unknown,
     publishError: undefined as unknown,
     revokeError: undefined as unknown,
     nativeError: undefined as unknown,
@@ -96,6 +100,14 @@ export async function fixture(recoverBindingId: string | null = null) {
         if (state.nativeError !== undefined) throw state.nativeError;
         return state.view;
       },
+      async fenceInput(binding) {
+        state.fenced.push(binding.bindingId);
+      },
+      async drainInput(binding) {
+        state.drained.push(binding.bindingId);
+        await state.drainHold;
+        if (state.drainError !== undefined) throw state.drainError;
+      },
       ready: () => state.ready,
     },
   );
@@ -105,7 +117,7 @@ export async function fixture(recoverBindingId: string | null = null) {
     state,
     ready,
     async cleanup() {
-      state.publishError = state.revokeError = state.nativeError = undefined;
+      state.publishError = state.revokeError = state.nativeError = state.drainError = undefined;
       await manager.close();
     },
   };

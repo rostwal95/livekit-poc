@@ -1,0 +1,24 @@
+[
+  {
+    "question": "What is the defining capability that distinguishes Gemini Live from OpenAI Realtime?",
+    "options": [
+      "Better tool calling support",
+      "Lower pricing per minute",
+      "Native multimodal input \u2014 it can process audio and video simultaneously without a separate vision pipeline",
+      "More available voices"
+    ],
+    "correctIndex": 2,
+    "explanation": "Gemini Live is natively multimodal \u2014 it processes audio and video input together in a single model. When a user shares their camera or screen, Gemini can see and discuss what it sees alongside the audio conversation. OpenAI Realtime is audio-only and would require a separate vision pipeline for this."
+  },
+  {
+    "question": "Why should you monitor token consumption carefully when using Gemini Live with video input?",
+    "options": [
+      "Each video frame consumes tokens, so a 10-minute conversation with video can consume significantly more tokens than audio alone",
+      "Gemini charges extra for video processing",
+      "Video input is not supported and will cause errors",
+      "Video quality degrades over time"
+    ],
+    "correctIndex": 0,
+    "explanation": "Each video frame sent to Gemini consumes tokens. At the default frame rate, video input can dramatically increase token usage compared to audio-only conversations. This affects cost and should be monitored closely, with frame rate reduction considered for cost-sensitive applications."
+  }
+]

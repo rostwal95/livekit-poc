@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "owner": "p3_book",
+  "scope": "Root-authorized lifecycle documentation supplement for LC-R2 and LC-R3; no implementation, AGENTS policy, historical outcomes or qualification status changes.",
+  "documents": [
+    {
+      "path": "services/channel_policy_demo/README.md",
+      "before_sha256": "6f84d7fad67663b13be34bde308b9b95151a888e2700bdfd00de0aca0433cec2",
+      "review_mode": "targeted_lifecycle_contract",
+      "after_sha256": "d3baa006717ecb0de68d98a4f5b0be716dce0832f66d050ff320f16d9019fed7",
+      "decision": "correct_current_lifecycle_contract",
+      "review_notes": [
+        "Read current room supervisor, native manager preparation and gateway fence/drain source; preserved original authority, bounded retry admission and actual task ownership.",
+        "Explicitly distinguish partial corrective proof from full joined qualification and P2 input acceptance from P1 durable-work acceptance."
+      ]
+    },
+    {
+      "path": "services/channel_policy_demo/Design.md",
+      "before_sha256": "17b9488ccb8f3669ff6122fc03cf95f8a21947815cec3c42b0aeb6bdbf30e7bb",
+      "review_mode": "targeted_lifecycle_contract",
+      "after_sha256": "65ee71a18b025547dec6fd017eaf199374c2c8c6766bb63e032e89bdf1a93093",
+      "decision": "correct_current_lifecycle_contract",
+      "review_notes": [
+        "Read current room supervisor, native manager preparation and gateway fence/drain source; preserved original authority, bounded retry admission and actual task ownership.",
+        "Explicitly distinguish partial corrective proof from full joined qualification and P2 input acceptance from P1 durable-work acceptance."
+      ]
+    },
+    {
+      "path": "services/channel-policy-gateway/README.md",
+      "before_sha256": "9b0de687e89f54b8b4fe8730b731a31d57069ac86f09d64a890ea7a56ac876f9",
+      "review_mode": "targeted_lifecycle_contract",
+      "after_sha256": "74783175c1410cdc547b259d7880692d1b225181fb210caaed2b7ae15fa3f8e4",
+      "decision": "correct_current_lifecycle_contract",
+      "review_notes": [
+        "Read current room supervisor, native manager preparation and gateway fence/drain source; preserved original authority, bounded retry admission and actual task ownership.",
+        "Explicitly distinguish partial corrective proof from full joined qualification and P2 input acceptance from P1 durable-work acceptance."
+      ]
+    },
+    {
+      "path": "services/channel-policy-gateway/Design.md",
+      "before_sha256": "d3c8eeeee9672627dd1403b6413be3650c857890ed61297f771d31f7b03d2550",
+      "review_mode": "targeted_lifecycle_contract",
+      "after_sha256": "611afdfe320304eb1884933145c0faf9d51af4e235dda4e1ed4de3aa8cef6b14",
+      "decision": "correct_current_lifecycle_contract",
+      "review_notes": [
+        "Read current room supervisor, native manager preparation and gateway fence/drain source; preserved original authority, bounded retry admission and actual task ownership.",
+        "Explicitly distinguish partial corrective proof from full joined qualification and P2 input acceptance from P1 durable-work acceptance."
+      ]
+    },
+    {
+      "path": "local-setup/README.md",
+      "before_sha256": "7f6065b61fb2234a266463e5d4e180bc32cdae4f8ebd7901b053008454312d62",
+      "review_mode": "targeted_lifecycle_contract",
+      "after_sha256": "9a68d7990902e88f72713fdf897c1ecfe2bf0172ebe00c0b8ef6d3595a7c8315",
+      "decision": "correct_current_lifecycle_contract",
+      "review_notes": [
+        "Read current room supervisor, native manager preparation and gateway fence/drain source; preserved original authority, bounded retry admission and actual task ownership.",
+        "Explicitly distinguish partial corrective proof from full joined qualification and P2 input acceptance from P1 durable-work acceptance."
+      ]
+    }
+  ],
+  "status": "complete",
+  "changes": [
+    "Documented LC-R3 same-activation automatic reobservation only for cleanup_incomplete within original configured room cleanup budget; persistent failures remain Closing and explicit retry retains identity.",
+    "Documented LC-R2 narrow same-claim preparation exception for the original closing room; current grant checks and negative cases remain.",
+    "Documented 1024 process-local fence, two actual drain, sixteen total account-history row and20second retry-admission bounds.",
+    "Preserved Parent prepare\u2192external gateway quiescence\u2192Parent close requirement and all existing qualification limits."
+  ],
+  "checks": {
+    "documentation": "output/lifecycle-cleanup/lifecycle-supplement-documentation-check.json",
+    "diff_check": "passed",
+    "mermaid": "pending final whole-corpus byte stability notice"
+  }
+}

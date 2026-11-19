@@ -1,0 +1,6 @@
+{
+  "status": "smoke_completed",
+  "project": "livekit-poc",
+  "productAcceptance": "not_certified",
+  "output": "{\n  \"status\": \"passed\",\n  \"mode\": \"lab\",\n  \"inference_enabled\": false,\n  \"checks\": [\n    \"dependency-readiness\",\n    \"operator-authentication\",\n    \"m1-idempotency\",\n    \"m1-conflict\",\n    \"named-agent-dispatch\",\n    \"rtc-text-echo\",\n    \"rtc-text-utf8-boundary\",\n    \"rtc-audio-frames\"\n  ],\n  \"audio_frames_observed\": 10,\n  \"investigation_task_id\": \"087c3f59-56df-47c5-8321-2b7ce20fc947\",\n  \"product_acceptance\": \"not_certified\"\n}"
+}

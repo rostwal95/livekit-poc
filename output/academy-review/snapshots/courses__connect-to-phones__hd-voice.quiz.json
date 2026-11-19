@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Beyond improving caller experience, why does HD voice (Opus) matter for an AI voice agent?",
+    "options": [
+      "Opus provides richer audio detail that improves STT transcription accuracy, especially for names and medical terms",
+      "Opus reduces bandwidth costs compared to G.711",
+      "Opus allows the agent to speak faster",
+      "Opus is required for DTMF event forwarding"
+    ],
+    "correctIndex": 0,
+    "explanation": "Opus captures a wider frequency range (50-20,000 Hz vs 300-3,400 Hz for G.711), giving STT models more audio detail to work with. This leads to better transcription accuracy, which is especially important for hard-to-recognize words like names, numbers, and domain-specific terms."
+  },
+  {
+    "question": "What happens when you set media_encryption to 'REQUIRE' on a trunk and the remote SIP provider does not support SRTP?",
+    "options": [
+      "LiveKit disables encryption for that specific call",
+      "The call is rejected rather than falling back to unencrypted audio",
+      "The call falls back to unencrypted audio automatically",
+      "The call connects but with degraded audio quality"
+    ],
+    "correctIndex": 1,
+    "explanation": "Setting media_encryption to 'REQUIRE' means LiveKit demands SRTP for all media on that trunk. If the remote end does not support it, the call is rejected entirely. This ensures that patient conversations are never transmitted unencrypted."
+  }
+]

@@ -1,0 +1,1594 @@
+{
+  "schema_version": 1,
+  "owner": "p3_book",
+  "owned_documents": 81,
+  "review_mode_counts": {
+    "targeted": 18,
+    "full": 18,
+    "historical_retention": 45
+  },
+  "changed_documents": 20,
+  "scope_limit": "Every owned document received a semantic disposition. Full means complete text read; targeted names the sections/claims inspected; historical_retention checks recorded scope/outcomes/limits and does not recertify every historical assertion or rerun its tests.",
+  "no_promotion": "No historical numerical outcomes, frozen acceptance rows, source-control identifiers or private personal paths were introduced or advanced. No lifecycle behavior claim was added before contract coordination.",
+  "acceptance_matrix_preservation": [
+    {
+      "path": "docs/projects/agent-continuity-scope.md",
+      "rows": 20,
+      "unchanged": true,
+      "row_sha256": "c8fcadea3cf4bf926a9dcf684952f77db86c4a615aebcdaf40b5988449bf6407"
+    },
+    {
+      "path": "docs/projects/channel-continuity-scope.md",
+      "rows": 17,
+      "unchanged": true,
+      "row_sha256": "671761eeb7f9c0327245dda3ddcd3602f8549382942d1797ce789f17a74a163c"
+    },
+    {
+      "path": "docs/projects/delegation-reliability-scope.md",
+      "rows": 17,
+      "unchanged": true,
+      "row_sha256": "168a8d7c1607fbe6a969f509f5f6cba2f90a1a98a951841464d56df0069187e2"
+    }
+  ],
+  "verification": {
+    "documentation_checker": {
+      "status": "passed",
+      "documents_checked": 137,
+      "violations": 0,
+      "tool_output_chunk": "50473a",
+      "command": "/Users/rostwal/Downloads/livekit-poc/.venv/bin/python -m harness.documentation_check",
+      "note": "Current shared tree at this check; root owns subsequent integration edits."
+    },
+    "fragment_candidate_scan": "No unresolved local Markdown fragment candidates; structural checks also pass.",
+    "personal_path_scan": "No /Users or /home personal path or TODO/FIXME/TBD hits in the maintained inventory.",
+    "make_target_scan": "All actual documented Make command targets resolve; English uses of make and p3-* wildcard explanations were rejected as scan false positives.",
+    "duplicate_paragraph_scan": "No repeated prose paragraph of160+characters found within owned documents; specific near-duplicate result-return prose condensed by review.",
+    "tests": "No runtime/provider/media suite rerun for this documentation pass; parent owns serial validation.",
+    "mermaid_syntax": {
+      "status": "passed",
+      "documents": 137,
+      "diagram_files": 17,
+      "diagrams": 53,
+      "passed": 53,
+      "failed": 0,
+      "positive_control_passed": true,
+      "malformed_negative_control_rejected": true,
+      "report": "output/lifecycle-cleanup/mermaid-syntax.json",
+      "tool_output_chunk": "a256ab",
+      "limit": "Syntax validation only; does not prove visual layout or implemented product behavior."
+    }
+  },
+  "documents": [
+    {
+      "path": "docs/build-plan.md",
+      "owner": "p3_book",
+      "document_status": "Planned",
+      "lines": 1041,
+      "before_sha256": "e449529913207594c42dc56ffee5147eff125c305607e51d4060c3387c4d2166",
+      "review_mode": "targeted",
+      "decision": "correct_verified_current_claims",
+      "review_notes": [
+        "Reviewed current status, release/requalification, current frontier, follow-up map, package/task/acceptance tables, command targets, estimates and remaining-work framing. Detailed future deliverable prose was targeted, not requalified."
+      ],
+      "changes": [
+        "Replace obsolete current-findings-map claim with original architecture disposition plus later0048/0049 audit provenance.",
+        "Use SDK compatibility/code review framing and final renamed work-item link per user."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "97827d5bccd777efba67b8943fb2215f2d8c38b08cac32397027c3b498edff46",
+      "findings": [],
+      "current_line_count": 1044
+    },
+    {
+      "path": "docs/checkpoint-history.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 188,
+      "before_sha256": "86df38277229ebf43b56bfa7e1838b514f4c0448542b17ad25e60623c272d207",
+      "review_mode": "full",
+      "decision": "correct_verified_wording",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [
+        "Add0048/0049 checkpoint summaries, preserving older counts, selected scope and unrun real/provider lanes.",
+        "Use SDK compatibility/code review framing and final renamed work-item link per user."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "591f88856e793f0456cbc0a0c3517e2a3f2c0dbc084641c1df99d5ae361a3498",
+      "findings": [],
+      "current_line_count": 208
+    },
+    {
+      "path": "docs/decisions/0001-runtime-boundaries.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 71,
+      "before_sha256": "11a07b7602810e05cda2cb75af372a82c84b86e45666abaa38359d822b8999b7",
+      "review_mode": "full",
+      "decision": "correct_verified_wording",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [
+        "Replace stale planned-library packaging implication with independent artifact-evidence rule."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "6cc5c0fa30cadddda6eeb688c30005004b1543328a07e01eba213de2d5e40715",
+      "findings": [],
+      "current_line_count": 71
+    },
+    {
+      "path": "docs/decisions/0002-sqlite-inquiry-subset.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 88,
+      "before_sha256": "7face57340c410db9e12a2d482442b2a4cf0ab1f469359641969bc2e7b03d88d",
+      "review_mode": "full",
+      "decision": "correct_verified_wording",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [
+        "Describe HTTP principal enforcement as separate scope rather than future work."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "c6d5520aa015b3b371bb4e9d2f3dbe9a9b5777fd425f736a29ec65e249d8c343",
+      "findings": [],
+      "current_line_count": 88
+    },
+    {
+      "path": "docs/decisions/0003-postgres-cutover-and-scope.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 152,
+      "before_sha256": "5666d01bc97e5e4373351e58599dec697d3dfd6a4a3e68de65c1258eb01c966b",
+      "review_mode": "full",
+      "decision": "retain",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "5666d01bc97e5e4373351e58599dec697d3dfd6a4a3e68de65c1258eb01c966b",
+      "findings": [],
+      "current_line_count": 152
+    },
+    {
+      "path": "docs/decisions/0004-case-authority-and-continuation.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 110,
+      "before_sha256": "d5c3a2d7075d7e0a8ee8f7a907095ed15f7406a9c7b301e71b47314bafa2f743",
+      "review_mode": "full",
+      "decision": "retain",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "d5c3a2d7075d7e0a8ee8f7a907095ed15f7406a9c7b301e71b47314bafa2f743",
+      "findings": [],
+      "current_line_count": 110
+    },
+    {
+      "path": "docs/decisions/0005-effects-cancellation-and-outbox.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 92,
+      "before_sha256": "a09b1467398115d5343388a5e70ef5624c19743b07b449e79b6a3fa515dd1aa9",
+      "review_mode": "full",
+      "decision": "retain",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "a09b1467398115d5343388a5e70ef5624c19743b07b449e79b6a3fa515dd1aa9",
+      "findings": [],
+      "current_line_count": 92
+    },
+    {
+      "path": "docs/decisions/0006-database-leases-and-bounded-worker.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 154,
+      "before_sha256": "02e0687a59a12ab525fd19dfe4e5dab32aa60ea5b7109b114d1f5a214ae653ed",
+      "review_mode": "full",
+      "decision": "correct_verified_wording",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [
+        "Mark M1-only browser/API statement as PhaseF historical context and link subsequent native business profile."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "f9a4b99f508d52ebbefc853b0d13a21d23f2d2600fd016f0fa9312d3a199cf08",
+      "findings": [],
+      "current_line_count": 157
+    },
+    {
+      "path": "docs/decisions/0007-native-conversation-and-local-media.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 152,
+      "before_sha256": "0fd10d7caeb619e3e97001199b0b7e047e75e86b526ffecc880241b6ac80a67a",
+      "review_mode": "full",
+      "decision": "retain",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "0fd10d7caeb619e3e97001199b0b7e047e75e86b526ffecc880241b6ac80a67a",
+      "findings": [],
+      "current_line_count": 152
+    },
+    {
+      "path": "docs/design-template.md",
+      "owner": "p3_book",
+      "document_status": "Template",
+      "lines": 244,
+      "before_sha256": "52d0c909c53e6332a6f509820277cb3c52c3a2c66fd6bdd113e0aa2d94532c33",
+      "review_mode": "full",
+      "decision": "retain",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "52d0c909c53e6332a6f509820277cb3c52c3a2c66fd6bdd113e0aa2d94532c33",
+      "findings": [],
+      "current_line_count": 244
+    },
+    {
+      "path": "docs/documentation-audit.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 68,
+      "before_sha256": "b341ed167846e400cfc527025c58cf387ae55be0ac41133258104d49a8078ad3",
+      "review_mode": "historical_retention",
+      "decision": "clarify_checkpoint_closure_preserve_evidence",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: The earlier documentation-only audit; excludes subsequent architecture and implementation audits",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [
+        "Remove misleading current-whole-ecosystem authority claim from historical audit; link later records."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "44f7ded0a07d723a4f2b3c5776d3f5004bc3fe5b614101a71b7c9ef8bddf8c04",
+      "findings": [],
+      "current_line_count": 68
+    },
+    {
+      "path": "docs/documentation-standards.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 325,
+      "before_sha256": "8900698d98a9c0f6ad175eb39f0f860436964079be29e475704e0d4d1faec53c",
+      "review_mode": "full",
+      "decision": "correct_verified_wording",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [
+        "Distinguish implemented deterministic policy/image specialists from still-planned general model reasoning."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "b6ff676bc6cf7853c70a72b95f048e405f01baaa9ae02800349540ef820f401c",
+      "findings": [],
+      "current_line_count": 325
+    },
+    {
+      "path": "docs/harness-architecture.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 223,
+      "before_sha256": "01f5cffd93d67a96b197801267aa698af20261dfa788231d84b21019e9e63804",
+      "review_mode": "full",
+      "decision": "correct_verified_wording",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [
+        "Replace stale future-runtime-report wording and avoid implying existing browser/container wrappers are absent."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "131e6687d70159670eed7012c3b96171ec580f246c83d412e698252990f928d3",
+      "findings": [],
+      "current_line_count": 224
+    },
+    {
+      "path": "docs/implementation-plan.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 900,
+      "before_sha256": "649e621822330d35f92c8d75c8678c3d6c5db6da3ef1ee2444525823a7202927",
+      "review_mode": "targeted",
+      "decision": "retain_with_explicit_scope",
+      "review_notes": [
+        "Reviewed authority, current status, phase/task counts and selected checkpoint/status signals, effort/weekly-budget/release sections and runnable command surface; future engineering criteria retained."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "649e621822330d35f92c8d75c8678c3d6c5db6da3ef1ee2444525823a7202927",
+      "findings": [],
+      "current_line_count": 900
+    },
+    {
+      "path": "docs/implementation/p1-agent-continuity.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 943,
+      "before_sha256": "695b3fb81383208b23e9e3199a1529789ea88d8ca8433fe89a2198ecbd93b77e",
+      "review_mode": "targeted",
+      "decision": "retain_with_explicit_scope",
+      "review_notes": [
+        "Reviewed current qualification and open work, phase/task evidence tables, dependencies and planning/command surface; phase-introduction version references are historical boundaries."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "695b3fb81383208b23e9e3199a1529789ea88d8ca8433fe89a2198ecbd93b77e",
+      "findings": [],
+      "current_line_count": 943
+    },
+    {
+      "path": "docs/implementation/p2-channel-continuity.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 862,
+      "before_sha256": "4ecd1b6776ca46d4435d69672927a3f2233effe4d681478c2ef8c7f6b217884b",
+      "review_mode": "targeted",
+      "decision": "retain_with_explicit_scope",
+      "review_notes": [
+        "Reviewed selected-phase statuses, I22 release frontier, declared dependency/media authority, planned full acceptance and command/reference signals."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "4ecd1b6776ca46d4435d69672927a3f2233effe4d681478c2ef8c7f6b217884b",
+      "findings": [],
+      "current_line_count": 862
+    },
+    {
+      "path": "docs/implementation/p3-delegation-reliability.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 883,
+      "before_sha256": "5cdb7850aa45498b93744bde6df25a683c0caba2e5abb33dcb8cfc50136657ab",
+      "review_mode": "targeted",
+      "decision": "correct_verified_current_claims",
+      "review_notes": [
+        "Reviewed phase/task tables and current state, I18A/I18B/I19/I22 contract/evidence boundaries, open work and route/runtime/media scope; corrected current inconsistencies."
+      ],
+      "changes": [
+        "Align I19/I22 partial joined work with0045, retain planned I20/I21/I23/I24, preserve three registered lab rows, distinguish recorded provider/demo journeys from unclosed qualification."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "e6a5cb93690679b203a25f3950ecd569055b3a78b030ac02a6ddc57a8fadc9d0",
+      "findings": [],
+      "current_line_count": 887
+    },
+    {
+      "path": "docs/learning-plan.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 219,
+      "before_sha256": "31cd38b95d1c19ef699de17ce20aafe4e6d770f8bb809fccb3dc004cbd50b198",
+      "review_mode": "full",
+      "decision": "retain",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "31cd38b95d1c19ef699de17ce20aafe4e6d770f8bb809fccb3dc004cbd50b198",
+      "findings": [],
+      "current_line_count": 219
+    },
+    {
+      "path": "docs/plan-audit.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 264,
+      "before_sha256": "280b497614ad50ee30f34615fc5666e4dde4cf546caf1ca7f15e51a94545ff37",
+      "review_mode": "full",
+      "decision": "correct_verified_wording",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [
+        "Remove review-date prose while retaining the reviewed role-mapping interpretation and source link."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "b23b4b20b8f75917583f43dc4f9b11bfa01149f15e9ccb14dc09f158045793e8",
+      "findings": [],
+      "current_line_count": 264
+    },
+    {
+      "path": "docs/portfolio-scope.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 572,
+      "before_sha256": "09c41b52603f726b152982de9fb8a36661c1e362e031358d8483337ebd92ad8e",
+      "review_mode": "targeted",
+      "decision": "correct_verified_current_claims",
+      "review_notes": [
+        "Reviewed current implementation/release language, inference/default-profile boundaries, selected checkpoints, local modes, stage status and final evidence caveats; future V1 requirements retained."
+      ],
+      "changes": [
+        "Clarify retained provider qualification vs open v5 provider rerun, default transport vs opt-in profiles, completed I18B contribution and partial P2/P3 evidence."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "6f4db3b93143962e0e615ba088b97ff8593f5b305897880d9eb3a90bd22e6f9c",
+      "findings": [],
+      "current_line_count": 576
+    },
+    {
+      "path": "docs/project-brief.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 98,
+      "before_sha256": "4e9c2e19cdc927d6d8ff44766e86dcd47092196dc5825dd012d262dc8ec72cf9",
+      "review_mode": "full",
+      "decision": "retain",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "4e9c2e19cdc927d6d8ff44766e86dcd47092196dc5825dd012d262dc8ec72cf9",
+      "findings": [],
+      "current_line_count": 98
+    },
+    {
+      "path": "docs/projects/agent-continuity-scope.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 488,
+      "before_sha256": "4ddd9bb986745e125470653a541b04b26bb5e03bd93bafa2e237c36811b682bb",
+      "review_mode": "targeted",
+      "decision": "correct_verified_current_claims",
+      "review_notes": [
+        "Reviewed current capability/release evidence and remaining work against0019/0047 and catalog. Frozen acceptance rows retained byte-identically."
+      ],
+      "changes": [
+        "Distinguish bookingv4/v5, then-current release runs and open v5 provider rerun; correct P2/P3 implementation status to partial."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "567879551a0de03f859f7b1209b202e39d7fe84a1df8f89a95e2ef8402774470",
+      "findings": [],
+      "current_line_count": 492
+    },
+    {
+      "path": "docs/projects/channel-continuity-scope.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 602,
+      "before_sha256": "89a08dc33a801a1fc03a288a26c6781a4cee9c51bb608cdd5ffe3d068a0a904b",
+      "review_mode": "targeted",
+      "decision": "correct_verified_current_claims",
+      "review_notes": [
+        "Reviewed current status, selected0040\u20130044 scope, later joined/provider/video boundary and source/package distinctions. Frozen acceptance rows retained byte-identically."
+      ],
+      "changes": [
+        "Separate partial joined qualification from later recorded provider journeys/video without promoting full acceptance."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "78dc1915b0af9cb71358a62736872ce54928f0a22ddf269d2cedfc1a2f529b41",
+      "findings": [],
+      "current_line_count": 602
+    },
+    {
+      "path": "docs/projects/delegation-reliability-scope.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 640,
+      "before_sha256": "2861d4570dee17084820c83717068ffa6f1302a81c107d699a1aab0785dfbeb4",
+      "review_mode": "targeted",
+      "decision": "correct_verified_current_claims",
+      "review_notes": [
+        "Reviewed current slice statuses, native/result-return/origin semantics, owner/port distinctions, current vs historical qualification and open release. Frozen acceptance rows retained byte-identically."
+      ],
+      "changes": [
+        "Condense repetitive result-return/origin prose, keep package-vs-actual scope and later recorded journeys distinct from open joined gates."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "28d9e44853e344a1d56c9a889f543c70fd54e0e137914332d79d972c7e12339b",
+      "findings": [],
+      "current_line_count": 637
+    },
+    {
+      "path": "docs/python-engineering.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 315,
+      "before_sha256": "5701f8fd48987ff0076ba14c3bb4b74955fb05bc8a89d9f99a8e8cbb1fecffc7",
+      "review_mode": "full",
+      "decision": "retain",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "5701f8fd48987ff0076ba14c3bb4b74955fb05bc8a89d9f99a8e8cbb1fecffc7",
+      "findings": [],
+      "current_line_count": 315
+    },
+    {
+      "path": "docs/qualification-gates.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 209,
+      "before_sha256": "8233d94197b331f5ec57d3e6e9254d7186bb26a5eaef7bc0026c0c4f5876a1b6",
+      "review_mode": "full",
+      "decision": "correct_verified_wording",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [
+        "Correct full P1 PG Passed0048 overclaim: full run retained five errors, targeted27-test rerun passed."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "e38344c0289b8201afbd1591c50e2ee6c472928347ae318b8a997a292fd0590a",
+      "findings": [],
+      "current_line_count": 209
+    },
+    {
+      "path": "docs/work-items/0001-portfolio-foundation.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 89,
+      "before_sha256": "da4b5d21bb635973d40e6697bb96d5336685297e1f59d1c407e94b17ff7513c8",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: V1 project scopes, local execution modes, stack policy, agent workflow and harness bootstrap; excludes the worker, channel SDK and delegation runtime",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "da4b5d21bb635973d40e6697bb96d5336685297e1f59d1c407e94b17ff7513c8",
+      "findings": [],
+      "current_line_count": 89
+    },
+    {
+      "path": "docs/work-items/0002-documentation-audit.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 69,
+      "before_sha256": "fa4e9bb45b8e56bb3ac15e5f8cccfda2486caadff6a0fedccb78ec9d05872a12",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Ecosystem documentation corpus, its structural checks and the detailed build plan; excludes product behavior and generated artifacts",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "fa4e9bb45b8e56bb3ac15e5f8cccfda2486caadff6a0fedccb78ec9d05872a12",
+      "findings": [],
+      "current_line_count": 69
+    },
+    {
+      "path": "docs/work-items/0003-local-project-foundation.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 138,
+      "before_sha256": "d225496713d32489a80f8b9e920db8135b976f53f4309822ba1da8bdfbf2be5a",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Repository layout, local topology, control API, diagnostic worker and console under PLAN-09\u2013PLAN-11; excludes any P1, P2 or P3 product acceptance case",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "d225496713d32489a80f8b9e920db8135b976f53f4309822ba1da8bdfbf2be5a",
+      "findings": [],
+      "current_line_count": 138
+    },
+    {
+      "path": "docs/work-items/0004-plan-and-showcase-audit.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 126,
+      "before_sha256": "41241dde4e289c9868e4c438290345f17de771dc9db8efd7b6921cd00e849127",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Plan audit, documentation and harness standardization, showcase UX and bounded exception and metric handling; excludes completion of any product acceptance ID",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "41241dde4e289c9868e4c438290345f17de771dc9db8efd7b6921cd00e849127",
+      "findings": [],
+      "current_line_count": 126
+    },
+    {
+      "path": "docs/work-items/0005-granular-implementation-plan.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 89,
+      "before_sha256": "26cd0a1a8df49ea0db22fab3f6d3169787c4173a20defa8c1d43fa9c04d6469a",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Shared roadmap and three subordinate project task plans; excludes product capabilities and executable acceptance evidence",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "26cd0a1a8df49ea0db22fab3f6d3169787c4173a20defa8c1d43fa9c04d6469a",
+      "findings": [],
+      "current_line_count": 89
+    },
+    {
+      "path": "docs/work-items/0006-design-and-engineering-gates.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 139,
+      "before_sha256": "bc1bc01a6ef7ca2c7527b85d7147beb29c442b094cb360421d4523880cddea32",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Ten maintained Design.md files, the design template, the Python engineering guide, design checks, the echo reply bound and diagnostic logging; excludes product requirements and new product telemetry",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "bc1bc01a6ef7ca2c7527b85d7147beb29c442b094cb360421d4523880cddea32",
+      "findings": [],
+      "current_line_count": 139
+    },
+    {
+      "path": "docs/work-items/0007-p1-phase-a-execution-foundation.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 124,
+      "before_sha256": "c0f238e0f6b6163e7cd763f720d8ee04c5802a2d29eebbf234d0acd411f4d327",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Explicit SQLite migration, typed inquiry and attempt identities, bounded async I/O and process tests; excludes supplier, model, mutation, wait, cancel and lease behavior",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "c0f238e0f6b6163e7cd763f720d8ee04c5802a2d29eebbf234d0acd411f4d327",
+      "findings": [],
+      "current_line_count": 124
+    },
+    {
+      "path": "docs/work-items/0008-p1-phase-b-inquiry-recovery.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 148,
+      "before_sha256": "ab031846d03aaae3d7df2f84ba22fb4d435425706ceade2a5d3416a01305d701",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Read-only fake supplier, one bounded inquiry worker and crash reconciliation; excludes PostgreSQL coordination, leases, automatic retries, mutation and media",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "ab031846d03aaae3d7df2f84ba22fb4d435425706ceade2a5d3416a01305d701",
+      "findings": [],
+      "current_line_count": 148
+    },
+    {
+      "path": "docs/work-items/0009-p1-phase-c-postgres-cutover.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 161,
+      "before_sha256": "0a546a3771e61bae4f89c850d0291eb2ed2aaf6f3c298690878c07ded71d8303",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Controlled SQLite-to-PostgreSQL cutover, restricted runtime adapter, owner-only import and trusted actor scope; excludes rich workflow lifecycle, distributed leases and the UI",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "0a546a3771e61bae4f89c850d0291eb2ed2aaf6f3c298690878c07ded71d8303",
+      "findings": [],
+      "current_line_count": 161
+    },
+    {
+      "path": "docs/work-items/0010-p1-phase-d-authority-and-waits.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 205,
+      "before_sha256": "e78079fd58df87bde8a75e0dbb2ede8a81a5957c99836c85becc8cff428934f7",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Revisioned case snapshots, exact quotes and confirmation, atomic intent commitment, durable waits and signals, and finite retry and deadline policy; excludes supplier mutation, cancellation, leases and event delivery",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "e78079fd58df87bde8a75e0dbb2ede8a81a5957c99836c85becc8cff428934f7",
+      "findings": [],
+      "current_line_count": 205
+    },
+    {
+      "path": "docs/work-items/0011-p1-phase-e-effects-and-completion.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 155,
+      "before_sha256": "2f0f0b287bbbe1eadb1ce0bb1febf3531d756000882cb07667dec947d65dd056",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Exact supplier apply, mutation crash reconciliation, supplier uncertainty, idempotent cancellation and completion delivery; excludes leases and voice-interruption release claims",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "2f0f0b287bbbe1eadb1ce0bb1febf3531d756000882cb07667dec947d65dd056",
+      "findings": [],
+      "current_line_count": 155
+    },
+    {
+      "path": "docs/work-items/0012-p1-phase-f-leases-and-deployment.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 186,
+      "before_sha256": "0497097873d8f82d830f1c0c19d3737f4339376a4820fb523d77df15dfa0d894",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: PostgreSQL v4 upgrade, database-time leases and epochs, fenced worker writes, admission limits and the opt-in worker profile; excludes public business HTTP, voice tools, distributed media and full release",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "0497097873d8f82d830f1c0c19d3737f4339376a4820fb523d77df15dfa0d894",
+      "findings": [],
+      "current_line_count": 186
+    },
+    {
+      "path": "docs/work-items/0013-p1-phase-g-conversation-and-showcase.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 247,
+      "before_sha256": "f343aabc80cacfdda0e1db0dbf498dc4d46b129bc4af3d1e54111772e766d122",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Tasks P1-I22 to P1-I25 and their combined local gate; excludes Phase H, real inference and P2/P3",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "f343aabc80cacfdda0e1db0dbf498dc4d46b129bc4af3d1e54111772e766d122",
+      "findings": [],
+      "current_line_count": 247
+    },
+    {
+      "path": "docs/work-items/0014-p1-phase-h-workload-baseline.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 271,
+      "before_sha256": "e990ad525f0c305fd8635bcbc05a9cff4791d44eb916c9d1ac2acbf9b01181b2",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Shared task S-I06 and the first measured P1-I27 contribution; excludes other P1-I27 workloads, P1-I26, P1-I28 and release",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "e990ad525f0c305fd8635bcbc05a9cff4791d44eb916c9d1ac2acbf9b01181b2",
+      "findings": [],
+      "current_line_count": 271
+    },
+    {
+      "path": "docs/work-items/0015-p1-reliability-workloads.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 163,
+      "before_sha256": "622902447abb05ea1685479a0f7a761918b4b1e1f1231fbe867aa036350eb2b2",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Four Phase H2 inquiry fault schedules for P1-I27 and S-I06; excludes media, package and release gates",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "622902447abb05ea1685479a0f7a761918b4b1e1f1231fbe867aa036350eb2b2",
+      "findings": [],
+      "current_line_count": 163
+    },
+    {
+      "path": "docs/work-items/0016-p1-standalone-package.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 109,
+      "before_sha256": "deb9e15c7699b55c9d21e7b553d99beac9cd17781d8158839eec4923c4c3d666",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Task P1-I26 artifact, public client and resource contract; excludes provider qualification, remote CI and publishing",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "deb9e15c7699b55c9d21e7b553d99beac9cd17781d8158839eec4923c4c3d666",
+      "findings": [],
+      "current_line_count": 109
+    },
+    {
+      "path": "docs/work-items/0017-p1-local-real-inference.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 142,
+      "before_sha256": "0568b8fd4a22e3387ef4105a2b6cc58c97347c578fd5f37b998c58366cc66e03",
+      "review_mode": "full",
+      "decision": "retain",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "0568b8fd4a22e3387ef4105a2b6cc58c97347c578fd5f37b998c58366cc66e03",
+      "findings": [],
+      "current_line_count": 142
+    },
+    {
+      "path": "docs/work-items/0018-p1-provider-demo.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 145,
+      "before_sha256": "e3cba0a5504b3ca289164f6ada1ff15b4fe69a01e2c561c2ad63b13d8b793238",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Hosted Deepgram, OpenAI and ElevenLabs inference for the local POC; excludes `local_real`, P2/P3 and remote CI",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "e3cba0a5504b3ca289164f6ada1ff15b4fe69a01e2c561c2ad63b13d8b793238",
+      "findings": [],
+      "current_line_count": 145
+    },
+    {
+      "path": "docs/work-items/0019-p1-phase-h-release-qualification.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 150,
+      "before_sha256": "297634af58e157137787c8223aaf9bbe4f84bd68cde3d50a8be6064038d56594",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Tasks P1-I26 to P1-I28 and all twenty registered P1 reports; excludes `local_real`, P2/P3 and remote CI",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "297634af58e157137787c8223aaf9bbe4f84bd68cde3d50a8be6064038d56594",
+      "findings": [],
+      "current_line_count": 150
+    },
+    {
+      "path": "docs/work-items/0020-architecture-audit-reconciliation.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 172,
+      "before_sha256": "2910eb09dcfb10bc96899576748d59b657c4143b21fd5816a27e9270a17779cc",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Finding disposition plus immediate plan and build-target corrections; excludes runtime, schema and provider changes",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "2910eb09dcfb10bc96899576748d59b657c4143b21fd5816a27e9270a17779cc",
+      "findings": [],
+      "current_line_count": 172
+    },
+    {
+      "path": "docs/work-items/0021-p1-operational-safety-extensions.md",
+      "owner": "p3_book",
+      "document_status": "Planned",
+      "lines": 203,
+      "before_sha256": "433ccdd929ae482d018484e279480fd3c29323ef8b111e398239f4e829efa69e",
+      "review_mode": "targeted",
+      "decision": "retain_with_explicit_scope",
+      "review_notes": [
+        "Reviewed planned O1/O2/O3 boundaries, explicit no-implementation/no-passing-result statements, authority/restore/adjudication/retention criteria and runnable existing regression targets."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "433ccdd929ae482d018484e279480fd3c29323ef8b111e398239f4e829efa69e",
+      "findings": [],
+      "current_line_count": 203
+    },
+    {
+      "path": "docs/work-items/0022-p2-channel-contracts.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 175,
+      "before_sha256": "b159789616104115212d1a5d19949482166df02b9b812973a562cd71a6802d85",
+      "review_mode": "historical_retention",
+      "decision": "clarify_checkpoint_closure_preserve_evidence",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Tasks P2-I01 and P2-I02 under PLAN-12; excludes receipts, gateway, signatures, PostgreSQL and media",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [
+        "Replace obsolete cannot-close draft paragraph with link to its recorded final shared completion; keep historical wider-phase status."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "1d2bc14edf11faad461cb074c98ee291aed3a39d023928032a5e3fcefce6bf69",
+      "findings": [],
+      "current_line_count": 176
+    },
+    {
+      "path": "docs/work-items/0023-p3-native-baseline.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 212,
+      "before_sha256": "4e99350a320ab82cbe33dda20a2a27d6d80d2c61a4a1cd8cc0537d0b823eab83",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Tasks P3-I01 and P3-I02 and the initial P3-16 baseline; excludes durable delegation, media and package qualification",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "4e99350a320ab82cbe33dda20a2a27d6d80d2c61a4a1cd8cc0537d0b823eab83",
+      "findings": [],
+      "current_line_count": 212
+    },
+    {
+      "path": "docs/work-items/0024-p2-verified-durable-intake.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 178,
+      "before_sha256": "83b6f44bc3a7d85176c89dfe8fdd38fbbb8f765af13c0c9b2793e466608ed475",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Task P2-I03 and its handoff to P2-I04 and P2-I05; excludes the P2-I06 example, dispatch, delivery and media",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "83b6f44bc3a7d85176c89dfe8fdd38fbbb8f765af13c0c9b2793e466608ed475",
+      "findings": [],
+      "current_line_count": 178
+    },
+    {
+      "path": "docs/work-items/0025-p3-specialist-contracts-and-trust.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 229,
+      "before_sha256": "e0c399cfe40a057f2171669d089224c6d8e78f5e54cdb2f5c219adc4c0951277",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Tasks P3-I03 and P3-I04 for `booking.evaluate_policy`; excludes HTTP, durable state, models and media",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "e0c399cfe40a057f2171669d089224c6d8e78f5e54cdb2f5c219adc4c0951277",
+      "findings": [],
+      "current_line_count": 229
+    },
+    {
+      "path": "docs/work-items/0026-p2-postgres-inbox.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 229,
+      "before_sha256": "bb53b7c67c627a8bc3a1bf09a66032292e6616946a4e9c5af44d958d62cdb33b",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Tasks P2-I04 and P2-I05 and the P2-I06 intake portion; excludes dispatch, business actions, delivery and media",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "bb53b7c67c627a8bc3a1bf09a66032292e6616946a4e9c5af44d958d62cdb33b",
+      "findings": [],
+      "current_line_count": 229
+    },
+    {
+      "path": "docs/work-items/0027-p2-standalone-and-p3-http.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 234,
+      "before_sha256": "2c120fdefb8bd4866f1f2d8de0da46f6775ffb0133a84f4fe8e0ed20b10c37b1",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Tasks P2-I06 and P3-I05; excludes P2 dispatch and outbox, P3 coordinator durability, models and media",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "2c120fdefb8bd4866f1f2d8de0da46f6775ffb0133a84f4fe8e0ed20b10c37b1",
+      "findings": [],
+      "current_line_count": 234
+    },
+    {
+      "path": "docs/work-items/0028-p2-dispatch-and-p3-coordinator.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 259,
+      "before_sha256": "ffbeef62cbd86d70aa0344fada71e3a5456df73c21426ce5145fb5294950209c",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Tasks P2-I07 and P3-I06 plus the P1 read-only accepted-work prerequisite; excludes media and complete charter gates",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "ffbeef62cbd86d70aa0344fada71e3a5456df73c21426ce5145fb5294950209c",
+      "findings": [],
+      "current_line_count": 259
+    },
+    {
+      "path": "docs/work-items/0029-p2-gateway-and-p3-issued-execution.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 305,
+      "before_sha256": "df9ae443c995fa66db44008d4c476b98556932d6e422608dd34b9a3750029310",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Task P2-I08 and the P3-I07A prerequisite; excludes P3-I07B delivery and action, media and complete charter rows",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "df9ae443c995fa66db44008d4c476b98556932d6e422608dd34b9a3750029310",
+      "findings": [],
+      "current_line_count": 305
+    },
+    {
+      "path": "docs/work-items/0030-p2-agent-recovery-and-p3-completion.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 304,
+      "before_sha256": "952745f5fe52fbe7a0a544c49268d4f06e9b5483a7ec9afad6c8c679467d6570",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Tasks P2-I09 and P3-I07B; excludes complete product, media, workload and integrated release rows",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "952745f5fe52fbe7a0a544c49268d4f06e9b5483a7ec9afad6c8c679467d6570",
+      "findings": [],
+      "current_line_count": 304
+    },
+    {
+      "path": "docs/work-items/0031-revision-routing-and-delegation-acceptance.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 324,
+      "before_sha256": "6f518f4dcabcc934ef9ab07ee9c06ed97c749a30ccf1b1e4e9b611eb35659b23",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P2-I10 and P3-I08 local phase gates; excludes linked confirmation, current sender eligibility, native media and integrated release",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "6f518f4dcabcc934ef9ab07ee9c06ed97c749a30ccf1b1e4e9b611eb35659b23",
+      "findings": [],
+      "current_line_count": 324
+    },
+    {
+      "path": "docs/work-items/0032-linked-confirmation-and-result-projections.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 283,
+      "before_sha256": "ce1fec8f76fa91641d5b98dcba911caaf68f323d32c45f40b3f0d10baf81350a",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P2-I11 and P3-I09 local phase gates; excludes outbox, refresh policy, native media and integrated release",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "ce1fec8f76fa91641d5b98dcba911caaf68f323d32c45f40b3f0d10baf81350a",
+      "findings": [],
+      "current_line_count": 283
+    },
+    {
+      "path": "docs/work-items/0033-outbound-replies-and-completion-processing.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 316,
+      "before_sha256": "d6d0203e4cb6f151266e8355c0081d00d9ed7105cf1754634f19847461711a68",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P2-I12 and P3-I10 local phase gates; excludes callbacks, ambiguous resend, booking-completion handoff and integrated release",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "d6d0203e4cb6f151266e8355c0081d00d9ed7105cf1754634f19847461711a68",
+      "findings": [],
+      "current_line_count": 316
+    },
+    {
+      "path": "docs/work-items/0034-callback-evidence-and-applicability-refresh.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 481,
+      "before_sha256": "cca0f9222eb63aa03fe33e2a9060275d283069519b809759d739e1023f9e1e7b",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P2-I13 and P3-I11 local phase gates; excludes ambiguous-send retries, broader protected-action recovery and integrated release",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "cca0f9222eb63aa03fe33e2a9060275d283069519b809759d739e1023f9e1e7b",
+      "findings": [],
+      "current_line_count": 481
+    },
+    {
+      "path": "docs/work-items/0035-send-policy-and-action-races.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 466,
+      "before_sha256": "85ac1486b386d6373f940507ecffb247e0b19553f30ced8aa826d7089ba44745",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P2-I14 and P3-I12 local gates; excludes native composition, real carriers, automatic retry and full release",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "85ac1486b386d6373f940507ecffb247e0b19553f30ced8aa826d7089ba44745",
+      "findings": [],
+      "current_line_count": 466
+    },
+    {
+      "path": "docs/work-items/0036-native-input-and-deadline-cancellation.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 303,
+      "before_sha256": "53a7a0e00d738341fc0f90541eb18cd6620e4bc9cdea2afef8198dcf73a0db65",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P2-I15/P2-I16 and P3-I13 local phase; excludes P2-I17 playback, P2-I18 rehydration, broader P3 recovery and release",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "53a7a0e00d738341fc0f90541eb18cd6620e4bc9cdea2afef8198dcf73a0db65",
+      "findings": [],
+      "current_line_count": 303
+    },
+    {
+      "path": "docs/work-items/0037-playback-evidence-and-process-recovery.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 399,
+      "before_sha256": "ce77d2106d3f4da6abfc07076c2f2e3549570ddc39431fb22cf00f69e7310275",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P2-I17 and P3-I14 local gates; excludes P2-I18 rehydration, broader capabilities and load, and integrated release",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "ce77d2106d3f4da6abfc07076c2f2e3549570ddc39431fb22cf00f69e7310275",
+      "findings": [],
+      "current_line_count": 399
+    },
+    {
+      "path": "docs/work-items/0038-case-rehydration-and-standalone-release.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 273,
+      "before_sha256": "cdb5303e3fb6bfbddb76887df54e37be166eb959100a3fe45d52308348207911",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P2-I18 and P3-I15 local gates; excludes P3 modalities, load, comparison and the full integrated release",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "cdb5303e3fb6bfbddb76887df54e37be166eb959100a3fe45d52308348207911",
+      "findings": [],
+      "current_line_count": 273
+    },
+    {
+      "path": "docs/work-items/0039-bounded-channel-workloads-and-image-evidence.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 352,
+      "before_sha256": "96a91fd03b0d472e39e8faa911c996280ef88172e517da15fe8c059b448f7dab",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P2-I19 and P3-I16 scope; excludes durable P1 image execution, general OCR, deployment capacity and release",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "96a91fd03b0d472e39e8faa911c996280ef88172e517da15fe8c059b448f7dab",
+      "findings": [],
+      "current_line_count": 352
+    },
+    {
+      "path": "docs/work-items/0040-operations-ui-and-fixed-policy-evidence.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 279,
+      "before_sha256": "ff1e642a83eb512b9f871f2c574ed4f5271183a6c60aaeedab1359866dba850b",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P2-I20 and standalone P3-I17 gates; excludes durable v2 execution, full release and the demo video",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "ff1e642a83eb512b9f871f2c574ed4f5271183a6c60aaeedab1359866dba850b",
+      "findings": [],
+      "current_line_count": 279
+    },
+    {
+      "path": "docs/work-items/0041-standalone-channel-and-durable-policy.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 247,
+      "before_sha256": "fd97fd3330ef2b861df42439adb0be00738f80cfc65e2326c70b543833573f84",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P2-I21 and P3-I18A gates; excludes native background conversation, P2-17 fresh-agent review, integrated release and the demo video",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "fd97fd3330ef2b861df42439adb0be00738f80cfc65e2326c70b543833573f84",
+      "findings": [],
+      "current_line_count": 247
+    },
+    {
+      "path": "docs/work-items/0042-responsive-native-policy-and-compact-demo.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 445,
+      "before_sha256": "a92c07a125669d62bc56bf28cc3c7dc1229a07b92b015a056823a4056fbe72e5",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P3-I18B native RTC text qualification; excludes microphone, speech recognition, playback, provider runs and the final video",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "a92c07a125669d62bc56bf28cc3c7dc1229a07b92b015a056823a4056fbe72e5",
+      "findings": [],
+      "current_line_count": 445
+    },
+    {
+      "path": "docs/work-items/0043-stable-result-delivery-and-return-context.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 380,
+      "before_sha256": "9cce175319e550ccc6af45b7ea186d9fe64df50276409096c9c6699557091ac6",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected delivery/read qualification toward P3-I19 and P2-I22; excludes the joined A/B journey, origin binding, provider runs and the final video",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "9cce175319e550ccc6af45b7ea186d9fe64df50276409096c9c6699557091ac6",
+      "findings": [],
+      "current_line_count": 380
+    },
+    {
+      "path": "docs/work-items/0044-origin-bound-channel-policy.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 579,
+      "before_sha256": "4c166f48343fdbe683201dc02ebd69300d82279e4f9aa5458bbc26c62c8b8366",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Selected P3-I19 and P2-I22 origin-binding slice; excludes accepted-work discovery, whole-stack restart, provider inference, video and charter registration",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "4c166f48343fdbe683201dc02ebd69300d82279e4f9aa5458bbc26c62c8b8366",
+      "findings": [],
+      "current_line_count": 579
+    },
+    {
+      "path": "docs/work-items/0045-joined-native-channel-policy.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 827,
+      "before_sha256": "5d3ec98a1c19d7aad814ebc30aa033732bb2cc6b432a2c23a8c91fb72d8e35c2",
+      "review_mode": "targeted",
+      "decision": "correct_verified_current_claims",
+      "review_notes": [
+        "Reviewed active45A\u201345D scope and source/installed/component/failed-browser checkpoints, plus final remaining-work chronology; no lifecycle contract or gate outcome advanced."
+      ],
+      "changes": [
+        "Frame final remaining provider/video statements as checkpoint history and link later0046/0047 outcomes; keep original joined gates open."
+      ],
+      "lifecycle_contract_coordination_required": true,
+      "after_sha256": "3ee910b3b1523d961bd716f99a45a4e946fa3ae30359d7393655312cc0d61591",
+      "findings": [],
+      "current_line_count": 830
+    },
+    {
+      "path": "docs/work-items/0046-joined-showcase-providers-and-demo.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 241,
+      "before_sha256": "81fb844837ecd1229e4df3f4f59521857ddc6f1745f6d75fb016390d2e46a806",
+      "review_mode": "targeted",
+      "decision": "retain_with_explicit_scope",
+      "review_notes": [
+        "Reviewed active scope, provider journey observations, explicit selected-vs-joined gate distinction and remaining-finding table; historical run results retained."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": true,
+      "after_sha256": "81fb844837ecd1229e4df3f4f59521857ddc6f1745f6d75fb016390d2e46a806",
+      "findings": [],
+      "current_line_count": 241
+    },
+    {
+      "path": "docs/work-items/0047-open-findings-schema-upgrades-and-landing.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 173,
+      "before_sha256": "098b8f7d43f5e420c7192e899f6a7337f151e542eed1a30248f64a10a10740d0",
+      "review_mode": "targeted",
+      "decision": "retain_with_explicit_scope",
+      "review_notes": [
+        "Reviewed additive schema namespaces, v5provider rerun prerequisite, then-current findings and handoff. git ls-files confirms generated dist files remain tracked, so owner cleanup note was not falsely removed."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": true,
+      "after_sha256": "098b8f7d43f5e420c7192e899f6a7337f151e542eed1a30248f64a10a10740d0",
+      "findings": [],
+      "current_line_count": 173
+    },
+    {
+      "path": "docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md",
+      "owner": "p3_book",
+      "document_status": "Completed",
+      "lines": 181,
+      "before_sha256": "267108da3b6c7515a85e706b8d461cca0ef84569d2f9c5dd4ef80d428fa57641",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Reviewed card/scope, results opening and final completion/limitations/next-work excerpts, current-link relationship and command/path/reference signals.",
+        "Historical scope: Eight audit areas, contained fixes with regression tests, documentation standard version 2 and the root README redesign; excludes lifecycle changes left as open findings",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "267108da3b6c7515a85e706b8d461cca0ef84569d2f9c5dd4ef80d428fa57641",
+      "findings": [],
+      "current_line_count": 181
+    },
+    {
+      "path": "docs/work-items/0049-sdk-compatibility-and-code-review.md",
+      "owner": "root",
+      "document_status": "Completed",
+      "lines": 134,
+      "before_sha256": "5c26117908b858ed20a2a9047d31497f65de40f6af2a7facb8794803b5973533",
+      "review_mode": "historical_retention",
+      "decision": "retain_historical_record",
+      "review_notes": [
+        "Full body reviewed against retained audit outputs and exact Node/focused-test evidence; preserved as a historical source-bound completed audit.",
+        "Historical scope: P1, P2, P3 and their LiveKit integration boundaries; excludes adding deferred course features",
+        "Counts, initial failures, unrun gates, source-bound results and authorship retained; historical future-tense does not define the current frontier.",
+        "Root owns the final user-requested rename/title/prose; historical review before rename remains source provenance only."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "7d8f6f10b96c1ff71bd25edbbdc1151f8be3bcf8a3aff5b9d5333c48c37932ce",
+      "findings": [],
+      "before_path": "docs/work-items/0049-academy-and-sdk-code-alignment-audit.md",
+      "reviewer": "p3_book",
+      "current_line_count": 133
+    },
+    {
+      "path": "docs/work-items/template.md",
+      "owner": "p3_book",
+      "document_status": "Template",
+      "lines": 126,
+      "before_sha256": "029112f0e655d6b8796e61c45e9f7ea1c0b3a6ba84a0e0ddabaa8aeb1459134a",
+      "review_mode": "full",
+      "decision": "retain",
+      "review_notes": [
+        "Read the complete document for clarity, authority, scope, dates/provenance, commands and actual/planned/historical distinctions.",
+        "Retained applicable normative criteria; they are not claims that every implementation satisfies every gate."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "029112f0e655d6b8796e61c45e9f7ea1c0b3a6ba84a0e0ddabaa8aeb1459134a",
+      "findings": [],
+      "current_line_count": 126
+    },
+    {
+      "path": "projects/delegation-reliability/AGENTS.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 705,
+      "before_sha256": "517291ef18a96313b590f99442468678b34531d59f022547f9f1f8629be70ccc",
+      "review_mode": "targeted",
+      "decision": "retain_with_explicit_scope",
+      "review_notes": [
+        "Read-only targeted semantic review of version/facade/authority boundaries, native input/ownership rules, required commands and qualification framing; no instruction policy changed."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "517291ef18a96313b590f99442468678b34531d59f022547f9f1f8629be70ccc",
+      "findings": [],
+      "current_line_count": 705
+    },
+    {
+      "path": "projects/delegation-reliability/Design.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 2384,
+      "before_sha256": "853534e748a00c40bb2edc0d85ec94b2bef63345435771c0754723b70950090e",
+      "review_mode": "targeted",
+      "decision": "correct_verified_current_claims",
+      "review_notes": [
+        "Reviewed current ownership/version/HTTP/result/delivery/projection/processing/refresh/native sections against prior source audit, plus status/count/command scan; no whole-design requalification claim."
+      ],
+      "changes": [
+        "Document0049 definite-initial-capacity explicit-retry exception while preserving original identity and lookup-only ambiguity."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "a2f8df900863dff5a57cc035e1429340f7ddf62d3bb1f60b65fed85c65c0b684",
+      "findings": [],
+      "current_line_count": 2386
+    },
+    {
+      "path": "projects/delegation-reliability/README.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 842,
+      "before_sha256": "4e33c9e1424e6de1fa9e5df04c5adc043b9b881e5d78e7409f6a6d1c0a03b994",
+      "review_mode": "targeted",
+      "decision": "retain_with_explicit_scope",
+      "review_notes": [
+        "Reviewed overview and implemented-slice table, authority definitions, requirements/commands/next-milestone signals and referenced selected gate counts; distinct from full charter registration."
+      ],
+      "changes": [],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "4e33c9e1424e6de1fa9e5df04c5adc043b9b881e5d78e7409f6a6d1c0a03b994",
+      "findings": [],
+      "current_line_count": 842
+    },
+    {
+      "path": "projects/delegation-reliability/python/README.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 1241,
+      "before_sha256": "004d124e8a87a428ce6b90c13a639c699a86d1e6140f15d063626dbfab5c84b6",
+      "review_mode": "targeted",
+      "decision": "correct_verified_current_claims",
+      "review_notes": [
+        "Reviewed public overview, imports/command surface, version/facade distinctions, execution/delivery/metadata and native/origin boundaries. Added namespace explanation and narrow retry exception."
+      ],
+      "changes": [
+        "Add explicit independent version-namespace table and document initial-capacity explicit-retry exception."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "98afa52acfc6bf8466848f2a1b29a13c703fa2a03c58726735c0dae4cbc63938",
+      "findings": [],
+      "current_line_count": 1261
+    },
+    {
+      "path": "projects/delegation-reliability/specialist-ts/README.md",
+      "owner": "p3_book",
+      "document_status": "Active",
+      "lines": 466,
+      "before_sha256": "13ab345a5667cfc738bd0c592d59b254b34315e1dd2c149626c2963ad323689f",
+      "review_mode": "targeted",
+      "decision": "correct_verified_current_claims",
+      "review_notes": [
+        "Reviewed current exports/requirements/fixture prerequisites, installed-vs-source evidence, route/grant/resource ownership and remaining milestone; retained earlier exact-Node prerequisite clarification."
+      ],
+      "changes": [
+        "Remove selected I18B RTCtext from remaining milestone; keep broader model/modality qualification open."
+      ],
+      "lifecycle_contract_coordination_required": false,
+      "after_sha256": "8f66b8dccc7805833a1af5a81b5c193ce45909d455d7c7abc7c24271b27f8f48",
+      "findings": [],
+      "current_line_count": 466
+    }
+  ],
+  "scope_note": "Original81-document assignment includes0049, subsequently transferred to root for final rename/prose. Root owns its final ledger row."
+}

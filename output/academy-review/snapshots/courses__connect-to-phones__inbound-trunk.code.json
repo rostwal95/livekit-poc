@@ -1,0 +1,58 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# List available numbers in a region\nlk sip phone list-available --area-code 415\n\n# Purchase a number\nlk sip phone purchase --number \"+14155551234\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "lk sip trunk create --name \"Dental Office\" --numbers \"+15551234567\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "lk sip trunk list"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import asyncio\nfrom livekit.api import LiveKitAPI, CreateSIPInboundTrunkRequest, SIPInboundTrunkInfo\n\n\nasync def main():\n  api = LiveKitAPI()\n\n  trunk = await api.sip.create_sip_inbound_trunk(\n      CreateSIPInboundTrunkRequest(\n          trunk=SIPInboundTrunkInfo(\n              name=\"Dental Office Inbound\",\n              numbers=[\"+15551234567\"],\n          )\n      )\n  )\n\n  print(f\"Created trunk: {trunk.sip_trunk_id}\")\n  print(f\"Name: {trunk.name}\")\n  print(f\"Numbers: {trunk.numbers}\")\n\n  await api.aclose()\n\n\nasyncio.run(main())"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { SipClient } from \"livekit-server-sdk\";\n\nconst sipClient = new SipClient(\nprocess.env.LIVEKIT_URL!,\nprocess.env.LIVEKIT_API_KEY!,\nprocess.env.LIVEKIT_API_SECRET!\n);\n\nconst trunk = await sipClient.createSipInboundTrunk({\nname: \"Dental Office Inbound\",\nnumbers: [\"+15551234567\"],\n});\n\nconsole.log(`Created trunk: ${trunk.sipTrunkId}`);\nconsole.log(`Name: ${trunk.name}`);\nconsole.log(`Numbers: ${trunk.numbers}`);"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import asyncio\nfrom livekit.api import LiveKitAPI, ListSIPInboundTrunkRequest\n\n\nasync def main():\n  api = LiveKitAPI()\n\n  response = await api.sip.list_sip_inbound_trunk(\n      ListSIPInboundTrunkRequest()\n  )\n\n  for trunk in response.items:\n      print(f\"{trunk.sip_trunk_id}: {trunk.name} ({trunk.numbers})\")\n\n  await api.aclose()\n\n\nasyncio.run(main())"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { SipClient } from \"livekit-server-sdk\";\n\nconst sipClient = new SipClient(\nprocess.env.LIVEKIT_URL!,\nprocess.env.LIVEKIT_API_KEY!,\nprocess.env.LIVEKIT_API_SECRET!\n);\n\nconst trunks = await sipClient.listSipInboundTrunk();\n\nfor (const trunk of trunks) {\nconsole.log(`${trunk.sipTrunkId}: ${trunk.name} (${trunk.numbers})`);\n}"
+  }
+]

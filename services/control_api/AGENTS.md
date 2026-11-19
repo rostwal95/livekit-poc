@@ -55,7 +55,8 @@ M1 is the existing confirmed-investigation intake.
 
 ### Business routes
 
-- The business route service uses explicit PostgreSQL v4. M1 continues on SQLite.
+- The business route service validates an explicitly ACTIVE PostgreSQL v4 or v5
+  target; owner preparation upgrades through v5. M1 continues on SQLite.
 - Actor/scope and signing credentials come from trusted configuration.
 - Session grants bind room, participant, original request/key and optional owned task.
 - Metadata from a participant is inert.

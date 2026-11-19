@@ -1,0 +1,1379 @@
+[
+  {
+    "id": "0.1",
+    "title": "LiveKit Architecture",
+    "url": "https://www.livekit-academy.com/courses/livekit-architecture",
+    "advertised_minutes": 120,
+    "chapter_minutes": 120,
+    "chapters": [
+      {
+        "title": "Why WebRTC? The latency problem in voice AI",
+        "url": "https://www.livekit-academy.com/courses/livekit-architecture/why-webrtc",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__why-webrtc.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__why-webrtc.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "P2P vs MCU vs SFU: why LiveKit chose the SFU",
+        "url": "https://www.livekit-academy.com/courses/livekit-architecture/sfu-architecture",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__sfu-architecture.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__sfu-architecture.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Rooms, Participants & Tracks: universal primitives",
+        "url": "https://www.livekit-academy.com/courses/livekit-architecture/rooms-participants-tracks",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__rooms-participants-tracks.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__rooms-participants-tracks.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "AI agents as room participants",
+        "url": "https://www.livekit-academy.com/courses/livekit-architecture/agents-as-participants",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__agents-as-participants.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__agents-as-participants.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "The data plane: streams, RPC & state sync",
+        "url": "https://www.livekit-academy.com/courses/livekit-architecture/data-plane",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__data-plane.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__data-plane.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Extending the room: telephony, egress & ingress",
+        "url": "https://www.livekit-academy.com/courses/livekit-architecture/telephony-egress-ingress",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__telephony-egress-ingress.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__telephony-egress-ingress.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Security, encryption & self-hosting",
+        "url": "https://www.livekit-academy.com/courses/livekit-architecture/security-encryption",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__security-encryption.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__security-encryption.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "The universal SDK ecosystem",
+        "url": "https://www.livekit-academy.com/courses/livekit-architecture/sdk-ecosystem",
+        "minutes": 10,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__sdk-ecosystem.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-architecture__sdk-ecosystem.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      }
+    ]
+  },
+  {
+    "id": "0.2",
+    "title": "Competitive Landscape",
+    "url": "https://www.livekit-academy.com/courses/competitive-landscape",
+    "advertised_minutes": 90,
+    "chapter_minutes": 60,
+    "chapters": [
+      {
+        "title": "LiveKit Agents vs Pipecat",
+        "url": "https://www.livekit-academy.com/courses/competitive-landscape/livekit-vs-pipecat",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__competitive-landscape__livekit-vs-pipecat.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__competitive-landscape__livekit-vs-pipecat.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "LiveKit vs managed platforms",
+        "url": "https://www.livekit-academy.com/courses/competitive-landscape/livekit-vs-managed-platforms",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__competitive-landscape__livekit-vs-managed-platforms.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__competitive-landscape__livekit-vs-managed-platforms.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Choosing your approach",
+        "url": "https://www.livekit-academy.com/courses/competitive-landscape/choosing-your-approach",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__competitive-landscape__choosing-your-approach.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__competitive-landscape__choosing-your-approach.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      }
+    ]
+  },
+  {
+    "id": "1.1",
+    "title": "Voice AI Foundations",
+    "url": "https://www.livekit-academy.com/courses/voice-ai-foundations",
+    "advertised_minutes": 270,
+    "chapter_minutes": 260,
+    "chapters": [
+      {
+        "title": "What is voice AI? Why WebRTC matters",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/what-is-voice-ai",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__what-is-voice-ai.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__what-is-voice-ai.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Project setup & your first agent",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/project-setup",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__project-setup.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__project-setup.code.json",
+        "http_status": 200,
+        "code_blocks": 11
+      },
+      {
+        "title": "Understanding AgentSession",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/understanding-agent-session",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__understanding-agent-session.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__understanding-agent-session.code.json",
+        "http_status": 200,
+        "code_blocks": 11
+      },
+      {
+        "title": "Writing great agent instructions",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/writing-instructions",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__writing-instructions.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__writing-instructions.code.json",
+        "http_status": 200,
+        "code_blocks": 4
+      },
+      {
+        "title": "Adding your first tool: check availability",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/first-tool",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__first-tool.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__first-tool.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "RunContext, state & the booking tool",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/run-context-booking",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__run-context-booking.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__run-context-booking.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "Noise cancellation & room configuration",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/noise-cancellation",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__noise-cancellation.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__noise-cancellation.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      },
+      {
+        "title": "Testing your agent",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/testing",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__testing.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__testing.code.json",
+        "http_status": 200,
+        "code_blocks": 11
+      },
+      {
+        "title": "Turn detection deep dive",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/turn-detection",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__turn-detection.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__turn-detection.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      },
+      {
+        "title": "Conversation context & multi-turn state",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/conversation-context",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__conversation-context.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__conversation-context.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "Beyond audio: the data plane",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/data-plane",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__data-plane.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__data-plane.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      },
+      {
+        "title": "Deploy to LiveKit Cloud",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/deploy",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__deploy.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__deploy.code.json",
+        "http_status": 200,
+        "code_blocks": 9
+      },
+      {
+        "title": "Polish & production readiness",
+        "url": "https://www.livekit-academy.com/courses/voice-ai-foundations/polish",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__polish.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__voice-ai-foundations__polish.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      }
+    ]
+  },
+  {
+    "id": "1.2",
+    "title": "Agent Frontends",
+    "url": "https://www.livekit-academy.com/courses/your-first-frontend",
+    "advertised_minutes": 150,
+    "chapter_minutes": 130,
+    "chapters": [
+      {
+        "title": "Frontend architecture for the dental receptionist",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/frontend-architecture",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__frontend-architecture.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__frontend-architecture.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Connecting to the dental receptionist",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/token-auth",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__token-auth.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__token-auth.code.json",
+        "http_status": 200,
+        "code_blocks": 8
+      },
+      {
+        "title": "Agent dispatch",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/agent-dispatch",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__agent-dispatch.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__agent-dispatch.code.json",
+        "http_status": 200,
+        "code_blocks": 10
+      },
+      {
+        "title": "Agent state & the dental session lifecycle",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/session-management",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__session-management.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__session-management.code.json",
+        "http_status": 200,
+        "code_blocks": 4
+      },
+      {
+        "title": "Transcription & booking confirmations",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/chat-transcription",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__chat-transcription.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__chat-transcription.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "Text input for the dental receptionist",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/text-input",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__text-input.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__text-input.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "RPC & data channels: a visual booking flow",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/rpc-data-channels",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__rpc-data-channels.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__rpc-data-channels.code.json",
+        "http_status": 200,
+        "code_blocks": 9
+      }
+    ]
+  },
+  {
+    "id": "1.3",
+    "title": "Connect to the Phone Network",
+    "url": "https://www.livekit-academy.com/courses/connect-to-phones",
+    "advertised_minutes": 120,
+    "chapter_minutes": 125,
+    "chapters": [
+      {
+        "title": "How telephony works in LiveKit",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/telephony-overview",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__telephony-overview.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__telephony-overview.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      },
+      {
+        "title": "Buy a number & configure inbound trunk",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/inbound-trunk",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__inbound-trunk.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__inbound-trunk.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      },
+      {
+        "title": "Dispatch rules: routing calls to agents",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/dispatch-rules",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__dispatch-rules.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__dispatch-rules.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "Recording consent with AgentTask",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/recording-consent",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__recording-consent.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__recording-consent.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      },
+      {
+        "title": "DTMF & keypad input",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/dtmf",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__dtmf.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__dtmf.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "HD voice & secure trunking",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/hd-voice",
+        "minutes": 10,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__hd-voice.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__hd-voice.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "Making outbound calls",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/outbound-calls",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__outbound-calls.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__outbound-calls.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      },
+      {
+        "title": "Test from your phone",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/test-from-phone",
+        "minutes": 10,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__test-from-phone.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__test-from-phone.code.json",
+        "http_status": 200,
+        "code_blocks": 1
+      }
+    ]
+  },
+  {
+    "id": "2.1",
+    "title": "Tools, Tasks & Workflows",
+    "url": "https://www.livekit-academy.com/courses/tools-tasks-workflows",
+    "advertised_minutes": 180,
+    "chapter_minutes": 185,
+    "chapters": [
+      {
+        "title": "Workflow architecture",
+        "url": "https://www.livekit-academy.com/courses/tools-tasks-workflows/workflow-architecture",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__workflow-architecture.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__workflow-architecture.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "Building the greeter agent",
+        "url": "https://www.livekit-academy.com/courses/tools-tasks-workflows/greeter-agent",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__greeter-agent.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__greeter-agent.code.json",
+        "http_status": 200,
+        "code_blocks": 10
+      },
+      {
+        "title": "Complex tool definitions",
+        "url": "https://www.livekit-academy.com/courses/tools-tasks-workflows/complex-tools",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__complex-tools.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__complex-tools.code.json",
+        "http_status": 200,
+        "code_blocks": 8
+      },
+      {
+        "title": "AgentTask: structured data collection",
+        "url": "https://www.livekit-academy.com/courses/tools-tasks-workflows/agent-task",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__agent-task.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__agent-task.code.json",
+        "http_status": 200,
+        "code_blocks": 8
+      },
+      {
+        "title": "TaskGroup: multi-step flows",
+        "url": "https://www.livekit-academy.com/courses/tools-tasks-workflows/task-group",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__task-group.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__task-group.code.json",
+        "http_status": 200,
+        "code_blocks": 12
+      },
+      {
+        "title": "Prebuilt tasks",
+        "url": "https://www.livekit-academy.com/courses/tools-tasks-workflows/prebuilt-tasks",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__prebuilt-tasks.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__prebuilt-tasks.code.json",
+        "http_status": 200,
+        "code_blocks": 10
+      },
+      {
+        "title": "Agent handoffs & context",
+        "url": "https://www.livekit-academy.com/courses/tools-tasks-workflows/agent-handoffs",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__agent-handoffs.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__agent-handoffs.code.json",
+        "http_status": 200,
+        "code_blocks": 8
+      },
+      {
+        "title": "State with userdata",
+        "url": "https://www.livekit-academy.com/courses/tools-tasks-workflows/state-userdata",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__state-userdata.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__state-userdata.code.json",
+        "http_status": 200,
+        "code_blocks": 10
+      },
+      {
+        "title": "Dynamic tool management",
+        "url": "https://www.livekit-academy.com/courses/tools-tasks-workflows/dynamic-tools",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__dynamic-tools.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__dynamic-tools.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "Testing the workflow",
+        "url": "https://www.livekit-academy.com/courses/tools-tasks-workflows/testing-workflow",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__testing-workflow.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__tools-tasks-workflows__testing-workflow.code.json",
+        "http_status": 200,
+        "code_blocks": 9
+      }
+    ]
+  },
+  {
+    "id": "2.2",
+    "title": "Turn Detection & Conversation Quality",
+    "url": "https://www.livekit-academy.com/courses/turn-detection",
+    "advertised_minutes": 120,
+    "chapter_minutes": 120,
+    "chapters": [
+      {
+        "title": "Turn detection fundamentals",
+        "url": "https://www.livekit-academy.com/courses/turn-detection/turn-detection-fundamentals",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__turn-detection-fundamentals.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__turn-detection-fundamentals.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      },
+      {
+        "title": "VAD configuration",
+        "url": "https://www.livekit-academy.com/courses/turn-detection/vad-configuration",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__vad-configuration.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__vad-configuration.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      },
+      {
+        "title": "Multilingual turn detection",
+        "url": "https://www.livekit-academy.com/courses/turn-detection/multilingual-model",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__multilingual-model.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__multilingual-model.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "Endpointing configuration",
+        "url": "https://www.livekit-academy.com/courses/turn-detection/endpointing-config",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__endpointing-config.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__endpointing-config.code.json",
+        "http_status": 200,
+        "code_blocks": 4
+      },
+      {
+        "title": "Adaptive interruption handling",
+        "url": "https://www.livekit-academy.com/courses/turn-detection/interruption-handling",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__interruption-handling.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__interruption-handling.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "Backchanneling & natural flow",
+        "url": "https://www.livekit-academy.com/courses/turn-detection/backchanneling",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__backchanneling.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__backchanneling.code.json",
+        "http_status": 200,
+        "code_blocks": 2
+      },
+      {
+        "title": "A/B testing & quality metrics",
+        "url": "https://www.livekit-academy.com/courses/turn-detection/ab-testing",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__ab-testing.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__turn-detection__ab-testing.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      }
+    ]
+  },
+  {
+    "id": "2.3",
+    "title": "Pipeline Nodes, Hooks & Custom Logic",
+    "url": "https://www.livekit-academy.com/courses/pipeline-nodes",
+    "advertised_minutes": 180,
+    "chapter_minutes": 170,
+    "chapters": [
+      {
+        "title": "The voice pipeline architecture",
+        "url": "https://www.livekit-academy.com/courses/pipeline-nodes/pipeline-architecture",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__pipeline-architecture.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__pipeline-architecture.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "stt_node: audio preprocessing",
+        "url": "https://www.livekit-academy.com/courses/pipeline-nodes/stt-node",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__stt-node.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__stt-node.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "llm_node: structured output",
+        "url": "https://www.livekit-academy.com/courses/pipeline-nodes/llm-node",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__llm-node.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__llm-node.code.json",
+        "http_status": 200,
+        "code_blocks": 9
+      },
+      {
+        "title": "tts_node: emotional speech",
+        "url": "https://www.livekit-academy.com/courses/pipeline-nodes/tts-node",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__tts-node.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__tts-node.code.json",
+        "http_status": 200,
+        "code_blocks": 8
+      },
+      {
+        "title": "on_user_turn_completed: RAG injection",
+        "url": "https://www.livekit-academy.com/courses/pipeline-nodes/user-turn-completed",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__user-turn-completed.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__user-turn-completed.code.json",
+        "http_status": 200,
+        "code_blocks": 8
+      },
+      {
+        "title": "Content filtering",
+        "url": "https://www.livekit-academy.com/courses/pipeline-nodes/content-filtering",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__content-filtering.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__content-filtering.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      },
+      {
+        "title": "Realtime model nodes",
+        "url": "https://www.livekit-academy.com/courses/pipeline-nodes/realtime-nodes",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__realtime-nodes.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__realtime-nodes.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "Full assembly",
+        "url": "https://www.livekit-academy.com/courses/pipeline-nodes/full-assembly",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__full-assembly.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__pipeline-nodes__full-assembly.code.json",
+        "http_status": 200,
+        "code_blocks": 4
+      }
+    ]
+  },
+  {
+    "id": "2.4",
+    "title": "Realtime Models vs Pipelines",
+    "url": "https://www.livekit-academy.com/courses/realtime-vs-pipeline",
+    "advertised_minutes": 150,
+    "chapter_minutes": 160,
+    "chapters": [
+      {
+        "title": "Architecture comparison",
+        "url": "https://www.livekit-academy.com/courses/realtime-vs-pipeline/architecture-comparison",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__architecture-comparison.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__architecture-comparison.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      },
+      {
+        "title": "Pipeline implementation",
+        "url": "https://www.livekit-academy.com/courses/realtime-vs-pipeline/pipeline-implementation",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__pipeline-implementation.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__pipeline-implementation.code.json",
+        "http_status": 200,
+        "code_blocks": 15
+      },
+      {
+        "title": "OpenAI Realtime",
+        "url": "https://www.livekit-academy.com/courses/realtime-vs-pipeline/openai-realtime",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__openai-realtime.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__openai-realtime.code.json",
+        "http_status": 200,
+        "code_blocks": 15
+      },
+      {
+        "title": "Gemini Live",
+        "url": "https://www.livekit-academy.com/courses/realtime-vs-pipeline/gemini-realtime",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__gemini-realtime.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__gemini-realtime.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      },
+      {
+        "title": "Custom TTS with realtime models",
+        "url": "https://www.livekit-academy.com/courses/realtime-vs-pipeline/custom-tts-with-realtime",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__custom-tts-with-realtime.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__custom-tts-with-realtime.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      },
+      {
+        "title": "Hybrid approaches",
+        "url": "https://www.livekit-academy.com/courses/realtime-vs-pipeline/hybrid-approaches",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__hybrid-approaches.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__hybrid-approaches.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "Latency & quality comparison",
+        "url": "https://www.livekit-academy.com/courses/realtime-vs-pipeline/latency-comparison",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__latency-comparison.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__latency-comparison.code.json",
+        "http_status": 200,
+        "code_blocks": 1
+      },
+      {
+        "title": "Choosing your architecture",
+        "url": "https://www.livekit-academy.com/courses/realtime-vs-pipeline/choosing-architecture",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__choosing-architecture.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__realtime-vs-pipeline__choosing-architecture.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      }
+    ]
+  },
+  {
+    "id": "3.1",
+    "title": "Production Telephony Patterns",
+    "url": "https://www.livekit-academy.com/courses/production-telephony",
+    "advertised_minutes": 210,
+    "chapter_minutes": 195,
+    "chapters": [
+      {
+        "title": "Production telephony patterns overview",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/telephony-patterns",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__telephony-patterns.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__telephony-patterns.code.json",
+        "http_status": 200,
+        "code_blocks": 1
+      },
+      {
+        "title": "Warm transfers",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/warm-transfers",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__warm-transfers.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__warm-transfers.code.json",
+        "http_status": 200,
+        "code_blocks": 8
+      },
+      {
+        "title": "Cold transfers",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/cold-transfers",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__cold-transfers.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__cold-transfers.code.json",
+        "http_status": 200,
+        "code_blocks": 8
+      },
+      {
+        "title": "Call recording & compliance",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/call-recording",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__call-recording.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__call-recording.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "Building the outbound system",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/outbound-system",
+        "minutes": 30,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__outbound-system.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__outbound-system.code.json",
+        "http_status": 200,
+        "code_blocks": 4
+      },
+      {
+        "title": "Queue management",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/queue-management",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__queue-management.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__queue-management.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "Error handling & retries",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/error-handling",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__error-handling.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__error-handling.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "Monitoring & analytics",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/monitoring",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__monitoring.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__monitoring.code.json",
+        "http_status": 200,
+        "code_blocks": 2
+      },
+      {
+        "title": "Load testing",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/load-testing",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__load-testing.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__load-testing.code.json",
+        "http_status": 200,
+        "code_blocks": 2
+      }
+    ]
+  },
+  {
+    "id": "3.2",
+    "title": "AI-Powered Contact Centers",
+    "url": "https://www.livekit-academy.com/courses/contact-center",
+    "advertised_minutes": 120,
+    "chapter_minutes": 85,
+    "chapters": [
+      {
+        "title": "AI-native routing & multi-agent orchestration",
+        "url": "https://www.livekit-academy.com/courses/contact-center/ai-native-routing",
+        "minutes": 30,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__ai-native-routing.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__ai-native-routing.code.json",
+        "http_status": 200,
+        "code_blocks": 4
+      },
+      {
+        "title": "Human escalation & context transfer",
+        "url": "https://www.livekit-academy.com/courses/contact-center/human-escalation",
+        "minutes": 30,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__human-escalation.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__human-escalation.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "CRM integration & caller context",
+        "url": "https://www.livekit-academy.com/courses/contact-center/crm-integration",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__crm-integration.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__crm-integration.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      }
+    ]
+  },
+  {
+    "id": "4.1",
+    "title": "Multimodal Agents",
+    "url": "https://www.livekit-academy.com/courses/multimodal-agents",
+    "advertised_minutes": 150,
+    "chapter_minutes": 120,
+    "chapters": [
+      {
+        "title": "Multimodal architecture & cost model",
+        "url": "https://www.livekit-academy.com/courses/multimodal-agents/multimodal-architecture",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__multimodal-architecture.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__multimodal-architecture.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      },
+      {
+        "title": "Vision agents",
+        "url": "https://www.livekit-academy.com/courses/multimodal-agents/vision-agents",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__vision-agents.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__vision-agents.code.json",
+        "http_status": 200,
+        "code_blocks": 12
+      },
+      {
+        "title": "Avatar integration",
+        "url": "https://www.livekit-academy.com/courses/multimodal-agents/avatar-integration",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__avatar-integration.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__avatar-integration.code.json",
+        "http_status": 200,
+        "code_blocks": 4
+      },
+      {
+        "title": "Document processing & screen sharing",
+        "url": "https://www.livekit-academy.com/courses/multimodal-agents/document-screen",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__document-screen.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__document-screen.code.json",
+        "http_status": 200,
+        "code_blocks": 10
+      },
+      {
+        "title": "Building a complete multimodal agent",
+        "url": "https://www.livekit-academy.com/courses/multimodal-agents/multimodal-capstone",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__multimodal-capstone.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__multimodal-capstone.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      }
+    ]
+  },
+  {
+    "id": "4.2",
+    "title": "Physical AI: Voice on Hardware",
+    "url": "https://www.livekit-academy.com/courses/physical-ai",
+    "advertised_minutes": 120,
+    "chapter_minutes": 95,
+    "chapters": [
+      {
+        "title": "Embedded voice architecture",
+        "url": "https://www.livekit-academy.com/courses/physical-ai/embedded-architecture",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__embedded-architecture.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__embedded-architecture.code.json",
+        "http_status": 200,
+        "code_blocks": 4
+      },
+      {
+        "title": "Wake word detection & audio streaming",
+        "url": "https://www.livekit-academy.com/courses/physical-ai/wake-word-streaming",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__wake-word-streaming.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__wake-word-streaming.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "Hardware control via agent tools",
+        "url": "https://www.livekit-academy.com/courses/physical-ai/device-control",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__device-control.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__device-control.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "Production: OTA updates & fleet management",
+        "url": "https://www.livekit-academy.com/courses/physical-ai/production-embedded",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__production-embedded.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__production-embedded.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      }
+    ]
+  },
+  {
+    "id": "5.1",
+    "title": "Testing & Evaluation",
+    "url": "https://www.livekit-academy.com/courses/testing-evaluation",
+    "advertised_minutes": 150,
+    "chapter_minutes": 140,
+    "chapters": [
+      {
+        "title": "Testing strategy for voice AI",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/testing-strategy",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__testing-strategy.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__testing-strategy.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "Behavioral tests deep dive",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/behavioral-tests",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__behavioral-tests.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__behavioral-tests.code.json",
+        "http_status": 200,
+        "code_blocks": 12
+      },
+      {
+        "title": "Testing tools & workflows",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/tool-testing",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__tool-testing.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__tool-testing.code.json",
+        "http_status": 200,
+        "code_blocks": 9
+      },
+      {
+        "title": "Evaluation framework",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/evaluation-framework",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__evaluation-framework.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__evaluation-framework.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      },
+      {
+        "title": "Regression testing",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/regression-testing",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__regression-testing.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__regression-testing.code.json",
+        "http_status": 200,
+        "code_blocks": 8
+      },
+      {
+        "title": "CI/CD integration",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/ci-integration",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__ci-integration.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__ci-integration.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "Production evaluation",
+        "url": "https://www.livekit-academy.com/courses/testing-evaluation/production-monitoring",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__production-monitoring.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__testing-evaluation__production-monitoring.code.json",
+        "http_status": 200,
+        "code_blocks": 9
+      }
+    ]
+  },
+  {
+    "id": "5.2",
+    "title": "Deploy, Monitor & Scale",
+    "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale",
+    "advertised_minutes": 210,
+    "chapter_minutes": 215,
+    "chapters": [
+      {
+        "title": "Deployment architecture",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/deployment-overview",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__deployment-overview.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__deployment-overview.code.json",
+        "http_status": 200,
+        "code_blocks": 2
+      },
+      {
+        "title": "Docker configuration",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/docker-config",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__docker-config.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__docker-config.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "LiveKit Cloud deployment",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/cloud-deploy",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__cloud-deploy.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__cloud-deploy.code.json",
+        "http_status": 200,
+        "code_blocks": 8
+      },
+      {
+        "title": "Monitoring setup",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/monitoring-setup",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__monitoring-setup.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__monitoring-setup.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      },
+      {
+        "title": "Custom metrics & data hooks",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/custom-metrics",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__custom-metrics.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__custom-metrics.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      },
+      {
+        "title": "Alerting & incident response",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/alerting",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__alerting.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__alerting.code.json",
+        "http_status": 200,
+        "code_blocks": 4
+      },
+      {
+        "title": "Multi-tenant architecture",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/multi-tenant",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__multi-tenant.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__multi-tenant.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      },
+      {
+        "title": "Auto-scaling",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/auto-scaling",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__auto-scaling.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__auto-scaling.code.json",
+        "http_status": 200,
+        "code_blocks": 4
+      },
+      {
+        "title": "Cost optimization",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/cost-optimization",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__cost-optimization.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__cost-optimization.code.json",
+        "http_status": 200,
+        "code_blocks": 4
+      },
+      {
+        "title": "Blue-green deployments",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/blue-green",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__blue-green.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__blue-green.code.json",
+        "http_status": 200,
+        "code_blocks": 4
+      },
+      {
+        "title": "Operational runbook",
+        "url": "https://www.livekit-academy.com/courses/deploy-monitor-scale/operational-runbook",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__operational-runbook.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__deploy-monitor-scale__operational-runbook.code.json",
+        "http_status": 200,
+        "code_blocks": 1
+      }
+    ]
+  },
+  {
+    "id": "5.3",
+    "title": "Self-Hosting LiveKit",
+    "url": "https://www.livekit-academy.com/courses/self-hosting",
+    "advertised_minutes": 150,
+    "chapter_minutes": 100,
+    "chapters": [
+      {
+        "title": "Self-hosting architecture & decision framework",
+        "url": "https://www.livekit-academy.com/courses/self-hosting/self-hosting-architecture",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__self-hosting-architecture.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__self-hosting-architecture.code.json",
+        "http_status": 200,
+        "code_blocks": 2
+      },
+      {
+        "title": "Kubernetes deployment & server configuration",
+        "url": "https://www.livekit-academy.com/courses/self-hosting/kubernetes-deployment",
+        "minutes": 30,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__kubernetes-deployment.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__kubernetes-deployment.code.json",
+        "http_status": 200,
+        "code_blocks": 10
+      },
+      {
+        "title": "Monitoring & security hardening",
+        "url": "https://www.livekit-academy.com/courses/self-hosting/monitoring-security",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__monitoring-security.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__monitoring-security.code.json",
+        "http_status": 200,
+        "code_blocks": 10
+      },
+      {
+        "title": "Upgrades, backup & operations",
+        "url": "https://www.livekit-academy.com/courses/self-hosting/upgrades-operations",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__upgrades-operations.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__self-hosting__upgrades-operations.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      }
+    ]
+  },
+  {
+    "id": "6.1",
+    "title": "RAG for Voice Agents",
+    "url": "https://www.livekit-academy.com/courses/rag-external-data",
+    "advertised_minutes": 120,
+    "chapter_minutes": 85,
+    "chapters": [
+      {
+        "title": "RAG architecture for voice",
+        "url": "https://www.livekit-academy.com/courses/rag-external-data/voice-rag-architecture",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__voice-rag-architecture.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__voice-rag-architecture.code.json",
+        "http_status": 200,
+        "code_blocks": 9
+      },
+      {
+        "title": "MCP tools for structured data",
+        "url": "https://www.livekit-academy.com/courses/rag-external-data/mcp-tools",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__mcp-tools.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__mcp-tools.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      },
+      {
+        "title": "Citation in spoken conversation",
+        "url": "https://www.livekit-academy.com/courses/rag-external-data/citation-voice",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__citation-voice.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__citation-voice.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      },
+      {
+        "title": "Production RAG: caching, monitoring, evaluation",
+        "url": "https://www.livekit-academy.com/courses/rag-external-data/production-rag",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__production-rag.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__rag-external-data__production-rag.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      }
+    ]
+  },
+  {
+    "id": "6.2",
+    "title": "LangChain & LangGraph",
+    "url": "https://www.livekit-academy.com/courses/langchain-langgraph",
+    "advertised_minutes": 90,
+    "chapter_minutes": 75,
+    "chapters": [
+      {
+        "title": "LangChain as LLM provider",
+        "url": "https://www.livekit-academy.com/courses/langchain-langgraph/langchain-llm-provider",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__langchain-llm-provider.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__langchain-llm-provider.code.json",
+        "http_status": 200,
+        "code_blocks": 5
+      },
+      {
+        "title": "LangGraph conversation workflows",
+        "url": "https://www.livekit-academy.com/courses/langchain-langgraph/langgraph-workflows",
+        "minutes": 30,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__langgraph-workflows.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__langgraph-workflows.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      },
+      {
+        "title": "Production patterns",
+        "url": "https://www.livekit-academy.com/courses/langchain-langgraph/production-patterns",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__production-patterns.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__langchain-langgraph__production-patterns.code.json",
+        "http_status": 200,
+        "code_blocks": 7
+      }
+    ]
+  },
+  {
+    "id": "6.3",
+    "title": "Provider Selection Guide",
+    "url": "https://www.livekit-academy.com/courses/choosing-ai-stack",
+    "advertised_minutes": 60,
+    "chapter_minutes": 60,
+    "chapters": [
+      {
+        "title": "Pipeline selection & latency budgets",
+        "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/pipeline-selection",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__pipeline-selection.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__pipeline-selection.code.json",
+        "http_status": 200,
+        "code_blocks": 6
+      },
+      {
+        "title": "STT, LLM & TTS provider comparison",
+        "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/provider-comparison",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__provider-comparison.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__provider-comparison.code.json",
+        "http_status": 200,
+        "code_blocks": 23
+      },
+      {
+        "title": "Cost analysis & use case recommendations",
+        "url": "https://www.livekit-academy.com/courses/choosing-ai-stack/cost-and-recommendations",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__cost-and-recommendations.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__choosing-ai-stack__cost-and-recommendations.code.json",
+        "http_status": 200,
+        "code_blocks": 3
+      }
+    ]
+  },
+  {
+    "id": "7.1",
+    "title": "LiveKit Expert Certification",
+    "url": "https://www.livekit-academy.com/courses/livekit-certification",
+    "advertised_minutes": 120,
+    "chapter_minutes": 160,
+    "chapters": [
+      {
+        "title": "Architecture & fundamentals",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/architecture-fundamentals",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__architecture-fundamentals.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__architecture-fundamentals.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Voice pipeline mastery",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/voice-pipeline-mastery",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__voice-pipeline-mastery.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__voice-pipeline-mastery.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Agent design & tools",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/agent-design-patterns",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__agent-design-patterns.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__agent-design-patterns.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Telephony & contact centers",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/telephony-contact-center",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__telephony-contact-center.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__telephony-contact-center.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Frontend SDK & client integration",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/frontend-sdk",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__frontend-sdk.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__frontend-sdk.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Production, deployment & scaling",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/production-operations",
+        "minutes": 20,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__production-operations.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__production-operations.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Integrations & ecosystem",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/integrations-ecosystem",
+        "minutes": 15,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__integrations-ecosystem.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__integrations-ecosystem.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      },
+      {
+        "title": "Scenario-based consulting",
+        "url": "https://www.livekit-academy.com/courses/livekit-certification/scenario-consulting",
+        "minutes": 25,
+        "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__scenario-consulting.txt",
+        "local_code": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__livekit-certification__scenario-consulting.code.json",
+        "http_status": 200,
+        "code_blocks": 0
+      }
+    ]
+  }
+]

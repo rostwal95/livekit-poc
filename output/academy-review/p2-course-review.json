@@ -1,0 +1,3484 @@
+{
+  "review_date": "2026-11-19",
+  "scope": {
+    "assigned_courses": 6,
+    "advertised_chapters": 36,
+    "inspected_public_lessons": 36,
+    "chapter_counts": {
+      "1.2": 7,
+      "1.3": 8,
+      "3.1": 9,
+      "3.2": 3,
+      "4.1": 5,
+      "4.2": 4
+    },
+    "access_summary": "Every assigned course and chapter returned public text; no login, embedded video or iframe was observed. Initial web-tool URL failures were resolved through course links and read-only HTTP retrieval.",
+    "review_method": "Read public lesson text and inspected its code examples, cross-checked book answers and printed-page index, and verified selected disputed claims against official LiveKit docs and read-only installed release source. This is content review, not course completion or a claim that examples ran.",
+    "not_performed": [
+      "Tests",
+      "Example execution",
+      "Provider or carrier calls",
+      "Hardware operation",
+      "Logins",
+      "Quiz/progress submission",
+      "Outreach",
+      "Book/source/PDF modification"
+    ],
+    "only_authored_file": "output/academy-review/p2-course-review.json",
+    "book_compared": "output/book-audit/source/audited-content.json",
+    "book_index": "output/academy-review/book-topic-index.json",
+    "site_authority": "Academy is used as a curriculum source. Site branding/copyright footer is not evidence of API correctness, affiliation or a production guarantee. Official current docs and exact pinned release source govern technical claims.",
+    "pinned_repository_packages": [
+      {
+        "name": "livekit-agents",
+        "version": "1.8.11",
+        "path": "pyproject.toml",
+        "line": 29
+      },
+      {
+        "name": "livekit-client",
+        "version": "2.23.0",
+        "path": "apps/local-console/package.json",
+        "line": 16
+      }
+    ],
+    "release_limit": "Current official web docs may be newer than either pinned package. API examples must identify their release before inclusion."
+  },
+  "recommendation": {
+    "main_point": "Make targeted additions rather than reproduce these six courses. Existing durable execution, cross-channel history, image safety, queueing and observability coverage is already strong.",
+    "first_priority_questions": [
+      "AC-P2-01",
+      "AC-P2-02",
+      "AC-P2-03",
+      "AC-P2-05",
+      "AC-P2-08"
+    ],
+    "optional_questions": [
+      "AC-P2-04",
+      "AC-P2-06",
+      "AC-P2-07"
+    ],
+    "suggested_treatment": "Five high-priority scenarios plus an optional phone/contact-center appendix or linked sidebars. The eight proposals are a candidate bank, not instructions to add eight independent chapters.",
+    "keep_unchanged": [
+      "Current book and PDF",
+      "All implemented-versus-proposed POC boundaries",
+      "P2 durable intake, exact quote confirmation and truthful ambiguous outcomes",
+      "P3's single execution authority and scripted-image qualification limits"
+    ]
+  },
+  "inventory": [
+    {
+      "course_id": "1.2",
+      "slug": "your-first-frontend",
+      "title": "Agent Frontends",
+      "url": "https://www.livekit-academy.com/courses/your-first-frontend",
+      "advertised_chapters": 7,
+      "inspected_chapters": 7,
+      "assessment": "Recommend a focused frontend/API expansion: secure token issuance, explicit dispatch and RPC/state/stream semantics. Most room, durable-text and reconnect material is already present.",
+      "access": "Public HTTP lesson text and code examples; no login used and no embedded video/iframe observed. Quiz completion, runtime execution and learning outcomes were not verified.",
+      "chapters": [
+        {
+          "number": 1,
+          "title": "Frontend architecture for the dental receptionist",
+          "url": "https://www.livekit-academy.com/courses/your-first-frontend/frontend-architecture",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__frontend-architecture.txt",
+          "judgment": "retain",
+          "existingQIDcoverage": [
+            {
+              "id": "LK-01",
+              "page": 279,
+              "title": "Core runtime objects"
+            },
+            {
+              "id": "RTC-07",
+              "page": 275,
+              "title": "Mesh SFU and MCU"
+            }
+          ],
+          "assessment": "The room/participant/track mental model is already covered. Keep the browser-to-agent architecture as a teaching example, distinguishing media tracks from higher-level text/data APIs."
+        },
+        {
+          "number": 2,
+          "title": "Connecting to the dental receptionist",
+          "url": "https://www.livekit-academy.com/courses/your-first-frontend/token-auth",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__token-auth.txt",
+          "judgment": "correct",
+          "existingQIDcoverage": [
+            {
+              "id": "P2-11",
+              "page": 109,
+              "title": "Native grants bind the original participant"
+            },
+            {
+              "id": "ROLE-05",
+              "page": 336,
+              "title": "TypeScript at a trust boundary"
+            },
+            {
+              "id": "ROLE-08",
+              "page": 339,
+              "title": "Design the minimal public SDK"
+            }
+          ],
+          "assessment": "Add a frontend token-minting threat model. The lesson keeps secrets server-side but its GET example does not authenticate the application user; caller-supplied labels cannot establish room/account authorization."
+        },
+        {
+          "number": 3,
+          "title": "Agent dispatch",
+          "url": "https://www.livekit-academy.com/courses/your-first-frontend/agent-dispatch",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__agent-dispatch.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "LK-02",
+              "page": 280,
+              "title": "Dispatch and process isolation"
+            }
+          ],
+          "assessment": "Expand explicit versus automatic dispatch, room-creation-only token configuration and validated dispatch metadata. Dispatch success still precedes agent connection, media and application readiness."
+        },
+        {
+          "number": 4,
+          "title": "Agent state & the dental session lifecycle",
+          "url": "https://www.livekit-academy.com/courses/your-first-frontend/session-management",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__session-management.txt",
+          "judgment": "correct",
+          "existingQIDcoverage": [
+            {
+              "id": "LK-01",
+              "page": 279,
+              "title": "Core runtime objects"
+            },
+            {
+              "id": "FAIL-01",
+              "page": 289,
+              "title": "Connected but silent"
+            },
+            {
+              "id": "P2-15",
+              "page": 113,
+              "title": "Prove what was generated and what was played"
+            }
+          ],
+          "assessment": "Separate transport connection, SDK agent state and business status. The lesson's six-state universal agent machine differs from the pinned SDK's AgentState literal; disconnected UI does not establish booking failure."
+        },
+        {
+          "number": 5,
+          "title": "Transcription & booking confirmations",
+          "url": "https://www.livekit-academy.com/courses/your-first-frontend/chat-transcription",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__chat-transcription.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "P2-15",
+              "page": 113,
+              "title": "Prove what was generated and what was played"
+            },
+            {
+              "id": "P2-24",
+              "page": 122,
+              "title": "A stable receiver accepts the original result"
+            },
+            {
+              "id": "RTC-06",
+              "page": 274,
+              "title": "Data channels and durable messages"
+            }
+          ],
+          "assessment": "Add streaming transcript reconciliation and recovery of missed confirmation cards. A live topic or participant attribute is a projection; the backend receipt remains the source for confirmed business outcomes."
+        },
+        {
+          "number": 6,
+          "title": "Text input for the dental receptionist",
+          "url": "https://www.livekit-academy.com/courses/your-first-frontend/text-input",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__text-input.txt",
+          "judgment": "retain",
+          "existingQIDcoverage": [
+            {
+              "id": "LK-06",
+              "page": 284,
+              "title": "Text is a full modality"
+            },
+            {
+              "id": "D2-08",
+              "page": 148,
+              "title": "Stop the default SDK path after custom intake"
+            },
+            {
+              "id": "P2-13",
+              "page": 111,
+              "title": "Durable intake must precede generation"
+            }
+          ],
+          "assessment": "The book already explains typed input, STT bypass and durable intake. Retain voice/text coexistence while avoiding the claim that typed input must always produce TTS or use the POC's opt-in intake adapter."
+        },
+        {
+          "number": 7,
+          "title": "RPC & data channels: a visual booking flow",
+          "url": "https://www.livekit-academy.com/courses/your-first-frontend/rpc-data-channels",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__rpc-data-channels.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "RTC-06",
+              "page": 274,
+              "title": "Data channels and durable messages"
+            },
+            {
+              "id": "P2-19",
+              "page": 117,
+              "title": "An exact quote needs linked confirmation"
+            },
+            {
+              "id": "ROLE-05",
+              "page": 336,
+              "title": "TypeScript at a trust boundary"
+            }
+          ],
+          "assessment": "Add authenticated RPC design and mechanism selection: RPC for bounded responses, attributes for low-frequency state and streams for text/bytes. Correct the lesson's AgentSession RPC event registration and preserve durable mutation identities."
+        }
+      ]
+    },
+    {
+      "course_id": "1.3",
+      "slug": "connect-to-phones",
+      "title": "Connect to the Phone Network",
+      "url": "https://www.livekit-academy.com/courses/connect-to-phones",
+      "advertised_chapters": 8,
+      "inspected_chapters": 8,
+      "assessment": "Recommend a short telephony foundation bridge: SIP versus RTP, caller/room/agent dispatch separation, keypad input and outbound-call uncertainty. Defer provider shopping and provisioning walkthroughs.",
+      "access": "Public HTTP lesson text and code examples; no login used and no embedded video/iframe observed. Quiz completion, runtime execution and learning outcomes were not verified.",
+      "chapters": [
+        {
+          "number": 1,
+          "title": "How telephony works in LiveKit",
+          "url": "https://www.livekit-academy.com/courses/connect-to-phones/telephony-overview",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__telephony-overview.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "RTC-01",
+              "page": 269,
+              "title": "The complete stack"
+            },
+            {
+              "id": "RTC-02",
+              "page": 270,
+              "title": "Offer answer and candidates"
+            },
+            {
+              "id": "FAIL-01",
+              "page": 289,
+              "title": "Connected but silent"
+            }
+          ],
+          "assessment": "Add the SIP-signaling/RTP-media bridge and independent evidence for trunk arrival, room placement and agent readiness. Phone participants expose useful attributes but are not interchangeable with browser identities for authorization."
+        },
+        {
+          "number": 2,
+          "title": "Buy a number & configure inbound trunk",
+          "url": "https://www.livekit-academy.com/courses/connect-to-phones/inbound-trunk",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__inbound-trunk.txt",
+          "judgment": "defer",
+          "existingQIDcoverage": [
+            {
+              "id": "ROLE-08",
+              "page": 339,
+              "title": "Design the minimal public SDK"
+            }
+          ],
+          "assessment": "Keep provider provisioning as optional lab references. Number availability, provider credentials and regional restrictions need current provider documentation; buying a number is not central to the Agents SDK interview."
+        },
+        {
+          "number": 3,
+          "title": "Dispatch rules: routing calls to agents",
+          "url": "https://www.livekit-academy.com/courses/connect-to-phones/dispatch-rules",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__dispatch-rules.txt",
+          "judgment": "correct",
+          "existingQIDcoverage": [
+            {
+              "id": "LK-02",
+              "page": 280,
+              "title": "Dispatch and process isolation"
+            }
+          ],
+          "assessment": "This is a material conceptual correction: room_prefix names SIP rooms; it does not register an agent's room-pattern subscription. Configure SIP room placement and explicit named agent dispatch separately."
+        },
+        {
+          "number": 4,
+          "title": "Recording consent with AgentTask",
+          "url": "https://www.livekit-academy.com/courses/connect-to-phones/recording-consent",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__recording-consent.txt",
+          "judgment": "correct",
+          "existingQIDcoverage": [
+            {
+              "id": "P2-19",
+              "page": 117,
+              "title": "An exact quote needs linked confirmation"
+            },
+            {
+              "id": "ROLE-03",
+              "page": 334,
+              "title": "Immutable inputs and typed ports"
+            }
+          ],
+          "assessment": "Use the pinned typed, awaited AgentTask pattern rather than Agent(tasks=[...]). Recording consent is a separate product policy/evidence stream from exact quote confirmation, and asking a question does not start or stop Egress."
+        },
+        {
+          "number": 5,
+          "title": "DTMF & keypad input",
+          "url": "https://www.livekit-academy.com/courses/connect-to-phones/dtmf",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__dtmf.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "LK-06",
+              "page": 284,
+              "title": "Text is a full modality"
+            },
+            {
+              "id": "P2-11",
+              "page": 109,
+              "title": "Native grants bind the original participant"
+            }
+          ],
+          "assessment": "Add bounded keypad collection as an optional phone-input example: correlated caller, digit/terminator limits, timeout and cancellation. Protect PIN-like data from transcript/trace exposure; verify the actual task/configuration API before copying it."
+        },
+        {
+          "number": 6,
+          "title": "HD voice & secure trunking",
+          "url": "https://www.livekit-academy.com/courses/connect-to-phones/hd-voice",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__hd-voice.txt",
+          "judgment": "correct",
+          "existingQIDcoverage": [
+            {
+              "id": "RTC-04",
+              "page": 272,
+              "title": "Transport encryption and endpoint trust"
+            },
+            {
+              "id": "RTC-05",
+              "page": 273,
+              "title": "Packets time and intelligibility"
+            }
+          ],
+          "assessment": "Correct codec/configuration assumptions using current SIP references. Do not equate room Opus support with SIP-trunk Opus negotiation or present TLS/SRTP as an end-to-end application privacy guarantee."
+        },
+        {
+          "number": 7,
+          "title": "Making outbound calls",
+          "url": "https://www.livekit-academy.com/courses/connect-to-phones/outbound-calls",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__outbound-calls.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "P2-21",
+              "page": 119,
+              "title": "Retry the provider operation under its real contract"
+            },
+            {
+              "id": "FAIL-03",
+              "page": 291,
+              "title": "A dependency times out"
+            },
+            {
+              "id": "FAIL-04",
+              "page": 292,
+              "title": "Crash after a possible effect"
+            }
+          ],
+          "assessment": "Introduce outbound dialing as a new external effect: caller readiness, create-call ambiguity, bounded ringing and safe reconciliation. A transport timeout cannot independently authorize another chargeable dial attempt."
+        },
+        {
+          "number": 8,
+          "title": "Test from your phone",
+          "url": "https://www.livekit-academy.com/courses/connect-to-phones/test-from-phone",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__test-from-phone.txt",
+          "judgment": "retain",
+          "existingQIDcoverage": [
+            {
+              "id": "SYS-05",
+              "page": 16,
+              "title": "Prove the demo"
+            },
+            {
+              "id": "FAIL-01",
+              "page": 289,
+              "title": "Connected but silent"
+            },
+            {
+              "id": "SCALE-07",
+              "page": 305,
+              "title": "SLOs for a voice and work system"
+            }
+          ],
+          "assessment": "Retain actual-phone testing as evidence distinct from a browser demo, with separate signaling, audio and agent observations. Course latency targets are examples, not measured POC SLOs or universal thresholds."
+        }
+      ]
+    },
+    {
+      "course_id": "3.1",
+      "slug": "production-telephony",
+      "title": "Production Telephony Patterns",
+      "url": "https://www.livekit-academy.com/courses/production-telephony",
+      "advertised_chapters": 9,
+      "inspected_chapters": 9,
+      "assessment": "Recommend one substantial transfer/failure treatment and recording-evidence coverage. Reuse existing capacity, retry and observability questions rather than reproduce generic production advice.",
+      "access": "Public HTTP lesson text and code examples; no login used and no embedded video/iframe observed. Quiz completion, runtime execution and learning outcomes were not verified.",
+      "chapters": [
+        {
+          "number": 1,
+          "title": "Production telephony patterns overview",
+          "url": "https://www.livekit-academy.com/courses/production-telephony/telephony-patterns",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__telephony-patterns.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "SYS-02",
+              "page": 13,
+              "title": "Draw the authority map"
+            },
+            {
+              "id": "SCALE-01",
+              "page": 299,
+              "title": "Scale the right subsystem"
+            }
+          ],
+          "assessment": "Add a compact map of phone-specific failure boundaries rather than another broad production chapter. Recording, campaign management and queueing are product choices; the course's universal recording claims should not be repeated."
+        },
+        {
+          "number": 2,
+          "title": "Warm transfers",
+          "url": "https://www.livekit-academy.com/courses/production-telephony/warm-transfers",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__warm-transfers.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "P3-01",
+              "page": 172,
+              "title": "Choose a delegation boundary"
+            },
+            {
+              "id": "P3-13",
+              "page": 184,
+              "title": "Do not retarget a result"
+            },
+            {
+              "id": "ROLE-02",
+              "page": 333,
+              "title": "Choose structured concurrency deliberately"
+            }
+          ],
+          "assessment": "Add private consultation, caller hold, answer/acceptance, merge and owned cleanup as an explicit warm-transfer state machine. Distinguish this live call workflow from asynchronous P3 specialist delegation."
+        },
+        {
+          "number": 3,
+          "title": "Cold transfers",
+          "url": "https://www.livekit-academy.com/courses/production-telephony/cold-transfers",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__cold-transfers.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "P2-10",
+              "page": 108,
+              "title": "Timeout means the waiter stopped waiting"
+            },
+            {
+              "id": "P3-13",
+              "page": 184,
+              "title": "Do not retarget a result"
+            },
+            {
+              "id": "FAIL-03",
+              "page": 291,
+              "title": "A dependency times out"
+            }
+          ],
+          "assessment": "Add SIP REFER outcome semantics and provider-dependent visibility. A successful forwarding result can mean an IVR or voicemail answered; it is not human receipt or guaranteed issue resolution."
+        },
+        {
+          "number": 4,
+          "title": "Call recording & compliance",
+          "url": "https://www.livekit-academy.com/courses/production-telephony/call-recording",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__call-recording.txt",
+          "judgment": "correct",
+          "existingQIDcoverage": [
+            {
+              "id": "P2-15",
+              "page": 113,
+              "title": "Prove what was generated and what was played"
+            },
+            {
+              "id": "RTC-04",
+              "page": 272,
+              "title": "Transport encryption and endpoint trust"
+            }
+          ],
+          "assessment": "Propose recording lifecycle and evidence, not compliance certification. Consent policy, recording start, finalized object and access/retention are distinct; a separate Egress process still consumes system capacity."
+        },
+        {
+          "number": 5,
+          "title": "Building the outbound system",
+          "url": "https://www.livekit-academy.com/courses/production-telephony/outbound-system",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__outbound-system.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "P2-21",
+              "page": 119,
+              "title": "Retry the provider operation under its real contract"
+            },
+            {
+              "id": "SCALE-03",
+              "page": 301,
+              "title": "Backpressure that reaches admission"
+            },
+            {
+              "id": "SCALE-05",
+              "page": 303,
+              "title": "Fairness and useful progress"
+            }
+          ],
+          "assessment": "Translate admission/backpressure into bounded outbound call initiation and live concurrency. Treat campaign schedules and retry identities as durable application state; in-memory example counters are not distributed enforcement."
+        },
+        {
+          "number": 6,
+          "title": "Queue management",
+          "url": "https://www.livekit-academy.com/courses/production-telephony/queue-management",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__queue-management.txt",
+          "judgment": "retain",
+          "existingQIDcoverage": [
+            {
+              "id": "SCALE-03",
+              "page": 301,
+              "title": "Backpressure that reaches admission"
+            },
+            {
+              "id": "SCALE-05",
+              "page": 303,
+              "title": "Fairness and useful progress"
+            },
+            {
+              "id": "P1-29",
+              "page": 55,
+              "title": "Why this architecture instead of a workflow platform"
+            }
+          ],
+          "assessment": "Fairness and bounded acceptance are already covered. A phone-queue sidebar may add aging, cancellation and durable callback promises; a heap or room move alone does not provide durable queue ownership."
+        },
+        {
+          "number": 7,
+          "title": "Error handling & retries",
+          "url": "https://www.livekit-academy.com/courses/production-telephony/error-handling",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__error-handling.txt",
+          "judgment": "correct",
+          "existingQIDcoverage": [
+            {
+              "id": "FAIL-03",
+              "page": 291,
+              "title": "A dependency times out"
+            },
+            {
+              "id": "FAIL-04",
+              "page": 292,
+              "title": "Crash after a possible effect"
+            },
+            {
+              "id": "P2-21",
+              "page": 119,
+              "title": "Retry the provider operation under its real contract"
+            }
+          ],
+          "assessment": "Retain backoff and circuit breaking, but distinguish known rejection from possible acceptance before redial. The lesson inconsistently classifies busy responses; choose policy from operation semantics and current carrier behavior."
+        },
+        {
+          "number": 8,
+          "title": "Monitoring & analytics",
+          "url": "https://www.livekit-academy.com/courses/production-telephony/monitoring",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__monitoring.txt",
+          "judgment": "retain",
+          "existingQIDcoverage": [
+            {
+              "id": "LK-08",
+              "page": 286,
+              "title": "Provider modes and observability"
+            },
+            {
+              "id": "SCALE-07",
+              "page": 305,
+              "title": "SLOs for a voice and work system"
+            },
+            {
+              "id": "P3-30",
+              "page": 201,
+              "title": "Turn observations into safe diagnostics"
+            }
+          ],
+          "assessment": "Map call-leg/room/participant correlation to existing observability coverage. Validate webhook origin, replay and missing-event recovery before deriving CDRs; keeping only an in-memory record until hangup is not a durable event log."
+        },
+        {
+          "number": 9,
+          "title": "Load testing",
+          "url": "https://www.livekit-academy.com/courses/production-telephony/load-testing",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__load-testing.txt",
+          "judgment": "retain",
+          "existingQIDcoverage": [
+            {
+              "id": "P2-29",
+              "page": 127,
+              "title": "A workload is evidence within a declared envelope"
+            },
+            {
+              "id": "SCALE-02",
+              "page": 300,
+              "title": "Capacity arithmetic"
+            },
+            {
+              "id": "SCALE-07",
+              "page": 305,
+              "title": "SLOs for a voice and work system"
+            }
+          ],
+          "assessment": "The book already treats measurements as bounded evidence. Keep signaling-only SIPp tests distinct from audio, inference, recording and actual provider-capacity tests; example concurrency/utilization values are not guarantees."
+        }
+      ]
+    },
+    {
+      "course_id": "3.2",
+      "slug": "contact-center",
+      "title": "AI-Powered Contact Centers",
+      "url": "https://www.livekit-academy.com/courses/contact-center",
+      "advertised_chapters": 3,
+      "inspected_chapters": 3,
+      "assessment": "Recommend distinguishing conversational handoff, specialist delegation and human transfer. Add trust-aware context delivery; defer CRM-vendor-specific API tutorials.",
+      "access": "Public HTTP lesson text and code examples; no login used and no embedded video/iframe observed. Quiz completion, runtime execution and learning outcomes were not verified.",
+      "chapters": [
+        {
+          "number": 1,
+          "title": "AI-native routing & multi-agent orchestration",
+          "url": "https://www.livekit-academy.com/courses/contact-center/ai-native-routing",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__ai-native-routing.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "P3-01",
+              "page": 172,
+              "title": "Choose a delegation boundary"
+            },
+            {
+              "id": "P3-24",
+              "page": 195,
+              "title": "Keep the conversation responsive"
+            },
+            {
+              "id": "ROLE-03",
+              "page": 334,
+              "title": "Immutable inputs and typed ports"
+            }
+          ],
+          "assessment": "Add session-local persona handoff versus room dispatch versus external specialist delegation. Pass explicit typed state/history as needed; do not promise automatic preservation of all context or replace authorization with intent routing."
+        },
+        {
+          "number": 2,
+          "title": "Human escalation & context transfer",
+          "url": "https://www.livekit-academy.com/courses/contact-center/human-escalation",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__human-escalation.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "P3-13",
+              "page": 184,
+              "title": "Do not retarget a result"
+            },
+            {
+              "id": "P3-15",
+              "page": 186,
+              "title": "Commit an action atomically"
+            },
+            {
+              "id": "P2-24",
+              "page": 122,
+              "title": "A stable receiver accepts the original result"
+            }
+          ],
+          "assessment": "Add human escalation as two coordinated effects: live call transfer and an authenticated, minimized context/screen-pop delivery. A generated summary is an untrusted aid, not proof that identity was verified or a refund approved."
+        },
+        {
+          "number": 3,
+          "title": "CRM integration & caller context",
+          "url": "https://www.livekit-academy.com/courses/contact-center/crm-integration",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__crm-integration.txt",
+          "judgment": "correct",
+          "existingQIDcoverage": [
+            {
+              "id": "SYS-08",
+              "page": 19,
+              "title": "Adversarial data and authority"
+            },
+            {
+              "id": "P3-04",
+              "page": 175,
+              "title": "Authenticate service scope"
+            },
+            {
+              "id": "P3-11",
+              "page": 182,
+              "title": "Verify facts after parsing"
+            }
+          ],
+          "assessment": "ANI/phone-number matching is context enrichment, not customer authentication. Lookup must be deadline-bounded; CRM text must remain data, and writeback needs a durable identity/recovery contract rather than an unconstrained post-call side effect."
+        }
+      ]
+    },
+    {
+      "course_id": "4.1",
+      "slug": "multimodal-agents",
+      "title": "Multimodal Agents",
+      "url": "https://www.livekit-academy.com/courses/multimodal-agents",
+      "advertised_chapters": 5,
+      "inspected_chapters": 5,
+      "assessment": "Recommend bounded live visual context and large-file transport as a new dimension beyond scripted image extraction. Defer avatar vendor integration and unverified cost tables.",
+      "access": "Public HTTP lesson text and code examples; no login used and no embedded video/iframe observed. Quiz completion, runtime execution and learning outcomes were not verified.",
+      "chapters": [
+        {
+          "number": 1,
+          "title": "Multimodal architecture & cost model",
+          "url": "https://www.livekit-academy.com/courses/multimodal-agents/multimodal-architecture",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__multimodal-architecture.txt",
+          "judgment": "correct",
+          "existingQIDcoverage": [
+            {
+              "id": "RTC-01",
+              "page": 269,
+              "title": "The complete stack"
+            },
+            {
+              "id": "SCALE-02",
+              "page": 300,
+              "title": "Capacity arithmetic"
+            },
+            {
+              "id": "P3-25",
+              "page": 196,
+              "title": "Treat images as untrusted evidence"
+            }
+          ],
+          "assessment": "Retain modality/cost tradeoffs but distinguish track, packet and stream abstractions. Fixed image-token tables and percentage claims vary by model/detail/session and should be replaced by an explicit measured budget."
+        },
+        {
+          "number": 2,
+          "title": "Vision agents",
+          "url": "https://www.livekit-academy.com/courses/multimodal-agents/vision-agents",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__vision-agents.txt",
+          "judgment": "expand",
+          "existingQIDcoverage": [
+            {
+              "id": "P3-25",
+              "page": 196,
+              "title": "Treat images as untrusted evidence"
+            },
+            {
+              "id": "D3-14",
+              "page": 232,
+              "title": "Bound image cost before copying and decompression"
+            },
+            {
+              "id": "P3-09",
+              "page": 180,
+              "title": "Separate the clocks and deadlines"
+            }
+          ],
+          "assessment": "Add live-frame sampling, scene age and frame/source identity beyond the book's bounded single-image fixture. Correct unsupported VideoFrameOptions examples; use current docs and the installed release's actual video_sampler/RoomOptions surfaces."
+        },
+        {
+          "number": 3,
+          "title": "Avatar integration",
+          "url": "https://www.livekit-academy.com/courses/multimodal-agents/avatar-integration",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__avatar-integration.txt",
+          "judgment": "defer",
+          "existingQIDcoverage": [
+            {
+              "id": "LK-03",
+              "page": 281,
+              "title": "Trace the voice pipeline"
+            },
+            {
+              "id": "FAIL-01",
+              "page": 289,
+              "title": "Connected but silent"
+            }
+          ],
+          "assessment": "Avatar vendor setup and personas are optional specialization. A small lifecycle note can cover extra service latency, A/V alignment, failure isolation and voice-only fallback without claiming fixed bandwidth or universal startup order."
+        },
+        {
+          "number": 4,
+          "title": "Document processing & screen sharing",
+          "url": "https://www.livekit-academy.com/courses/multimodal-agents/document-screen",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__document-screen.txt",
+          "judgment": "correct",
+          "existingQIDcoverage": [
+            {
+              "id": "RTC-06",
+              "page": 274,
+              "title": "Data channels and durable messages"
+            },
+            {
+              "id": "P3-25",
+              "page": 196,
+              "title": "Treat images as untrusted evidence"
+            },
+            {
+              "id": "D3-14",
+              "page": 232,
+              "title": "Bound image cost before copying and decompression"
+            }
+          ],
+          "assessment": "A complete PDF is not an arbitrarily sized reliable packet. Use bounded byte streams or authenticated object references and validate full receipt; bind screen annotations to the correct captured frame and viewport revision."
+        },
+        {
+          "number": 5,
+          "title": "Building a complete multimodal agent",
+          "url": "https://www.livekit-academy.com/courses/multimodal-agents/multimodal-capstone",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__multimodal-capstone.txt",
+          "judgment": "retain",
+          "existingQIDcoverage": [
+            {
+              "id": "ROLE-07",
+              "page": 338,
+              "title": "Tests that establish a contract"
+            },
+            {
+              "id": "SYS-05",
+              "page": 16,
+              "title": "Prove the demo"
+            },
+            {
+              "id": "P3-25",
+              "page": 196,
+              "title": "Treat images as untrusted evidence"
+            }
+          ],
+          "assessment": "Retain modality-isolated tests followed by transition, latency and cost checks. The POC's scripted image fixture does not establish general OCR quality, continuous vision or a provider-backed multimodal production system."
+        }
+      ]
+    },
+    {
+      "course_id": "4.2",
+      "slug": "physical-ai",
+      "title": "Physical AI: Voice on Hardware",
+      "url": "https://www.livekit-academy.com/courses/physical-ai",
+      "advertised_chapters": 4,
+      "inspected_chapters": 4,
+      "assessment": "Defer the hardware course as a specialization. Retain a brief physical-command counterexample to strengthen the existing transport-versus-durable-acceptance lesson.",
+      "access": "Public HTTP lesson text and code examples; no login used and no embedded video/iframe observed. Quiz completion, runtime execution and learning outcomes were not verified.",
+      "chapters": [
+        {
+          "number": 1,
+          "title": "Embedded voice architecture",
+          "url": "https://www.livekit-academy.com/courses/physical-ai/embedded-architecture",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__embedded-architecture.txt",
+          "judgment": "defer",
+          "existingQIDcoverage": [
+            {
+              "id": "RTC-05",
+              "page": 273,
+              "title": "Packets time and intelligibility"
+            },
+            {
+              "id": "SCALE-03",
+              "page": 301,
+              "title": "Backpressure that reaches admission"
+            }
+          ],
+          "assessment": "Embedded I2S wiring, GPIO and board selection are outside the primary Python/TypeScript Agents role. Preserve only transferable bounded-buffer, codec and lifecycle lessons; do not endorse the Arduino-style SDK snippet as a tested hardware recipe."
+        },
+        {
+          "number": 2,
+          "title": "Wake word detection & audio streaming",
+          "url": "https://www.livekit-academy.com/courses/physical-ai/wake-word-streaming",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__wake-word-streaming.txt",
+          "judgment": "defer",
+          "existingQIDcoverage": [
+            {
+              "id": "LK-04",
+              "page": 282,
+              "title": "Turn taking and durable intake"
+            },
+            {
+              "id": "SCALE-02",
+              "page": 300,
+              "title": "Capacity arithmetic"
+            }
+          ],
+          "assessment": "Wake-word engines and battery calculations are optional hardware specialization. Useful transferable questions concern privacy, pre-roll and wake-to-response latency; sensitivity/power values require actual device-specific measurement."
+        },
+        {
+          "number": 3,
+          "title": "Hardware control via agent tools",
+          "url": "https://www.livekit-academy.com/courses/physical-ai/device-control",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__device-control.txt",
+          "judgment": "correct",
+          "existingQIDcoverage": [
+            {
+              "id": "RTC-06",
+              "page": 274,
+              "title": "Data channels and durable messages"
+            },
+            {
+              "id": "P2-21",
+              "page": 119,
+              "title": "Retry the provider operation under its real contract"
+            },
+            {
+              "id": "SYS-08",
+              "page": 19,
+              "title": "Adversarial data and authority"
+            }
+          ],
+          "assessment": "Keep a short counterexample: reliable packet retransmission is not actuator execution, physical safety or durable command acceptance. Device-side authorization, command identity, expiry, state confirmation and local safety controls need separate design."
+        },
+        {
+          "number": 4,
+          "title": "Production: OTA updates & fleet management",
+          "url": "https://www.livekit-academy.com/courses/physical-ai/production-embedded",
+          "access": "public_text",
+          "http_status": 200,
+          "video_or_iframe_elements": 0,
+          "local_text": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__production-embedded.txt",
+          "judgment": "defer",
+          "existingQIDcoverage": [
+            {
+              "id": "SCALE-06",
+              "page": 304,
+              "title": "Deploy while sessions are active"
+            },
+            {
+              "id": "ROLE-09",
+              "page": 340,
+              "title": "Compatibility as a behavior contract"
+            }
+          ],
+          "assessment": "Signed firmware, OTA rollback and fleet management are valuable but peripheral to this JD. Retain optional reading links; board-specific firmware/deployment claims need their own evidence and should not expand the core book."
+        }
+      ]
+    }
+  ],
+  "existingQIDcoverage": [
+    {
+      "topic": "Rooms, dispatch, voice pipeline and text",
+      "ids": [
+        "LK-01",
+        "LK-02",
+        "LK-03",
+        "LK-06"
+      ],
+      "assessment": "Retain core coverage; add frontend issuing/routing and SIP-specific distinctions.",
+      "questions": [
+        {
+          "id": "LK-01",
+          "page": 279,
+          "title": "Core runtime objects"
+        },
+        {
+          "id": "LK-02",
+          "page": 280,
+          "title": "Dispatch and process isolation"
+        },
+        {
+          "id": "LK-03",
+          "page": 281,
+          "title": "Trace the voice pipeline"
+        },
+        {
+          "id": "LK-06",
+          "page": 284,
+          "title": "Text is a full modality"
+        }
+      ]
+    },
+    {
+      "topic": "Reconnect, durable intake and projection recovery",
+      "ids": [
+        "RTC-06",
+        "LK-07",
+        "P2-05",
+        "P2-17",
+        "P2-24",
+        "D2-08"
+      ],
+      "assessment": "Already more rigorous than course examples; avoid another generic persistence chapter.",
+      "questions": [
+        {
+          "id": "RTC-06",
+          "page": 274,
+          "title": "Data channels and durable messages"
+        },
+        {
+          "id": "LK-07",
+          "page": 285,
+          "title": "Reconnect and rehydrate"
+        },
+        {
+          "id": "P2-05",
+          "page": 103,
+          "title": "Commit before acknowledging input"
+        },
+        {
+          "id": "P2-17",
+          "page": 115,
+          "title": "Rehydration is an explicitly timed read"
+        },
+        {
+          "id": "P2-24",
+          "page": 122,
+          "title": "A stable receiver accepts the original result"
+        },
+        {
+          "id": "D2-08",
+          "page": 148,
+          "title": "Stop the default SDK path after custom intake"
+        }
+      ]
+    },
+    {
+      "topic": "Interruption, generation and playback",
+      "ids": [
+        "P2-12",
+        "P2-13",
+        "P2-14",
+        "P2-15",
+        "P2-16"
+      ],
+      "assessment": "Retain the acceptance/generation/playback/consent separation; UI state is not business truth.",
+      "questions": [
+        {
+          "id": "P2-12",
+          "page": 110,
+          "title": "Final recognition belongs to one source turn"
+        },
+        {
+          "id": "P2-13",
+          "page": 111,
+          "title": "Durable intake must precede generation"
+        },
+        {
+          "id": "P2-14",
+          "page": 112,
+          "title": "Generation scheduling and completion are different"
+        },
+        {
+          "id": "P2-15",
+          "page": 113,
+          "title": "Prove what was generated and what was played"
+        },
+        {
+          "id": "P2-16",
+          "page": 114,
+          "title": "Interrupt the intended response"
+        }
+      ]
+    },
+    {
+      "topic": "Delegate, validate and apply",
+      "ids": [
+        "P3-01",
+        "P3-11",
+        "P3-13",
+        "P3-15",
+        "P3-24"
+      ],
+      "assessment": "Strong asynchronous specialist coverage; live call transfer and human desktop context are separate missing examples.",
+      "questions": [
+        {
+          "id": "P3-01",
+          "page": 172,
+          "title": "Choose a delegation boundary"
+        },
+        {
+          "id": "P3-11",
+          "page": 182,
+          "title": "Verify facts after parsing"
+        },
+        {
+          "id": "P3-13",
+          "page": 184,
+          "title": "Do not retarget a result"
+        },
+        {
+          "id": "P3-15",
+          "page": 186,
+          "title": "Commit an action atomically"
+        },
+        {
+          "id": "P3-24",
+          "page": 195,
+          "title": "Keep the conversation responsive"
+        }
+      ]
+    },
+    {
+      "topic": "Bounded images and factual evidence",
+      "ids": [
+        "P3-25",
+        "P3-26",
+        "D3-14"
+      ],
+      "assessment": "Strong immutable image-fixture coverage; add scene freshness and large-file transport without claiming general OCR or continuous vision.",
+      "questions": [
+        {
+          "id": "P3-25",
+          "page": 196,
+          "title": "Treat images as untrusted evidence"
+        },
+        {
+          "id": "P3-26",
+          "page": 197,
+          "title": "Keep image execution outside policy authority"
+        },
+        {
+          "id": "D3-14",
+          "page": 232,
+          "title": "Bound image cost before copying and decompression"
+        }
+      ]
+    },
+    {
+      "topic": "Capacity, testing, metrics and release evidence",
+      "ids": [
+        "P2-29",
+        "SCALE-02",
+        "SCALE-03",
+        "SCALE-05",
+        "SCALE-07",
+        "ROLE-07"
+      ],
+      "assessment": "Retain and cross-link. SIPp, fixed utilization numbers and provider benchmarks do not replace workload-specific evidence.",
+      "questions": [
+        {
+          "id": "P2-29",
+          "page": 127,
+          "title": "A workload is evidence within a declared envelope"
+        },
+        {
+          "id": "SCALE-02",
+          "page": 300,
+          "title": "Capacity arithmetic"
+        },
+        {
+          "id": "SCALE-03",
+          "page": 301,
+          "title": "Backpressure that reaches admission"
+        },
+        {
+          "id": "SCALE-05",
+          "page": 303,
+          "title": "Fairness and useful progress"
+        },
+        {
+          "id": "SCALE-07",
+          "page": 305,
+          "title": "SLOs for a voice and work system"
+        },
+        {
+          "id": "ROLE-07",
+          "page": 338,
+          "title": "Tests that establish a contract"
+        }
+      ]
+    },
+    {
+      "topic": "Endpoint trust and E2EE",
+      "ids": [
+        "RTC-04",
+        "SYS-08"
+      ],
+      "assessment": "Already covered. Add only a cross-reference showing the agent must decrypt authorized media; do not duplicate a basic encryption chapter.",
+      "questions": [
+        {
+          "id": "RTC-04",
+          "page": 272,
+          "title": "Transport encryption and endpoint trust"
+        },
+        {
+          "id": "SYS-08",
+          "page": 19,
+          "title": "Adversarial data and authority"
+        }
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GAP-FRONTEND",
+      "priority": "high",
+      "title": "Frontend capabilities and realtime APIs",
+      "existingQIDcoverage": [
+        "P2-11",
+        "RTC-06",
+        "ROLE-05",
+        "LK-02"
+      ],
+      "missing": "The book explains trusted native construction and durable messages but lacks an end-to-end token issuer threat model and a concrete RPC/state/stream selection exercise.",
+      "recommendation": "Add two original scenario questions, reusing the existing confirmation and replay discussion.",
+      "proposed_questions": [
+        "AC-P2-01",
+        "AC-P2-02"
+      ],
+      "jd_relevance": "Python/TypeScript API design, SDK usability, text channels and trustworthy stateful agents."
+    },
+    {
+      "id": "GAP-SIP-DISPATCH",
+      "priority": "high",
+      "title": "PSTN-to-room-to-agent boundary",
+      "existingQIDcoverage": [
+        "LK-02",
+        "FAIL-01",
+        "RTC-01"
+      ],
+      "missing": "General dispatch/WebRTC coverage does not explain separate SIP trunk acceptance, room-placement rules and named agent dispatch.",
+      "recommendation": "Add one phone call path and a failure tree. Include DTMF as a bounded-input followup, not a full carrier tutorial.",
+      "proposed_questions": [
+        "AC-P2-03"
+      ],
+      "jd_relevance": "A concrete realtime integration demonstrates clear API boundaries and diagnosis."
+    },
+    {
+      "id": "GAP-TRANSFER",
+      "priority": "high",
+      "title": "Live transfer versus conversational handoff versus delegated work",
+      "existingQIDcoverage": [
+        "P3-01",
+        "P3-13",
+        "P3-24"
+      ],
+      "missing": "P3's asynchronous result workflow is not a live call transfer. Private consultation, merge, failed transfer and caller departure need distinct treatment.",
+      "recommendation": "Add a state/sequence question distinguishing cold REFER, warm consultation and SDK agent handoff.",
+      "proposed_questions": [
+        "AC-P2-05"
+      ],
+      "jd_relevance": "Agent orchestration, async lifecycle ownership and end-user recovery."
+    },
+    {
+      "id": "GAP-VISUAL",
+      "priority": "high",
+      "title": "Time-varying visual evidence and file transport",
+      "existingQIDcoverage": [
+        "P3-25",
+        "P3-26",
+        "D3-14",
+        "RTC-06"
+      ],
+      "missing": "The current PNG fixture discussion does not address changing camera/screen scenes, model frame sampling or safe transfer of larger documents.",
+      "recommendation": "Add a bounded live-visual design exercise that explicitly preserves the current scripted-image scope.",
+      "proposed_questions": [
+        "AC-P2-08"
+      ],
+      "jd_relevance": "Context management, multimodal Agents APIs, async resource bounds and typed output usability."
+    },
+    {
+      "id": "GAP-RECORDING",
+      "priority": "medium",
+      "title": "Recording operation and artifact lifecycle",
+      "existingQIDcoverage": [
+        "P2-15",
+        "RTC-04"
+      ],
+      "missing": "Playback observations do not explain recording permission, recorder admission, capture state and finalized output.",
+      "recommendation": "Optional telephony extension question. Keep legal requirements as externally supplied policy and label all Egress implementation as hypothetical.",
+      "proposed_questions": [
+        "AC-P2-06"
+      ],
+      "jd_relevance": "A useful external-effect and SDK workflow case, with less direct priority than frontend/text/durable execution."
+    },
+    {
+      "id": "GAP-DIAL",
+      "priority": "medium",
+      "title": "Outbound call ambiguity under real admission limits",
+      "existingQIDcoverage": [
+        "P2-21",
+        "FAIL-03",
+        "FAIL-04",
+        "SCALE-03"
+      ],
+      "missing": "Existing uncertainty/backpressure principles lack a concrete billable dial/answer/ringing example.",
+      "recommendation": "Prefer a phone-specific scenario box linked to existing questions, avoiding a duplicate retry chapter.",
+      "proposed_questions": [
+        "AC-P2-04"
+      ],
+      "jd_relevance": "Practical async/API failure reasoning; not evidence that carrier calling is implemented."
+    },
+    {
+      "id": "GAP-HUMAN-CONTEXT",
+      "priority": "medium",
+      "title": "Trust-aware CRM and human handoff",
+      "existingQIDcoverage": [
+        "SYS-08",
+        "P3-11",
+        "P3-13"
+      ],
+      "missing": "A generated handoff summary and a human desktop delivery create identity/factuality problems not illustrated by the policy specialist alone.",
+      "recommendation": "Use a short optional scenario; do not add Salesforce/HubSpot SDK walkthroughs.",
+      "proposed_questions": [
+        "AC-P2-07"
+      ],
+      "jd_relevance": "Agent context, tool boundaries and developer-facing error/recovery semantics."
+    }
+  ],
+  "technicalcautions": [
+    {
+      "id": "CAUTION-01",
+      "severity": "high",
+      "title": "SIP room placement is not agent selection by room prefix",
+      "lesson_urls": [
+        "https://www.livekit-academy.com/courses/connect-to-phones/dispatch-rules",
+        "https://www.livekit-academy.com/courses/connect-to-phones/telephony-overview"
+      ],
+      "observed": "The lessons repeatedly describe an agent registered for a room-name pattern and imply matching the SIP room prefix dispatches that agent.",
+      "correction": "Treat the SIP rule as room placement. Configure agent dispatch separately, for example through room_config.agents with a registered agent_name. Validate the selected trunk/rule, room, dispatched job and actual agent readiness independently.",
+      "primarysources": [
+        "PS-SIPRULE",
+        "PS-DISPATCH"
+      ],
+      "book_implication": "Extend LK-02 with an explicit two-stage diagram; this is a gap in phone-specific explanation, not a correction to the book's current durable execution model.",
+      "evidence": [
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__dispatch-rules.txt",
+          "needle": "room_prefix",
+          "line": 95
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__dispatch-rules.txt",
+          "needle": "pattern",
+          "line": 39
+        }
+      ]
+    },
+    {
+      "id": "CAUTION-02",
+      "severity": "high",
+      "title": "Several code examples do not match the pinned Agents API",
+      "lesson_urls": [
+        "https://www.livekit-academy.com/courses/connect-to-phones/recording-consent",
+        "https://www.livekit-academy.com/courses/your-first-frontend/rpc-data-channels",
+        "https://www.livekit-academy.com/courses/multimodal-agents/vision-agents",
+        "https://www.livekit-academy.com/courses/your-first-frontend/session-management"
+      ],
+      "observed": "Consent uses Agent(tasks=[...]); RPC uses an AgentSession rpc_request event; vision adds VideoFrameOptions/video_frame_options; UI state is presented as a universal six-state agent enum.",
+      "correction": "The inspected Agent constructor has no tasks argument. AgentTask is awaited in active agent context. RPC registers on Room/LocalParticipant. The installed RoomInputOptions has video_enabled but no video_frame_options; use actual RoomOptions/video_input and AgentSession video_sampler surfaces as appropriate. Separate connection/UI state from the pinned AgentState literal.",
+      "primarysources": [
+        "PS-PINNED",
+        "PS-TASKS",
+        "PS-RPC",
+        "PS-VIDEO",
+        "PS-SESSION"
+      ],
+      "book_implication": "Treat Academy snippets as conceptual prompts until reconciled to the exact maintained package. Do not replace the book's tested SDK composition with these examples.",
+      "evidence": [
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+          "line": 48
+        },
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+          "line": 890
+        },
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/events.py",
+          "line": 309
+        },
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/events.py",
+          "line": 328
+        },
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/room_io/types.py",
+          "line": 242
+        }
+      ]
+    },
+    {
+      "id": "CAUTION-03",
+      "severity": "high",
+      "title": "Keeping the signing secret server-side does not authorize the requester",
+      "lesson_urls": [
+        "https://www.livekit-academy.com/courses/your-first-frontend/token-auth",
+        "https://www.livekit-academy.com/courses/your-first-frontend/agent-dispatch"
+      ],
+      "observed": "The token routes mint credentials without application-user authentication. The dispatch route accepts the requested room and participant identity from query parameters.",
+      "correction": "Authenticate the application user, resolve room/business bindings server-side, explicitly restrict grants and prevent arbitrary dispatch choices. A user-supplied name is a display label until validated by an independent identity policy. Short token lifetime does not repair missing issuance authorization.",
+      "primarysources": [
+        "PS-AUTH",
+        "PS-TOKENS"
+      ],
+      "book_implication": "Add a concrete frontend token-endpoint threat-model question alongside P2-11 and ROLE-05.",
+      "evidence": [
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__token-auth.txt",
+          "needle": "export async function GET",
+          "line": 76
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__agent-dispatch.txt",
+          "needle": "roomName",
+          "line": 90
+        }
+      ]
+    },
+    {
+      "id": "CAUTION-04",
+      "severity": "high",
+      "title": "Reliable packets neither carry arbitrary files nor prove physical execution",
+      "lesson_urls": [
+        "https://www.livekit-academy.com/courses/multimodal-agents/document-screen",
+        "https://www.livekit-academy.com/courses/physical-ai/device-control"
+      ],
+      "observed": "Document upload sends a whole file through one publishData packet. Both document and device-control prose treat reliable delivery as a guarantee of complete arrival.",
+      "correction": "The documented reliable user-payload ceiling is 15 KiB, and reliable packets remain best effort with disconnection gaps. Use a bounded file/byte stream or authenticated object reference for documents. A hardware command also needs authorization, stable identity, expiry, an application receipt and independent device-state/safety handling.",
+      "primarysources": [
+        "PS-PACKETS",
+        "PS-BYTES"
+      ],
+      "book_implication": "Extend RTC-06 with a file-transfer example; retain physical control only as an optional counterexample. Do not weaken existing P2 durable acceptance.",
+      "evidence": [
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__document-screen.txt",
+          "needle": "guarantee",
+          "line": 191
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__device-control.txt",
+          "needle": "guarantee",
+          "line": 148
+        }
+      ]
+    },
+    {
+      "id": "CAUTION-05",
+      "severity": "medium",
+      "title": "SIP codec configuration cannot be inferred from room Opus support",
+      "lesson_urls": [
+        "https://www.livekit-academy.com/courses/connect-to-phones/hd-voice",
+        "https://www.livekit-academy.com/courses/connect-to-phones/telephony-overview"
+      ],
+      "observed": "The HD chapter prescribes allowed_codecs with Opus on SIPInboundTrunkInfo and promises a richer path without distinguishing trunk negotiation from room codecs.",
+      "correction": "Current SIP references use media configuration, list G.722/PCMU/PCMA as defaults and document supported additions separately. The inspected protocol stub does not accept allowed_codecs. Read SDP and current trunk/provider support; an SDP example containing offered Opus is not proof that it is selected or supported by the deployed SIP bridge.",
+      "primarysources": [
+        "PS-CODECS",
+        "PS-SIPAPI"
+      ],
+      "book_implication": "Teach negotiation and measurement, with version-labelled configuration instead of copying this constructor.",
+      "evidence": [
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/protocol/sip.pyi",
+          "line": 404
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__hd-voice.txt",
+          "needle": "allowed_codecs",
+          "line": 66
+        }
+      ]
+    },
+    {
+      "id": "CAUTION-06",
+      "severity": "high",
+      "title": "Caller enrichment and generated summaries are not authentication or authority",
+      "lesson_urls": [
+        "https://www.livekit-academy.com/courses/contact-center/crm-integration",
+        "https://www.livekit-academy.com/courses/contact-center/human-escalation"
+      ],
+      "observed": "CRM integration takes the caller phone from room metadata and merges retrieved profile content into instructions. Escalation examples trust an LLM-generated summary containing verification/authorization assertions.",
+      "correction": "Use an explicitly selected SIP participant's documented attributes or a trusted application binding; room metadata has no inherent phone-number contract. Treat number matching as enrichment, keep retrieved text separate from trusted policy, and label verification/action claims from authoritative records rather than allowing a summary to establish them.",
+      "primarysources": [
+        "PS-SIPPART",
+        "PS-ATTRS"
+      ],
+      "book_implication": "A small trust-aware handoff question adds value; preserve SYS-08 and P3-11 rather than teaching that CRM context automatically verifies the caller.",
+      "evidence": [
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__crm-integration.txt",
+          "needle": "caller_phone = session.room.metadata",
+          "line": 164
+        },
+        {
+          "path": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__human-escalation.txt",
+          "needle": "verified",
+          "line": 333
+        }
+      ]
+    }
+  ],
+  "additional_cautions": [
+    {
+      "topic": "Recording and compliance language",
+      "assessment": "Do not repeat universal claims that every production call must be recorded or that encryption/process separation establishes compliance. Legal policy depends on the deployment; no legal requirements were independently audited here.",
+      "related_sources": [
+        "PS-EGRESS"
+      ]
+    },
+    {
+      "topic": "E2EE endpoint trust",
+      "assessment": "A decrypting agent and its configured STT/vision/model providers can receive plaintext. A room token, attribute or E2EE label is neither durable business acceptance nor new action permission.",
+      "related_sources": [
+        "PS-E2EE"
+      ]
+    },
+    {
+      "topic": "Warm/cold wording",
+      "assessment": "Warm transfer adds consultation before connecting parties. Cold forwarding need not erase application context if an independent desktop delivery exists. Neither successful forwarding nor answer implies a human accepted responsibility.",
+      "related_sources": [
+        "PS-WARM",
+        "PS-COLD"
+      ]
+    },
+    {
+      "topic": "Backpressure and observability examples",
+      "assessment": "In-memory campaign/queue/CDR samples illustrate algorithms, not durable distributed ownership. Do not import their unconstrained retry or end-only persistence semantics over P1/P2's existing contracts.",
+      "related_questions": [
+        "P1-29",
+        "P2-21",
+        "SCALE-03",
+        "SCALE-05"
+      ]
+    },
+    {
+      "topic": "Numeric targets and modality tables",
+      "assessment": "Course image-token, latency, codec-quality, battery, bandwidth, capacity and call-quality numbers are illustrative until measured for the exact model/network/device. Some navigation/course references also lag the catalog; no completion or certification is implied."
+    }
+  ],
+  "optional_defer": [
+    {
+      "topic": "Phone number purchasing and carrier dashboards",
+      "reason": "Provider- and geography-specific setup is less relevant than SDK design and failure boundaries.",
+      "course_ids": [
+        "1.3"
+      ]
+    },
+    {
+      "topic": "Avatar vendor personas and frontend video layout",
+      "reason": "Useful specialization; prioritise lifecycle/fallback reasoning over Tavus-specific setup.",
+      "course_ids": [
+        "4.1"
+      ]
+    },
+    {
+      "topic": "ESP32 wiring, I2S configuration and wake-word engines",
+      "reason": "Firmware/hardware expertise is not a central requirement of this Python/TypeScript Agents role.",
+      "course_ids": [
+        "4.2"
+      ]
+    },
+    {
+      "topic": "OTA, secure boot and fleet firmware operations",
+      "reason": "Retain optional reading; do not expand the core preparation book into an embedded systems manual.",
+      "course_ids": [
+        "4.2"
+      ]
+    },
+    {
+      "topic": "Full CRM/campaign/contact-center product tutorials",
+      "reason": "Use one trust-aware context or transfer scenario; vendor API integration and complete IVR replacement are larger product scopes.",
+      "course_ids": [
+        "3.1",
+        "3.2"
+      ]
+    }
+  ],
+  "proposed_questions": [
+    {
+      "id": "AC-P2-01",
+      "title": "A token endpoint is an authorization boundary",
+      "priority": "high",
+      "question": "Your frontend asks for a room token and supplies roomName and participantName. Which values can the server trust, and what must it decide itself?",
+      "answer": [
+        "A valid room JWT proves that a server signed particular claims. It does not prove that the person calling your token endpoint was entitled to those claims. I would authenticate the application user first, resolve their permitted account and conversation on the server, choose an allowed participant identity, and grant only the required room/media/data capabilities. A display name can remain user supplied, but it must not select another customer's case or grant administrative powers. Signing credentials stay server-side; keeping them there is one control, not the whole authorization design.",
+        "I would also authorize agent selection and validate bounded dispatch metadata. The room grant lets a participant connect; it does not grant a model or browser permission to confirm a booking. For an interview failure case, I would submit a valid logged-in user's request naming another account's room, then check that issuance fails before dispatch. This is a proposed frontend exercise. The POC's trusted P2 construction and separate exact confirmation are related examples, not evidence that its console implements the Academy React template."
+      ],
+      "followups": [
+        {
+          "question": "Does a short token lifetime remove the need to authenticate this endpoint?",
+          "answer": "No. An attacker can obtain another fresh token while issuance remains open. Token lifetime limits one credential's validity; the issuer still needs application authentication, authorization, bounded admission and a documented revocation/recovery policy."
+        },
+        {
+          "question": "Can a participant attribute safely contain a role?",
+          "answer": "It can carry a backend-issued claim if the design prevents the participant from rewriting it and verifies its trusted origin. A mutable self-asserted attribute cannot grant business authority. Prefer a server-side principal binding for consequential operations."
+        }
+      ],
+      "existingQIDcoverage": [
+        "P2-11",
+        "ROLE-05",
+        "LK-02"
+      ],
+      "new_value": "Concrete frontend credential-minting threat model is absent from the current book's lower-level trusted construction discussion.",
+      "course_lessons": [
+        "https://www.livekit-academy.com/courses/your-first-frontend/token-auth",
+        "https://www.livekit-academy.com/courses/your-first-frontend/agent-dispatch"
+      ],
+      "primarysources": [
+        "PS-AUTH",
+        "PS-TOKENS",
+        "PS-ATTRS"
+      ],
+      "implementation_status": "Proposed design exercise; no new frontend implementation or test was executed."
+    },
+    {
+      "id": "AC-P2-02",
+      "title": "Choose RPC, synchronized state or a durable command",
+      "priority": "high",
+      "question": "A browser can call an availability RPC and display a confirmation topic. How would you prevent those convenient realtime APIs from becoming an unsafe booking protocol?",
+      "answer": [
+        "I would use a bounded RPC for a request whose response is useful immediately, such as a permitted availability read. The handler still checks caller identity, application scope, schema, size and deadline; a room connection is not a general authorization grant. Low-frequency participant attributes can expose a compact current UI state, while text streams can carry incremental text. These mechanisms make the interface responsive, but none replaces a retained business command and its receipt.",
+        "A booking click should submit an exact proposal through the same authenticated case authority used by other channels, with a stable command identity and expected revision. After a response timeout, the UI reconciles that original command instead of displaying failure or generating a second booking. A missed confirmation card is recovered by an authorized backend read. I would test a successful commit followed by a dropped RPC response, then reconnect and verify one original result. In the POC, exact quote confirmation and retained P2 evidence demonstrate this boundary; the proposed RPC layer would be a separate adapter."
+      ],
+      "followups": [
+        {
+          "question": "Where is an RPC method registered in the pinned Python room SDK?",
+          "answer": "Register with room.local_participant.register_rpc_method(method_name, handler), or its decorator form. The handler receives RpcInvocationData, including caller_identity, and returns str. Call through room.local_participant.perform_rpc(...); response_timeout is in seconds in this Python API. RPC is separate from AgentSession events; a timeout does not prove the handler or an external effect stopped."
+        },
+        {
+          "question": "Would synchronized attributes make the booking confirmation durable?",
+          "answer": "They help late joiners see current participant state within that room. They do not provide the business transaction, immutable command receipt or recovery identity. Render them as projections and reconcile important outcomes through the case authority."
+        }
+      ],
+      "existingQIDcoverage": [
+        "RTC-06",
+        "P2-19",
+        "P2-24",
+        "ROLE-05"
+      ],
+      "new_value": "Adds LiveKit-specific frontend mechanism selection and an ambiguous RPC response example without duplicating inbox theory.",
+      "course_lessons": [
+        "https://www.livekit-academy.com/courses/your-first-frontend/rpc-data-channels",
+        "https://www.livekit-academy.com/courses/your-first-frontend/chat-transcription"
+      ],
+      "primarysources": [
+        "PS-RPC",
+        "PS-ATTRS"
+      ],
+      "implementation_status": "Proposed RPC adapter; the existing POC does not gain this capability from the course example."
+    },
+    {
+      "id": "AC-P2-03",
+      "title": "A phone call needs two distinct dispatch decisions",
+      "priority": "high",
+      "question": "A SIP caller appears in the expected room, but the named agent never joins. What does that observation establish, and what would you inspect next?",
+      "answer": [
+        "The call has crossed at least the trunk and SIP-room placement boundaries. That does not establish named agent dispatch. The SIP dispatch rule chooses the caller's room, while room agent configuration chooses which registered agent job should enter it. A room prefix is a naming policy, not a subscription pattern that automatically registers an agent. I would inspect the matched trunk/rule, room configuration, registered agent_name, job acceptance and application readiness as separate observations.",
+        "I would then confirm which participant is the SIP caller and correlate its call identifiers with carrier and room logs. If the agent joins but the caller hears silence, I would move to media direction, negotiated codec, subscriptions and inference readiness instead of recreating dispatch rules. For a bounded test matrix, vary only one layer: wrong agent name, no dispatch entry, worker unavailable, then media blocked after successful join. This is interview preparation for a telephony extension; the POC's native rooms and simulated SMS do not establish a working PSTN integration."
+      ],
+      "followups": [
+        {
+          "question": "Can token-based dispatch repair an already existing room?",
+          "answer": "The current documented token room configuration is applied when the room is created. For a room that already exists, use an explicitly authorized dispatch API path rather than assuming a reconnecting participant's token replays room creation settings."
+        },
+        {
+          "question": "What changes when collecting keypad digits?",
+          "answer": "Bind collection to the intended caller and supported DTMF events, cap digits and waiting time, and define cancellation/terminator behavior. Do not log PIN-like values or infer customer authentication merely because a SIP participant supplied digits."
+        }
+      ],
+      "existingQIDcoverage": [
+        "LK-02",
+        "FAIL-01",
+        "RTC-01"
+      ],
+      "new_value": "The current book does not explain SIP room placement versus named agent dispatch.",
+      "course_lessons": [
+        "https://www.livekit-academy.com/courses/connect-to-phones/telephony-overview",
+        "https://www.livekit-academy.com/courses/connect-to-phones/dispatch-rules",
+        "https://www.livekit-academy.com/courses/connect-to-phones/dtmf"
+      ],
+      "primarysources": [
+        "PS-SIPRULE",
+        "PS-DISPATCH",
+        "PS-SIPPART"
+      ],
+      "implementation_status": "PSTN/DTMF extension, outside the implemented native voice/text and simulated-SMS scope."
+    },
+    {
+      "id": "AC-P2-04",
+      "title": "A dial timeout is not permission to call twice",
+      "priority": "medium",
+      "question": "Your outbound-call request times out just as the customer's phone starts ringing. How would you design retry, capacity and user-visible status?",
+      "answer": [
+        "I would retain the original authorized dial intent, immutable destination, local operation identity and any provider call correlation before treating a timeout as retryable. The timeout establishes that this waiter stopped receiving a result; it does not establish that no billable call leg exists. I would use only the provider's documented reconciliation and idempotency contract. If the supported evidence cannot resolve the possible call, the application retains unknown rather than silently dialing again through another trunk.",
+        "Admission should bound both call-start rate and live call concurrency, with separate budgets for control and observation. A timed-out waiter must not free a slot while a known physical call is still active. Calling policy, suppression, destination and current permission must be checked for a genuinely new attempt. I would test response loss after dialing, delayed answer, a process restart and a later cancellation request. These are proposed phone scenarios: they transfer lessons from P2 provider operations, not a claim that the POC's fake-SMS retry contract applies to SIP carriers."
+      ],
+      "followups": [
+        {
+          "question": "Is exponential backoff enough to make the retry safe?",
+          "answer": "It reduces retry pressure but does not establish nonacceptance. First decide whether another external call is permitted under the original operation's contract; only then choose bounded timing, jitter, current permission and carrier-capacity policy."
+        },
+        {
+          "question": "What should be counted as success?",
+          "answer": "Track request admission, provider call creation, ringing, answer and application completion separately. A voicemail or IVR can answer a call. A transport-level result must not be presented as a verified human conversation or completed business task."
+        }
+      ],
+      "existingQIDcoverage": [
+        "P2-21",
+        "FAIL-03",
+        "FAIL-04",
+        "SCALE-03"
+      ],
+      "new_value": "Phone-specific adaptation of existing uncertainty and backpressure concepts; useful as a scenario box rather than a duplicate foundational chapter.",
+      "course_lessons": [
+        "https://www.livekit-academy.com/courses/connect-to-phones/outbound-calls",
+        "https://www.livekit-academy.com/courses/production-telephony/outbound-system",
+        "https://www.livekit-academy.com/courses/production-telephony/error-handling"
+      ],
+      "primarysources": [
+        "PS-SIPAPI",
+        "PS-SIPPART"
+      ],
+      "implementation_status": "Hypothetical outbound dial workflow; no carrier execution was reviewed or run."
+    },
+    {
+      "id": "AC-P2-05",
+      "title": "Transfer a live call without inventing a human receipt",
+      "priority": "high",
+      "question": "How would you choose between a cold transfer, a warm transfer and a specialist agent handoff, and recover when the human never answers?",
+      "answer": [
+        "A cold phone transfer forwards the existing SIP caller through the provider, commonly using REFER; it can end the caller's LiveKit session. A warm transfer keeps ownership while the caller waits, creates a private consultation with the intended human, supplies bounded context, then connects the parties after the workflow permits it. A session-local conversational agent handoff changes active behavior, while P3 specialist delegation produces a separately validated asynchronous result. These are distinct control and evidence boundaries.",
+        "For a warm workflow I would track caller hold, destination dial, human answer, consultation, merge and cleanup explicitly. The private briefing must not leak to the caller or another room. On no answer, return to the caller with a truthful fallback rather than abandoning them on hold. I would bind the original caller identity and separately authorize the transfer destination. A generated summary is an aid to the human, not authority to approve a refund. This is a proposed telephony exercise, not a feature implied by the POC's durable result receiver."
+      ],
+      "followups": [
+        {
+          "question": "Does successful REFER prove that a human has taken responsibility?",
+          "answer": "No. Provider-reported forwarding success can include voicemail or an IVR, and LiveKit no longer observes the forwarded call afterward. Record the exact supported transfer outcome; obtain a separate application acknowledgement if human ownership matters."
+        },
+        {
+          "question": "What if the caller hangs up during the private briefing?",
+          "answer": "Cancel or close owned consultation/dial work through the supported workflow, observe actual resource termination and avoid merging an orphaned human leg. Keep the original transfer observations; a local cancelled waiter does not prove that the external leg stopped."
+        }
+      ],
+      "existingQIDcoverage": [
+        "P3-01",
+        "P3-13",
+        "ROLE-02"
+      ],
+      "new_value": "Live call consultation/privacy/merge semantics are absent from the current asynchronous delegation coverage.",
+      "course_lessons": [
+        "https://www.livekit-academy.com/courses/production-telephony/warm-transfers",
+        "https://www.livekit-academy.com/courses/production-telephony/cold-transfers",
+        "https://www.livekit-academy.com/courses/contact-center/human-escalation"
+      ],
+      "primarysources": [
+        "PS-WARM",
+        "PS-COLD"
+      ],
+      "implementation_status": "Proposed live call workflow, not implemented POC specialist delegation."
+    },
+    {
+      "id": "AC-P2-06",
+      "title": "Recording permission and a recording artifact are different facts",
+      "priority": "medium",
+      "question": "An agent asked for recording consent, but the recording API timed out. What state should the application retain and what must it avoid claiming?",
+      "answer": [
+        "I would separate the product's consent policy and evidence from the recording operation itself. A typed conversational task can collect a result, but the application must validate and retain whatever evidence its policy requires. That outcome is not a booking confirmation, a general customer authorization or proof that recording started. The recorder is a separate media consumer; starting it, observing active capture and verifying a finalized output object are separate facts.",
+        "I would retain a stable recording intent and correlate supported Egress identifiers and status observations before choosing a recovery action. An unknown start must not become a second recorder or a false promise that nothing was captured. Access, retention and redaction are deliberate product requirements, with legal policy supplied by the organization rather than inferred from a tutorial. I would test refusal, delayed consent, start-response loss, partial output and finalization failure. This is a design exercise; the POC's playback evidence and demo video do not establish an implemented compliant call-recording service."
+      ],
+      "followups": [
+        {
+          "question": "Should a recording task be configured as Agent(tasks=[...])?",
+          "answer": "That constructor is not supported by the inspected Agents 1.8.11 source. Use the release's typed task/await workflow in an active agent context, and keep its conversational result separate from application-owned recording admission and lifecycle."
+        },
+        {
+          "question": "Does a separate Egress process eliminate performance and privacy concerns?",
+          "answer": "It separates ownership but still requires resource budgeting, correct subscriptions and output handling. Recordings also introduce another plaintext consumer and retained artifact. Neither process separation nor encryption labels establish that every desired policy is satisfied."
+        }
+      ],
+      "existingQIDcoverage": [
+        "P2-15",
+        "RTC-04",
+        "ROLE-03"
+      ],
+      "new_value": "Adds recording operation/output lifecycle, distinct from existing speech generation/playback observations.",
+      "course_lessons": [
+        "https://www.livekit-academy.com/courses/connect-to-phones/recording-consent",
+        "https://www.livekit-academy.com/courses/production-telephony/call-recording"
+      ],
+      "primarysources": [
+        "PS-TASKS",
+        "PS-EGRESS"
+      ],
+      "implementation_status": "Optional recording extension; no legal-compliance or implemented Egress claim."
+    },
+    {
+      "id": "AC-P2-07",
+      "title": "Carry context to a human without promoting it to authority",
+      "priority": "medium",
+      "question": "A CRM match and an LLM-generated handoff summary say the caller is verified and a refund is approved. What would you trust, transmit and recheck?",
+      "answer": [
+        "I would distinguish enrichment, verification and action authority. A phone-number match can suggest a CRM record; it does not independently authenticate the person speaking. Retrieved CRM notes, transcripts and generated summaries are data that may be stale, mistaken or adversarial. Verification status and approved actions should be read from trusted application records, with source identifiers and timestamps, instead of accepted because a summary states them confidently.",
+        "For the handoff I would send only the context the intended recipient needs, authenticated and bound to the original caller/case. The human's desktop projection and the live phone transfer are separate deliveries; one can succeed while the other fails. A summary should mark unresolved questions and possible external effects explicitly. I would deadline-bound enrichment so a slow CRM does not block a greeting, and give durable writeback its own command identity and recovery contract. This extends the book's source/authority distinction to a contact-center scenario; it is not a claim that the POC integrates Salesforce or HubSpot."
+      ],
+      "followups": [
+        {
+          "question": "Which LiveKit value contains a SIP caller's phone number?",
+          "answer": "The documented SIP participant attributes include sip.phoneNumber when available; it can be hidden. Room metadata is application-defined, so a phone number belongs there only under an explicit trusted contract. Select the intended participant rather than the first arbitrary room member."
+        },
+        {
+          "question": "Should the full transcript become the next agent's system instructions?",
+          "answer": "No. Pass a bounded, explicitly scoped history or summary as data, while retaining the next agent's trusted policy. Preserve original records separately and label generated conclusions. Do not let a context transfer widen tools or grant mutation authority."
+        }
+      ],
+      "existingQIDcoverage": [
+        "SYS-08",
+        "P3-04",
+        "P3-11",
+        "P3-13"
+      ],
+      "new_value": "Contact-center trust and coordinated human delivery add a useful concrete scenario, though this can remain a sidebar if space is constrained.",
+      "course_lessons": [
+        "https://www.livekit-academy.com/courses/contact-center/crm-integration",
+        "https://www.livekit-academy.com/courses/contact-center/human-escalation",
+        "https://www.livekit-academy.com/courses/contact-center/ai-native-routing"
+      ],
+      "primarysources": [
+        "PS-SIPPART",
+        "PS-ATTRS"
+      ],
+      "implementation_status": "Hypothetical CRM/human handoff; existing scripted P3 authority checks are the analogy."
+    },
+    {
+      "id": "AC-P2-08",
+      "title": "Bound visual context and prove which scene was analyzed",
+      "priority": "high",
+      "question": "How would you add screen understanding and document uploads while preventing stale visual answers, unbounded work and false delivery guarantees?",
+      "answer": [
+        "I would make each visual observation identifiable: authorized source participant, track or upload reference, capture time, frame/document digest and viewport or scene revision where needed. A bounded sampler retains only the permitted recent context; it does not make old imagery current. If the answer depends on a screen that has changed, the agent should request or analyze a fresh observation. Images and extracted text remain untrusted data, and a model's confidence or schema-valid output does not establish factual accuracy.",
+        "A PDF should use a bounded byte stream or authenticated object reference, not one arbitrarily large reliable data packet. Validate actual bytes and declared size, bound parsing/decompression away from the audio loop, and record completion only after the selected receipt checks succeed. Screen annotations should refer to their source frame and expire rather than point at a moved button. I would test partial upload, reconnect, switched screen source, oversized input and stale annotation. The POC already has a bounded scripted PNG fixture; continuous video and general document execution remain proposed extensions."
+      ],
+      "followups": [
+        {
+          "question": "Would E2EE keep the vision agent from seeing the user's content?",
+          "answer": "An agent that analyzes encrypted media must be an authorized decrypting endpoint with matching keys. E2EE can protect content from intermediaries; it does not hide plaintext from the agent or downstream model providers that process it. Draw that trust boundary explicitly."
+        },
+        {
+          "question": "How would you choose frame rate and resolution?",
+          "answer": "Start from the task's detail and freshness requirements, set resource/token ceilings and measure latency, bytes and actual model usage. Avoid fixed per-frame token tables. Dropping stale frames can be safer than processing every queued image after the scene changed."
+        }
+      ],
+      "existingQIDcoverage": [
+        "P3-25",
+        "P3-26",
+        "D3-14",
+        "RTC-06",
+        "RTC-04"
+      ],
+      "new_value": "Adds time-varying visual provenance and large-file transport beyond the existing single immutable PNG evidence path.",
+      "course_lessons": [
+        "https://www.livekit-academy.com/courses/multimodal-agents/vision-agents",
+        "https://www.livekit-academy.com/courses/multimodal-agents/document-screen",
+        "https://www.livekit-academy.com/courses/multimodal-agents/multimodal-capstone"
+      ],
+      "primarysources": [
+        "PS-VIDEO",
+        "PS-BYTES",
+        "PS-E2EE"
+      ],
+      "implementation_status": "Proposed live vision/upload integration; no continuous vision, E2EE, general OCR or durable document execution claim."
+    }
+  ],
+  "primarysources": [
+    {
+      "id": "PS-AUTH",
+      "title": "Frontend authentication",
+      "url": "https://docs.livekit.io/frontends/build/authentication/",
+      "scope": "Backend token issuance and TokenSource workflows.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-TOKENS",
+      "title": "Access tokens and grants",
+      "url": "https://docs.livekit.io/frontends/reference/tokens-grants/",
+      "scope": "Room identity and explicit capability grants.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-DISPATCH",
+      "title": "Agent dispatch",
+      "url": "https://docs.livekit.io/agents/server/agent-dispatch/",
+      "scope": "Named dispatch, API dispatch and token configuration applied on room creation.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-SIPRULE",
+      "title": "SIP dispatch rule",
+      "url": "https://docs.livekit.io/telephony/accepting-calls/dispatch-rule/",
+      "scope": "Room selection versus room_config.agents.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-SIPAPI",
+      "title": "SIP APIs",
+      "url": "https://docs.livekit.io/reference/telephony/sip-api/",
+      "scope": "Current configuration/schema reference.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-SIPPART",
+      "title": "SIP participant",
+      "url": "https://docs.livekit.io/reference/telephony/sip-participant/",
+      "scope": "Phone-number/call identity attributes and caller kind.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-RPC",
+      "title": "Remote procedure calls",
+      "url": "https://docs.livekit.io/transport/data/rpc/",
+      "scope": "Registration, caller identity and request/response failure semantics.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-ATTRS",
+      "title": "Participant attributes and metadata",
+      "url": "https://docs.livekit.io/transport/data/state/participant-attributes/",
+      "scope": "Synced state, update permissions and frequency.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-PACKETS",
+      "title": "Data packets",
+      "url": "https://docs.livekit.io/transport/data/packets/",
+      "scope": "Packet limits and best-effort reliable transport.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-BYTES",
+      "title": "Sending files and bytes",
+      "url": "https://docs.livekit.io/transport/data/byte-streams/",
+      "scope": "Bounded stream reading, partial failure and late-join limits.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-TASKS",
+      "title": "Tasks and task groups",
+      "url": "https://docs.livekit.io/agents/logic/tasks/",
+      "scope": "Typed tasks awaited from an active agent context.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-WARM",
+      "title": "Agent-assisted warm transfer",
+      "url": "https://docs.livekit.io/telephony/features/transfers/warm/",
+      "scope": "Private consultation, context briefing and merge/failure workflow.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-COLD",
+      "title": "Call forwarding",
+      "url": "https://docs.livekit.io/telephony/features/transfers/cold/",
+      "scope": "SIP REFER, provider status, forwarding and transfer-failure semantics.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-VIDEO",
+      "title": "Video input and output",
+      "url": "https://docs.livekit.io/agents/multimodality/vision/video/",
+      "scope": "Sampling versus live input and model support.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-SESSION",
+      "title": "Agent session",
+      "url": "https://docs.livekit.io/agents/logic/sessions/",
+      "scope": "Session options and the configurable video sampler.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-E2EE",
+      "title": "E2EE with agents",
+      "url": "https://docs.livekit.io/transport/encryption/agents/",
+      "scope": "The agent is a decrypting endpoint with explicitly delivered matching keys.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-CODECS",
+      "title": "Audio codec negotiation and support",
+      "url": "https://docs.livekit.io/reference/telephony/codecs-negotiation/",
+      "scope": "SIP codecs are distinct from room media codecs; use documented media configuration.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-EGRESS",
+      "title": "Egress overview",
+      "url": "https://docs.livekit.io/transport/media/ingress-egress/egress/",
+      "scope": "Recording service architecture and current/deprecated API distinction.",
+      "checked_on": "2026-11-19",
+      "authority": "Official LiveKit documentation; current web snapshot, not automatically the repository's pinned API."
+    },
+    {
+      "id": "PS-PINNED",
+      "title": "Locally installed official livekit-agents distribution, version 1.8.11",
+      "url": null,
+      "checked_on": "2026-11-19",
+      "authority": "Read-only source inspection of the installed release; no imports or execution.",
+      "version_pin": {
+        "path": "pyproject.toml",
+        "line": 29
+      },
+      "version_metadata": {
+        "path": ".venv/lib/python3.14/site-packages/livekit_agents-1.8.11.dist-info/METADATA",
+        "line": 3
+      },
+      "evidence": [
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+          "line": 48,
+          "sha256": "1c245e0599d1ff4ac6742e196a35a9a6af899c8e9e4512157cfc73b9c4b0298b"
+        },
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/agent.py",
+          "line": 890,
+          "sha256": "1c245e0599d1ff4ac6742e196a35a9a6af899c8e9e4512157cfc73b9c4b0298b"
+        },
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/room_io/types.py",
+          "line": 110,
+          "sha256": "9571ef1a48ed5af5160acb717d9304b844b3b97528976bc7ca10d2dcb05ddaed"
+        },
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/room_io/types.py",
+          "line": 242,
+          "sha256": "9571ef1a48ed5af5160acb717d9304b844b3b97528976bc7ca10d2dcb05ddaed"
+        },
+        {
+          "path": ".venv/lib/python3.14/site-packages/livekit/agents/voice/events.py",
+          "line": 309,
+          "sha256": "21569589b7f16d77a1ba23d063cb46b0f365cbad961747e581e1736b60e87c87"
+        }
+      ],
+      "limitation": "The tagged GitHub page was not retrievable through the browser; local distribution source is the pinned compatibility evidence. Current docs may describe later APIs."
+    }
+  ],
+  "limitations": [
+    "No proprietary course videos or inaccessible resources were inferred; the observed pages exposed public text/code only.",
+    "Public examples were inspected, not compiled, executed or qualified.",
+    "Official docs are current at review time; the pinned package inspection determines claims about the local POC's exact API.",
+    "This review does not establish new carrier/SIP, recording, CRM, E2EE, avatar, hardware or continuous-vision functionality in the POC.",
+    "No personal interview experience, production traffic, legal compliance or course certification is claimed."
+  ],
+  "validation": {
+    "json_valid": true,
+    "courses": 6,
+    "chapters": 36,
+    "chapter_judgments": {
+      "retain": 7,
+      "expand": 13,
+      "correct": 11,
+      "defer": 5
+    },
+    "proposed_questions": 8,
+    "answered_followups": 16,
+    "book_question_references_valid": true,
+    "snapshot_paths_exist": true,
+    "caution_evidence_lines_verified": true,
+    "application_tests_run": false,
+    "book_mutated": false
+  },
+  "quiz_audit": {
+    "review_date": "2026-11-19",
+    "scope": "All public quiz props for the six assigned courses and 36 lessons, including every prompt, all options and explanations. Read from the public-page RSC/Next.js extraction; no interactive answers were submitted.",
+    "publication_policy": "This section identifies conceptual problems by lesson and item ordinal. It deliberately contains no answer key, correct-option indexes or copied quiz prompts/options.",
+    "learning_recommendation": [
+      "Use these quizzes for retrieval practice, not as authoritative API documentation or evidence of practical competence. Restate the assumptions and commit point behind each response.",
+      "Before memorizing an API or configuration rule, check the pinned release and official docs. The quiz often repeats a lesson's simplifications more absolutely than the lesson text.",
+      "After a quiz, practise one failure scenario: an authorized token for the wrong room, SIP room placement without named dispatch, an ambiguous external call, lost confirmation after reconnect, or a changing video frame.",
+      "Separate facts a quiz can test from deployment claims it cannot establish: model accuracy, legal compliance, resource isolation, end-to-end latency, durable storage and physical safety.",
+      "Keep hardware/avatar study optional for this role. Their quiz issues reinforce existing lifecycle and trust principles without justifying a new hardware chapter."
+    ],
+    "material_findings": [
+      {
+        "id": "QUIZ-P2-01",
+        "severity": "medium",
+        "topic": "Frontend data-plane and grant scope",
+        "locations": [
+          {
+            "course_id": "1.2",
+            "course_slug": "your-first-frontend",
+            "lesson_slug": "frontend-architecture",
+            "title": "Frontend architecture for the dental receptionist",
+            "url": "https://www.livekit-academy.com/courses/your-first-frontend/frontend-architecture",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__frontend-architecture.quiz.json",
+            "quiz_questions_reviewed": 2,
+            "option_sets_reviewed": 2,
+            "explanations_reviewed": 2,
+            "quiz_sha256": "f67989f831e73926de211bc63f60bbe9fab8cc93b67d66deb96b624aaf38d087",
+            "quiz_item_ordinals": [
+              2
+            ]
+          },
+          {
+            "course_id": "1.2",
+            "course_slug": "your-first-frontend",
+            "lesson_slug": "token-auth",
+            "title": "Connecting to the dental receptionist",
+            "url": "https://www.livekit-academy.com/courses/your-first-frontend/token-auth",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__token-auth.quiz.json",
+            "quiz_questions_reviewed": 2,
+            "option_sets_reviewed": 2,
+            "explanations_reviewed": 2,
+            "quiz_sha256": "fa8d168ae5dd331c3034cedcebb0c6cd2e1305f0e80c6fd092f3742a17347a14",
+            "quiz_item_ordinals": [
+              2
+            ]
+          }
+        ],
+        "assessment": "The explanations blur live UI updates, durable booking status and what the media-subscribe grant controls.",
+        "teaching_correction": "Realtime state/topics can avoid polling while connected, but important status still needs an authoritative recovery path. canSubscribe governs media-track subscription; do not teach it as a general authorization gate for receiving application data. Resolve effective token defaults and application scope separately.",
+        "primarysources": [
+          "PS-TOKENS",
+          "PS-ATTRS"
+        ],
+        "related_existing_questions": [
+          "RTC-06",
+          "P2-24",
+          "P2-11"
+        ]
+      },
+      {
+        "id": "QUIZ-P2-02",
+        "severity": "high",
+        "topic": "Room-prefix agent dispatch",
+        "locations": [
+          {
+            "course_id": "1.3",
+            "course_slug": "connect-to-phones",
+            "lesson_slug": "dispatch-rules",
+            "title": "Dispatch rules: routing calls to agents",
+            "url": "https://www.livekit-academy.com/courses/connect-to-phones/dispatch-rules",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__dispatch-rules.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "1e251acfffa21877248e856364007a4c85bc4d5e659f0be1299ff1441465b7be",
+            "quiz_item_ordinals": [
+              3
+            ]
+          },
+          {
+            "course_id": "1.3",
+            "course_slug": "connect-to-phones",
+            "lesson_slug": "outbound-calls",
+            "title": "Making outbound calls",
+            "url": "https://www.livekit-academy.com/courses/connect-to-phones/outbound-calls",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__outbound-calls.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "1d64191bbe1339c4de60b96206f4e1c89533a9fc991ccd7e2e4fe4bdd5604b21",
+            "quiz_item_ordinals": [
+              2
+            ]
+          }
+        ],
+        "assessment": "The supplied explanations require the agent to register for a room-name pattern. This repeats the material routing error in the lessons.",
+        "teaching_correction": "SIP room naming and named agent dispatch are separate decisions. Configure room_config.agents or another supported explicit dispatch path, and check agent_name and actual readiness rather than a name-prefix match.",
+        "primarysources": [
+          "PS-SIPRULE",
+          "PS-DISPATCH"
+        ],
+        "related_cautions": [
+          "CAUTION-01"
+        ]
+      },
+      {
+        "id": "QUIZ-P2-03",
+        "severity": "high",
+        "topic": "Task completion and nonexistent implicit task lists",
+        "locations": [
+          {
+            "course_id": "1.3",
+            "course_slug": "connect-to-phones",
+            "lesson_slug": "recording-consent",
+            "title": "Recording consent with AgentTask",
+            "url": "https://www.livekit-academy.com/courses/connect-to-phones/recording-consent",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__recording-consent.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "ba6561bd7aeeb1af601f1641d614e45fe2674a45a14032d6108a920120a11983",
+            "quiz_item_ordinals": [
+              1
+            ]
+          }
+        ],
+        "assessment": "The explanation describes automatic continuation through an Agent tasks list, matching the unsupported constructor used in the lesson.",
+        "teaching_correction": "Use the pinned typed task/await contract. Completion resolves that task's result; a caller or supported task-group workflow defines what happens next. A recording task result is not recording admission or general consent authority.",
+        "primarysources": [
+          "PS-PINNED",
+          "PS-TASKS"
+        ],
+        "related_cautions": [
+          "CAUTION-02"
+        ]
+      },
+      {
+        "id": "QUIZ-P2-04",
+        "severity": "high",
+        "topic": "Undocumented DTMF-forwarding prerequisite",
+        "locations": [
+          {
+            "course_id": "1.3",
+            "course_slug": "connect-to-phones",
+            "lesson_slug": "dtmf",
+            "title": "DTMF & keypad input",
+            "url": "https://www.livekit-academy.com/courses/connect-to-phones/dtmf",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__dtmf.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "43894180339abdbcfd1c1e00fb5d9c6dd7817fdf2604e478a845a126a990d7d9",
+            "quiz_item_ordinals": [
+              1
+            ]
+          }
+        ],
+        "assessment": "The quiz treats receiving keypad events as disabled by default until an attribute named sip.sendDtmf is enabled.",
+        "teaching_correction": "The official receiving-DTMF guide describes SIP tones being relayed as room events, including sip_dtmf_received. It does not establish that claimed attribute toggle/default. Distinguish receiving input from explicitly publishing DTMF to a remote IVR and check the selected server/provider contract.",
+        "primarysources": [
+          "QPS-DTMF"
+        ],
+        "verification": "Unsupported by the cited current official receive-event contract; no carrier test was run."
+      },
+      {
+        "id": "QUIZ-P2-05",
+        "severity": "high",
+        "topic": "Codec and encryption boundaries",
+        "locations": [
+          {
+            "course_id": "1.3",
+            "course_slug": "connect-to-phones",
+            "lesson_slug": "hd-voice",
+            "title": "HD voice & secure trunking",
+            "url": "https://www.livekit-academy.com/courses/connect-to-phones/hd-voice",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__hd-voice.quiz.json",
+            "quiz_questions_reviewed": 2,
+            "option_sets_reviewed": 2,
+            "explanations_reviewed": 2,
+            "quiz_sha256": "7b331f695a74d5ccc14540a38aaf0d98ff09839fd3d7ade86fc0bd321c03e8cb",
+            "quiz_item_ordinals": [
+              1,
+              2
+            ]
+          },
+          {
+            "course_id": "1.3",
+            "course_slug": "connect-to-phones",
+            "lesson_slug": "telephony-overview",
+            "title": "How telephony works in LiveKit",
+            "url": "https://www.livekit-academy.com/courses/connect-to-phones/telephony-overview",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__telephony-overview.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "a9790719d1f4502942b8dfcfa28c50c4c098dcae50335c3bd990cd669508a452",
+            "quiz_item_ordinals": [
+              3
+            ]
+          }
+        ],
+        "assessment": "The explanations turn codec-quality examples and a trunk-leg SRTP requirement into broader audio/privacy guarantees.",
+        "teaching_correction": "Do not infer SIP Opus support from room Opus support. Verify supported codecs and negotiated SDP. Requiring SRTP protects the configured leg; it does not prove that the whole PSTN path or downstream STT/model processing never exposes plaintext.",
+        "primarysources": [
+          "PS-CODECS",
+          "PS-SIPAPI",
+          "PS-E2EE"
+        ],
+        "related_cautions": [
+          "CAUTION-05"
+        ]
+      },
+      {
+        "id": "QUIZ-P2-06",
+        "severity": "high",
+        "topic": "Separate process is not guaranteed resource isolation",
+        "locations": [
+          {
+            "course_id": "3.1",
+            "course_slug": "production-telephony",
+            "lesson_slug": "call-recording",
+            "title": "Call recording & compliance",
+            "url": "https://www.livekit-academy.com/courses/production-telephony/call-recording",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__call-recording.quiz.json",
+            "quiz_questions_reviewed": 2,
+            "option_sets_reviewed": 2,
+            "explanations_reviewed": 2,
+            "quiz_sha256": "ae5078c649b64041f4e61a7a254d90c72ba28508c43a30474fb07adb21e69c5e",
+            "quiz_item_ordinals": [
+              1
+            ]
+          }
+        ],
+        "assessment": "The explanation says Egress separation ensures capturing/encoding/uploading cannot consume resources needed for realtime processing.",
+        "teaching_correction": "A separate process or service creates an ownership/deployment boundary. Shared CPU, memory, network and storage can still contend. Capacity limits, placement and measurements must establish acceptable impact; process separation alone cannot establish a no-impact guarantee.",
+        "primarysources": [
+          "PS-EGRESS"
+        ],
+        "verification": "Architectural inference from shared-resource contention, not a benchmark or newly executed test."
+      },
+      {
+        "id": "QUIZ-P2-07",
+        "severity": "medium",
+        "topic": "Calling-hours example has impossible time-zone arithmetic",
+        "locations": [
+          {
+            "course_id": "3.1",
+            "course_slug": "production-telephony",
+            "lesson_slug": "outbound-system",
+            "title": "Building the outbound system",
+            "url": "https://www.livekit-academy.com/courses/production-telephony/outbound-system",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__outbound-system.quiz.json",
+            "quiz_questions_reviewed": 2,
+            "option_sets_reviewed": 2,
+            "explanations_reviewed": 2,
+            "quiz_sha256": "f794e3b40e94d5d5462ff3656ac0c5d0e46e22206956895983dd0d63c36962d6",
+            "quiz_item_ordinals": [
+              1
+            ]
+          }
+        ],
+        "assessment": "The explanation compares 10 AM Pacific with an Eastern time later than 9 PM at the same instant.",
+        "teaching_correction": "Eastern is three hours ahead of Pacific in the ordinary paired US zones, so that example corresponds to 1 PM Eastern. Use explicit IANA zones and a valid timestamp near a policy boundary. Current legal calling restrictions were not audited here.",
+        "primarysources": [],
+        "verification": "Direct time arithmetic; no legal conclusion is asserted."
+      },
+      {
+        "id": "QUIZ-P2-08",
+        "severity": "medium",
+        "topic": "Outbound readiness recommendation versus universal API prerequisite",
+        "locations": [
+          {
+            "course_id": "3.1",
+            "course_slug": "production-telephony",
+            "lesson_slug": "outbound-system",
+            "title": "Building the outbound system",
+            "url": "https://www.livekit-academy.com/courses/production-telephony/outbound-system",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__outbound-system.quiz.json",
+            "quiz_questions_reviewed": 2,
+            "option_sets_reviewed": 2,
+            "explanations_reviewed": 2,
+            "quiz_sha256": "f794e3b40e94d5d5462ff3656ac0c5d0e46e22206956895983dd0d63c36962d6",
+            "quiz_item_ordinals": [
+              2
+            ]
+          },
+          {
+            "course_id": "1.3",
+            "course_slug": "connect-to-phones",
+            "lesson_slug": "outbound-calls",
+            "title": "Making outbound calls",
+            "url": "https://www.livekit-academy.com/courses/connect-to-phones/outbound-calls",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__outbound-calls.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "1d64191bbe1339c4de60b96206f4e1c89533a9fc991ccd7e2e4fe4bdd5604b21",
+            "quiz_item_ordinals": [
+              1
+            ]
+          }
+        ],
+        "assessment": "The course quizzes give conflicting accounts of whether a room must already exist or is created by the outbound workflow; the production explanation also promotes an agent-readiness recommendation to a universal API prerequisite.",
+        "teaching_correction": "Specify the exact room-creation/dispatch workflow and treat early agent readiness as an end-user latency requirement. The official server example supplies a room name without a separate create-room call. Do not infer named agent dispatch from call creation or room naming.",
+        "primarysources": [
+          "QPS-OUTBOUND",
+          "PS-DISPATCH"
+        ],
+        "verification": "The room-creation implementation itself was not executed; this finding rejects the unsupported universal prerequisite and course inconsistency."
+      },
+      {
+        "id": "QUIZ-P2-09",
+        "severity": "high",
+        "topic": "Webhook-based CDRs are not automatically crash durable",
+        "locations": [
+          {
+            "course_id": "3.1",
+            "course_slug": "production-telephony",
+            "lesson_slug": "monitoring",
+            "title": "Monitoring & analytics",
+            "url": "https://www.livekit-academy.com/courses/production-telephony/monitoring",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__monitoring.quiz.json",
+            "quiz_questions_reviewed": 2,
+            "option_sets_reviewed": 2,
+            "explanations_reviewed": 2,
+            "quiz_sha256": "84dc2afc28c1702325d4efb0d488407a7209e73dcfcf46e39ad231fadc76d289",
+            "quiz_item_ordinals": [
+              1
+            ]
+          }
+        ],
+        "assessment": "The explanation promises a complete append-only timeline and no crash loss merely from constructing CDRs from webhook events. The lesson's example retains active call records in memory and persists them at call end.",
+        "teaching_correction": "Authenticate and durably retain incoming events before deriving/replaying the CDR; handle duplicates, reordering and gaps explicitly. A webhook is a transport observation, not a persisted journal. Preserve incomplete active-call records through process failure.",
+        "primarysources": [],
+        "related_existing_questions": [
+          "P2-05",
+          "P2-23",
+          "SCALE-07"
+        ],
+        "verification": "Source-review contradiction and persistence invariant; the sample was not run."
+      },
+      {
+        "id": "QUIZ-P2-10",
+        "severity": "medium",
+        "topic": "SIPp supports media features",
+        "locations": [
+          {
+            "course_id": "3.1",
+            "course_slug": "production-telephony",
+            "lesson_slug": "load-testing",
+            "title": "Load testing",
+            "url": "https://www.livekit-academy.com/courses/production-telephony/load-testing",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__load-testing.quiz.json",
+            "quiz_questions_reviewed": 2,
+            "option_sets_reviewed": 2,
+            "explanations_reviewed": 2,
+            "quiz_sha256": "866c2337038f745cf3de1373e47dbe3af7754b25b2057a45faebfa230d7dffab",
+            "quiz_item_ordinals": [
+              1
+            ]
+          }
+        ],
+        "assessment": "The explanation categorically describes SIPp as testing signaling only.",
+        "teaching_correction": "SIPp supports limited media-plane testing, including RTP echo, audio streaming and PCAP replay. A signaling-only SIPp scenario still cannot qualify audio/inference performance. Describe the selected scenario's coverage instead of falsely limiting the tool.",
+        "primarysources": [
+          "QPS-SIPP"
+        ],
+        "related_existing_questions": [
+          "P2-29",
+          "SCALE-02",
+          "SCALE-07"
+        ]
+      },
+      {
+        "id": "QUIZ-P2-11",
+        "severity": "high",
+        "topic": "CRM prompt injection does not guarantee behavior",
+        "locations": [
+          {
+            "course_id": "3.2",
+            "course_slug": "contact-center",
+            "lesson_slug": "crm-integration",
+            "title": "CRM integration & caller context",
+            "url": "https://www.livekit-academy.com/courses/contact-center/crm-integration",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__crm-integration.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "7c5ea8e723304110ea7feaf01c5eb0b4e9b095c6c75585d71587bf45df1bc47e",
+            "quiz_item_ordinals": [
+              2
+            ]
+          }
+        ],
+        "assessment": "The explanation promises the model will always mention particular CRM facts because the profile is placed in its system instructions.",
+        "teaching_correction": "Context availability does not guarantee recall, accuracy or policy compliance. Keep retrieved/customer-controlled records as data, preserve trusted instructions, and validate consequential identity/action facts against authoritative records.",
+        "primarysources": [],
+        "related_cautions": [
+          "CAUTION-06"
+        ],
+        "related_existing_questions": [
+          "SYS-08",
+          "P3-11"
+        ],
+        "verification": "An unsupported model-behavior guarantee, assessed against the existing book's untrusted-data and factual-validation boundaries; no model evaluation was run."
+      },
+      {
+        "id": "QUIZ-P2-12",
+        "severity": "medium",
+        "topic": "Unqualified numerical benchmarks",
+        "locations": [
+          {
+            "course_id": "4.1",
+            "course_slug": "multimodal-agents",
+            "lesson_slug": "multimodal-architecture",
+            "title": "Multimodal architecture & cost model",
+            "url": "https://www.livekit-academy.com/courses/multimodal-agents/multimodal-architecture",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__multimodal-architecture.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "9322f58454612840c754dc13f095bf1c604db6b71c4032a46ed897d5cba913b9",
+            "quiz_item_ordinals": [
+              2
+            ]
+          },
+          {
+            "course_id": "4.1",
+            "course_slug": "multimodal-agents",
+            "lesson_slug": "vision-agents",
+            "title": "Vision agents",
+            "url": "https://www.livekit-academy.com/courses/multimodal-agents/vision-agents",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__vision-agents.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "764d89d31b63508c6e05f3585ed3d90d7cc47ab0b2150e6354ca6f0f3af31be5",
+            "quiz_item_ordinals": [
+              1
+            ]
+          },
+          {
+            "course_id": "4.2",
+            "course_slug": "physical-ai",
+            "lesson_slug": "wake-word-streaming",
+            "title": "Wake word detection & audio streaming",
+            "url": "https://www.livekit-academy.com/courses/physical-ai/wake-word-streaming",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__wake-word-streaming.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "c2b324738834fd3bf527c2bc624c30bdd10a2021231b2f9a0eca6dfb71607269",
+            "quiz_item_ordinals": [
+              1,
+              2
+            ]
+          },
+          {
+            "course_id": "3.2",
+            "course_slug": "contact-center",
+            "lesson_slug": "human-escalation",
+            "title": "Human escalation & context transfer",
+            "url": "https://www.livekit-academy.com/courses/contact-center/human-escalation",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__human-escalation.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "7f7c6a704d01896b90f058ba3faa8b52b412a3653f5041cd017ff4a57b425aa9",
+            "quiz_item_ordinals": [
+              3
+            ]
+          }
+        ],
+        "assessment": "Several explanations present image cost shares, device runtime, wake-to-response latency or a handoff-quality benchmark without defining the workload and measurement basis.",
+        "teaching_correction": "Learn the tradeoff rather than memorize those values. Image usage depends on model, resolution/detail, frame cadence and history. Battery life needs capacity and duty cycle. A warm connection removes setup work but cannot guarantee full speech-pipeline response below a fixed threshold. Necessary verification questions can also cause legitimate repetition during a human handoff.",
+        "primarysources": [
+          "PS-VIDEO",
+          "PS-SESSION"
+        ],
+        "verification": "These figures were not independently benchmarked; no replacement universal benchmark is proposed."
+      },
+      {
+        "id": "QUIZ-P2-13",
+        "severity": "medium",
+        "topic": "Video sampling does not itself schedule proactive reasoning",
+        "locations": [
+          {
+            "course_id": "4.1",
+            "course_slug": "multimodal-agents",
+            "lesson_slug": "vision-agents",
+            "title": "Vision agents",
+            "url": "https://www.livekit-academy.com/courses/multimodal-agents/vision-agents",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__vision-agents.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "764d89d31b63508c6e05f3585ed3d90d7cc47ab0b2150e6354ca6f0f3af31be5",
+            "quiz_item_ordinals": [
+              2
+            ]
+          }
+        ],
+        "assessment": "The explanation implies shorter frame capture intervals are sufficient for an agent to notice and report changes proactively.",
+        "teaching_correction": "Identify the event/timer/manual-turn or realtime-model mechanism that consumes observations and triggers reasoning. Official video guidance describes passive input with no effect on turn detection. Bound that scheduling separately from frame capture and resource limits.",
+        "primarysources": [
+          "PS-VIDEO"
+        ]
+      },
+      {
+        "id": "QUIZ-P2-14",
+        "severity": "high",
+        "topic": "Tavus startup order and identity assumptions",
+        "locations": [
+          {
+            "course_id": "4.1",
+            "course_slug": "multimodal-agents",
+            "lesson_slug": "avatar-integration",
+            "title": "Avatar integration",
+            "url": "https://www.livekit-academy.com/courses/multimodal-agents/avatar-integration",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__avatar-integration.quiz.json",
+            "quiz_questions_reviewed": 2,
+            "option_sets_reviewed": 2,
+            "explanations_reviewed": 2,
+            "quiz_sha256": "1ebff4e26bdfc9ffb3b549668dd3d0107aa3eeeaf5712ff3f5bcbab145f3905e",
+            "quiz_item_ordinals": [
+              1,
+              2
+            ]
+          }
+        ],
+        "assessment": "The quiz requires starting the avatar after AgentSession.start and treats a string identity prefix as a universal integration contract.",
+        "teaching_correction": "The current official Tavus example starts the avatar before starting the agent session, directly contradicting the claimed universal order. Follow the selected plugin's documented lifecycle and expose the configured avatar identity; an arbitrary prefix is not proof of an authorized avatar source.",
+        "primarysources": [
+          "QPS-TAVUS",
+          "QPS-TAVUS-API"
+        ],
+        "verification": "Current official plugin examples/reference, not a claim that the optional Tavus plugin is installed or qualified in this POC."
+      },
+      {
+        "id": "QUIZ-P2-15",
+        "severity": "medium",
+        "topic": "A retrieval tool does not automatically bound future context cost",
+        "locations": [
+          {
+            "course_id": "4.1",
+            "course_slug": "multimodal-agents",
+            "lesson_slug": "document-screen",
+            "title": "Document processing & screen sharing",
+            "url": "https://www.livekit-academy.com/courses/multimodal-agents/document-screen",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__document-screen.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "8e1f5f9a776ed61068cb5eb8a6d81698e329503669e159f1c6d52ae8bb775460",
+            "quiz_item_ordinals": [
+              1
+            ]
+          }
+        ],
+        "assessment": "The explanation treats fetching document text through a tool as sufficient to keep costs proportional to only the turns that need it.",
+        "teaching_correction": "Lazy retrieval avoids up-front injection, but returned tool output can remain in subsequent conversation context. Add explicit retrieval limits, relevance, summarization/pruning and usage measurement; distinguish data storage from model-visible history.",
+        "primarysources": [
+          "QPS-CHAT"
+        ]
+      },
+      {
+        "id": "QUIZ-P2-16",
+        "severity": "high",
+        "topic": "Reliable delivery is not a hardware safety guarantee",
+        "locations": [
+          {
+            "course_id": "4.2",
+            "course_slug": "physical-ai",
+            "lesson_slug": "device-control",
+            "title": "Hardware control via agent tools",
+            "url": "https://www.livekit-academy.com/courses/physical-ai/device-control",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__device-control.quiz.json",
+            "quiz_questions_reviewed": 2,
+            "option_sets_reviewed": 2,
+            "explanations_reviewed": 2,
+            "quiz_sha256": "a287b42e73423e17c227993993e99045db61f8a435ecd40ebc5dfbc8ab900747",
+            "quiz_item_ordinals": [
+              2
+            ]
+          }
+        ],
+        "assessment": "The explanation explicitly treats retransmission as guaranteed arrival for a safety-sensitive hardware command.",
+        "teaching_correction": "LiveKit documents reliable packets as best effort, with disconnection gaps. A heater or relay needs local safety controls, authenticated expiring commands, stable identities and confirmed application/device state. An ACK or timeout cannot independently establish the physical outcome.",
+        "primarysources": [
+          "PS-PACKETS"
+        ],
+        "related_cautions": [
+          "CAUTION-04"
+        ]
+      },
+      {
+        "id": "QUIZ-P2-17",
+        "severity": "medium",
+        "topic": "Dual partitions alone do not guarantee automatic firmware recovery",
+        "locations": [
+          {
+            "course_id": "4.2",
+            "course_slug": "physical-ai",
+            "lesson_slug": "production-embedded",
+            "title": "Production: OTA updates & fleet management",
+            "url": "https://www.livekit-academy.com/courses/physical-ai/production-embedded",
+            "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__production-embedded.quiz.json",
+            "quiz_questions_reviewed": 3,
+            "option_sets_reviewed": 3,
+            "explanations_reviewed": 3,
+            "quiz_sha256": "b24ec6cf8f7a6ae514ce90b91c6edd8c02d332088dbab46e3a0fa857983f1d10",
+            "quiz_item_ordinals": [
+              1
+            ]
+          }
+        ],
+        "assessment": "The explanation promises that a failed or broken new firmware image automatically returns to a known-good partition merely because two partitions exist.",
+        "teaching_correction": "Dual slots preserve a candidate fallback, but the selected ESP-IDF release must have the appropriate rollback/boot-selection configuration and first-boot validation. Check image state, confirm health and preserve an actually bootable fallback. This remains optional hardware study.",
+        "primarysources": [
+          "QPS-ESPIDF"
+        ],
+        "verification": "Official ESP-IDF rollback/validation state-machine documentation; no device execution."
+      }
+    ],
+    "primarysources": [
+      {
+        "id": "QPS-DTMF",
+        "title": "Handling DTMF",
+        "url": "https://docs.livekit.io/telephony/features/dtmf/",
+        "checked_on": "2026-11-19",
+        "authority": "Official LiveKit documentation"
+      },
+      {
+        "id": "QPS-TAVUS",
+        "title": "Tavus virtual avatar integration guide",
+        "url": "https://docs.livekit.io/agents/models/avatar/plugins/tavus/",
+        "checked_on": "2026-11-19",
+        "authority": "Official LiveKit documentation; current example, not an unpinned Academy lifecycle rule"
+      },
+      {
+        "id": "QPS-TAVUS-API",
+        "title": "Tavus AvatarSession reference",
+        "url": "https://docs.livekit.io/reference/agents-js/classes/plugins_agents_plugin_tavus.AvatarSession.html",
+        "checked_on": "2026-11-19",
+        "authority": "Official plugin reference, including avatarIdentity and explicit session lifetime"
+      },
+      {
+        "id": "QPS-SIPP",
+        "title": "Handling media with SIPp",
+        "url": "https://sipp.readthedocs.io/en/latest/media.html",
+        "checked_on": "2026-11-19",
+        "authority": "Official SIPp documentation"
+      },
+      {
+        "id": "QPS-OUTBOUND",
+        "title": "Make outbound calls",
+        "url": "https://docs.livekit.io/telephony/making-calls/outbound-calls/",
+        "checked_on": "2026-11-19",
+        "authority": "Official LiveKit server API examples"
+      },
+      {
+        "id": "QPS-CHAT",
+        "title": "Chat context",
+        "url": "https://docs.livekit.io/agents/logic/chat-context/",
+        "checked_on": "2026-11-19",
+        "authority": "Official LiveKit documentation; function-call outputs and explicit context operations"
+      },
+      {
+        "id": "QPS-ESPIDF",
+        "title": "ESP-IDF OTA updates and application rollback",
+        "url": "https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/ota.html",
+        "checked_on": "2026-11-19",
+        "authority": "Official Espressif documentation; board/release configuration still requires verification"
+      }
+    ],
+    "limits": [
+      "No full quiz prompts, options, correct-option indexes or answer explanations are reproduced as an answer key.",
+      "No quiz completion/progress state or certification was claimed.",
+      "Findings distinguish current official API evidence from engineering inferences and unmeasured claims.",
+      "Legal/compliance requirements were not independently verified; the time-zone finding is arithmetic only.",
+      "This audit adds no new question proposals and does not change the book."
+    ],
+    "counts": {
+      "courses_reviewed": 6,
+      "lessons_reviewed": 36,
+      "quiz_questions_reviewed": 91,
+      "individual_options_reviewed": 364,
+      "explanations_reviewed": 91,
+      "material_findings": 17,
+      "interactive_submissions": 0
+    },
+    "course_counts": [
+      {
+        "course_id": "1.2",
+        "course_slug": "your-first-frontend",
+        "chapters_reviewed": 7,
+        "quiz_questions_reviewed": 15
+      },
+      {
+        "course_id": "1.3",
+        "course_slug": "connect-to-phones",
+        "chapters_reviewed": 8,
+        "quiz_questions_reviewed": 21
+      },
+      {
+        "course_id": "3.1",
+        "course_slug": "production-telephony",
+        "chapters_reviewed": 9,
+        "quiz_questions_reviewed": 21
+      },
+      {
+        "course_id": "3.2",
+        "course_slug": "contact-center",
+        "chapters_reviewed": 3,
+        "quiz_questions_reviewed": 9
+      },
+      {
+        "course_id": "4.1",
+        "course_slug": "multimodal-agents",
+        "chapters_reviewed": 5,
+        "quiz_questions_reviewed": 14
+      },
+      {
+        "course_id": "4.2",
+        "course_slug": "physical-ai",
+        "chapters_reviewed": 4,
+        "quiz_questions_reviewed": 11
+      }
+    ],
+    "lesson_reviews": [
+      {
+        "course_id": "1.2",
+        "course_slug": "your-first-frontend",
+        "lesson_slug": "frontend-architecture",
+        "title": "Frontend architecture for the dental receptionist",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/frontend-architecture",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__frontend-architecture.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "f67989f831e73926de211bc63f60bbe9fab8cc93b67d66deb96b624aaf38d087",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-01"
+        ]
+      },
+      {
+        "course_id": "1.2",
+        "course_slug": "your-first-frontend",
+        "lesson_slug": "token-auth",
+        "title": "Connecting to the dental receptionist",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/token-auth",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__token-auth.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "fa8d168ae5dd331c3034cedcebb0c6cd2e1305f0e80c6fd092f3742a17347a14",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-01"
+        ]
+      },
+      {
+        "course_id": "1.2",
+        "course_slug": "your-first-frontend",
+        "lesson_slug": "agent-dispatch",
+        "title": "Agent dispatch",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/agent-dispatch",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__agent-dispatch.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "7bfe6c0df2fc9773f4df314b75a7637925f1a281bbaa712dab6cab7e40500028",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "1.2",
+        "course_slug": "your-first-frontend",
+        "lesson_slug": "session-management",
+        "title": "Agent state & the dental session lifecycle",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/session-management",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__session-management.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "9a67987d80bc3a4e9830a0d13703ae0ec265a7fc35fe93d7d0d2121e18015fee",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "1.2",
+        "course_slug": "your-first-frontend",
+        "lesson_slug": "chat-transcription",
+        "title": "Transcription & booking confirmations",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/chat-transcription",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__chat-transcription.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "105ec13963236bced5389d749a73f14fcf766012a4a9f8523fa3b3e5adc969ad",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "1.2",
+        "course_slug": "your-first-frontend",
+        "lesson_slug": "text-input",
+        "title": "Text input for the dental receptionist",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/text-input",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__text-input.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "c8b32bd66d791caadb950f0eef2a48ce49aa73333f2dafab852a40d69224ab7c",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "1.2",
+        "course_slug": "your-first-frontend",
+        "lesson_slug": "rpc-data-channels",
+        "title": "RPC & data channels: a visual booking flow",
+        "url": "https://www.livekit-academy.com/courses/your-first-frontend/rpc-data-channels",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__your-first-frontend__rpc-data-channels.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "4fe8e87f6771ae340e80b47b4401f6343b0b78f77f2d67dbbeb928a6c559c0d1",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "1.3",
+        "course_slug": "connect-to-phones",
+        "lesson_slug": "telephony-overview",
+        "title": "How telephony works in LiveKit",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/telephony-overview",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__telephony-overview.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "a9790719d1f4502942b8dfcfa28c50c4c098dcae50335c3bd990cd669508a452",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-05"
+        ]
+      },
+      {
+        "course_id": "1.3",
+        "course_slug": "connect-to-phones",
+        "lesson_slug": "inbound-trunk",
+        "title": "Buy a number & configure inbound trunk",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/inbound-trunk",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__inbound-trunk.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "7c2cfc4ea9534f47e393cc5f2d79aef7beea55f39c6f1c477539df368e4c45b4",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "1.3",
+        "course_slug": "connect-to-phones",
+        "lesson_slug": "dispatch-rules",
+        "title": "Dispatch rules: routing calls to agents",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/dispatch-rules",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__dispatch-rules.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "1e251acfffa21877248e856364007a4c85bc4d5e659f0be1299ff1441465b7be",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-02"
+        ]
+      },
+      {
+        "course_id": "1.3",
+        "course_slug": "connect-to-phones",
+        "lesson_slug": "recording-consent",
+        "title": "Recording consent with AgentTask",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/recording-consent",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__recording-consent.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "ba6561bd7aeeb1af601f1641d614e45fe2674a45a14032d6108a920120a11983",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-03"
+        ]
+      },
+      {
+        "course_id": "1.3",
+        "course_slug": "connect-to-phones",
+        "lesson_slug": "dtmf",
+        "title": "DTMF & keypad input",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/dtmf",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__dtmf.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "43894180339abdbcfd1c1e00fb5d9c6dd7817fdf2604e478a845a126a990d7d9",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-04"
+        ]
+      },
+      {
+        "course_id": "1.3",
+        "course_slug": "connect-to-phones",
+        "lesson_slug": "hd-voice",
+        "title": "HD voice & secure trunking",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/hd-voice",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__hd-voice.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "7b331f695a74d5ccc14540a38aaf0d98ff09839fd3d7ade86fc0bd321c03e8cb",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-05"
+        ]
+      },
+      {
+        "course_id": "1.3",
+        "course_slug": "connect-to-phones",
+        "lesson_slug": "outbound-calls",
+        "title": "Making outbound calls",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/outbound-calls",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__outbound-calls.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "1d64191bbe1339c4de60b96206f4e1c89533a9fc991ccd7e2e4fe4bdd5604b21",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-02",
+          "QUIZ-P2-08"
+        ]
+      },
+      {
+        "course_id": "1.3",
+        "course_slug": "connect-to-phones",
+        "lesson_slug": "test-from-phone",
+        "title": "Test from your phone",
+        "url": "https://www.livekit-academy.com/courses/connect-to-phones/test-from-phone",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__connect-to-phones__test-from-phone.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "2b149ef82bbe470044740d8c839130f66920fd7ddb5c584f45c34b5681003b65",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "3.1",
+        "course_slug": "production-telephony",
+        "lesson_slug": "telephony-patterns",
+        "title": "Production telephony patterns overview",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/telephony-patterns",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__telephony-patterns.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "4935f9cc8c62c04b152145e335b5dcf0dfede5f285c125965edf50a6e14cb457",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "3.1",
+        "course_slug": "production-telephony",
+        "lesson_slug": "warm-transfers",
+        "title": "Warm transfers",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/warm-transfers",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__warm-transfers.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "0388ca0aded0b3648eb4f2b4e24e264272dcb9147c176f6ecaaa0fcf80677926",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "3.1",
+        "course_slug": "production-telephony",
+        "lesson_slug": "cold-transfers",
+        "title": "Cold transfers",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/cold-transfers",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__cold-transfers.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "6dc71cc2005cc18d28d487f7f0435146909c3780a55eafd79c37b70fbed67006",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "3.1",
+        "course_slug": "production-telephony",
+        "lesson_slug": "call-recording",
+        "title": "Call recording & compliance",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/call-recording",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__call-recording.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "ae5078c649b64041f4e61a7a254d90c72ba28508c43a30474fb07adb21e69c5e",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-06"
+        ]
+      },
+      {
+        "course_id": "3.1",
+        "course_slug": "production-telephony",
+        "lesson_slug": "outbound-system",
+        "title": "Building the outbound system",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/outbound-system",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__outbound-system.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "f794e3b40e94d5d5462ff3656ac0c5d0e46e22206956895983dd0d63c36962d6",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-07",
+          "QUIZ-P2-08"
+        ]
+      },
+      {
+        "course_id": "3.1",
+        "course_slug": "production-telephony",
+        "lesson_slug": "queue-management",
+        "title": "Queue management",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/queue-management",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__queue-management.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "f9e28704b24490fc177ae4059bb3366aeefe0eec31489d37d4689db18562df2c",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "3.1",
+        "course_slug": "production-telephony",
+        "lesson_slug": "error-handling",
+        "title": "Error handling & retries",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/error-handling",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__error-handling.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "507523612b165e61ac334d73d67d00e0a7e6dfe271532bfb3d76146d264fb6c7",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "3.1",
+        "course_slug": "production-telephony",
+        "lesson_slug": "monitoring",
+        "title": "Monitoring & analytics",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/monitoring",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__monitoring.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "84dc2afc28c1702325d4efb0d488407a7209e73dcfcf46e39ad231fadc76d289",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-09"
+        ]
+      },
+      {
+        "course_id": "3.1",
+        "course_slug": "production-telephony",
+        "lesson_slug": "load-testing",
+        "title": "Load testing",
+        "url": "https://www.livekit-academy.com/courses/production-telephony/load-testing",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__production-telephony__load-testing.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "866c2337038f745cf3de1373e47dbe3af7754b25b2057a45faebfa230d7dffab",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-10"
+        ]
+      },
+      {
+        "course_id": "3.2",
+        "course_slug": "contact-center",
+        "lesson_slug": "ai-native-routing",
+        "title": "AI-native routing & multi-agent orchestration",
+        "url": "https://www.livekit-academy.com/courses/contact-center/ai-native-routing",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__ai-native-routing.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "f481e29f8e41d34d60451a24c0c980c8b7374921671abdf93ff576716cd7cac7",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "3.2",
+        "course_slug": "contact-center",
+        "lesson_slug": "human-escalation",
+        "title": "Human escalation & context transfer",
+        "url": "https://www.livekit-academy.com/courses/contact-center/human-escalation",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__human-escalation.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "7f7c6a704d01896b90f058ba3faa8b52b412a3653f5041cd017ff4a57b425aa9",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-12"
+        ]
+      },
+      {
+        "course_id": "3.2",
+        "course_slug": "contact-center",
+        "lesson_slug": "crm-integration",
+        "title": "CRM integration & caller context",
+        "url": "https://www.livekit-academy.com/courses/contact-center/crm-integration",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__contact-center__crm-integration.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "7c5ea8e723304110ea7feaf01c5eb0b4e9b095c6c75585d71587bf45df1bc47e",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-11"
+        ]
+      },
+      {
+        "course_id": "4.1",
+        "course_slug": "multimodal-agents",
+        "lesson_slug": "multimodal-architecture",
+        "title": "Multimodal architecture & cost model",
+        "url": "https://www.livekit-academy.com/courses/multimodal-agents/multimodal-architecture",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__multimodal-architecture.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "9322f58454612840c754dc13f095bf1c604db6b71c4032a46ed897d5cba913b9",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-12"
+        ]
+      },
+      {
+        "course_id": "4.1",
+        "course_slug": "multimodal-agents",
+        "lesson_slug": "vision-agents",
+        "title": "Vision agents",
+        "url": "https://www.livekit-academy.com/courses/multimodal-agents/vision-agents",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__vision-agents.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "764d89d31b63508c6e05f3585ed3d90d7cc47ab0b2150e6354ca6f0f3af31be5",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-12",
+          "QUIZ-P2-13"
+        ]
+      },
+      {
+        "course_id": "4.1",
+        "course_slug": "multimodal-agents",
+        "lesson_slug": "avatar-integration",
+        "title": "Avatar integration",
+        "url": "https://www.livekit-academy.com/courses/multimodal-agents/avatar-integration",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__avatar-integration.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "1ebff4e26bdfc9ffb3b549668dd3d0107aa3eeeaf5712ff3f5bcbab145f3905e",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-14"
+        ]
+      },
+      {
+        "course_id": "4.1",
+        "course_slug": "multimodal-agents",
+        "lesson_slug": "document-screen",
+        "title": "Document processing & screen sharing",
+        "url": "https://www.livekit-academy.com/courses/multimodal-agents/document-screen",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__document-screen.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "8e1f5f9a776ed61068cb5eb8a6d81698e329503669e159f1c6d52ae8bb775460",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-15"
+        ]
+      },
+      {
+        "course_id": "4.1",
+        "course_slug": "multimodal-agents",
+        "lesson_slug": "multimodal-capstone",
+        "title": "Building a complete multimodal agent",
+        "url": "https://www.livekit-academy.com/courses/multimodal-agents/multimodal-capstone",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__multimodal-agents__multimodal-capstone.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "708240775fcbb49b2ded3c894f2a4da69bbaa7a4957674494043b3b2c482d8b0",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "4.2",
+        "course_slug": "physical-ai",
+        "lesson_slug": "embedded-architecture",
+        "title": "Embedded voice architecture",
+        "url": "https://www.livekit-academy.com/courses/physical-ai/embedded-architecture",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__embedded-architecture.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "02843613fc9fe46d28350d1b1309b585dea77c9348ba988eccc793c4b0b9098b",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": []
+      },
+      {
+        "course_id": "4.2",
+        "course_slug": "physical-ai",
+        "lesson_slug": "wake-word-streaming",
+        "title": "Wake word detection & audio streaming",
+        "url": "https://www.livekit-academy.com/courses/physical-ai/wake-word-streaming",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__wake-word-streaming.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "c2b324738834fd3bf527c2bc624c30bdd10a2021231b2f9a0eca6dfb71607269",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-12"
+        ]
+      },
+      {
+        "course_id": "4.2",
+        "course_slug": "physical-ai",
+        "lesson_slug": "device-control",
+        "title": "Hardware control via agent tools",
+        "url": "https://www.livekit-academy.com/courses/physical-ai/device-control",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__device-control.quiz.json",
+        "quiz_questions_reviewed": 2,
+        "option_sets_reviewed": 2,
+        "explanations_reviewed": 2,
+        "quiz_sha256": "a287b42e73423e17c227993993e99045db61f8a435ecd40ebc5dfbc8ab900747",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-16"
+        ]
+      },
+      {
+        "course_id": "4.2",
+        "course_slug": "physical-ai",
+        "lesson_slug": "production-embedded",
+        "title": "Production: OTA updates & fleet management",
+        "url": "https://www.livekit-academy.com/courses/physical-ai/production-embedded",
+        "local_quiz": "/Users/rostwal/Downloads/livekit-poc/output/academy-review/snapshots/courses__physical-ai__production-embedded.quiz.json",
+        "quiz_questions_reviewed": 3,
+        "option_sets_reviewed": 3,
+        "explanations_reviewed": 3,
+        "quiz_sha256": "b24ec6cf8f7a6ae514ce90b91c6edd8c02d332088dbab46e3a0fa857983f1d10",
+        "review_status": "Reviewed public prompt/options/explanation props; no quiz attempted",
+        "material_finding_ids": [
+          "QUIZ-P2-17"
+        ]
+      }
+    ],
+    "judgment_note": "A material finding can cover multiple items; counts are not an accuracy score. Absence of an additional finding does not establish that an example was executed or qualified."
+  }
+}

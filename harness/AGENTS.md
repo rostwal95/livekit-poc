@@ -158,7 +158,8 @@ These rules cover the outbox/processing gates recorded in
 - Require actual PID-owned barriers and exact frozen child inventories.
 - Unknown possible calls cannot become automatic retries.
 - Processing discovery cannot silently acknowledge a gap.
-- P1 remains unchanged. Preserve all 77 source payloads and prior evidence.
+- Preserve the phase-0033 P1 snapshot (77 source payloads at that checkpoint) and
+  its prior evidence. Later versioned changes retain their own source inventory.
 - Keep broader resend/media/release scope and every planned charter row non-passing.
 
 ### Send-policy and action-race gates (phase 0035)
@@ -201,6 +202,12 @@ These rules cover the outbox/processing gates recorded in
 - Source index membership must be recounted at final seal.
 - Intermediate linked ancestors are unsafe even when the leaf looks regular and private.
 - These selected tasks add no complete catalog registration.
+
+### Native policy RTC text (phase 0042)
+
+The [0042 handoff](../docs/work-items/0042-responsive-native-policy-and-compact-demo.md)
+owns the selected native-policy assertion inventory.
+
 - Keep twelve backend assertions, three browser groups and eight separate installed
   package assertions distinct.
 - Full charter, combined voice/SMS and video remain active work.

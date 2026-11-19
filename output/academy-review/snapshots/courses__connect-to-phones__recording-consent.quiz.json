@@ -1,0 +1,35 @@
+[
+  {
+    "question": "What happens to the conversation when an AgentTask calls self.complete()?",
+    "options": [
+      "The task signals it is done, and control passes to the next task in the chain or the main agent",
+      "The LLM generates a summary of the task",
+      "The entire call ends and the room is closed",
+      "The task restarts from the beginning"
+    ],
+    "correctIndex": 0,
+    "explanation": "Calling self.complete() signals that the current task is finished. Control passes to the next task in the tasks list, or if there are no more tasks, the main agent's instructions take over. The caller experiences a seamless transition."
+  },
+  {
+    "question": "Why should the consent task's instructions NOT include information about appointment booking or clinic hours?",
+    "options": [
+      "The caller would be confused by hearing about appointments during consent",
+      "It would make the instructions too long for the LLM to process",
+      "The consent task cannot access the booking tools",
+      "The LLM only sees the active task's instructions, so including unrelated information reduces reliability of the consent behavior"
+    ],
+    "correctIndex": 3,
+    "explanation": "While a task is active, the LLM only sees that task's instructions. Focused, scoped instructions lead to more reliable behavior. Including appointment information in the consent task's instructions would distract the LLM from its single job: collecting consent."
+  },
+  {
+    "question": "How does the LLM decide whether to call consent_given or consent_refused when the caller responds?",
+    "options": [
+      "It waits for the caller to press 1 or 2 on their keypad",
+      "It interprets the caller's natural language intent \u2014 understanding phrases like 'sure, that's fine' as consent and 'I'd rather not' as refusal",
+      "It always asks the caller to say exactly 'yes' or 'no'",
+      "It pattern-matches against a list of keywords like 'yes' and 'no'"
+    ],
+    "correctIndex": 1,
+    "explanation": "The LLM understands natural language intent, so it can interpret various phrasings of agreement or refusal. You do not need to enumerate every synonym \u2014 the LLM handles the nuance. Instructions should focus on the decision boundary and edge cases like ambiguity."
+  }
+]

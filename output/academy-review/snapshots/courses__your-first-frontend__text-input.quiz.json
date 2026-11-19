@@ -1,0 +1,24 @@
+[
+  {
+    "question": "When a patient types 'Siobhan Bhattacharya' instead of saying it, how does the message reach the LLM?",
+    "options": [
+      "It is sent via HTTP POST to a separate API endpoint",
+      "It replaces the most recent voice transcript in the conversation",
+      "It is converted to audio and processed through STT first",
+      "It is sent via a data channel directly to the agent, bypassing STT, and injected as a user message for the LLM"
+    ],
+    "correctIndex": 3,
+    "explanation": "Text messages bypass STT entirely. They travel via WebRTC data channels to the agent, which injects them directly as user messages in the conversation context. The LLM sees the exact text the patient typed \u2014 no STT errors possible."
+  },
+  {
+    "question": "Why is the Send button disabled when Maya is in the 'thinking' or 'speaking' state?",
+    "options": [
+      "WebRTC data channels are paused during agent processing",
+      "The LLM cannot accept new messages while generating a response",
+      "To mirror a natural conversation \u2014 you wait for the receptionist to finish before providing more input",
+      "The token expires during agent processing"
+    ],
+    "correctIndex": 2,
+    "explanation": "Disabling the input during thinking and speaking mirrors a natural phone conversation \u2014 you wait for the receptionist to finish before saying more. It also prevents the patient from flooding the agent with messages while it is mid-response."
+  }
+]

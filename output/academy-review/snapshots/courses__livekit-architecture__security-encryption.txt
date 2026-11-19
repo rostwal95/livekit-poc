@@ -1,0 +1,141 @@
+1Why WebRTC? The latency problem in voice AI
+
+2P2P vs MCU vs SFU: why LiveKit chose the SFU
+
+3Rooms, Participants & Tracks: universal primitives
+
+4AI agents as room participants
+
+5The data plane: streams, RPC & state sync
+
+6Extending the room: telephony, egress & ingress
+
+7Security, encryption & self-hosting
+
+8The universal SDK ecosystem
+
+Security, encryption & self-hosting
+
+Security, encryption & self-hosting
+
+In this chapter, you will learn how LiveKit secures realtime communication at every layer. You will understand end-to-end encryption, the access token system, fine-grained permission grants, and how self-hosting gives you full sovereignty over your infrastructure. By the end, you will have a clear mental model of LiveKit's trust architecture — who can do what, who can see what, and how you enforce both.
+
+The trust model
+
+Before diving into individual security features, it helps to understand the trust model that governs the entire system.
+
+In LiveKit's architecture, there are three distinct layers of trust:
+
+Your server is fully trusted. It holds the API key and secret, generates access tokens, and has complete control over rooms and participants through the server API.
+
+The LiveKit SFU (whether Cloud or self-hosted) is a trusted intermediary. It authenticates participants via tokens, enforces permissions, and routes media. Without E2EE, the SFU can observe media content. With E2EE, it forwards encrypted packets it cannot decrypt.
+
+Clients are untrusted by default. They receive only the permissions explicitly granted in their access token. They cannot call server APIs directly, cannot join rooms without a valid token, and cannot exceed their granted permissions.
+
+This layered model means a compromised client can only do what its token allows. A compromised token is limited in scope and time. Your server's API secret is the crown jewel — everything else derives from it.
+
+Never expose your API secret to clients
+
+The API key and secret are used to sign access tokens on your server. They must never appear in client-side code, environment variables accessible to the browser, or mobile app bundles. If the secret is compromised, an attacker can generate tokens with any permissions for any room.
+
+Access tokens: JWT-based authentication
+
+Every participant that connects to a LiveKit room must present an access token — a JSON Web Token (JWT) signed with your API secret. Your backend server generates these tokens and hands them to clients. The client presents the token when connecting, and the SFU validates the signature before allowing entry.
+
+An access token encodes several critical pieces of information:
+
+Token field | Purpose
+API key | Identifies which LiveKit project this token belongs to
+Identity | A unique string identifying this participant (e.g., user ID)
+Room name | Which room the participant is authorized to join
+Grants | Specific permissions for what the participant can do
+Expiration | When the token becomes invalid
+Metadata | Optional data attached to the participant on join
+
+Tokens are short-lived by design. A typical token might be valid for 10 minutes — long enough for the client to connect, but short enough that a leaked token has minimal exposure. Once connected, the participant maintains their session regardless of token expiration; the token is only checked at connection time.
+
+The token pattern follows a well-established security principle: your server acts as the authorization authority, and the SFU acts as the enforcement point. The client never decides what it is allowed to do — the server decides (by generating a token with specific grants) and the SFU enforces (by validating the token and respecting the grants). This separation means client-side code cannot be manipulated to escalate permissions.
+
+Grants: fine-grained permissions
+
+The grants embedded in an access token define exactly what a participant can and cannot do. This is not a coarse "admin or user" distinction — grants are fine-grained enough to model complex permission scenarios.
+
+Grant | Controls
+Room join | Whether the participant can join the specified room
+Can publish | Whether the participant can publish audio and video tracks
+Can subscribe | Whether the participant can subscribe to other participants' tracks
+Can publish data | Whether the participant can send data messages (text streams, byte streams, RPC)
+Can publish sources | Which specific sources (microphone, camera, screen share) the participant can publish
+Can update own metadata | Whether the participant can modify their own metadata and attributes
+Hidden | Whether the participant is invisible to other participants
+Admin | Full control: can mute others, kick participants, manage the room
+
+This granularity enables precise security modeling. Consider these scenarios:
+
+A listen-only audience member receives a token with canSubscribe: true but canPublish: false and canPublishData: false. They can hear and see everything but cannot transmit audio, video, or data. They are a pure consumer.
+
+A voice AI agent receives a token with canPublish: true, canSubscribe: true, and canPublishData: true. It needs to hear the user (subscribe), speak back (publish audio), and send transcriptions (publish data).
+
+A recording bot receives a token with canSubscribe: true, canPublish: false, and hidden: true. It subscribes to all tracks for recording but is invisible to other participants and cannot transmit anything.
+
+A moderated speaker receives a token with canPublish: true but canPublishSources restricted to microphone only. They can speak but cannot share their screen or camera.
+
+Grants match your business logic
+
+Because grants are generated server-side when creating the token, they can be driven by your application's business logic. A free-tier user gets listen-only grants. A premium user gets full publish rights. A moderator gets admin grants. The decision happens on your server, encoded in the token, and enforced by the SFU — no client-side permission checks needed.
+
+End-to-end encryption (E2EE)
+
+By default, media traveling through a LiveKit SFU is encrypted in transit — DTLS secures the connection between each client and the server, and SRTP encrypts media packets on the wire. This prevents eavesdropping by anyone between the client and the SFU. However, the SFU itself decrypts and re-encrypts packets as it forwards them, meaning the SFU operator (LiveKit Cloud or your self-hosted infrastructure) can theoretically access the media content.
+
+End-to-end encryption changes this. With E2EE enabled, media is encrypted on the sender's device before it leaves, and decrypted on the receiver's device after it arrives. The SFU forwards the encrypted packets without being able to decrypt them. Even if the SFU infrastructure is compromised, the attacker sees only encrypted bytes.
+
+LiveKit's E2EE implementation uses insertable streams (also called encoded transforms) — a browser API that allows JavaScript to transform encoded media frames before they enter the WebRTC pipeline and after they exit. The encryption and decryption happen at this layer, ensuring the SFU only ever handles encrypted media.
+
+Encryption mode | Client to SFU | SFU processing | SFU to client | SFU can read media?
+Default (DTLS/SRTP) | Encrypted | Decrypts, forwards | Encrypted | Yes
+E2EE | Encrypted | Forwards encrypted bytes | Encrypted | No
+
+E2EE and SFU features
+
+E2EE comes with trade-offs. Because the SFU cannot access media content, server-side features that require media processing — such as server-side recording (egress), transcription, or simulcast layer switching — may be limited or unavailable when E2EE is active. The SFU can still route packets and manage room state, but it cannot inspect or transform the media itself.
+
+Key management in LiveKit's E2EE uses a shared key approach. Participants in a room negotiate a shared encryption key, and each participant's client uses that key to encrypt outgoing media and decrypt incoming media. Key rotation is handled automatically to limit the exposure window if a key is compromised.
+
+E2EE is not required for every application, and many use cases — particularly those involving AI agents that need server-side media processing — work best without it. But for applications handling sensitive conversations (healthcare, legal, financial), E2EE provides a level of assurance that even the infrastructure operator cannot access the content. It is a meaningful option to have available.
+
+Open source with a managed Cloud
+
+LiveKit Cloud is the managed service — LiveKit operates the SFU infrastructure, handles scaling, and manages availability. The entire LiveKit stack is open source, which means the code is transparent and auditable. Your application code uses the same APIs and SDKs regardless of deployment — no vendor lock-in.
+
+LiveKit Cloud builds on the open-source foundation and adds exclusive capabilities that are not available elsewhere: Krisp noise cancellation (server-side background noise removal), GPU-accelerated turn detection (faster, more accurate speech endpoint detection), and an intelligent barge-in model (distinguishing real interruptions from filler words). These features run on specialized Cloud infrastructure and compound to create noticeably more natural voice AI conversations.
+
+For teams with strict data residency or compliance needs, LiveKit offers custom Cloud deployments — dedicated infrastructure in specific regions, custom data processing agreements, and HIPAA-compliant configurations. Contact the LiveKit team to explore these options before considering self-hosting.
+
+Same APIs, managed infrastructure
+
+LiveKit Cloud handles scaling, monitoring, upgrades, global distribution, TURN, TLS, and DDoS protection — plus exclusive features you cannot get elsewhere. Your agent code, tokens, SDKs, and client code work identically. Focus on building your application, not operating infrastructure.
+
+Test your knowledge
+
+Question 1 of 2
+
+What is the key difference between default DTLS/SRTP encryption and end-to-end encryption (E2EE) in LiveKit?
+
+Putting it all together
+
+LiveKit's security architecture is a coherent system, not a collection of bolted-on features:
+
+Access tokens ensure only authorized participants can join rooms, with permissions defined before they connect.
+
+Grants enforce what each participant can do inside the room, with granularity down to specific media sources.
+
+DTLS/SRTP encrypts all traffic between clients and the SFU by default.
+
+E2EE optionally encrypts media end-to-end, making the SFU itself a zero-knowledge forwarder.
+
+Self-hosting gives you full control when you need data sovereignty or regulatory compliance.
+
+The common thread is that security decisions are made by your server (which generates tokens), enforced by the SFU (which validates tokens and respects grants), and never delegated to clients (which are untrusted by design). This is a robust trust architecture that scales from prototypes to production systems handling sensitive data.
+
+Security in realtime systems is harder than in request-response systems because connections are long-lived, media flows continuously, and the attack surface includes not just data at rest but data in motion. LiveKit's approach — short-lived tokens, granular grants, transport encryption by default, optional E2EE, and a clean trust hierarchy — addresses these challenges systematically rather than ad hoc.

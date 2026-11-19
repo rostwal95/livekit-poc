@@ -1,0 +1,285 @@
+{
+  "source": "/private/tmp/livekit-code-decisions/book-content.json",
+  "source_sha256": "2ce65c57f8d4a542a3b2c209b01dc040edf6dd480ad0189942412b5a59466865",
+  "chapters": {
+    "Defending the complete system": {
+      "color_family": "teal",
+      "one_sentence_hook": "The call ends while a booking investigation continues: which component still owns the next decision?",
+      "finish_line": "Explain one accepted input, its durable owner and the boundary between a valid result and permission to act.",
+      "active_recall_prompt": "Draw P1, P2 and P3 from memory, then place accepted input, result, exact confirmation and delivery on their owners.",
+      "three_anchors": [
+        "SYS-01",
+        "SYS-02",
+        "SYS-04"
+      ],
+      "diagram_prompt": "Trace F01 and place each retained fact on its owner; mark where the application uses a public interface."
+    },
+    "P1 Agent continuity and durable execution": {
+      "color_family": "cobalt",
+      "one_sentence_hook": "A supplier changes the booking before the worker crashes: what can the recovering process truthfully claim?",
+      "finish_line": "Defend exact confirmation, stale-write rejection and uncertain external outcomes using one original command and one recovery schedule.",
+      "active_recall_prompt": "Explain crashes before reservation, after a possible supplier call and after a retained result without changing the original identity.",
+      "three_anchors": [
+        "P1-06",
+        "P1-11",
+        "P1-14"
+      ],
+      "diagram_prompt": "Trace F03 from possible effect to reconciliation, then use F02 to identify the exact commitment point."
+    },
+    "P1 Code decisions under the transaction boundary": {
+      "color_family": "cobalt",
+      "one_sentence_hook": "A lease expires while its worker waits for a row lock: which timestamp should decide the write?",
+      "finish_line": "Read a P1 excerpt, explain its ordering and predict the invariant broken by one tempting edit.",
+      "active_recall_prompt": "Move the clock read before the lock, then explain which existing assertion exposes a stale write that should have been rejected.",
+      "three_anchors": [
+        "D1-01",
+        "D1-07",
+        "D1-12"
+      ],
+      "diagram_prompt": "Trace F05 through two result transactions, then predict the cursor bug caused by a pre-commit global sequence."
+    },
+    "P2 One conversation across channels": {
+      "color_family": "cyan",
+      "one_sentence_hook": "A caller leaves voice, sends an SMS and rejoins: which facts belong in the next session?",
+      "finish_line": "Trace durable intake, original sender and result disclosure across channels while keeping exact confirmation separate.",
+      "active_recall_prompt": "Reconstruct a reconnect using retained inputs and a public case read; name the final permission check and each separately timed observation.",
+      "three_anchors": [
+        "P2-07",
+        "P2-17",
+        "P2-20"
+      ],
+      "diagram_prompt": "Trace F07 across P2 and P1 reads, then mark the final disclosure check without inventing an atomic snapshot."
+    },
+    "P2 Code decisions across channels and awaits": {
+      "color_family": "cyan",
+      "one_sentence_hook": "A valid signed message waits behind a lock until its freshness window closes: should intake accept it?",
+      "finish_line": "Explain why validation, frozen preparation and permission checks sit on their exact sides of an await or transaction.",
+      "active_recall_prompt": "Read the prepared-dispatch branch aloud, then predict what changes if recovery asks the agent to prepare again.",
+      "three_anchors": [
+        "D2-01",
+        "D2-06",
+        "D2-10"
+      ],
+      "diagram_prompt": "Trace F09 from signed-byte authentication to the protected freshness check; identify why the first pass cannot establish current permission."
+    },
+    "P3 Delegation with explicit result authority": {
+      "color_family": "violet",
+      "one_sentence_hook": "The specialist finishes after cancellation and a case revision: which facts survive, and which actions remain forbidden?",
+      "finish_line": "Separate acceptance, one-call issuance, retained result truth, delivery and exact guarded action without introducing another execution owner.",
+      "active_recall_prompt": "Use one late result to explain five separate decisions: invocation, retention, applicability, receiver delivery and exact action.",
+      "three_anchors": [
+        "P3-06",
+        "P3-10",
+        "P3-15"
+      ],
+      "diagram_prompt": "Trace F10 and name the authority at each gate; explain why a stored result alone grants no action permission."
+    },
+    "P3 Code decisions at the specialist boundary": {
+      "color_family": "violet",
+      "one_sentence_hook": "A late response is valid JSON but contradicts source facts: which error must the verifier report first?",
+      "finish_line": "Defend strict parsing, factual validation and retained operation ownership with specific code order and an independently asserted test.",
+      "active_recall_prompt": "Move expiry before factual checks, then show why an unsupported conclusion must still be rejected as invalid.",
+      "three_anchors": [
+        "D3-03",
+        "D3-04",
+        "D3-10"
+      ],
+      "diagram_prompt": "Trace F12 from bytes to facts, then explain why lateness cannot turn unsupported output into an acceptable result."
+    },
+    "Code decisions in the joined application": {
+      "color_family": "teal",
+      "one_sentence_hook": "One of two readers times out during a shared scan: who still owns the scan and its eventual cleanup?",
+      "finish_line": "Trace observer lifetimes, retained I/O and browser input identity across the joined application's actual asynchronous boundaries.",
+      "active_recall_prompt": "Draw two observers sharing one scan; cancel them in sequence and identify when interest ends versus when ownership can end.",
+      "three_anchors": [
+        "D4-01",
+        "D4-02",
+        "D4-05"
+      ],
+      "diagram_prompt": "Trace F13 as each observer leaves, marking the published owner and the work that must remain observable."
+    },
+    "WebRTC from first principles": {
+      "color_family": "emerald",
+      "one_sentence_hook": "Signaling succeeds, but no audio arrives: which network path would you inspect next?",
+      "finish_line": "Explain negotiation, ICE, media protection and packet timing, then connect each mechanism to an observable failure.",
+      "active_recall_prompt": "Sketch offer and answer, candidate checks and the selected media path; explain where TURN relays traffic and where application durability begins.",
+      "three_anchors": [
+        "RTC-02",
+        "RTC-03",
+        "RTC-08"
+      ],
+      "diagram_prompt": "Trace F14 through signaling and media, then point to the evidence needed to distinguish connectivity from audible playback."
+    },
+    "Inside a LiveKit agent session": {
+      "color_family": "emerald",
+      "one_sentence_hook": "The user interrupts an answer while background work continues: what should stop, and what must retain its original identity?",
+      "finish_line": "Explain the LiveKit voice pipeline, manual input admission and interruption without treating playback or generation as business consent.",
+      "active_recall_prompt": "Trace one final transcript through durable intake and generation; then interrupt playback and state which business facts remain unchanged.",
+      "three_anchors": [
+        "LK-03",
+        "LK-04",
+        "LK-05"
+      ],
+      "diagram_prompt": "Trace F15 from recognition to browser playback; mark one observable boundary that could explain silence after captions appear."
+    },
+    "Failure diagnosis and production recovery": {
+      "color_family": "amber",
+      "one_sentence_hook": "Captions update while the caller hears silence: which missing observation narrows the failure fastest?",
+      "finish_line": "Choose discriminating observations and a recovery step that preserves original identities, known truth and unresolved ownership.",
+      "active_recall_prompt": "Take a silence, timeout or shutdown symptom; identify the failing layer and name one observation that would disprove your first diagnosis.",
+      "three_anchors": [
+        "FAIL-01",
+        "FAIL-03",
+        "FAIL-07"
+      ],
+      "diagram_prompt": "Trace F16 from the missing user observation to its owner, then choose the next check before proposing a retry."
+    },
+    "Designing for scale and durable progress": {
+      "color_family": "cobalt",
+      "one_sentence_hook": "A tenfold traffic increase fills retained capacity while old callers still need receipts: where should backpressure begin?",
+      "finish_line": "Define separate capacity units, recovery objectives and useful-progress checks without extrapolating local measurements into a production guarantee.",
+      "active_recall_prompt": "Choose one subsystem to scale; state its unit of load, admission bound, failure model and independent evidence of useful completion.",
+      "three_anchors": [
+        "SCALE-02",
+        "SCALE-03",
+        "SCALE-05"
+      ],
+      "diagram_prompt": "Trace F17 after the waiter leaves; identify which actual resource controls each slot's release rather than copying one universal rule."
+    },
+    "NATS from subjects to durable consumers": {
+      "color_family": "indigo",
+      "one_sentence_hook": "A consumer commits its database update and crashes before acknowledging JetStream: how can redelivery stay safe?",
+      "finish_line": "Distinguish routing, durable delivery and business effects while explaining acknowledgment order, deduplication limits and bounded consumer work.",
+      "active_recall_prompt": "Place publisher acknowledgment, application commit and consumer acknowledgment on a timeline; crash between each pair and preserve the original business identity.",
+      "three_anchors": [
+        "NATS-01",
+        "NATS-05",
+        "NATS-06"
+      ],
+      "diagram_prompt": "Trace F18's three acknowledgments, then explain the hypothetical policy for an unresolved business outcome without blindly retrying its external effect."
+    },
+    "NATS in the LiveKit ecosystem": {
+      "color_family": "indigo",
+      "one_sentence_hook": "A library supports NATS, but server wiring selects Redis: what deployment claim can you actually defend?",
+      "finish_line": "Separate PSRPC transport capability, public server construction and this POC's deployed services using the relevant source.",
+      "active_recall_prompt": "Explain why a NATS adapter does not prove deployed NATS, then propose a wake-up hint that preserves P1's authority.",
+      "three_anchors": [
+        "BUS-01",
+        "BUS-02",
+        "BUS-05"
+      ],
+      "diagram_prompt": "Trace F19's evidence planes without inventing arrows; identify which public source supports each claim and which deployment details remain unknown."
+    },
+    "Questions behind the Agents role": {
+      "color_family": "teal",
+      "one_sentence_hook": "A caller times out while blocking I/O continues: how should an SDK expose the outcome and own cleanup?",
+      "finish_line": "Defend async ownership, clear result types and consumer-facing APIs with concrete tests and an honest account of personal contribution.",
+      "active_recall_prompt": "Explain one API to a new consumer, name its unknown outcome and closure contract, then design a test that distinguishes them.",
+      "three_anchors": [
+        "ROLE-01",
+        "ROLE-04",
+        "ROLE-07"
+      ],
+      "diagram_prompt": "Trace the blocking-call case in ROLE-01; draw the observer timeout, actual worker completion and eventual slot release."
+    }
+  },
+  "color_families": {
+    "teal": {
+      "accent": "#147D79",
+      "ink": "#0B5956",
+      "tint": "#ECF7F5",
+      "use": "System authority and application composition"
+    },
+    "cobalt": {
+      "accent": "#316FB5",
+      "ink": "#234F82",
+      "tint": "#EEF4FC",
+      "use": "Durable execution, transactions and capacity"
+    },
+    "cyan": {
+      "accent": "#147F99",
+      "ink": "#0D5D71",
+      "tint": "#ECF7FA",
+      "use": "Channels, ingress and disclosure"
+    },
+    "violet": {
+      "accent": "#7A56A1",
+      "ink": "#543975",
+      "tint": "#F5F0FA",
+      "use": "Specialist boundaries, evidence and result handling"
+    },
+    "emerald": {
+      "accent": "#268567",
+      "ink": "#175E49",
+      "tint": "#EFF8F2",
+      "use": "Media transport and LiveKit sessions"
+    },
+    "amber": {
+      "accent": "#B27019",
+      "ink": "#7B4B0D",
+      "tint": "#FFF6E9",
+      "use": "Failure diagnosis and recovery"
+    },
+    "indigo": {
+      "accent": "#5A65A1",
+      "ink": "#3D4677",
+      "tint": "#F1F3FA",
+      "use": "Messaging contracts and evidence about bus selection"
+    }
+  },
+  "semantic_callouts": [
+    {
+      "label": "CORE IDEA",
+      "meaning": "The invariant or distinction the reader should retain.",
+      "palette": {
+        "accent": "#147D79",
+        "ink": "#0B5956",
+        "tint": "#ECF7F5"
+      },
+      "where_use": "One short takeaway on a chapter opening, or the existing mechanism summary on a code-defense spread.",
+      "do_not_use_for": "Do not make a green panel imply eligibility, consent or a passing gate."
+    },
+    {
+      "label": "TRACE IT",
+      "meaning": "A concrete path to follow through a figure or source excerpt.",
+      "palette": {
+        "accent": "#316FB5",
+        "ink": "#234F82",
+        "tint": "#EEF4FC"
+      },
+      "where_use": "The diagram prompt and the continuous code excerpt. Keep its existing question or figure ID visible.",
+      "do_not_use_for": "Do not introduce a new source path, a fictional sequence or an unimplemented integration."
+    },
+    {
+      "label": "PROBE",
+      "meaning": "An active-recall task that changes one ordering, failure point or constraint.",
+      "palette": {
+        "accent": "#7A56A1",
+        "ink": "#543975",
+        "tint": "#F5F0FA"
+      },
+      "where_use": "Endnote recall prompt, existing counterfactual and answered follow-up probes.",
+      "do_not_use_for": "Do not present a proposed alternative as implemented behavior or an original design motivation."
+    },
+    {
+      "label": "WATCH FOR",
+      "meaning": "A tempting inference that the evidence does not support.",
+      "palette": {
+        "accent": "#B27019",
+        "ink": "#7B4B0D",
+        "tint": "#FFF6E9"
+      },
+      "where_use": "Existing watch_for text, known release limits and the trap in a challenge card.",
+      "do_not_use_for": "Do not invent a risk or add a warning to every paragraph."
+    }
+  ],
+  "usage_notes": [
+    "Use one repeated color family per chapter, with a narrow ribbon or rule and a pale study-rail tint. Keep long reading text near black on white.",
+    "Keep the same semantic callout label throughout the book. Color supports the printed label and layout; it never carries technical meaning by itself.",
+    "Opening reading order: concrete hook, finish line, three anchor IDs. Put the recall and diagram prompts together at the chapter end for retrieval practice.",
+    "Keep chapter cues outside the technical answers. Preserve the printed source references, question IDs, figure captions and all evidence limitations.",
+    "Use the darkest ink value for small colored text; reserve the brighter accent for rules and larger labels. Check contrast after the final print palette is applied.",
+    "Avoid full-page color backgrounds and heavy fills. Pale tints, line art and white note areas keep duplex pages readable and economical to print.",
+    "The cues reference the current F01–F19 numbering. Chapter 1 uses the authority figure in the shared opening material; chapter 15 uses its existing blocking-call case."
+  ]
+}

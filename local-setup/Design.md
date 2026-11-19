@@ -1,7 +1,13 @@
 # Local setup design
 
-Status: Active
-Last reviewed: 15 November 2026
+| Field | Value |
+| --- | --- |
+| Status | Active |
+| Purpose | Define the local stack, resource ownership, trust boundaries and qualification gates |
+| Audience | Engineers and coding agents changing local orchestration or reviewing its evidence |
+| Scope | Local Compose, setup, lifecycle, credentials and validation; excludes product state authority |
+| Owns | Local setup topology, interfaces, failure handling and operational limits |
+| Related | [Setup guide](README.md) · [Coding instructions](AGENTS.md) · [Shared design](../Design.md) · [Validation plan](../docs/validation-plan.md) |
 
 ## Overview
 
@@ -31,7 +37,7 @@ persistent state.
   semantics or their 54 acceptance cases.
 - Default API routes retain the M1 SQLite intake (M1 is the original
   confirmed-investigation intake).
-- The explicit p1-workers and p1-business profiles compose PostgreSQL v4 execution,
+- The explicit p1-workers and p1-business profiles compose PostgreSQL v4/v5 execution,
   the native scripted conversation and a scoped workspace without switching the M1
   volume.
 - Owner-only migration and cutover, and fixture initialization, remain separate
@@ -77,7 +83,7 @@ Read the [setup guide](README.md), the [shared design](../Design.md), the
 | Technical | Keep storage ownership explicit | SQLite M1 in application_data; PostgreSQL roles and database in postgres_data. Owner labels are checked even without containers. |
 | Technical | Expose bounded operations and safe diagnostics | Config validates without printing expanded credentials. Status, logs and smoke have finite subprocess and operation budgets. |
 | Technical | Distinguish optional trace UI readiness | The observability profile probes HTTP 200. The business gate additionally inspects actual filtered OpenTelemetry Protocol (OTLP) traces. |
-| Business and technical | Enable P1 business composition explicitly | Read-only ACTIVE v4 and fixture preflight, scoped native and controller commands, actual scripted browser media and preserved M1 compatibility |
+| Business and technical | Enable P1 business composition explicitly | Read-only ACTIVE v4/v5 and fixture preflight, scoped native and controller commands, actual scripted browser media and preserved M1 compatibility |
 | Technical | Prepare roles on fresh and retained volumes | Explicit post-health prepare-postgres verifies managed attributes and retained passwords over TCP with the Salted Challenge Response Authentication Mechanism (SCRAM), without rotation |
 | Technical | Separate schema preparation from source activation | Explicit migrate-postgres creates a staging schema using only the migration principal. Standalone cutover requires a source, a private backup and verified checkpoints. |
 | Business and technical | Declare reproducible inquiry experiments before measuring | p1-benchmark-plan validates frozen input without execution. p1-benchmark requires installed-source, independent-result and owned-cleanup evidence. |
@@ -165,7 +171,7 @@ flowchart LR
     Bootstrap --> PostgreSQL
     Manager --> Migration[One-shot owner migrations]
     Migration --> PostgreSQL
-    Manager --> Preflight[Read-only ACTIVE v4 and existing fixture checks]
+    Manager --> Preflight[Read-only ACTIVE v4 or v5 and existing fixture checks]
     Preflight --> PostgreSQL
     Preflight --> Fixtures
     Manager --> Ownership[Checkout and credential-derived resource ownership]
@@ -182,9 +188,9 @@ flowchart LR
 2. The console proxies /api only. Browser and container signalling URLs differ.
    Real-time data and media follow native SDK and ICE networking.
 3. Default M1 writes stay in SQLite. Explicit business mode uses the prepared
-   PostgreSQL v4 service and the current-case UI. In that mode the API looks up
+   PostgreSQL v4/v5 service and the current-case UI. In that mode the API looks up
    trusted proposals read-only in the fixture volume, and the manager's read-only
-   preflight checks the ACTIVE v4 schema and the existing fixtures. The diagnostic
+   preflight checks the ACTIVE v4/v5 schema and the existing fixtures. The diagnostic
    agent remains transport-only. Role and schema preparation cannot implicitly
    activate business mode.
 4. Role bootstrap runs inside PostgreSQL after its normal TCP server is healthy.
@@ -249,9 +255,9 @@ sequenceDiagram
     Docker->>Services: Install versioned staging schema
     Note over Operator,Services: M1 source stays SQLite with no import or activation here
     Operator->>Manager: prepare-business then init-worker-fixtures
-    Manager->>Services: Explicit owned auxiliary-source activation and v4 upgrades
+    Manager->>Services: Explicit owned auxiliary-source activation and upgrades through v5
     Note over Operator,Services: Existing serving M1 remains separate and preserved
-    opt Explicit business profile after ACTIVE v4 and fixture preparation
+    opt Explicit business profile after ACTIVE v4 or v5 and fixture preparation
         Operator->>Manager: start-business
         Manager->>Services: Read-only schema role and fixture preflight
         Manager->>Docker: Start native agent worker Jaeger and business API
@@ -262,7 +268,7 @@ sequenceDiagram
     opt Explicit provider_real after private key setup and check
         Operator->>Manager: start-provider
         Manager->>Files: Strict bounded private three-key validation
-        Manager->>Services: Read-only ACTIVE v4 and existing fixture checks
+        Manager->>Services: Read-only ACTIVE v4 or v5 and existing fixture checks
         Manager->>Docker: Inject keys only into native provider runtime
         Note over Docker,Services: API worker collector and build receive no provider keys
         Operator->>Manager: stop-provider
@@ -646,7 +652,7 @@ mount read-only at /models and are absent from application build contexts.
 - Only models-fetch can download declared weights.
 - start-models and start-local-real verify exact cached sizes and digests first.
   Neither initializes a schema or fixtures.
-- start-local-real then uses the existing read-only ACTIVE v4 and same-scope
+- start-local-real then uses the existing read-only ACTIVE v4/v5 and same-scope
   preflight and the explicit trusted local_real mode for API, native and traces.
 - stop-local-real drains workers, restores the ordinary API and scripted mode, and
   stops engines without deleting state. Like stop-business, it removes the native
@@ -790,14 +796,17 @@ provider loading.
 Startup and shutdown bounds:
 
 - Startup has one 60-second observer, and each child's readiness is bounded at
-  fifteen seconds. Shutdown has one original 60-second observer.
+  fifteen seconds. Shutdown has one original 120-second observer.
 - SIGHUP and SIGQUIT are treated like SIGTERM and SIGINT.
 - Incomplete cleanup prints `cleanup_incomplete` once, then retries the same
   retained cleanup until it succeeds. After the shutdown deadline, retries
   without a new signal back off from 0.1 s, doubling to 5 s. Another signal
   retries at once.
-- Independent retained UI and Parent cleanup begins before awaiting either owner.
-  Both settle before gateway and specialist removal.
+- Independent retained UI close and Parent preparation begin before awaiting
+  either owner. Parent preparation drains operator, room and SMS owners while
+  application origins and gateway dispatch stay available. The launcher then
+  observes both gateway dispatchers quiesced, closes the Parent application and
+  finally removes gateway and specialist.
 - Failed or cancelled readers require actual end-of-file (EOF) proof. Direct
   children require reap and process-group absence. Unresolved ownership retains
   dependencies.
@@ -811,10 +820,20 @@ dispatch claim lease. That lease outlives the joined gateways' 5,000 ms dispatch
 step deadline, so a receipt returned near the deadline still passes the claim
 guard. Profiles prepared earlier keep 5,000 ms.
 
-These implemented component bounds do not establish connected media or provider
-qualification or production capacity.
+The [lifecycle work item](../docs/work-items/0050-lifecycle-drain-and-documentation-cleanup.md)
+records the failure schedules and verification of this order. Runtime cleanup
+observers do not extend business, grant, provider or frozen qualification
+deadlines. Selected connected journeys exist in
+[0046](../docs/work-items/0046-joined-showcase-providers-and-demo.md); these
+component bounds do not complete joined release or establish production capacity.
 
 ## Security and privacy
+
+| Boundary | Required control | Limit |
+| --- | --- | --- |
+| Configuration | Parse data, validate paths/endpoints and bind the stack to loopback | Remote TLS, TURN and multi-server networking require separate decisions |
+| Credentials | Separate administrator, migration and runtime credentials; redact diagnostic output | A local Docker administrator can inspect container environments |
+| Smoke evidence | Use synthetic media and bounded observations | Smoke never prints tokens or establishes a hardened secret platform |
 
 ### Configuration and network exposure
 
@@ -848,6 +867,13 @@ qualification or production capacity.
 - Normal smoke is synthetic and must not print access tokens or raw personal media.
 
 ## Observability
+
+| Producer | Observation | Qualification boundary |
+| --- | --- | --- |
+| Local manager | Bounded redacted command outcomes and diagnostic tails | Not unbounded log retention |
+| Application API | Structured request logs and protected finite metrics | Other infrastructure producers retain their own formats |
+| Workload runner | Declared raw timings, resource samples and independent results | A local workload is not production capacity |
+| Native/application tracing | Filtered bounded OTLP and inspected export | Viewer health alone is insufficient; production retention remains separate |
 
 ### Manager output and logs
 
@@ -940,7 +966,7 @@ cannot authorize destroying persistent application data.
 | Decision | Benefit | Cost or limit |
 | --- | --- | --- |
 | Docker Compose and one media server | Small reproducible local topology | Not an orchestrator high-availability or distributed media demonstration |
-| Default SQLite M1 plus an explicit PostgreSQL business profile | Preserves the original intake while composing prepared v4 authority through scoped adapters | Explicit operator preflight and activation; the stores are not one atomic transaction |
+| Default SQLite M1 plus an explicit PostgreSQL business profile | Preserves the original intake while composing prepared v4/v5 authority through scoped adapters | Explicit operator preflight and activation; the stores are not one atomic transaction |
 | Explicit post-health role bootstrap | The same supported procedure on fresh and retained volumes, with real SCRAM proof | The operator must run prepare-postgres after updating the PostgreSQL container |
 | Separate migration-only profile | No schema administration in serving containers; bounded one-shot resource use | Schema preparation stages data structures only; activation requires a verified source |
 | Credential-derived volume ownership | Prevents accidental cross-checkout adoption or deletion | Retaining private credentials is necessary for legitimate state relocation |
@@ -948,6 +974,16 @@ cannot authorize destroying persistent application data.
 | Optional lightweight trace UI and filtered business export | Inspect actual local producer spans without another dashboard stack | In-memory data and partial local coverage do not establish production observability |
 
 ## Validation and acceptance gates
+
+| Gate | Required evidence | Scope |
+| --- | --- | --- |
+| Offline | Configuration, contracts, ownership, privacy and bounded failure tests | No real infrastructure or media claim |
+| Infrastructure | Actual startup, restricted identities and readiness | Supported local platform only |
+| Transport and intake | Authenticated SDK text/audio and retained intake identity | Synthetic transport is separate from real-model quality |
+| PostgreSQL | Actual isolated-role, migration and process-recovery assertions | Required setup and zero skipped requirements |
+| Business browser | Actual scripted input/output, interruption, consent and filtered traces | Native smoke or mocks cannot replace the browser path |
+| Product/release | Required modality, artifact, API and inference qualification | Missing or timed-out assertions remain non-passing |
+| H1 workload | Frozen declaration, installed runner, independent truth and owned cleanup | Summaries do not establish production throughput |
 
 1. **Configuration and unit gate.** Run the existing commands in the
    [setup guide](README.md#unit-tests). Require tests for malformed dotenv files,

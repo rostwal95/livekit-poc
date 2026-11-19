@@ -1,0 +1,296 @@
+1Workflow architecture
+
+2Building the greeter agent
+
+3Complex tool definitions
+
+4AgentTask: structured data collection
+
+5TaskGroup: multi-step flows
+
+6Prebuilt tasks
+
+7Agent handoffs & context
+
+8State with userdata
+
+9Dynamic tool management
+
+10Testing the workflow
+
+Agent handoffs & context
+
+Agent handoffs and context
+
+You have seen self.hand_off() trigger a transition from one agent to another. But a handoff is more than just swapping instructions — you need to clean up after the outgoing agent, configure the incoming one, and pass enough context that the new agent can continue the conversation without asking the customer to repeat themselves. This chapter covers the full handoff lifecycle.
+
+What you'll learn
+
+How on_exit() lets the outgoing agent clean up before a handoff
+
+How AgentConfigUpdate customizes agent behavior during transitions
+
+How to pass conversation context between agents so nothing is lost
+
+The complete lifecycle of a Greeter to OrderTaker to Feedback handoff chain
+
+The handoff lifecycle
+
+When one agent hands off to another, five things happen in sequence:
+
+The current agent's tool (e.g., transfer_to_order_taker) returns a string that the LLM uses to generate a farewell message.
+
+The outgoing agent's on_exit() method runs. This is where you save state, log analytics, or perform any cleanup.
+
+The framework replaces the current agent with the new one. The old agent's tools and instructions are no longer available.
+
+The new agent's on_enter() method runs. This is where you generate a greeting, load state, or set up the new agent's context.
+
+The new agent takes over. The customer hears the transition and interacts with the new agent's personality and tools.
+
+Cleaning up with on_exit()
+
+The on_exit() method is your chance to finalize anything the outgoing agent was working on. For the greeter, you might log how long the greeting took. For the order taker, you might save the order to a database.
+
+from livekit.agents import Agent, function_tool, RunContext
+import time
+
+
+class GreeterAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="You are a friendly host at Bella Vista...",
+      )
+      self.entered_at = None
+
+  async def on_enter(self):
+      self.entered_at = time.time()
+      self.session.generate_reply(
+          instructions="Greet the guest warmly and ask how you can help."
+      )
+
+  async def on_exit(self):
+      if self.entered_at:
+          duration = time.time() - self.entered_at
+          print(f"Greeter session lasted {duration:.1f} seconds")
+      # Save any greeter-specific state before handing off
+      self.session.userdata["greeted"] = True
+
+  @function_tool
+  async def transfer_to_order_taker(self, context: RunContext) -> str:
+      """Transfer to the order taker."""
+      from order_taker_agent import OrderTakerAgent
+      self.hand_off(OrderTakerAgent())
+      return "Transferring you to our order taker now."
+
+import { Agent, functionTool, RunContext } from "@livekit/agents";
+
+class GreeterAgent extends Agent {
+private enteredAt: number | null = null;
+
+constructor() {
+  super({
+    instructions: "You are a friendly host at Bella Vista...",
+  });
+}
+
+async onEnter() {
+  this.enteredAt = Date.now();
+  this.session.generateReply({
+    instructions: "Greet the guest warmly and ask how you can help.",
+  });
+}
+
+async onExit() {
+  if (this.enteredAt) {
+    const duration = (Date.now() - this.enteredAt) / 1000;
+    console.log(`Greeter session lasted ${duration.toFixed(1)} seconds`);
+  }
+  this.session.userdata.greeted = true;
+}
+
+@functionTool({ description: "Transfer to the order taker." })
+async transferToOrderTaker(context: RunContext): Promise<string> {
+  this.handOff(new (await import("./orderTakerAgent")).OrderTakerAgent());
+  return "Transferring you to our order taker now.";
+}
+}
+
+on_exit() is guaranteed to run
+
+Whether the handoff was triggered by a tool call, a system event, or a session disconnect, on_exit() always runs before the agent is replaced. Use it for any cleanup that must happen — saving state, closing connections, logging metrics.
+
+AgentConfigUpdate: customizing transitions
+
+Sometimes you want to adjust the session configuration when switching agents. The order taker might need a different LLM model, a slower TTS voice, or adjusted turn detection settings. AgentConfigUpdate lets you apply these changes as part of the handoff.
+
+from livekit.agents import Agent, AgentConfigUpdate, function_tool, RunContext
+
+
+class OrderTakerAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are the precise order taker at Bella Vista.
+          Confirm every detail. Read items back to the customer.
+          Be methodical and accurate.""",
+      )
+
+  async def on_enter(self):
+      # Update session config for the order-taking phase
+      await self.session.update_config(
+          AgentConfigUpdate(
+              # Use a more capable model for order accuracy
+              turn_detection_silence_threshold=0.8,  # Longer pause tolerance
+          )
+      )
+
+      # Check if the customer was already greeted
+      greeted = self.session.userdata.get("greeted", False)
+      if greeted:
+          self.session.generate_reply(
+              instructions="The guest has already been greeted. Introduce yourself as the order taker and ask what they would like."
+          )
+      else:
+          self.session.generate_reply(
+              instructions="Welcome the guest and ask what they would like to order."
+          )
+
+import { Agent, AgentConfigUpdate, functionTool, RunContext } from "@livekit/agents";
+
+class OrderTakerAgent extends Agent {
+constructor() {
+  super({
+    instructions: `You are the precise order taker at Bella Vista.
+      Confirm every detail. Read items back to the customer.
+      Be methodical and accurate.`,
+  });
+}
+
+async onEnter() {
+  await this.session.updateConfig(
+    new AgentConfigUpdate({
+      turnDetectionSilenceThreshold: 0.8,
+    })
+  );
+
+  const greeted = this.session.userdata.greeted ?? false;
+  if (greeted) {
+    this.session.generateReply({
+      instructions: "The guest has already been greeted. Introduce yourself as the order taker and ask what they would like.",
+    });
+  } else {
+    this.session.generateReply({
+      instructions: "Welcome the guest and ask what they would like to order.",
+    });
+  }
+}
+}
+
+AgentConfigUpdate lets you change session-level settings without restarting the session. In this example, the order taker increases the silence threshold so it waits longer before assuming the customer is done speaking — useful when customers are thinking about what to order. You can also change the TTS voice, the LLM model, or other session parameters.
+
+Passing context between agents
+
+The most important part of a handoff is making sure the new agent knows what happened before it arrived. There are two strategies: using session.userdata for structured state (covered in depth in the next chapter) and passing a context summary in the agent's constructor.
+
+from livekit.agents import Agent, function_tool, RunContext
+
+
+class FeedbackAgent(Agent):
+  def __init__(self, order_summary: str = ""):
+      super().__init__(
+          instructions=f"""You are the feedback collector at Bella Vista.
+          The customer just completed their order: {order_summary}
+
+          Thank them for their order. Ask how their experience was.
+          Keep it brief and genuine. If they have complaints, empathize
+          and offer to connect them with a manager.""",
+      )
+      self.order_summary = order_summary
+
+  async def on_enter(self):
+      self.session.generate_reply(
+          instructions=f"Thank the customer for ordering {self.order_summary} and ask about their experience."
+      )
+
+import { Agent, functionTool, RunContext } from "@livekit/agents";
+
+class FeedbackAgent extends Agent {
+private orderSummary: string;
+
+constructor(orderSummary: string = "") {
+  super({
+    instructions: `You are the feedback collector at Bella Vista.
+      The customer just completed their order: ${orderSummary}
+
+      Thank them for their order. Ask how their experience was.
+      Keep it brief and genuine. If they have complaints, empathize
+      and offer to connect them with a manager.`,
+  });
+  this.orderSummary = orderSummary;
+}
+
+async onEnter() {
+  this.session.generateReply({
+    instructions: `Thank the customer for ordering ${this.orderSummary} and ask about their experience.`,
+  });
+}
+}
+
+Now the order taker can pass context when handing off:
+
+class OrderTakerAgent(Agent):
+  # ... previous code ...
+
+  @function_tool
+  async def transfer_to_feedback(self, context: RunContext) -> str:
+      """Transfer to the feedback collector after the order is complete."""
+      items = self.session.userdata.get("order_items", [])
+      summary = ", ".join(f"{i['quantity']}x {i['name']}" for i in items)
+      self.hand_off(FeedbackAgent(order_summary=summary))
+      return "Your order is confirmed. Let me connect you with someone for a quick feedback."
+
+class OrderTakerAgent extends Agent {
+// ... previous code ...
+
+@functionTool({ description: "Transfer to the feedback collector after the order is complete." })
+async transferToFeedback(context: RunContext): Promise<string> {
+  const items = this.session.userdata.orderItems ?? [];
+  const summary = items.map((i: any) => `${i.quantity}x ${i.name}`).join(", ");
+  this.handOff(new FeedbackAgent(summary));
+  return "Your order is confirmed. Let me connect you with someone for a quick feedback.";
+}
+}
+
+Two context strategies
+
+Constructor arguments work well for small, specific pieces of context (an order summary string). For complex shared state that multiple agents read and write, use session.userdata — which is the focus of the next chapter. Most production systems use both.
+
+The complete handoff chain
+
+Here is the full three-agent chain for the restaurant system, showing how each transition preserves context:
+
+The greeter welcomes the customer and answers questions. When the customer is ready to order, the greeter's transfer_to_order_taker tool fires. on_exit() saves greeted: True to userdata. The OrderTaker's on_enter() reads this flag and adjusts its greeting accordingly.
+
+The order taker collects items using tasks, calculates the total, and processes payment. When the order is complete, transfer_to_feedback passes the order summary as a constructor argument. on_exit() saves the finalized order to userdata. The FeedbackAgent's on_enter() thanks the customer by name for their specific order.
+
+The feedback agent collects satisfaction feedback, optionally gets an email for the receipt using GetEmailTask, and thanks the customer. Since this is the last agent in the chain, it does not hand off — the session ends when the customer hangs up or the conversation concludes naturally.
+
+What you learned
+
+on_exit() runs when an agent is about to be replaced — use it for cleanup and state saving
+
+AgentConfigUpdate lets you change session settings (silence threshold, TTS, LLM) during handoffs
+
+Context can be passed via constructor arguments (for specific data) or session.userdata (for shared state)
+
+The handoff lifecycle is predictable: tool return, on_exit(), agent switch, on_enter(), conversation continues
+
+Test your knowledge
+
+Question 1 of 2
+
+In what order do the handoff lifecycle events fire?
+
+Next up
+
+You have been using session.userdata in passing. In the next chapter, you will build a proper OrderState dataclass that tracks the entire order across all three agents — making cross-agent state management clean and type-safe.

@@ -237,7 +237,7 @@ raise SystemExit(m.main(['--plan']))
         value = json.loads(completed.stdout)
         self.assertEqual(
             (value["childrenMaximum"], value["startupSeconds"], value["shutdownSeconds"]),
-            (3, 60, 60),
+            (3, 60, 120),
         )
         self.assertFalse(value["servingDDL"] or value["providerFiles"] or value["providerCalls"])
 
@@ -279,8 +279,17 @@ class Composition(unittest.IsolatedAsyncioTestCase):
 
             async def start(self, cursor):
                 outer.log.append("parent:start")
+                if "parent:start" in outer.faults:
+                    raise RuntimeError("PRIVATE_PARENT_START")
                 outer.cursor = cursor
                 return LoopbackEndpoint("127.0.0.1", 11033)
+
+            async def prepare_shutdown(self):
+                outer.log.append("parent:prepare")
+                if "parent:prepare" in outer.holds:
+                    await outer.holds["parent:prepare"].wait()
+                if "parent:prepare" in outer.faults:
+                    raise RuntimeError("PRIVATE_PREPARATION")
 
             async def close(self):
                 outer.log.append("parent:close")
@@ -318,6 +327,14 @@ class Composition(unittest.IsolatedAsyncioTestCase):
 
             async def wait_terminal(self):
                 await self.closed.wait()
+
+            async def quiesce_dispatch(self):
+                outer.log.append(self.spec.role + ":quiesce")
+                if self.spec.role + ":quiesce" in outer.holds:
+                    await outer.holds[self.spec.role + ":quiesce"].wait()
+                if self.spec.role + ":quiesce" in outer.faults:
+                    raise RuntimeError("PRIVATE_QUIESCE")
+                outer.log.append(self.spec.role + ":quiesced")
 
             async def close(self):
                 outer.log.append(self.spec.role + ":close")
@@ -408,7 +425,16 @@ class Composition(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn(launcher._prepared.operator_bearer, json.dumps(launcher.status()))
         await launcher.close()
         self.assertEqual(
-            self.log[-4:], ["ui:close", "parent:close", "gateway:close", "specialist:close"]
+            self.log[-7:],
+            [
+                "ui:close",
+                "parent:prepare",
+                "gateway:quiesce",
+                "gateway:quiesced",
+                "parent:close",
+                "gateway:close",
+                "specialist:close",
+            ],
         )
         self.assertFalse((launcher._prepared.runtime / "active.json").exists())
 
@@ -442,7 +468,7 @@ class Composition(unittest.IsolatedAsyncioTestCase):
         opening = asyncio.create_task(launcher.start())
         await self.until(lambda: "sources" in self.log)
         closer = asyncio.create_task(launcher.close())
-        await self.until(lambda: "parent:close" in self.log)
+        await self.until(lambda: "parent:prepare" in self.log)
         self.assertFalse(closer.done())
         self.assertFalse(self.children)
         self.holds["sources"].set()
@@ -503,7 +529,7 @@ class Composition(unittest.IsolatedAsyncioTestCase):
         self.assertIs(m.asyncio.create_task, original)
         await launcher.close()
 
-    async def test_original_sixty_second_shutdown_observer_is_not_renewed_on_retry(self):
+    async def test_original_shutdown_observer_is_not_renewed_on_retry(self):
         launcher = self.launcher()
         await launcher.start()
         self.faults.add("parent:close")
@@ -521,7 +547,7 @@ class Composition(unittest.IsolatedAsyncioTestCase):
         await launcher.start()
         self.holds["ui:close"] = asyncio.Event()
         closing = asyncio.create_task(launcher.close())
-        await self.until(lambda: "parent:close" in self.log)
+        await self.until(lambda: "parent:prepare" in self.log)
         self.assertIn("ui:close", self.log)
         self.assertFalse(closing.done())
         self.assertNotIn("gateway:close", self.log)
@@ -529,6 +555,53 @@ class Composition(unittest.IsolatedAsyncioTestCase):
         self.holds["ui:close"].set()
         await closing
         self.assertTrue(self.children["ui"].closed.is_set())
+
+    async def test_room_preparation_precedes_global_quiesce_and_parent_endpoints_survive_held_ack(
+        self,
+    ):
+        launcher = self.launcher()
+        await launcher.start()
+        self.holds["parent:prepare"] = asyncio.Event()
+        self.holds["gateway:quiesce"] = asyncio.Event()
+        closing = asyncio.create_task(launcher.close())
+        await self.until(lambda: "parent:prepare" in self.log)
+        self.assertNotIn("gateway:quiesce", self.log)
+        self.holds["parent:prepare"].set()
+        await self.until(lambda: "gateway:quiesce" in self.log)
+        self.assertNotIn("parent:close", self.log)
+        self.assertNotIn("gateway:close", self.log)
+        closing.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await closing
+        self.assertFalse(launcher._gateway_quiesce.done())
+        self.assertTrue((launcher._prepared.runtime / "active.json").exists())
+        self.holds["gateway:quiesce"].set()
+        await launcher.close()
+        self.assertLess(self.log.index("gateway:quiesced"), self.log.index("parent:close"))
+        self.assertEqual(self.log.count("gateway:quiesce"), 1)
+
+    async def test_failed_quiesce_retains_parent_and_retries_same_child_before_app_close(self):
+        launcher = self.launcher()
+        await launcher.start()
+        self.faults.add("gateway:quiesce")
+        with self.assertRaises(m.LaunchError):
+            await launcher.close()
+        self.assertNotIn("parent:close", self.log)
+        self.assertNotIn("gateway:close", self.log)
+        original = self.children["gateway"]
+        self.faults.remove("gateway:quiesce")
+        await launcher.close()
+        self.assertIs(self.children["gateway"], original)
+        self.assertLess(self.log.index("gateway:quiesced"), self.log.index("parent:close"))
+
+    async def test_parent_start_failure_quiesces_dispatch_before_parent_app_close(self):
+        launcher = self.launcher()
+        self.faults.add("parent:start")
+        with self.assertRaises(m.LaunchError):
+            await launcher.start()
+        await launcher.close()
+        self.assertLess(self.log.index("parent:prepare"), self.log.index("gateway:quiesce"))
+        self.assertLess(self.log.index("gateway:quiesced"), self.log.index("parent:close"))
 
     async def test_reentrant_ui_factory_late_owner_is_closed_before_dependencies(self):
         original_factory = self.factories.child
@@ -686,6 +759,50 @@ class Composition(unittest.IsolatedAsyncioTestCase):
                 )
                 self.assertEqual(frames[-1]["status"], "closed")
                 self.assertFalse((launcher._prepared.runtime / "active.json").exists())
+
+    async def test_already_failed_cleanup_is_retried_without_another_signal(self):
+        from io import StringIO
+
+        launcher = self.launcher()
+        original_close = launcher.close
+        installed, output = {}, StringIO()
+        loop = asyncio.get_running_loop()
+
+        async def settled_close():
+            try:
+                await original_close()
+            except m.LaunchError:
+                actual = launcher._cleanup
+                if actual is not None:
+                    await asyncio.gather(asyncio.shield(actual), return_exceptions=True)
+                    if not actual.cancelled() and actual.exception() is None:
+                        return
+                raise
+
+        launcher.close = settled_close
+        self.faults.add("parent:close")
+        with (
+            patch.object(m, "SHUTDOWN_SECONDS", 0),
+            patch.object(m, "RETRY_SECONDS", 0.02),
+            patch.object(m, "JoinedLauncher", return_value=launcher),
+            patch.object(loop, "add_signal_handler", side_effect=installed.__setitem__),
+            patch.object(loop, "remove_signal_handler", return_value=True),
+            patch.object(m.sys, "stdout", output),
+        ):
+            serving = asyncio.create_task(m.serve(self.request))
+            try:
+                await self.until(lambda: launcher.status()["status"] == "ready")
+                installed[signal.SIGTERM]()
+                await self.until(lambda: '"cleanup_incomplete"' in output.getvalue())
+                self.assertTrue(launcher._cleanup.done())
+                self.faults.remove("parent:close")
+                done, _ = await asyncio.wait((serving,), timeout=0.5)
+                self.assertIn(serving, done, "A settled failed cleanup waited for another signal")
+                self.assertEqual(await serving, 0)
+            finally:
+                self.faults.discard("parent:close")
+                installed[signal.SIGTERM]()
+                await serving
 
     async def test_queued_cancellation_does_not_allocate_prepare_or_children(self):
         launcher = self.launcher()

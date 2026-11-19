@@ -1,0 +1,324 @@
+1What is voice AI? Why WebRTC matters
+
+2Project setup & your first agent
+
+3Understanding AgentSession
+
+4Writing great agent instructions
+
+5Adding your first tool: check availability
+
+6RunContext, state & the booking tool
+
+7Noise cancellation & room configuration
+
+8Testing your agent
+
+9Turn detection deep dive
+
+10Conversation context & multi-turn state
+
+11Beyond audio: the data plane
+
+12Deploy to LiveKit Cloud
+
+13Polish & production readiness
+
+Writing great agent instructions
+
+Writing great agent instructions
+
+Your agent's instructions are the single most important factor in how it behaves. In the previous chapters, you used a one-sentence instruction and the agent worked — but it was generic, occasionally verbose, and had no guidance for edge cases. In this chapter, you will learn how voice prompting differs from text prompting and write a comprehensive prompt that makes the dental receptionist sound professional, consistent, and natural.
+
+What you will learn: The principles of voice prompting, a structured approach to writing instructions, and how to add an initial greeting with on_enter().
+
+What you will build: A polished dental receptionist with structured instructions and an automatic greeting.
+
+Voice prompting is not text prompting
+
+If you have written prompts for ChatGPT, Claude, or any text-based LLM, you have habits that will hurt you in voice. Text prompts optimize for informational completeness. Voice prompts optimize for conversational naturalness. The differences are fundamental.
+
+In text, a detailed three-paragraph answer is helpful. In voice, it is a monologue. Callers zone out after two sentences. Instruct the agent to respond in one to two sentences and let the caller ask follow-up questions.
+
+LLMs love markdown: asterisks for bold, hyphens for bullet points, headers with hashes. TTS engines read these literally or produce awkward pauses. The word "asterisk" will not come out of the speaker, but strange silence or garbled pronunciation will. Explicitly ban all formatting.
+
+Same problem. A smiley face in text is friendly. In TTS, it is either skipped (creating an odd gap) or read aloud as "smiling face emoji." Neither is what you want.
+
+Text agents do not need to be told about pauses, confirmations, or turn-taking. Voice agents do. Tell the agent to confirm understanding ("Got it, let me check that for you"), to ask one question at a time, and to avoid long lists.
+
+A text agent can be neutral. A voice agent must have a consistent tone because the caller hears it. Warm or clinical? Casual or formal? Fast-paced or measured? Define it explicitly or the LLM will drift between turns.
+
+The formatting trap
+
+The most common mistake in voice agent prompts is forgetting to ban formatting. An agent that says "Here are your options: asterisk 9 AM, asterisk 11 AM, asterisk 2 PM" sounds broken. Always include an explicit rule: "Never use markdown, bullet points, numbered lists, or any text formatting."
+
+The prompt structure
+
+Good voice agent instructions follow a consistent structure. Each section serves a specific purpose, and the order matters — LLMs pay more attention to content at the beginning and end of the system prompt.
+
+Who is the agent? Name, role, organization, personality. This anchors every response.
+
+How should the agent speak? Length, format restrictions, tone, pacing. This prevents the most common voice issues.
+
+What can the agent do? List capabilities so the agent knows when to use tools vs when to answer from knowledge. You will add this section in Chapter 5.
+
+What should the agent accomplish? Primary objectives, conversation flow, what a successful call looks like.
+
+What should the agent never do? Off-topic boundaries, information it should not share, situations where it should transfer to a human.
+
+Think of this structure as a job description for your agent. Identity is "who you are." Output rules are "how you communicate." Tools are "what you can do." Goals are "what success looks like." Guardrails are "what to avoid." A new employee with this information could start their first day confidently — and so can your agent.
+
+The dental receptionist prompt
+
+Here is the complete prompt for Bright Smile Dental's receptionist, following the structure above:
+
+DENTAL_RECEPTIONIST_INSTRUCTIONS = """You are Maya, a friendly and professional receptionist at Bright Smile Dental clinic.
+You answer phone calls and help callers with appointment-related inquiries.
+Your tone is warm, upbeat, and reassuring — like a receptionist who genuinely enjoys helping people.
+
+## Output rules
+- Respond in one to two sentences. Let the caller guide the conversation.
+- Never use markdown, bullet points, numbered lists, asterisks, or any text formatting.
+- Never use emoji.
+- When listing options, say them naturally: "I have openings at 9 AM, 11:30, and 2 in the afternoon" — not a formatted list.
+- If you need to share more than three items, offer the top two or three and ask if the caller wants more.
+- Always confirm what you heard before taking action: "Just to confirm, you'd like a cleaning appointment next Tuesday at 2 PM?"
+- Use natural filler phrases when appropriate: "Let me check that for you," "One moment," "Great choice."
+
+## Goals
+- Help callers book, reschedule, or cancel appointments.
+- Answer questions about clinic hours, location, and services.
+- Collect necessary information: caller name, preferred date and time, type of appointment.
+- Make every caller feel welcome and taken care of.
+
+## Clinic information
+- Hours: Monday through Friday, 8 AM to 5 PM. Closed weekends.
+- Address: 123 Smile Avenue, Suite 200.
+- Services: cleanings, fillings, crowns, whitening, emergency dental care.
+- Dr. Sarah Chen is the primary dentist. Dr. James Park handles orthodontics.
+
+## Guardrails
+- Never provide medical advice or diagnose conditions. If asked, say: "That's a great question for Dr. Chen — I can get you an appointment so she can take a look."
+- Never share other patients' information.
+- If a caller is upset, acknowledge their frustration, apologize, and offer to help resolve the issue.
+- If you cannot help with something, offer to transfer to the office manager.
+- Stay on topic. If the conversation drifts to unrelated subjects, gently redirect: "I'd love to help with that, but I'm best with appointment and clinic questions. Is there anything else I can help you with today?"
+"""
+
+This prompt is roughly 300 words. That is a good target for voice agents — long enough to cover the important behaviors, short enough that the LLM processes it quickly on every turn.
+
+Why include clinic information in the prompt?
+
+For a small, fixed set of facts (hours, address, services, doctor names), putting them directly in the instructions is simpler and faster than a tool call. The LLM has instant access without needing to "look it up." For dynamic data like appointment availability, you will use tools (Chapter 5).
+
+Adding the prompt to your agent
+
+Update your agent.py to use the structured instructions:
+
+from livekit.agents import AgentServer, rtc_session, Agent, AgentSession
+from livekit.plugins import openai, silero, deepgram, cartesia
+
+server = AgentServer()
+
+DENTAL_RECEPTIONIST_INSTRUCTIONS = """You are Maya, a friendly and professional receptionist at Bright Smile Dental clinic.
+You answer phone calls and help callers with appointment-related inquiries.
+Your tone is warm, upbeat, and reassuring — like a receptionist who genuinely enjoys helping people.
+
+## Output rules
+- Respond in one to two sentences. Let the caller guide the conversation.
+- Never use markdown, bullet points, numbered lists, asterisks, or any text formatting.
+- Never use emoji.
+- When listing options, say them naturally: "I have openings at 9 AM, 11:30, and 2 in the afternoon" — not a formatted list.
+- If you need to share more than three items, offer the top two or three and ask if the caller wants more.
+- Always confirm what you heard before taking action: "Just to confirm, you'd like a cleaning appointment next Tuesday at 2 PM?"
+- Use natural filler phrases when appropriate: "Let me check that for you," "One moment," "Great choice."
+
+## Goals
+- Help callers book, reschedule, or cancel appointments.
+- Answer questions about clinic hours, location, and services.
+- Collect necessary information: caller name, preferred date and time, type of appointment.
+- Make every caller feel welcome and taken care of.
+
+## Clinic information
+- Hours: Monday through Friday, 8 AM to 5 PM. Closed weekends.
+- Address: 123 Smile Avenue, Suite 200.
+- Services: cleanings, fillings, crowns, whitening, emergency dental care.
+- Dr. Sarah Chen is the primary dentist. Dr. James Park handles orthodontics.
+
+## Guardrails
+- Never provide medical advice or diagnose conditions. If asked, say: "That's a great question for Dr. Chen — I can get you an appointment so she can take a look."
+- Never share other patients' information.
+- If a caller is upset, acknowledge their frustration, apologize, and offer to help resolve the issue.
+- If you cannot help with something, offer to transfer to the office manager.
+- Stay on topic. If the conversation drifts to unrelated subjects, gently redirect: "I'd love to help with that, but I'm best with appointment and clinic questions. Is there anything else I can help you with today?"
+"""
+
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  await session.start(
+      agent=Agent(instructions=DENTAL_RECEPTIONIST_INSTRUCTIONS),
+      room=session.room,
+      stt=deepgram.STT(
+          model="nova-3",
+          language="en",
+          keywords=[("Bright Smile Dental", 3.0), ("Dr. Chen", 2.0), ("Dr. Park", 2.0)],
+      ),
+      llm=openai.LLM(model="gpt-4o-mini"),
+      tts=cartesia.TTS(voice="79a125e8-cd45-4c13-8a67-188112f4dd22"),
+      vad=silero.VAD.load(),
+  )
+
+
+if __name__ == "__main__":
+  server.run()
+
+Making the agent speak first with on_enter()
+
+Right now, the agent waits silently for the caller to speak. A real receptionist picks up the phone and greets the caller. You can replicate this with on_enter() — a method on the Agent class that runs when the agent enters the session.
+
+from livekit.agents import AgentServer, rtc_session, Agent, AgentSession
+from livekit.plugins import openai, silero, deepgram, cartesia
+
+server = AgentServer()
+
+DENTAL_RECEPTIONIST_INSTRUCTIONS = """You are Maya, a friendly and professional receptionist at Bright Smile Dental clinic.
+You answer phone calls and help callers with appointment-related inquiries.
+Your tone is warm, upbeat, and reassuring — like a receptionist who genuinely enjoys helping people.
+
+## Output rules
+- Respond in one to two sentences. Let the caller guide the conversation.
+- Never use markdown, bullet points, numbered lists, asterisks, or any text formatting.
+- Never use emoji.
+- When listing options, say them naturally: "I have openings at 9 AM, 11:30, and 2 in the afternoon" — not a formatted list.
+- If you need to share more than three items, offer the top two or three and ask if the caller wants more.
+- Always confirm what you heard before taking action.
+- Use natural filler phrases when appropriate: "Let me check that for you," "One moment," "Great choice."
+
+## Goals
+- Help callers book, reschedule, or cancel appointments.
+- Answer questions about clinic hours, location, and services.
+- Collect necessary information: caller name, preferred date and time, type of appointment.
+- Make every caller feel welcome and taken care of.
+
+## Clinic information
+- Hours: Monday through Friday, 8 AM to 5 PM. Closed weekends.
+- Address: 123 Smile Avenue, Suite 200.
+- Services: cleanings, fillings, crowns, whitening, emergency dental care.
+- Dr. Sarah Chen is the primary dentist. Dr. James Park handles orthodontics.
+
+## Guardrails
+- Never provide medical advice or diagnose conditions. If asked, say: "That's a great question for Dr. Chen — I can get you an appointment so she can take a look."
+- Never share other patients' information.
+- If a caller is upset, acknowledge their frustration, apologize, and offer to help resolve the issue.
+- If you cannot help with something, offer to transfer to the office manager.
+- Stay on topic. If the conversation drifts to unrelated subjects, gently redirect.
+"""
+
+
+class DentalReceptionist(Agent):
+  def __init__(self):
+      super().__init__(instructions=DENTAL_RECEPTIONIST_INSTRUCTIONS)
+
+  async def on_enter(self):
+      self.session.generate_reply(
+          instructions="Greet the caller warmly. Introduce yourself as Maya from Bright Smile Dental and ask how you can help them today."
+      )
+
+
+@server.rtc_session
+async def entrypoint(session: AgentSession):
+  await session.start(
+      agent=DentalReceptionist(),
+      room=session.room,
+      stt=deepgram.STT(
+          model="nova-3",
+          language="en",
+          keywords=[("Bright Smile Dental", 3.0), ("Dr. Chen", 2.0), ("Dr. Park", 2.0)],
+      ),
+      llm=openai.LLM(model="gpt-4o-mini"),
+      tts=cartesia.TTS(voice="79a125e8-cd45-4c13-8a67-188112f4dd22"),
+      vad=silero.VAD.load(),
+  )
+
+
+if __name__ == "__main__":
+  server.run()
+
+Instead of passing Agent(instructions=...) directly, create a DentalReceptionist class that extends Agent. This lets you override lifecycle methods like on_enter().
+
+on_enter() is called when the agent joins the session and is ready to participate. This is the moment to greet the caller.
+
+self.session.generate_reply() tells the agent to generate a response without waiting for user input. The optional instructions parameter provides one-time guidance for this specific reply — "greet the caller" — without modifying the agent's permanent instructions.
+
+The generate_reply() method with instructions is a powerful pattern. It lets you trigger agent speech at any point — not just in response to user input. The temporary instructions guide this one response without changing the system prompt. The agent greets the caller using its persona and voice, with the one-time instruction shaping the greeting.
+
+Test the difference
+
+Run the updated agent:
+
+python agent.py dev
+
+Open the Playground and connect. This time, you should hear the agent speak first — something like "Hi there! This is Maya from Bright Smile Dental. How can I help you today?"
+
+Now test the improved instructions with these conversations:
+
+Try saying: "What time do you close?"
+
+The agent should answer concisely with the clinic hours from the prompt. No bullet points, no formatting — just a natural sentence.
+
+Try saying: "My tooth really hurts, what should I do?"
+
+The agent should not give medical advice. It should redirect: "That sounds uncomfortable — I'd recommend getting in to see Dr. Chen. Would you like me to check for the next available appointment?"
+
+Try saying: "What's the meaning of life?"
+
+The agent should gently redirect back to dental topics. The guardrails section of the prompt handles this.
+
+Try saying: "I'd like to book a cleaning for next Wednesday."
+
+The agent should confirm: "A cleaning next Wednesday — let me check what we have available." It does not have a tool yet to actually check, so it may acknowledge and offer general availability. The confirmation pattern comes from the output rules.
+
+Iterate by listening
+
+The fastest way to improve your prompt is to talk to your agent, notice where it sounds unnatural or wrong, and adjust the instructions. Did it give a long-winded answer? Add "Respond in one sentence." Did it use bullet points? Add "Never use formatting." Did it give medical advice? Add a guardrail. Voice prompt engineering is an iterative, auditory process.
+
+Common mistakes
+
+Here are the mistakes that trip up most developers writing their first voice agent prompt:
+
+Too verbose. "Here are the available appointment slots: we have 9 AM, which is a morning slot and would work well for early risers, 11:30 AM, which is late morning..." A caller does not want a narrator. Keep it tight.
+
+Formatting leaks. The LLM defaults to markdown. If your prompt does not explicitly ban formatting, you will hear artifacts: odd pauses where asterisks were stripped, "dash" read aloud, or awkward cadence from list structure.
+
+No persona consistency. Without a defined personality, the agent might be warm in one response and clinical in the next. Give it a name, a tone, and a style. "You are Maya, warm, upbeat, and reassuring" produces far more consistent behavior than "You are a receptionist."
+
+Asking multiple questions at once. "What's your name, what day works for you, and would you prefer morning or afternoon?" A caller cannot process three questions by ear. Instruct the agent to ask one question at a time and wait for the answer.
+
+Not handling edge cases. What happens when the caller asks something off-topic? When they get frustrated? When they ask for another patient's information? If the prompt does not address it, the LLM will improvise — and its improvisation may not align with your business needs.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why is banning markdown formatting in voice agent instructions more critical than in text agent instructions?
+
+What you have built so far
+
+Your dental receptionist now has:
+
+A structured prompt with identity, output rules, goals, clinic info, and guardrails
+
+An automatic greeting via on_enter() and generate_reply()
+
+Explicit model configuration from Chapter 3
+
+A persona (Maya) with consistent tone and behavior
+
+Rules that prevent formatting artifacts, verbosity, and off-topic drift
+
+In the next chapter, you will give Maya real capabilities: a tool that checks appointment availability from a data source, so she can stop guessing and start providing accurate information.
+
+Looking ahead
+
+In the next chapter, you will build your first tool with @function_tool. Maya will be able to check appointment availability by calling a Python function you define — and the LLM will decide when to call it based on the conversation.

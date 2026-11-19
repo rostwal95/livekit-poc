@@ -1,0 +1,26 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "\"use client\";\n\nimport { useSession } from \"@livekit/agents-react\";\nimport { useState, FormEvent } from \"react\";\n\nexport function DentalTextInput() {\nconst session = useSession();\nconst [text, setText] = useState(\"\");\nconst canSend = session.agent.agentState === \"listening\" && text.trim().length > 0;\n\nconst handleSubmit = (e: FormEvent) => {\n  e.preventDefault();\n  if (!canSend) return;\n\n  session.sendChatMessage(text.trim());\n  setText(\"\");\n};\n\nreturn (\n  <form onSubmit={handleSubmit} className=\"flex gap-2\">\n    <input\n      type=\"text\"\n      value={text}\n      onChange={(e) => setText(e.target.value)}\n      placeholder={\n        session.agent.agentState === \"listening\"\n          ? \"Type a message \u2014 spell names, insurance IDs...\"\n          : \"Maya is responding...\"\n      }\n      disabled={session.agent.isFinished}\n      className=\"flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm\n        placeholder:text-gray-400\n        focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500\n        disabled:bg-gray-100 disabled:text-gray-400\"\n    />\n    <button\n      type=\"submit\"\n      disabled={!canSend}\n      className=\"rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white\n        hover:bg-blue-700\n        disabled:bg-gray-300 disabled:cursor-not-allowed\"\n    >\n      Send\n    </button>\n  </form>\n);\n}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { DentalTranscript } from \"@/components/DentalTranscript\";\nimport { BookingConfirmation } from \"@/components/BookingConfirmation\";\nimport { DentalTextInput } from \"@/components/DentalTextInput\";\n\n{/* Inside the active conversation block */}\n{(agentState === \"listening\" ||\nagentState === \"thinking\" ||\nagentState === \"speaking\") && (\n<div className=\"space-y-4\">\n  <DentalTranscript />\n  <BookingConfirmation />\n  <DentalTextInput />\n</div>\n)}"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "[voice] Patient: \"Hi, I'd like to book a cleaning.\"\n[voice] Maya: \"I'd be happy to help! When would you like to come in?\"\n[voice] Patient: \"Next Tuesday, if possible.\"\n[voice] Maya: \"I have openings at 9 AM, 11:30, and 2 in the afternoon. Which works best?\"\n[voice] Patient: \"9 AM please.\"\n[voice] Maya: \"Great choice! And what is your name?\"\n[text]  Patient: Siobhan Bhattacharya\n[voice] Maya: \"Thank you, Siobhan. Let me book that for you.\"\n[voice] Maya: \"You're all set \u2014 cleaning on Tuesday at 9 AM.\""
+  }
+]

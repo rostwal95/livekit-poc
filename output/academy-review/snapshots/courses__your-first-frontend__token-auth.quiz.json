@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Why does the dental token endpoint generate a unique room name for each session?",
+    "options": [
+      "The agent can only handle one room in its entire lifetime",
+      "LiveKit requires globally unique room names across all projects",
+      "Each patient conversation needs its own isolated room so sessions do not interfere with each other",
+      "Room names must match the patient's insurance ID"
+    ],
+    "correctIndex": 2,
+    "explanation": "Each dental conversation gets its own room with a unique name. This keeps patient conversations isolated from each other and maps cleanly to session analytics in LiveKit Cloud Insights."
+  },
+  {
+    "question": "Why does the dental patient need canPublishData in addition to canPublish and canSubscribe?",
+    "options": [
+      "The patient needs it to send text messages \u2014 like typing a name or insurance ID \u2014 via data channels",
+      "It enables video streaming to the agent",
+      "canPublishData is required for audio to work",
+      "LiveKit requires all three grants or the connection fails"
+    ],
+    "correctIndex": 0,
+    "explanation": "canPublish handles audio tracks (microphone), canSubscribe handles receiving the agent's audio and data, and canPublishData enables sending text messages through data channels. The dental frontend uses text input for cases where the patient needs to spell out names or insurance IDs."
+  }
+]

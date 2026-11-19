@@ -1,0 +1,23 @@
+LangChain & LangGraph
+
+Integrate popular AI frameworks
+
+Use LangChain as an LLM provider in LiveKit's voice pipeline for provider flexibility. Build multi-step conversation flows with LangGraph when your agent needs complex routing, reasoning, or stateful workflows.
+
+What You Build
+
+Voice agent with LangChain LLM provider and a LangGraph conversation flow with conditional routing.
+
+Prerequisites
+
+->Course 1.1
+
+Understand when LangChain adds value over native plugins. Install livekit-plugins-langchain, configure streaming, swap providers, and see how the wrapper translates function calling automatically.
+
+Build stateful, multi-step conversation flows with LangGraph. Define state, nodes, and conditional edges. Integrate graphs with LiveKit agents via tool functions. Add conversation memory with checkpointing.
+
+Harden LangGraph agents for production with defensive error handling, timeout wrappers, LangSmith observability, and automated graph and node testing.
+
+What You Walk Away With
+
+Understand when and how to use LangChain/LangGraph with LiveKit, configure the LLM wrapper, build a LangGraph workflow, and know when native plugins are the better choice.

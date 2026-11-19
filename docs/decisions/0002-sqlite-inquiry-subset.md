@@ -62,7 +62,7 @@ code or coroutine checkpoint exists.
 
 Scope comes from the trusted local caller. SQLite does not authenticate
 identities. Unknown and other-scope reads have the same unavailable outcome. HTTP
-principal enforcement remains a later application boundary. Failure codes are
+principal enforcement belongs to the separate application boundary. Failure codes are
 allowlisted. Raw SQL and provider messages are not stored or emitted in
 diagnostics.
 

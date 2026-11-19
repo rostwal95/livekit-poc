@@ -823,5 +823,8 @@ remained absent.
 
 The remaining connected voice/interruption/dormant-SMS/return and restart
 assertions, fresh source-bound qualification after corrections, the real-provider
-run and the recorded walkthrough remain required. The complete P2/P3 charters and
-overall demo goal remain incomplete.
+run and the recorded walkthrough remained required at this checkpoint. Later
+[provider journeys and the recorded demo](0046-joined-showcase-providers-and-demo.md)
+and [review fixes and landing page](0047-open-findings-schema-upgrades-and-landing.md)
+have their own evidence. They do not close the frozen joined qualification gates
+in this work item or the complete P2/P3 charters.

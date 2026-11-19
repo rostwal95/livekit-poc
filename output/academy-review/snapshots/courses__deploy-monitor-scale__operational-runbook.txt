@@ -1,0 +1,143 @@
+1Deployment architecture
+
+2Docker configuration
+
+3LiveKit Cloud deployment
+
+4Monitoring setup
+
+5Custom metrics & data hooks
+
+6Alerting & incident response
+
+7Multi-tenant architecture
+
+8Auto-scaling
+
+9Cost optimization
+
+10Blue-green deployments
+
+11Operational runbook
+
+Operational runbook
+
+Operational runbook for voice AI
+
+You have built the agent, deployed it, set up monitoring, configured alerts, and designed your scaling and deployment strategy. This final chapter ties it all together with deployment checklists, a post-mortem template, and operational best practices that keep your voice AI system healthy over the long term.
+
+What you'll learn
+
+A pre-deployment checklist you can use for every release
+
+A post-mortem template for learning from incidents
+
+Operational best practices specific to voice AI systems
+
+How everything in this course connects into a complete operations practice
+
+Pre-deployment checklist
+
+Use this checklist before every production deployment. Skip nothing. The item you skip is the one that causes the outage.
+
+All unit tests, integration tests, and conversation simulation tests must pass. If any test is flaky, fix it or explicitly document why it is being skipped.
+
+Confirm that API keys for STT, LLM, and TTS providers are valid and have sufficient quota. A deployment that passes all tests but ships with an expired API key will fail on the first real call.
+
+Verify min/max worker counts, sessions per worker, and scaling thresholds match the expected traffic level. A Friday evening deployment for a restaurant booking agent needs different scaling than a Tuesday morning deployment.
+
+Verify that dashboards load, metrics are flowing, and alert rules are active. Deploy a test alert to confirm the routing pipeline from Prometheus to Alertmanager to PagerDuty/Slack is working end to end.
+
+Know exactly how you will roll back if the deployment fails. Is it a feature flag flip? A blue-green traffic shift? A Kubernetes rollback? Write the exact command and confirm you have permission to run it.
+
+Post in your team channel that a deployment is starting, what version is being deployed, and who is responsible. Include an estimated completion time.
+
+Automate the checklist
+
+Every item on this checklist can be automated into a CI/CD pipeline. The checklist is a safety net for the items that are not yet automated and a reminder to verify the automated checks actually ran.
+
+Post-mortem template
+
+After every significant incident, write a post-mortem. The goal is not blame but learning. Use this template.
+
+# Incident Post-Mortem: [Title]
+
+**Date:** YYYY-MM-DD
+**Duration:** X minutes
+**Severity:** P1 / P2 / P3
+**Author:** [Name]
+
+## Summary
+One paragraph describing what happened, the user impact, and the resolution.
+
+## Timeline
+- HH:MM — Alert fired: [alert name]
+- HH:MM — On-call acknowledged
+- HH:MM — Root cause identified
+- HH:MM — Fix deployed
+- HH:MM — Metrics returned to normal
+
+## Root cause
+What specifically broke and why. Be precise. "The LLM provider rate-limited
+our account because we exceeded 1000 RPM during a traffic spike" is good.
+"Something went wrong with the AI" is not.
+
+## Impact
+- Number of affected sessions: X
+- Duration of degraded service: X minutes
+- Estimated revenue impact: $X (if applicable)
+
+## What went well
+- List things that worked: fast detection, effective runbook, etc.
+
+## What went poorly
+- List things that did not work: slow escalation, missing runbook, etc.
+
+## Action items
+- [ ] [Action] — Owner — Due date
+- [ ] [Action] — Owner — Due date
+- [ ] [Action] — Owner — Due date
+
+The most important section is "Action items." A post-mortem without action items is a story. A post-mortem with action items is a prevention plan. Track action items in your issue tracker and review them in your next team meeting.
+
+Operational best practices for voice AI
+
+Voice AI systems have unique operational characteristics that differ from traditional web services. These practices reflect lessons learned across production deployments.
+
+Every external provider — STT, LLM, TTS — will have outages. Configure fallback providers for each component. Your agent should degrade gracefully, not crash. A slower backup TTS voice is better than silence.
+
+A voice agent can be "up" and still broken. Track metrics like caller satisfaction, task completion rate, and average conversation length. A sudden drop in task completion might not trigger a latency alert but signals a real problem.
+
+API keys for STT, LLM, and TTS providers should be rotated quarterly. Store them in a secrets manager, never in code or environment files committed to version control.
+
+Every change to agent instructions, tool definitions, scaling config, or provider settings should be logged with a date, author, and reason. When something breaks, the change log is the first place you look.
+
+The 3 AM test
+
+Every operational process you design should pass the 3 AM test: can an engineer who was woken up by a page follow the runbook, diagnose the issue, and resolve it without needing to message anyone else? If not, the runbook needs more detail.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why is the 'Action items' section described as the most important part of a post-mortem?
+
+Course summary
+
+Over the course of this module, you have built a complete operations practice for voice AI:
+
+Monitoring: Dashboards that show real-time health, latency, and throughput
+
+Alerting: Rules that detect problems early, routed to the right people with runbooks attached
+
+Auto-scaling: Workers that scale with demand so you handle spikes without overpaying at idle
+
+Cost optimization: Per-session cost tracking, model tiering, and caching to keep bills sustainable
+
+Deployments: Blue-green, canary, and feature flag strategies that never interrupt a caller
+
+Operations: Checklists, post-mortems, and practices that keep the system healthy over time
+
+Building a voice agent is the beginning. Operating it reliably, affordably, and at scale is what turns a demo into a product.
+
+Operations is not a phase that comes after development. It is a discipline that shapes how you build from day one. The best voice agents are designed for observability, tested for failure, and deployed with confidence because the team invested in the operational foundation alongside the conversational experience.

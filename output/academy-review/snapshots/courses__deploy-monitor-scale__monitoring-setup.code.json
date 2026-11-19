@@ -1,0 +1,42 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# List recent sessions from the CLI\nlk cloud sessions list dental-receptionist\n\n# View transcript for a specific session\nlk cloud sessions view sess_abc123 --transcript"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# View traces for a specific session\nlk cloud sessions view sess_abc123 --traces"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "Turn 1:\nSTT:           142ms\nLLM (TTFT):     89ms\nLLM (total):   340ms\nTTS (TTFA):    112ms\nEnd-to-end:    450ms  [PASS] Under 500ms budget\n\nTurn 4:\nSTT:           156ms\nLLM (TTFT):   1240ms  [WARN] Slow - check prompt length\nLLM (total):  3200ms\nTTS (TTFA):    118ms\nEnd-to-end:   1520ms  [FAIL] Over budget"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import logging\nfrom datetime import datetime\n\nlogger = logging.getLogger(\"agent-monitor\")\n\nclass SessionMonitor:\n  \"\"\"Track key metrics for each agent session.\"\"\"\n\n  def __init__(self, session_id: str):\n      self.session_id = session_id\n      self.start_time = datetime.now()\n      self.turn_count = 0\n      self.tool_calls = 0\n      self.tool_failures = 0\n\n  def on_turn_complete(self, latency_ms: float):\n      self.turn_count += 1\n      logger.info(\n          \"turn_complete\",\n          extra={\n              \"session_id\": self.session_id,\n              \"turn\": self.turn_count,\n              \"latency_ms\": latency_ms,\n          },\n      )\n\n  def on_tool_call(self, tool_name: str, success: bool, duration_ms: float):\n      self.tool_calls += 1\n      if not success:\n          self.tool_failures += 1\n      logger.info(\n          \"tool_call\",\n          extra={\n              \"session_id\": self.session_id,\n              \"tool\": tool_name,\n              \"success\": success,\n              \"duration_ms\": duration_ms,\n          },\n      )\n\n  def on_session_end(self):\n      duration = (datetime.now() - self.start_time).total_seconds()\n      logger.info(\n          \"session_end\",\n          extra={\n              \"session_id\": self.session_id,\n              \"duration_seconds\": duration,\n              \"turns\": self.turn_count,\n              \"tool_calls\": self.tool_calls,\n              \"tool_failures\": self.tool_failures,\n          },\n      )"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "import { Logger } from \"pino\";\n\nclass SessionMonitor {\nprivate sessionId: string;\nprivate startTime: number;\nprivate turnCount = 0;\nprivate toolCalls = 0;\nprivate toolFailures = 0;\n\nconstructor(\n  sessionId: string,\n  private logger: Logger\n) {\n  this.sessionId = sessionId;\n  this.startTime = Date.now();\n}\n\nonTurnComplete(latencyMs: number): void {\n  this.turnCount++;\n  this.logger.info({\n    event: \"turn_complete\",\n    sessionId: this.sessionId,\n    turn: this.turnCount,\n    latencyMs,\n  });\n}\n\nonToolCall(toolName: string, success: boolean, durationMs: number): void {\n  this.toolCalls++;\n  if (!success) this.toolFailures++;\n  this.logger.info({\n    event: \"tool_call\",\n    sessionId: this.sessionId,\n    tool: toolName,\n    success,\n    durationMs,\n  });\n}\n\nonSessionEnd(): void {\n  const durationSeconds = (Date.now() - this.startTime) / 1000;\n  this.logger.info({\n    event: \"session_end\",\n    sessionId: this.sessionId,\n    durationSeconds,\n    turns: this.turnCount,\n    toolCalls: this.toolCalls,\n    toolFailures: this.toolFailures,\n  });\n}\n}"
+  }
+]

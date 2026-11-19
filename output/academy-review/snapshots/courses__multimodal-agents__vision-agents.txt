@@ -1,0 +1,368 @@
+1Multimodal architecture & cost model
+
+2Vision agents
+
+3Avatar integration
+
+4Document processing & screen sharing
+
+5Building a complete multimodal agent
+
+Vision agents
+
+Vision agents
+
+In this chapter you will build agents that can see. You will learn how camera input flows through the LiveKit Agents framework, how multimodal LLMs process image frames alongside text, and how to build agents that analyze visual content, read text from images, and respond to what they see in real time.
+
+How vision works in the Agents framework
+
+When a user publishes a video Track in a LiveKit Room, the Agents framework can capture frames from that Track and include them in the multimodal LLM's context. The flow is:
+
+The user's browser or app publishes a video Track into the Room. This can be a webcam feed, a phone camera pointed at a document, or a screen share.
+
+The Agents framework subscribes to the video Track and captures frames at a configurable interval. Not every frame is sent to the LLM — that would be prohibitively expensive. Instead, frames are captured strategically.
+
+Captured frames are included as image content in the LLM's message history. The multimodal LLM sees both the text conversation and the visual context.
+
+The LLM generates a response informed by both what it heard (via STT transcript) and what it saw (via captured frames). The response goes through TTS as usual.
+
+Vision in the Agents framework is not a separate pipeline. It is an extension of the existing conversation. Image frames are added to the LLM context just like user messages, and the LLM processes everything together. This means you do not need to build a separate vision system — you just need a multimodal LLM and a video Track.
+
+Building a basic vision agent
+
+The simplest vision agent uses a multimodal LLM and lets the framework handle frame capture automatically. When the user asks about something visual, the LLM already has recent frames in context.
+
+from livekit.agents import Agent, AgentSession, RoomInputOptions
+from livekit.plugins import openai, deepgram, cartesia
+
+class StudyVisionAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are a study partner that can see through the user's camera.
+          When the user shows you something — a textbook page, a diagram, handwritten notes —
+          describe what you see and help them understand the material.
+          If you cannot see clearly, ask the user to hold the item closer or improve lighting.""",
+      )
+
+async def entrypoint(ctx):
+  session = AgentSession(
+      stt=deepgram.STT(),
+      llm=openai.LLM(model="gpt-4o"),
+      tts=cartesia.TTS(),
+  )
+
+  await session.start(
+      agent=StudyVisionAgent(),
+      room=ctx.room,
+      room_input_options=RoomInputOptions(video_enabled=True),
+  )
+
+import { Agent, AgentSession, RoomInputOptions } from "@livekit/agents";
+import { OpenAI } from "@livekit/agents-plugin-openai";
+import { Deepgram } from "@livekit/agents-plugin-deepgram";
+import { Cartesia } from "@livekit/agents-plugin-cartesia";
+
+class StudyVisionAgent extends Agent {
+constructor() {
+  super({
+    instructions: `You are a study partner that can see through the user's camera.
+      When the user shows you something — a textbook page, a diagram, handwritten notes —
+      describe what you see and help them understand the material.
+      If you cannot see clearly, ask the user to hold the item closer or improve lighting.`,
+  });
+}
+}
+
+async function entrypoint(ctx) {
+const session = new AgentSession({
+  stt: new Deepgram.STT(),
+  llm: new OpenAI.LLM({ model: "gpt-4o" }),
+  tts: new Cartesia.TTS(),
+});
+
+await session.start({
+  agent: new StudyVisionAgent(),
+  room: ctx.room,
+  roomInputOptions: { videoEnabled: true },
+});
+}
+
+The critical line is video_enabled=True in RoomInputOptions. This tells the framework to subscribe to the user's video Track and begin capturing frames for the LLM.
+
+No manual frame extraction needed
+
+You do not need to write code to extract frames from the video Track, resize them, or encode them as base64. The Agents framework handles all of this. You enable video input, and the LLM starts seeing.
+
+Controlling frame capture
+
+Sending every frame to the LLM would be wildly expensive and slow. The framework provides controls for how often frames are captured and when.
+
+from livekit.agents import RoomInputOptions, VideoFrameOptions
+
+room_input_options = RoomInputOptions(
+  video_enabled=True,
+  video_frame_options=VideoFrameOptions(
+      # Capture a frame every N seconds when user is speaking
+      capture_interval=2.0,
+      # Maximum frames to keep in context
+      max_frames_in_context=5,
+      # Resolution to resize frames to (reduces token cost)
+      max_width=1024,
+      max_height=768,
+  ),
+)
+
+import { RoomInputOptions, VideoFrameOptions } from "@livekit/agents";
+
+const roomInputOptions: RoomInputOptions = {
+videoEnabled: true,
+videoFrameOptions: {
+  captureInterval: 2.0,
+  maxFramesInContext: 5,
+  maxWidth: 1024,
+  maxHeight: 768,
+},
+};
+
+Parameter | Purpose | Recommended range
+capture_interval | Seconds between frame captures | 1-5 seconds
+max_frames_in_context | Maximum frames kept in LLM context | 3-10 frames
+max_width / max_height | Resize frames to reduce token cost | 512-1024px
+
+Frame capture is the primary cost driver
+
+A single 1024x768 frame consumes roughly 750-1000 tokens with GPT-4o. At 5 frames in context, that is 4000-5000 tokens just for the visual context — before any conversation history. Monitor your token usage carefully and tune these parameters based on your use case.
+
+Image analysis patterns
+
+Different use cases require different approaches to processing visual content.
+
+Continuous observation
+
+For applications where the agent should notice changes in the visual field — like monitoring a lab experiment or watching a user's progress on a problem — use a shorter capture interval and let the LLM observe passively.
+
+class LabMonitorAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are monitoring a chemistry lab experiment.
+          Watch for color changes, bubbling, temperature readings, or anything unusual.
+          Alert the user proactively if you notice something that needs attention.
+          Be concise — short observations, not lengthy descriptions.""",
+      )
+
+  async def on_user_turn_completed(self, turn_ctx):
+      # The LLM sees recent frames and can comment on visual changes
+      await Agent.default.on_user_turn_completed(self, turn_ctx)
+
+On-demand analysis
+
+For applications where the user explicitly asks about something visual — like holding up a textbook page — you want high-quality analysis of a specific moment rather than continuous observation.
+
+from livekit.agents import function_tool
+
+class TextbookAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are a study partner. When the user shows you a textbook page
+          or asks you to look at something, examine the most recent camera frame carefully.
+          Read any visible text, describe diagrams, and explain concepts you see.""",
+      )
+
+  @function_tool
+  async def analyze_current_view(self, context):
+      """Analyze what is currently visible in the camera. Call this when the user
+      asks you to look at something specific."""
+      # The tool call triggers the LLM to pay special attention to the current frame
+      return "Analyzing the current camera view..."
+
+import { Agent, functionTool } from "@livekit/agents";
+
+class TextbookAgent extends Agent {
+constructor() {
+  super({
+    instructions: `You are a study partner. When the user shows you a textbook page
+      or asks you to look at something, examine the most recent camera frame carefully.
+      Read any visible text, describe diagrams, and explain concepts you see.`,
+  });
+}
+
+@functionTool({
+  description: "Analyze what is currently visible in the camera. Call this when the user asks you to look at something specific.",
+})
+async analyzeCurrentView(context) {
+  return "Analyzing the current camera view...";
+}
+}
+
+Screen reading
+
+Screen reading is a specialized form of vision where the user shares their screen and the agent reads its contents. This is useful for:
+
+Helping users navigate software
+
+Reading and explaining error messages
+
+Reviewing code on screen
+
+Providing step-by-step guidance through a process
+
+The agent receives screen share frames the same way it receives camera frames — through the video Track. The difference is that screen content tends to be text-heavy, and the LLM can often read it with high accuracy.
+
+class ScreenReaderAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You can see the user's screen. Help them with whatever they
+          are working on. Read error messages, understand code, navigate settings,
+          and provide step-by-step guidance.
+
+          When reading screen content:
+          - Read text exactly as it appears — do not paraphrase error messages
+          - Describe the layout when relevant (e.g., "I see a sidebar on the left with...")
+          - Point out specific UI elements by name
+          - Be precise about locations: "the button in the top right", not just "the button"
+          """,
+      )
+
+class ScreenReaderAgent extends Agent {
+constructor() {
+  super({
+    instructions: `You can see the user's screen. Help them with whatever they
+      are working on. Read error messages, understand code, navigate settings,
+      and provide step-by-step guidance.
+
+      When reading screen content:
+      - Read text exactly as it appears — do not paraphrase error messages
+      - Describe the layout when relevant (e.g., "I see a sidebar on the left with...")
+      - Point out specific UI elements by name
+      - Be precise about locations: "the button in the top right", not just "the button"`,
+  });
+}
+}
+
+Screen content is high-resolution text
+
+Screen shares typically contain crisp, rendered text that multimodal LLMs read very accurately. This makes screen reading one of the most reliable vision use cases. Camera-captured text from books or handwriting is less reliable and may need higher resolution frames.
+
+Handling vision limitations
+
+Multimodal LLMs are powerful but not perfect. Your agent should handle common failure modes gracefully.
+
+Poor lighting or focus. Camera images may be blurry, dark, or poorly framed. Instruct your agent to ask for better conditions when it cannot see clearly.
+
+Small text. Text in images needs to be large enough for the LLM to read. At 1024px width, text smaller than roughly 12px in the original may be unreadable after resizing.
+
+Complex diagrams. LLMs can describe simple diagrams (flowcharts, bar charts) but struggle with complex ones (circuit diagrams, dense technical drawings). Set realistic expectations in your agent's instructions.
+
+Hallucination. LLMs may "read" text that is not actually in the image, especially when the image is ambiguous. For high-stakes applications, consider asking the agent to express confidence levels or to quote text exactly.
+
+class CarefulVisionAgent(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You can see through the user's camera. When reading text from
+          images:
+          - If you cannot read something clearly, say so — do not guess
+          - Quote text exactly as you see it, using quotation marks
+          - Express confidence: "I can clearly see..." vs "It looks like it might say..."
+          - If the image is too dark, blurry, or far away, ask the user to adjust
+
+          Never fabricate text that you cannot actually read in the image.""",
+      )
+
+Putting it together: the study partner's vision
+
+For the study partner project, the vision agent should handle multiple visual scenarios:
+
+from livekit.agents import Agent, AgentSession, RoomInputOptions, VideoFrameOptions
+
+class StudyPartnerVision(Agent):
+  def __init__(self):
+      super().__init__(
+          instructions="""You are a study partner that can see through the user's camera.
+
+          You help with:
+          1. TEXTBOOK PAGES: Read the text, identify key concepts, explain difficult passages
+          2. HANDWRITTEN NOTES: Read and organize the user's notes, suggest improvements
+          3. DIAGRAMS: Describe what the diagram shows, explain relationships between elements
+          4. PROBLEMS: Read math or science problems, help solve them step by step
+          5. FLASHCARDS: Read the card and quiz the user, or help them create better cards
+
+          Always start by describing what you see, then ask how you can help with it.
+          If the user is just chatting without showing anything, that is fine too.""",
+      )
+
+async def entrypoint(ctx):
+  session = AgentSession(
+      llm=openai.LLM(model="gpt-4o"),
+      stt=deepgram.STT(),
+      tts=cartesia.TTS(),
+  )
+
+  await session.start(
+      agent=StudyPartnerVision(),
+      room=ctx.room,
+      room_input_options=RoomInputOptions(
+          video_enabled=True,
+          video_frame_options=VideoFrameOptions(
+              capture_interval=3.0,
+              max_frames_in_context=4,
+              max_width=1024,
+              max_height=768,
+          ),
+      ),
+  )
+
+import { Agent, AgentSession, RoomInputOptions } from "@livekit/agents";
+import { OpenAI } from "@livekit/agents-plugin-openai";
+import { Deepgram } from "@livekit/agents-plugin-deepgram";
+import { Cartesia } from "@livekit/agents-plugin-cartesia";
+
+class StudyPartnerVision extends Agent {
+constructor() {
+  super({
+    instructions: `You are a study partner that can see through the user's camera.
+
+      You help with:
+      1. TEXTBOOK PAGES: Read the text, identify key concepts, explain difficult passages
+      2. HANDWRITTEN NOTES: Read and organize the user's notes, suggest improvements
+      3. DIAGRAMS: Describe what the diagram shows, explain relationships between elements
+      4. PROBLEMS: Read math or science problems, help solve them step by step
+      5. FLASHCARDS: Read the card and quiz the user, or help them create better cards
+
+      Always start by describing what you see, then ask how you can help with it.`,
+  });
+}
+}
+
+async function entrypoint(ctx) {
+const session = new AgentSession({
+  llm: new OpenAI.LLM({ model: "gpt-4o" }),
+  stt: new Deepgram.STT(),
+  tts: new Cartesia.TTS(),
+});
+
+await session.start({
+  agent: new StudyPartnerVision(),
+  room: ctx.room,
+  roomInputOptions: {
+    videoEnabled: true,
+    videoFrameOptions: {
+      captureInterval: 3.0,
+      maxFramesInContext: 4,
+      maxWidth: 1024,
+      maxHeight: 768,
+    },
+  },
+});
+}
+
+Notice how the agent's intelligence comes entirely from the instructions. The same framework code handles all visual scenarios — textbooks, notes, diagrams, problems. The LLM decides how to interpret each frame based on the instructions and the conversation context. You do not need separate code paths for different visual content types.
+
+Test your knowledge
+
+Question 1 of 3
+
+Why does the Agents framework capture video frames at a configurable interval rather than sending every frame to the LLM?
+
+What is next
+
+In the next chapter, you will give your study partner a face by integrating Tavus avatars. The agent will lip-sync to its speech, creating a visual presence that makes the study experience more engaging.

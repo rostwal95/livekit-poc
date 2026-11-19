@@ -1,0 +1,11 @@
+{
+  "groupAbsent": true,
+  "mode": "verify",
+  "pgid": 56942,
+  "pid": 56942,
+  "pipeEof": true,
+  "reaped": true,
+  "returncode": 0,
+  "stderrBytes": 0,
+  "stdoutBytes": 115
+}

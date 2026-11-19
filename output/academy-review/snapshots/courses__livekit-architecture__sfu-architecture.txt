@@ -1,0 +1,146 @@
+1Why WebRTC? The latency problem in voice AI
+
+2P2P vs MCU vs SFU: why LiveKit chose the SFU
+
+3Rooms, Participants & Tracks: universal primitives
+
+4AI agents as room participants
+
+5The data plane: streams, RPC & state sync
+
+6Extending the room: telephony, egress & ingress
+
+7Security, encryption & self-hosting
+
+8The universal SDK ecosystem
+
+P2P vs MCU vs SFU: why LiveKit chose the SFU
+
+P2P vs MCU vs SFU: why LiveKit chose the SFU
+
+In this chapter, you will learn the three fundamental architectures for multi-party real-time communication, why each exists, and why the Selective Forwarding Unit is the only architecture that can serve voice AI at scale. By the end, you will understand exactly what happens to an audio packet from the moment it leaves a participant's device until it reaches every other participant in the room.
+
+The routing problem
+
+Chapter 1 established that WebRTC gives us fast, low-latency transport. But transport alone only solves point-to-point communication. The moment you add a third participant — a second human, an AI agent, a phone caller — you face a new question: who routes the media?
+
+There are exactly three answers, and the entire history of real-time communication is the story of choosing between them.
+
+Peer-to-Peer (P2P): the simplest model
+
+In a P2P architecture, every participant sends their media directly to every other participant. There is no server in the media path. Each device encodes its audio and video once per recipient and transmits it over a direct WebRTC connection.
+
+For two people on a voice call, this is elegant. Each participant maintains one outbound stream and one inbound stream. Latency is as low as the network allows — there is no intermediate hop. This is how early WebRTC applications worked, and it remains how most one-on-one calls function today.
+
+The problem is arithmetic. With N participants, each participant must maintain N-1 outbound connections and N-1 inbound connections. The total number of streams in the system is N × (N-1) — a quadratic growth curve that becomes brutal fast.
+
+Participants | Total streams (P2P) | Upload per participant (assuming 1 Mbps per stream)
+2 | 2 | 1 Mbps
+3 | 6 | 2 Mbps
+5 | 20 | 4 Mbps
+10 | 90 | 9 Mbps
+50 | 2,450 | 49 Mbps
+
+At 10 participants, each device is uploading 9 copies of its media. At 50, the model is absurd. Mobile devices cannot sustain the CPU load of encoding that many streams. Home internet connections cannot carry the bandwidth. And every connection must independently negotiate NAT traversal, adding setup time that grows linearly with participant count.
+
+P2P breaks at the number that matters
+
+Voice AI rooms typically have at least 3 participants: one human, one AI agent, and often a second agent or a supervisor. P2P is already straining at 3 and unusable at the scale real applications demand.
+
+Multipoint Control Unit (MCU): the brute-force solution
+
+The MCU solves P2P's scaling problem by inserting a powerful server into the media path. Every participant sends a single stream to the MCU. The MCU decodes every incoming stream, composites them into a single mixed output (for audio, this means mixing all audio streams; for video, it means arranging them into a layout), re-encodes the composite, and sends one combined stream back to each participant.
+
+From each participant's perspective, the experience is simple: send one stream, receive one stream. Upload and download bandwidth are constant regardless of participant count. The MCU bears the entire computational burden.
+
+This sounds ideal until you examine the cost:
+
+Transcoding is CPU-intensive. Decoding N incoming video streams, compositing them, and re-encoding the result requires enormous server-side processing power. A single MCU server might handle a dozen video rooms before saturating its CPU. Scaling means buying more powerful (and expensive) hardware, not adding more nodes.
+
+Transcoding adds latency. The decode-composite-encode cycle takes time — typically 100-300ms depending on resolution, codec, and server load. For a video conference where participants tolerate slight delays, this is acceptable. For voice AI, where every millisecond counts against the 500ms budget, it is a significant penalty.
+
+Layout is inflexible. Because the MCU produces a single composited output, all participants see the same layout. Pinning a speaker, hiding a video tile, or showing different views to different participants requires the MCU to produce multiple composites — multiplying the already enormous CPU cost.
+
+No simulcast advantage. The MCU must decode at the resolution it receives. It cannot instruct the sender to send at multiple qualities and pick the best one for each receiver. The compositing step destroys any opportunity for receiver-side adaptation.
+
+The MCU architecture trades one problem (client-side load in P2P) for another (server-side compute cost and latency from transcoding). It dominated the era of hardware-based video conferencing systems — think Cisco and Polycom — where dedicated hardware could absorb the transcoding cost. In the cloud-native, latency-sensitive world of voice AI, it is the wrong trade.
+
+Selective Forwarding Unit (SFU): the architectural breakthrough
+
+The SFU takes a radically different approach. Like the MCU, it places a server in the media path. Unlike the MCU, the server never decodes, composites, or re-encodes the media. It receives encrypted media packets from each participant and forwards them directly to the other participants that should receive them.
+
+This single architectural choice — forward, don't transcode — changes everything.
+
+Near-zero server-side media latency. Forwarding a packet is a memory copy and a network send. There is no decode/encode cycle. The SFU adds microseconds to the media path, not hundreds of milliseconds.
+
+CPU cost scales linearly, not exponentially. Forwarding packets is cheap. An SFU node can handle hundreds of rooms simultaneously because it is doing I/O, not computation. Adding more rooms means adding more lightweight SFU nodes, not buying more powerful hardware.
+
+Each receiver controls their own experience. Because the SFU forwards individual streams (not a composite), each client decides how to render them. One participant can pin a speaker. Another can hide video and receive only audio. A third can subscribe to only the agent's audio track. The SFU simply fulfills each participant's subscription list.
+
+Simulcast makes it adaptive. With simulcast, a sender publishes the same video at multiple quality levels (for example, 180p, 360p, and 720p). The SFU intelligently selects which quality layer to forward to each subscriber based on their available bandwidth, screen size, and subscription preferences. This is called subscriber-side simulcast — the decision about quality happens at the forwarding layer, not at the sender.
+
+Three architectures visualized
+
+P2P — Every participant sends to every other participant directly. 3 participants = 6 streams. 10 participants = 90 streams. It does not scale.
+
+MCU — Every participant sends one stream to a central server. The server decodes all streams, mixes them into one composite, re-encodes, and sends one stream back. Low client bandwidth, but 100-300ms transcoding latency.
+
+SFU — Every participant sends one stream to a central server. The server forwards each stream to the other participants without decoding or re-encoding. Near-zero added latency. Each receiver gets individual streams and controls their own experience.
+
+The full comparison
+
+Dimension | P2P | MCU | SFU
+Server in media path | No | Yes — decodes and re-encodes | Yes — forwards only
+Added media latency | None (direct) | 100-300ms (transcode cycle) | ~1ms (packet forwarding)
+Client upload streams | N-1 per participant | 1 per participant | 1 per participant
+Client download streams | N-1 per participant | 1 (composite) | N-1 (individual streams)
+Server CPU cost | None | Very high (transcoding) | Low (I/O bound)
+Horizontal scaling | N/A | Difficult (stateful transcoding) | Natural (stateless forwarding)
+Receiver flexibility | Full (has individual streams) | None (single composite) | Full (has individual streams)
+Simulcast support | No | No (must decode anyway) | Yes — subscriber-side selection
+Max practical participants | 3-5 | 20-50 (hardware dependent) | 100s-1000s
+Best suited for | 1:1 calls | Legacy conferencing hardware | Modern real-time applications
+
+How LiveKit implements the SFU
+
+LiveKit's SFU server is written in Go — a language chosen for its lightweight goroutines (each participant connection is a goroutine, costing kilobytes rather than megabytes), excellent networking primitives, and predictable performance under load. Go's garbage collector pauses are short enough to be irrelevant at media-forwarding timescales.
+
+The WebRTC implementation is Pion, an open-source, pure-Go WebRTC stack. By avoiding CGo bindings to C libraries, LiveKit gets a single static binary that deploys anywhere — bare metal, Docker, Kubernetes — without dependency headaches. Pion provides the DTLS, SRTP, ICE, and RTP handling that the SFU needs to speak WebRTC natively.
+
+Why Go + Pion?
+
+Most WebRTC implementations wrap Google's C++ libwebrtc. It is battle-tested but enormous, difficult to embed, and carries the complexity of a full browser media engine. Pion strips WebRTC down to its protocol essentials — exactly what an SFU needs, since it never decodes media. The result is a lean, embeddable, highly concurrent server.
+
+Multi-node scaling with Redis
+
+A single SFU node can handle many rooms, but production deployments need more than one node — for redundancy, geographic distribution, and sheer capacity. LiveKit uses Redis as a coordination layer between SFU nodes.
+
+When participants in the same room are connected to different SFU nodes (because they were routed to different geographic regions, or because load balancing distributed them), Redis handles the signaling:
+
+Redis stores the canonical state of each room — who is in it, what tracks are published, what permissions are active. Every SFU node reads from this shared state to ensure consistency.
+
+When participant A is on Node 1 and participant B is on Node 2, the SFU nodes establish a direct media relay between themselves. The media still flows as RTP packets — no transcoding — just with an extra network hop between nodes.
+
+Control messages (subscribe requests, track muting, participant events) flow through Redis pub/sub, ensuring every node learns about changes immediately regardless of which node originated the change.
+
+This architecture means LiveKit scales horizontally by adding SFU nodes. There is no "master" node. No single point of failure in the media path. Redis itself can be clustered for high availability. The entire system is designed to scale the way modern cloud infrastructure expects: add more instances, not bigger instances.
+
+Why the SFU wins for voice AI
+
+For voice AI specifically, the SFU architecture provides three decisive advantages:
+
+Lowest possible latency. The SFU adds effectively zero latency to the media path. In a pipeline where STT, LLM, and TTS already consume most of the 500ms budget, an architecture that adds 100-300ms of transcoding overhead (MCU) is disqualifying. The SFU preserves every millisecond for the AI models that need them.
+
+Selective subscription. An AI agent does not need to receive its own audio back. It does not need video from participants it is not analyzing. The SFU's publish/subscribe model lets each participant — human or agent — subscribe to exactly the tracks it needs. This reduces bandwidth and processing on the agent side, freeing resources for inference.
+
+Horizontal scaling for multi-agent architectures. Modern voice AI applications increasingly use multiple specialized agents in a single room — one for conversation, one for real-time transcription, one for sentiment analysis. The SFU's lightweight forwarding model handles this effortlessly. Adding another agent is adding another participant, not fundamentally changing the architecture.
+
+Test your knowledge
+
+Question 1 of 2
+
+What is the key difference between an SFU and an MCU?
+
+Looking ahead
+
+Now that you understand how media gets routed, the next chapter introduces the three primitives that organize everything inside the SFU: rooms, participants, and tracks. These are the building blocks you will use every time you build on LiveKit — and they are simpler than you might expect.

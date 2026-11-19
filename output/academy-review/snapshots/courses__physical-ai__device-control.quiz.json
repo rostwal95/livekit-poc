@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Why does the architecture keep all natural language understanding in the cloud agent rather than on the ESP32?",
+    "options": [
+      "Because cloud agents are always faster than local processing",
+      "Because the ESP32 does not have a WiFi connection",
+      "Because the ESP32 cannot receive data over LiveKit data channels",
+      "Because the ESP32 only executes structured JSON commands, so you can update the agent's language understanding without reflashing firmware on the device"
+    ],
+    "correctIndex": 3,
+    "explanation": "The ESP32 never needs to understand natural language \u2014 it only executes structured commands like {\"action\": \"set_led\", \"value\": 1}. This separation means you can improve or change how the agent interprets voice commands by updating the cloud agent, without touching the device firmware."
+  },
+  {
+    "question": "Why should hardware commands use reliable=True on the data channel while periodic telemetry updates can use unreliable delivery?",
+    "options": [
+      "The ESP32 can only process reliable data channel messages",
+      "Reliable delivery is faster than unreliable delivery for small payloads",
+      "Hardware commands must be guaranteed to arrive (a missed 'turn off heater' could be dangerous), while dropping an occasional telemetry reading is acceptable",
+      "Unreliable delivery does not work with JSON-formatted messages"
+    ],
+    "correctIndex": 2,
+    "explanation": "Reliable data channels use retransmission to guarantee delivery, which is critical for safety-sensitive hardware commands. A missed 'turn off the heater' command could be dangerous. Telemetry updates (temperature readings every 30 seconds) can tolerate occasional packet loss since the next reading will arrive shortly."
+  }
+]

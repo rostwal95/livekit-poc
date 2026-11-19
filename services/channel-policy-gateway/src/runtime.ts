@@ -84,6 +84,7 @@ export class ChannelPolicyGatewayRuntime {
   #closeTask: Promise<void> | undefined;
   #endpoints: GatewayApplicationEndpoints | undefined;
   #closing = false;
+  #closeRequested = false;
   #closed = false;
   #carrierCalls = 0;
   constructor(
@@ -150,7 +151,7 @@ export class ChannelPolicyGatewayRuntime {
   }> {
     return Object.freeze({
       starting: this.#startingPending ? 1 : 0,
-      closing: this.#closing,
+      closing: this.#closeRequested,
       closed: this.#closed,
       applicationOwners: this.#app?.metrics().ownedResources ?? 0,
       bridgeCalls: this.#bridge?.metrics().active ?? 0,
@@ -160,6 +161,10 @@ export class ChannelPolicyGatewayRuntime {
   }
   #check(): void {
     if (this.#closing) throw new GatewayRuntimeError('closed');
+  }
+  #checkStarting(): void {
+    this.#check();
+    if (this.#closeRequested) throw new GatewayRuntimeError('closed');
   }
   #dispatch(source: 'native' | 'sms'): DispatchPorts {
     const c = this.#config,
@@ -260,12 +265,12 @@ export class ChannelPolicyGatewayRuntime {
     }
   }
   start(): Promise<GatewayApplicationEndpoints> {
-    if (this.#closing) return Promise.reject(new GatewayRuntimeError('closed'));
+    if (this.#closeRequested) return Promise.reject(new GatewayRuntimeError('closed'));
     if (!this.#starting) {
       this.#startingPending = true;
       const deadline = (this.#startupDeadline = performance.now() + 5000);
       const actual = Promise.resolve().then(async () => {
-        this.#check();
+        this.#checkStarting();
         const c = this.#config,
           k = this.#credentials,
           r = c.route;
@@ -295,7 +300,7 @@ export class ChannelPolicyGatewayRuntime {
           { scope: r.scope, caseId: r.caseId, conversationId: r.conversationId },
           new AbortController().signal,
         );
-        this.#check();
+        this.#checkStarting();
         if (performance.now() >= deadline || ready.source !== 'p1_public_v4')
           throw new GatewayRuntimeError('unavailable');
         const nativeIntegration = createNativeIntegration(c.providers.native, [
@@ -351,9 +356,9 @@ export class ChannelPolicyGatewayRuntime {
             : undefined,
           this.#nativeBridge,
         );
-        this.#check();
+        this.#checkStarting();
         const endpoints = await this.#app.start(c.listen);
-        this.#check();
+        this.#checkStarting();
         if (performance.now() >= deadline) throw new GatewayRuntimeError('unavailable');
         return (this.#endpoints = endpoints);
       });
@@ -364,7 +369,7 @@ export class ChannelPolicyGatewayRuntime {
         },
         () => {
           this.#startingPending = false;
-          this.#closing = true;
+          this.#closeRequested = true;
           void this.close().catch(() => {});
         },
       );
@@ -374,7 +379,7 @@ export class ChannelPolicyGatewayRuntime {
       this.#endpoints ? 5000 : Math.max(0, this.#startupDeadline - performance.now()),
       'unavailable',
     ).catch(() => {
-      this.#closing = true;
+      this.#closeRequested = true;
       void this.close().catch(() => {});
       throw new GatewayRuntimeError('unavailable');
     });
@@ -389,16 +394,23 @@ export class ChannelPolicyGatewayRuntime {
       return Promise.reject(new GatewayRuntimeError(this.#closing ? 'closed' : 'unavailable'));
     return this.#app.nativeResult(bindingBearer, deliveryId, signal);
   }
+  /** Local lifecycle control only; preserves the app and borrowed origin/case transports. */
+  quiesceDispatch(): Promise<void> {
+    if (!this.#app || !this.#endpoints)
+      return Promise.reject(new GatewayRuntimeError('unavailable'));
+    return this.#app.quiesceDispatch();
+  }
   close(): Promise<void> {
-    this.#closing = true;
+    this.#closeRequested = true;
     if (this.#closed) return Promise.resolve();
     // Signal the constructed app immediately, including while start is still awaited.
-    // This blocks later gateway business admission before any dependent ownership wait.
+    // This fences room/start admission while accepted dispatch retains its adapters.
     if (this.#app) void this.#app.close().catch(() => {});
     if (!this.#closeTask) {
       const actual = Promise.resolve().then(async () => {
         if (this.#starting) await this.#starting.catch(() => {});
         if (this.#app) await this.#app.close();
+        this.#closing = true;
         if (this.#bridge) await this.#bridge.close();
         if (this.#case) await this.#case.close();
         this.#closed = true;

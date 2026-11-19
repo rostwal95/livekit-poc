@@ -73,8 +73,8 @@ closed python_json_report and python_infrastructure_report commands:
 - Report execution binds the exact case and catalog mode, owns bounded child
   capture and cleanup, and exposes only validated fixed codes and counts.
 - Product wrappers own prerequisite checks and exact test-ID mappings.
-- Future TypeScript, browser and container runners must retain failures, missing
-  tests, required skips and timeouts as non-passing results.
+- Additional runner kinds must retain failures, missing tests, required skips and
+  timeouts as non-passing results.
 - Runtime tests establish recovery, cancellation and media behavior. Static scans
   cannot establish them.
 
@@ -93,8 +93,9 @@ closed python_json_report and python_infrastructure_report commands:
 
 Reports live under the ignored `.local/harness` directory. They retain status,
 original process outcome, test counts, elapsed duration and diagnostic paths.
-Future runtime reports add fixture and workload, code snapshot, stack and media
-evidence, as specified in the [validation plan](validation-plan.md).
+Runtime reports also retain the fixture, workload, code snapshot, stack or media
+evidence required by their owning gate, as specified in the
+[validation plan](validation-plan.md). These requirements differ by lane.
 
 ## Maintenance
 

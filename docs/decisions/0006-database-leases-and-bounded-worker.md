@@ -125,8 +125,11 @@ Use the opt-in `p1-workers` profile, explicit private supplier and sink fixtures
 and a deliberately selected ACTIVE v4 schema. The worker receives runtime
 credentials only. It cannot migrate, publish proposals or fabricate user
 confirmation. Normal stop and start preserves `worker_data` and application
-volumes. The current browser and API remain M1 intake (the original SQLite
-confirmed-investigation intake) and transport diagnostics.
+volumes. At the Phase F checkpoint, the browser and API exposed M1 intake (the
+original SQLite confirmed-investigation intake) and transport diagnostics. The
+[Phase G decision](0007-native-conversation-and-local-media.md) adds the separate
+native business profile; the [P1 guide](../../projects/agent-continuity/README.md)
+owns current capability status.
 
 Expose readiness and bounded local metrics separately from business outcome.
 Observe pending and active bounds, step occupancy, lease rejection and retained

@@ -10,6 +10,7 @@ const calls = vi.hoisted(() => ({
   inspect: vi.fn(),
   inboxClose: vi.fn(),
   dispatcherClose: vi.fn(),
+  dispatcherQuiesce: vi.fn(),
   dispatcherOptions: vi.fn(),
 }));
 const native = vi.hoisted(() => ({ servers: [] as import('node:http').Server[] }));
@@ -40,6 +41,7 @@ vi.mock('../src/dispatch.js', () => ({
     step = calls.step;
     inspect = calls.inspect;
     close = calls.dispatcherClose;
+    quiesce = calls.dispatcherQuiesce;
     constructor(...args: unknown[]) {
       calls.dispatcherOptions(args[4]);
     }
@@ -190,12 +192,58 @@ beforeEach(() => {
   calls.inspect.mockResolvedValue({ receiptId: ID, state: 'pending' });
   calls.inboxClose.mockResolvedValue(undefined);
   calls.dispatcherClose.mockResolvedValue(undefined);
+  calls.dispatcherQuiesce.mockResolvedValue(undefined);
 });
 afterEach(async () => {
   for (const g of gateways) await g.close();
   gateways.length = 0;
 });
 describe('bounded loopback gateway', () => {
+  it('quiesces before dependencies close without exhausting retained input and a fresh owner progresses', async () => {
+    const entered = deferred(),
+      release = deferred();
+    calls.eligible.mockResolvedValue([ID]);
+    calls.step.mockImplementationOnce(async () => {
+      entered.resolve();
+      await release.promise;
+      return { status: 'uncertain', receiptId: ID, operationKey: ID };
+    });
+    const g = gateway(),
+      endpoint = await g.listen();
+    await entered.promise;
+    try {
+      let drained = false;
+      const quiescing = g.quiesceDispatch().then(() => {
+        drained = true;
+      });
+      await tick();
+      expect(drained).toBe(false);
+      expect(calls.step).toHaveBeenCalledTimes(1);
+      release.resolve();
+      await quiescing;
+      await tick();
+      await tick();
+      expect(calls.step).toHaveBeenCalledTimes(1);
+      expect(calls.inboxClose).not.toHaveBeenCalled();
+      expect(calls.dispatcherClose).not.toHaveBeenCalled();
+      expect(
+        (
+          await call(endpoint, 'GET', '/receipts/' + ID, undefined, {
+            Authorization: 'Bearer ' + TOKEN,
+          })
+        ).status,
+      ).toBe(200);
+      expect((await post(endpoint)).status).toBe(503);
+      expect(calls.accept).not.toHaveBeenCalled();
+      await g.close();
+      const recovered = gateway();
+      await recovered.listen();
+      await vi.waitFor(() => expect(calls.step).toHaveBeenCalledTimes(2));
+      expect(calls.step.mock.calls[1]).toEqual([TOKEN, ID]);
+    } finally {
+      release.resolve();
+    }
+  });
   it('preflights before binding and committed raw intake precedes the actual ACK', async () => {
     const wait = deferred();
     calls.accept.mockImplementation(async () => {

@@ -1,0 +1,26 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import function_tool, RunContext\n\n\n@function_tool\nasync def check_availability(context: RunContext, date: str) -> str:\n  \"\"\"Check available appointment slots for a given date.\n\n  Args:\n      date: The date to check availability for (e.g., \"next Tuesday\", \"March 15\")\n  \"\"\"\n  # Simulated availability \u2014 in production, query your scheduling database\n  available_slots = [\"9:00 AM\", \"11:30 AM\", \"2:00 PM\", \"4:30 PM\"]\n  return f\"Available slots for {date}: {', '.join(available_slots)}\""
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentServer, rtc_session, Agent, AgentSession, function_tool, RunContext\nfrom livekit.plugins import openai, silero, deepgram, cartesia\n\nserver = AgentServer()\n\n\n@function_tool\nasync def check_availability(context: RunContext, date: str) -> str:\n  \"\"\"Check available appointment slots for a given date.\n\n  Args:\n      date: The date to check availability for (e.g., \"next Tuesday\", \"March 15\")\n  \"\"\"\n  available_slots = [\"9:00 AM\", \"11:30 AM\", \"2:00 PM\", \"4:30 PM\"]\n  return f\"Available slots for {date}: {', '.join(available_slots)}\"\n\n\n@server.rtc_session\nasync def entrypoint(session: AgentSession):\n  await session.start(\n      agent=Agent(\n          instructions=\"\"\"You are a friendly receptionist at Bright Smile Dental clinic.\n          Keep responses brief and conversational. Never use markdown or emojis.\n          Help callers with appointment inquiries, clinic hours, and general questions.\n\n          When a caller asks about availability or openings, use the check_availability\n          tool to look up real appointment slots. Always check availability before\n          suggesting times \u2014 never guess or make up time slots.\"\"\",\n          tools=[check_availability],\n      ),\n      room=session.room,\n      stt=deepgram.STT(model=\"nova-3\"),\n      llm=openai.LLM(model=\"gpt-4o-mini\"),\n      tts=cartesia.TTS(voice=\"<voice-id>\"),\n  )\n\n\nif __name__ == \"__main__\":\n  server.run()"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "lk agent dev"
+  }
+]

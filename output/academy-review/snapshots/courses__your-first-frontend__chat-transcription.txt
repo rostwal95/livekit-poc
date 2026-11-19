@@ -1,0 +1,300 @@
+1Frontend architecture for the dental receptionist
+
+2Connecting to the dental receptionist
+
+3Agent dispatch
+
+4Agent state & the dental session lifecycle
+
+5Transcription & booking confirmations
+
+6Text input for the dental receptionist
+
+7RPC & data channels: a visual booking flow
+
+Transcription & booking confirmations
+
+Transcription & booking confirmations
+
+Maya is talking, and the UI reflects her state. But the patient cannot see the words. In this chapter, you will display a streaming transcript of the dental conversation — patient messages and Maya's responses appearing word by word — and render a booking confirmation card when Maya successfully books an appointment via the booking-confirmation text stream from Course 1.1.
+
+What you'll learn
+
+How transcription data flows from the agent to the browser via text streams
+
+How to use the built-in Chat component for the dental conversation transcript
+
+How streaming transcripts arrive word-by-word and finalize
+
+How to subscribe to the booking-confirmation text stream and render a confirmation card
+
+How to build a custom transcript display with dental-specific styling
+
+How transcription works
+
+Transcription flows through text streams — lightweight data channels alongside the audio tracks. Here is the flow for a typical dental exchange:
+
+The patient says: "I'd like to book a cleaning for next Tuesday."
+
+The agent's Deepgram STT produces partial transcripts in real time: "I'd like to" -> "I'd like to book a" -> "I'd like to book a cleaning for next Tuesday."
+
+The agent publishes both the patient's transcription and its own responses as text stream messages. Each message has an isFinal flag.
+
+The frontend receives these messages and renders them as chat bubbles. Partial messages update in place; final messages are committed to the transcript.
+
+The transcript arrives over the same WebRTC connection as the audio. There is no separate API call, no polling. The text stream is a named topic that the frontend subscribes to automatically when it joins the room.
+
+The built-in Chat component
+
+The fastest way to show a dental conversation transcript is the pre-built Chat component from @livekit/components-react. It handles streaming transcription, message styling, and auto-scroll out of the box.
+
+import { Chat } from "@livekit/components-react";
+
+{/* Inside your conversation UI */}
+<div className="h-96 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
+<Chat />
+</div>
+
+This renders a scrollable transcript with:
+
+Patient messages aligned to one side
+
+Maya's responses aligned to the other
+
+Streaming indicators for in-progress messages
+
+Automatic scroll-to-bottom as new messages arrive
+
+For many applications, this is all you need. But a dental receptionist frontend benefits from custom styling — especially when you want to render booking confirmations inline.
+
+Custom dental transcript
+
+Build a transcript component that styles messages to match a dental clinic's branding and handles the streaming lifecycle.
+
+"use client";
+
+import { useSession } from "@livekit/agents-react";
+import { useEffect, useRef } from "react";
+
+interface TranscriptMessage {
+role: "user" | "assistant";
+content: string;
+isFinal: boolean;
+timestamp: number;
+}
+
+export function DentalTranscript() {
+const session = useSession();
+const messages: TranscriptMessage[] = session.agent.messages;
+const scrollRef = useRef<HTMLDivElement>(null);
+
+// Auto-scroll to the latest message
+useEffect(() => {
+  scrollRef.current?.scrollTo({
+    top: scrollRef.current.scrollHeight,
+    behavior: "smooth",
+  });
+}, [messages]);
+
+return (
+  <div
+    ref={scrollRef}
+    className="flex h-96 flex-col gap-3 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4"
+  >
+    {messages.length === 0 && (
+      <p className="text-center text-sm text-gray-400">
+        Your conversation with Maya will appear here.
+      </p>
+    )}
+
+    {messages.map((msg, i) => (
+      <div
+        key={i}
+        className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+      >
+        <div
+          className={`max-w-[80%] rounded-lg px-4 py-2 text-sm ${
+            msg.role === "user"
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-900 shadow-sm border border-gray-100"
+          } ${!msg.isFinal ? "opacity-70" : ""}`}
+        >
+          {msg.role === "assistant" && (
+            <span className="mb-1 block text-xs font-medium text-blue-600">
+              Maya
+            </span>
+          )}
+          {msg.content}
+          {!msg.isFinal && (
+            <span className="ml-1 inline-block h-2 w-2 animate-pulse rounded-full bg-current" />
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+);
+}
+
+Each message has an isFinal flag. While the patient is still speaking or Maya is still generating, isFinal is false and the message updates in place with reduced opacity and a pulsing dot. Once the transcript is finalized, the message becomes fully opaque and stable. This streaming behavior gives the patient real-time feedback — they see Maya "typing" her response as she speaks.
+
+Subscribing to booking confirmations
+
+In Course 1.1, when the book_appointment tool succeeds, the agent publishes a booking confirmation via a text stream on the booking-confirmation topic:
+
+stream = await self.session.room.local_participant.stream_text(
+  topic="booking-confirmation",
+)
+await stream.write(f'{{"patient_name": "{booking["patient_name"]}", "date": "{booking["date"]}", "time": "{booking["time"]}"}}'
+)
+await stream.close()
+
+The frontend subscribes to this topic and renders a card when a confirmation arrives.
+
+"use client";
+
+import { useTextStream } from "@livekit/components-react";
+import { useState } from "react";
+
+interface BookingDetails {
+patient_name: string;
+date: string;
+time: string;
+}
+
+export function BookingConfirmation() {
+const [booking, setBooking] = useState<BookingDetails | null>(null);
+
+useTextStream({
+  topic: "booking-confirmation",
+  onMessage: (message: string) => {
+    try {
+      const details: BookingDetails = JSON.parse(message);
+      setBooking(details);
+    } catch {
+      // Ignore malformed messages
+    }
+  },
+});
+
+if (!booking) return null;
+
+return (
+  <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+    <div className="flex items-center gap-2">
+      <span className="text-green-600 text-lg">OK</span>
+      <h3 className="font-semibold text-green-800">Appointment Confirmed</h3>
+    </div>
+    <dl className="mt-3 space-y-1 text-sm">
+      <div className="flex justify-between">
+        <dt className="text-green-700">Patient</dt>
+        <dd className="font-medium text-green-900">{booking.patient_name}</dd>
+      </div>
+      <div className="flex justify-between">
+        <dt className="text-green-700">Date</dt>
+        <dd className="font-medium text-green-900">{booking.date}</dd>
+      </div>
+      <div className="flex justify-between">
+        <dt className="text-green-700">Time</dt>
+        <dd className="font-medium text-green-900">{booking.time}</dd>
+      </div>
+    </dl>
+    <p className="mt-3 text-xs text-green-600">
+      A confirmation will also be sent to your email on file.
+    </p>
+  </div>
+);
+}
+
+Text streams are fire-and-forget
+
+The agent publishes to the booking-confirmation topic and moves on. It does not wait for the frontend to acknowledge receipt. If the frontend is not connected when the message is sent, it misses it. For critical confirmations, consider also storing the booking in the agent's backend and surfacing it via participant attributes.
+
+Putting it together: transcript with booking card
+
+Now integrate the transcript and booking confirmation into the main page:
+
+import { DentalTranscript } from "@/components/DentalTranscript";
+import { BookingConfirmation } from "@/components/BookingConfirmation";
+
+{/* Inside the active conversation block */}
+{(agentState === "listening" ||
+agentState === "thinking" ||
+agentState === "speaking") && (
+<div className="space-y-4">
+  <DentalTranscript />
+  <BookingConfirmation />
+</div>
+)}
+
+The flow for a complete booking conversation:
+
+Patient: "I'd like to book a cleaning for next Tuesday." This appears as a blue bubble in the transcript.
+
+Agent state transitions to thinking. Maya calls check_availability. The thinking indicator pulses.
+
+Maya: "I have openings at 9 AM, 11:30, and 2 in the afternoon. Which works best?" This streams word-by-word as a white bubble.
+
+Patient: "9 AM works. My name is Jane Doe."
+
+Maya calls book_appointment. The agent publishes a booking-confirmation text stream with the details.
+
+The BookingConfirmation component receives the text stream message and renders a green card: "Appointment Confirmed — Jane Doe — Next Tuesday — 9:00 AM."
+
+Chat history persistence
+
+The transcript state lives in the session object and is lost when the page reloads. For a dental app, you might want to persist the conversation so the patient can review it later.
+
+"use client";
+
+import { useEffect } from "react";
+
+interface TranscriptMessage {
+role: "user" | "assistant";
+content: string;
+isFinal: boolean;
+timestamp: number;
+}
+
+export function usePersistentHistory(
+messages: TranscriptMessage[],
+sessionId: string
+) {
+useEffect(() => {
+  // Only persist finalized messages
+  const finalized = messages.filter((m) => m.isFinal);
+  if (finalized.length > 0) {
+    localStorage.setItem(
+      `dental-transcript-${sessionId}`,
+      JSON.stringify(finalized)
+    );
+  }
+}, [messages, sessionId]);
+}
+
+localStorage has limits
+
+localStorage has a 5 MB limit per origin. For a dental clinic with high volume, consider sending completed transcripts to your backend instead. LiveKit Cloud Insights also stores full transcripts for every session.
+
+What you learned
+
+Transcription flows as text stream messages over the same WebRTC connection as audio
+
+The built-in Chat component provides a zero-config transcript display
+
+Streaming messages have an isFinal flag — partial messages update in place, final messages commit
+
+The booking-confirmation text stream from Course 1.1 triggers a visual confirmation card on the frontend
+
+useTextStream subscribes to named topics and fires a callback on each message
+
+Chat history can be persisted to localStorage or sent to a backend
+
+Test your knowledge
+
+Question 1 of 2
+
+What triggers the booking confirmation card to appear in the frontend?
+
+Next up
+
+The patient can hear Maya, see the transcript, and get booking confirmations. But what about patients who cannot speak aloud — maybe they are in a quiet waiting room and need to spell out their insurance ID? In the next chapter, you will add text input so the dental receptionist accepts both voice and typed messages.

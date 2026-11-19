@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why is cache invalidation especially important for a semantic cache in a RAG system?",
+    "options": [
+      "Stale cache entries consume too much memory and slow down the server",
+      "Without invalidation, the cache will grow indefinitely and crash the process",
+      "A cache serving outdated retrieval results returns information from documents that may have changed, which is worse than no cache",
+      "Cache invalidation is required by the vector database to maintain index consistency"
+    ],
+    "correctIndex": 2,
+    "explanation": "If documents are re-ingested with updated content but the cache still serves old retrieval results, the agent will answer with outdated information confidently. This is worse than no cache because at least without caching, the fresh vector search would return current results. Cache should be cleared whenever documents are re-ingested."
+  },
+  {
+    "question": "A RAG system's hit rate has been declining over the past two weeks. What does this most likely indicate?",
+    "options": [
+      "The vector database index has become fragmented and needs rebuilding",
+      "The cache TTL is set too low and results are expiring too quickly",
+      "Users are asking questions that the knowledge base does not cover -- there are coverage gaps",
+      "The embedding model has degraded and needs retraining"
+    ],
+    "correctIndex": 2,
+    "explanation": "Hit rate measures what percentage of queries return at least one result above the relevance threshold. A declining hit rate means users are increasingly asking questions that the knowledge base cannot answer. This signals coverage gaps that need to be addressed by adding new documents or updating existing ones."
+  },
+  {
+    "question": "What is the primary advantage of LLM-as-judge evaluation over human review for RAG answer quality?",
+    "options": [
+      "LLM judges can evaluate audio quality in addition to answer quality",
+      "LLM judges are always more accurate than human reviewers",
+      "It scales to thousands of interactions per day and catches obvious failures automatically",
+      "It eliminates the need for a golden test set entirely"
+    ],
+    "correctIndex": 2,
+    "explanation": "LLM-as-judge evaluation runs automatically on a sample of interactions, scoring faithfulness, relevance, and completeness. While it is not a replacement for human evaluation, it scales to thousands of evaluations per day and catches obvious quality failures (hallucinations, off-topic answers) that would be impossible to catch with limited human review capacity."
+  }
+]

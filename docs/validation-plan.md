@@ -28,7 +28,7 @@ requirements and results for each P1 phase and each selected P2/P3 checkpoint.
 | [Audit-driven integration and operational qualification](#audit-driven-integration-and-operational-qualification) | Future exit criteria, test discovery, consumer feedback and dependency scanning |
 | [Foundation commands and qualification](#foundation-commands-and-qualification) | Current commands and foundation evidence |
 | [P1 phase gates](#p1-phase-gates) | Phase A to Phase H gates and the current P1 qualification |
-| [P2 and P3 lanes and selected checkpoints](#p2-and-p3-lanes-and-selected-checkpoints) | Contract lanes and the selected checkpoints recorded in work items 0031 to 0043 |
+| [P2 and P3 lanes and selected checkpoints](#p2-and-p3-lanes-and-selected-checkpoints) | Contract lanes and selected checkpoints through native policy, result return and original-input binding |
 
 ### Delivery scope
 
@@ -303,7 +303,7 @@ worker termination and restart, and a slow-provider case.
 | Outcomes | Accepted, completed, failed and uncertain counts |
 | Correctness | Lost accepted work and duplicate external effects |
 | Latency and lag | Queue age, recovery lag, admission and dispatch latency, and event-loop lag |
-| Resources and errors | CPU, RSS and errors |
+| Resources and errors | CPU, measured memory with its accounting basis, and errors |
 
 - For delegation, assert zero stale action intents and successful progression of
   expected current results.
@@ -325,8 +325,9 @@ meaningful response, interruption yield and the time to a useful result.
 - Inject exporter, provider and store failures. Assert safe classified outcomes,
   and prove that telemetry failure does not block conversation or create unbounded
   retries.
-- Report sample counts with p50/p95. Show tail percentiles only with enough
-  samples to interpret them.
+- Report sample counts with every latency summary. Show p50/p95 or other
+  percentiles only with enough samples to interpret them; small runs can retain
+  minimum, median and maximum instead.
 - Stage timings differ by pipeline. Do not invent speech-to-text (STT), large
   language model (LLM) or text-to-speech (TTS) timings for a model that does not
   expose them.
@@ -423,13 +424,15 @@ limitation, before release. Percentage coverage alone is not a release criterion
 ## Audit-driven integration and operational qualification
 
 The [audit disposition](work-items/0020-architecture-audit-reconciliation.md) maps
-review findings to current evidence and owned follow-ups.
+the original architecture findings to evidence and owned follow-ups. Later
+reviews retain their own records in the [checkpoint history](checkpoint-history.md).
 
-### Future exit criteria
+### Review-driven exit criteria
 
-The rows below are required exit criteria for the affected future slices. They are
-not passing registrations or additions to the 55-case catalog. Preserve existing
-project acceptance IDs.
+The rows below remain required exit criteria for their affected boundaries.
+Selected slices have since passed gates recorded below; broader assertions remain
+open. This table is not a passing registration or an addition to the 55-case
+catalog. Preserve existing project acceptance IDs.
 
 | Owner and existing mapping | Deterministic negative schedule | Useful-progress and evidence requirement |
 | --- | --- | --- |
@@ -507,7 +510,7 @@ These commands are separate from product acceptance.
 | Catalog rows | Status | Evidence |
 | --- | --- | --- |
 | All twenty P1 rows | Runners registered with retained passing reports | [Phase H assessment](work-items/0019-p1-phase-h-release-qualification.md) |
-| P3-01, P3-03 and P3-11 | Complete registered lab runners with fresh passing reports | [Revision routing and complete P3 lab acceptance](#revision-routing-and-complete-p3-lab-acceptance-0031) |
+| P3-01, P3-03 and P3-11 | Complete registered lab runners with retained passing reports | [Revision routing and complete P3 lab acceptance](#revision-routing-and-complete-p3-lab-acceptance-0031) |
 | All 17 P2 rows | Planned | Not applicable |
 | The remaining 14 P3 rows | Planned | Not applicable |
 
@@ -557,8 +560,11 @@ P1 has a standalone src-layout distribution and real isolated consumers:
 2. Rebuild from the sdist.
 3. Install outside repository import paths.
 
-Apply the same artifact discipline when later P2/P3 boundaries become real. A
-distribution's minimal public-API example must work using declared dependencies
+P2/P3 selected installed consumers are recorded in
+[0038](work-items/0038-case-rehydration-and-standalone-release.md) and
+[0041](work-items/0041-standalone-channel-and-durable-policy.md). Apply the same
+artifact discipline to later changes and release. A distribution's minimal
+public-API example must work using declared dependencies
 and exports, with no hidden sibling source imports. An installed P1
 execution-library dependency may support P3 standalone use without requiring the
 full P1 service deployment. Repeat the applicable consumer test in the release
@@ -609,8 +615,8 @@ ambient target redirection, and creates and removes only isolated owned schemas.
 
 - Missing setup, connection refusal, zero tests and skips cannot pass.
 - Fast tests do not silently start Docker and do not substitute for this lane.
-- CI is wired to run it. Remote CI execution remains unverified until an actual
-  run is observed.
+- The optional example CI workflow includes this lane. Remote CI execution is
+  outside the local POC scope and is not a release prerequisite.
 
 Required assertions:
 
@@ -917,10 +923,13 @@ registers no complete charter runner.
 
 ### Current local P1 qualification
 
-P1 V1 is implemented and locally qualified with selected provider_real v2. These
-gates passed with independent reviews: the final 20-case index; the current
-P1-18, P1-14 and P1-20 runs; full H2; PostgreSQL; installed host/Linux artifacts;
-and the shared quality gates. Historical checkpoints retain their original scope.
+P1 V1 retains its selected provider_real v2 local qualification from
+[0019](work-items/0019-p1-phase-h-release-qualification.md). The later booking-v5
+rerun in [0047](work-items/0047-open-findings-schema-upgrades-and-landing.md)
+passed BASE-01 and P1-01 through P1-19; its fresh P1-20 provider result remains
+open with the approved certificate bundle prerequisite. The
+[build plan](build-plan.md#p1-qualification) keeps the current summary.
+Historical reports retain their original source and profile scope.
 
 local_real remains unqualified. Complete P2/P3 acceptance remains pending, and
 hosted CI and publication are outside this local POC.
@@ -982,7 +991,7 @@ probe is not a P1-issued execution. No coordinator invocation, durable result, d
 action, or specialist recovering queue is qualified here.
 
 The local PostgreSQL runtime credential is shared with P1 for these fixtures.
-That does not prove independent P1/P2 database principals. A separately exposed
+That does not prove independent P1/P3 database principals. A separately exposed
 deployment requires an isolated principal before qualification.
 
 ### Shared static checks
@@ -1107,9 +1116,10 @@ P3 requires:
 - concurrent ACK CAS;
 - complete receiver and SQL reconciliation.
 
-P1 APIs and runtime are unchanged. Prove that all 77 payload bytes remain equal
-to the existing qualified artifact, rather than rerunning unrelated provider
-behavior. Missing setup, skips and timeouts remain non-passing.
+At the 0033 checkpoint, P1 APIs and runtime were unchanged, with all 77 payloads
+compared to the existing qualified artifact instead of rerunning unrelated
+provider behavior. Preserve that source-bound evidence; later P1 changes require
+their own affected gates. Missing setup, skips and timeouts remain non-passing.
 
 Recorded results:
 
@@ -1245,7 +1255,7 @@ remains separate.
 - Retain actual socket, reader, turn, intake, prepare and observer work until
   settlement.
 - Close failures cannot skip independent owners or manufacture zeros.
-- Inspect the eighteen native producer metrics, bounded safe logs, telemetry
+- Inspect the original eighteen native producer metrics, bounded safe logs, telemetry
   outages and six-key generation observations separately from browser playback.
 - No paid provider call, physical microphone, general automatic speech
   recognition (ASR) or model quality, or complete P2/P3 row follows from scripted
@@ -1447,6 +1457,24 @@ postcommit kill.
 - SDK, native, browser and media behavior and real inference are separate
   following gates. No scripted durable fixture qualifies them.
 
+### Native fixed-policy RTC text (0042)
+
+The [0042 handoff](work-items/0042-responsive-native-policy-and-compact-demo.md)
+records selected P3-I18B qualification over one configured native session and
+the explicit durable policy-v2 facades.
+
+| Lane | Command | Retained scope |
+| --- | --- | --- |
+| Inert plan | `make p3-native-policy-plan` | Declares the selected inventory; starts no work |
+| Source journey | `make p3-native-policy-check` | Twelve backend/SDK assertions and three browser groups passed |
+| Installed journey | `make p3-native-policy-package-check` | The same selected assertions passed from isolated artifacts; eight offline package assertions remain separate |
+
+The gate distinguishes acknowledged P1 work, the retained background runner,
+useful RTC-text progress while the specialist is held, and the compact as-of
+result view. SDK waiter termination does not business-cancel P1 work. This profile
+does not qualify microphone capture, speech recognition, audio playback, provider
+quality or complete joined voice/SMS routing.
+
 ### Stable result delivery and package separation (0043)
 
 The [0043 work item](work-items/0043-stable-result-delivery-and-return-context.md)
@@ -1477,3 +1505,22 @@ and install payloads, and uses isolated consumers.
   non-passing, even when individual consumers succeed.
 
 Joined RTC/voice/SMS and provider/video gates remain separate from both lanes.
+
+### Original channel-input binding (0044)
+
+The [0044 handoff](work-items/0044-origin-bound-channel-policy.md) records selected
+original-input qualification toward P2-I22 and P3-I19.
+
+| Lane | Command | Retained scope |
+| --- | --- | --- |
+| Inert plan | `make channel-origin-plan` | Declares the bounded source schedule |
+| Unit contracts | `make channel-origin-unit` | Cross-language origin and typed policy facade checks |
+| Actual source gate | `make channel-origin-check` | Fourteen assertions across sixteen owned process groups passed |
+| Isolated package gate | `make channel-origin-package-check` | Built and installed public artifacts with explicit fake ports; not an actual database repetition |
+
+The source gate joins original native or signed simulated-SMS input to P1 work,
+issued policy results and the current P2 receipt/read. It uses three disposable
+schemas and one owned acknowledgement-host kill after commit. Complete original
+identity joins and owned cleanup remain required. These source and package
+results do not establish the later joined RTC/provider journey, whole-stack
+restart or complete charter release.

@@ -184,7 +184,10 @@ P2/P3 charter requirements.
 ### Review-driven follow-ups
 
 The [architecture review disposition](work-items/0020-architecture-audit-reconciliation.md)
-is the current findings map.
+records the original architecture findings. The later
+[code audit](work-items/0048-code-audit-fixes-and-documentation-cleanup.md) and
+[SDK compatibility and code review](work-items/0049-sdk-compatibility-and-code-review.md)
+retain their own findings, repairs and validation limits.
 
 | Topic | Disposition |
 | --- | --- |

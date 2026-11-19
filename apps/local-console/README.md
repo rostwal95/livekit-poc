@@ -48,7 +48,7 @@ Contents:
 
 | Capability | Status | Evidence |
 | --- | --- | --- |
-| P1 console with provider_real v2 | Qualified | Selected provider_real v2 gate passed both actual browser cases with cleanup; [provider guide](../../docs/provider-demo.md) |
+| P1 console with provider_real v2 | Historical selected qualification | Both recorded browser cases passed with cleanup; the post-v5 P1-20 rerun remains open in [0047](../../docs/work-items/0047-open-findings-schema-upgrades-and-landing.md) |
 | P1 console with local_real | Not qualified | Engine, model and media qualification pending; [local-real guide](../../docs/local-real-inference.md) |
 | P2 native input and response playback | Qualified | Selected 0036 and 0037 gates passed; [0036](../../docs/work-items/0036-native-input-and-deadline-cancellation.md) · [0037](../../docs/work-items/0037-playback-evidence-and-process-recovery.md) |
 | P2 current-case continuation | Qualified | Selected 0038 gates passed; [0038](../../docs/work-items/0038-case-rehydration-and-standalone-release.md) |
@@ -76,7 +76,9 @@ behavior.
 
 - Each page keeps its operator token or credential only in page memory. A
   password input clears as soon as it is used.
-- No credential or task identity enters a build, URL or browser storage.
+- Credentials and current task identities stay out of builds, the browser page
+  URL and browser storage. Authenticated API request paths may contain the task
+  or receipt identity they inspect.
 - Forget clears the credential. Each page section states what else Forget
   clears.
 
@@ -88,9 +90,13 @@ behavior.
 - A timed-out waiter, End or Forget does not release an actual request, stream
   reader or media resource. The page keeps ownership until the real operation
   settles. A new Join or Connect waits for that cleanup.
-- After a lost acknowledgement, the page keeps the original frozen request
-  identity and body and reconciles with them unchanged. It never invents a new
-  identity.
+- Commands with a replay contract keep their original frozen identity and body
+  after a lost acknowledgement. Retry uses that original command rather than
+  inferring acceptance from a later snapshot or inventing a new identity.
+- Page exit starts best-effort local cleanup. It cannot establish that remote
+  End completed; use explicit End and its observed cleanup barrier before a new
+  activation. The page-exit limitation is recorded as UI-A6 in
+  [0048](../../docs/work-items/0048-code-audit-fixes-and-documentation-cleanup.md).
 
 ### Observations are as-of facts
 
@@ -104,7 +110,7 @@ behavior.
 - Counters, elapsed time, speech state and media playback prove neither durable
   progress nor that a person heard anything. No timer manufactures progress.
 
-### Conversation controls never change business state
+### Conversation lifetime controls preserve durable work
 
 - A model statement, speech state, playback event or agent hint never authorizes
   a mutation. No conversation control supplies business confirmation.
@@ -128,6 +134,11 @@ The default page (`index.html`) holds a shared memory-only access bar, the
 managed business workspace and native voice controls. Collapsed transport
 diagnostics and an independent M1 fixture sit below the primary workflow. M1 is
 the original confirmed-investigation intake.
+
+The ordinary stack serves this page even when its business backend is disabled.
+Enable that backend explicitly with `start-business`; visible panels alone do
+not establish readiness. The separate showcase build serves its landing page at
+port 5179 and the joined flow at `/channel-policy.html`.
 
 ### Managed business workspace
 
@@ -543,11 +554,10 @@ showcase and the P1 console.
 
 ### Showcase status
 
-Its components and disconnected responsive layout have focused tests. These
-isolated checks do not establish a joined database, RTC or real-provider
-journey. The active
-[0045 work item](../../docs/work-items/0045-joined-native-channel-policy.md)
-owns that qualification, which remains pending.
+The page has focused component/layout tests and recorded selected provider
+journeys. Complete joined qualification remains pending under
+[0045](../../docs/work-items/0045-joined-native-channel-policy.md); a component
+pass or recording does not close that gate.
 [0046](../../docs/work-items/0046-joined-showcase-providers-and-demo.md)
 records three selected provider-mode journeys and the 80-second showcase
 recording, and
@@ -718,7 +728,7 @@ Each optional page section holds its own commands and prerequisites:
 | Unit tests | `corepack pnpm --filter @livekit-ecosystem/local-console test` | Client schemas, quote bytes, replay, acknowledgements, bounded reads, permissions, races and cleanup | Implemented; 503 console unit tests passed in the 0038 run |
 | Shared producer fixture | Runs with the unit tests | Python/browser compatibility | Implemented |
 | Production build | `corepack pnpm --filter @livekit-ecosystem/local-console build` | Native SDK types | Implemented |
-| Real browser gate | `corepack pnpm --filter @livekit-ecosystem/local-console test:e2e` | Scripted input over actual local HTTP and native WebRTC | Current result recorded in the [Phase H handoff](../../docs/work-items/0019-p1-phase-h-release-qualification.md) |
+| Real browser gate | `corepack pnpm --filter @livekit-ecosystem/local-console test:e2e` | Scripted input over actual local HTTP and native WebRTC | Source-bound result recorded in the [Phase H handoff](../../docs/work-items/0019-p1-phase-h-release-qualification.md); rerun affected gates after lifecycle changes |
 | Optional page gates | Listed in each page section | Each page's selected behavior | Recorded in each page section |
 
 ### Unit and build checks
@@ -762,7 +772,9 @@ Each optional page section lists its own selected gates and results.
 ## Next milestone
 
 The [completed Phase H handoff](../../docs/work-items/0019-p1-phase-h-release-qualification.md)
-records current browser, fault and provider gates and sanitized evidence.
+records its browser, fault and provider gates and sanitized evidence. Later
+changes retain their own qualification limits, including the post-v5 P1-20
+rerun in [0047](../../docs/work-items/0047-open-findings-schema-upgrades-and-landing.md).
 
 Later selected qualifications are recorded as follows:
 

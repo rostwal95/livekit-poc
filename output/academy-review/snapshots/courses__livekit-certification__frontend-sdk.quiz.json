@@ -1,0 +1,57 @@
+[
+  {
+    "question": "Explain the Session API and why it simplifies frontend development compared to the raw LiveKit client SDK.",
+    "options": [
+      "The Session API is a server-side SDK that manages agent-to-room connections. It wraps the agent worker's room joining logic, handles reconnection after network drops, and provides lifecycle hooks (onConnect, onDisconnect). Frontend developers interact with it indirectly through the agent's participant attributes.",
+      "The Session API wraps token fetching, room connection, reconnection, and cleanup into a declarative interface. You define a TokenSource (sandbox for dev, endpoint for production) and useSession handles the entire connection lifecycle. This replaces manual Room object management, connect() calls, and reconnection logic with a single reactive hook.",
+      "The Session API provides a higher-level React component library that replaces the useRoom and useParticipant hooks. It includes pre-built components like <VoiceSession>, <AgentAudio>, and <TranscriptionPanel> that handle connection, audio playback, and transcription display without writing custom hook logic.",
+      "The Session API is a WebSocket-based protocol layer that sits between the browser and the SFU. It adds automatic reconnection, token refresh, and connection state management on top of raw WebRTC. The frontend SDK uses this protocol internally \u2014 developers configure it through connection options."
+    ],
+    "correctIndex": 1,
+    "explanation": "Before the Session API, developers managed Room objects, called connect(), handled reconnection, and cleaned up resources manually. The Session API abstracts all of this into a declarative model: define how to get a token (TokenSource), call useSession, and get a reactive session object. It is a client-side API, not a server-side SDK or component library."
+  },
+  {
+    "question": "Why must JWT tokens be generated server-side, and what grants are needed for a voice AI user?",
+    "options": [
+      "Token generation requires the LiveKit API secret, which must never be exposed to the browser. A voice AI user needs: roomJoin (enter the room), canPublish (send microphone audio), canSubscribe (receive agent audio), and canPublishData (send text messages via data channels). Tokens are short-lived (typically 10 minutes) to limit damage if leaked.",
+      "JWT tokens must be generated server-side because the WebRTC handshake requires server-validated credentials. The token encodes the STUN/TURN server addresses and the user's allocated bandwidth quota. For voice AI, the required grants are: mediaAccess (enables WebRTC media), agentInteraction (allows communication with agent participants), and audioCapture (enables microphone access).",
+      "Server-side generation is required because LiveKit validates tokens against a server-side session registry. Each token is single-use and linked to a specific server process. A voice AI user needs: roomCreate (to create the room), roomJoin, canPublish, and agentConnect (to trigger agent dispatch). Without agentConnect, the agent will not join the room.",
+      "Tokens must be generated server-side to embed encrypted room metadata that the SFU uses for routing decisions. The API secret encrypts this metadata, not just signs the JWT. A voice AI user needs: roomJoin, canPublish, canSubscribe, and canPublishData. Additionally, the token must include the agent dispatch configuration to tell the SFU which agent to spawn."
+    ],
+    "correctIndex": 0,
+    "explanation": "The API secret signs the JWT and must never reach the browser. Exposing it would let anyone generate tokens and access your rooms. Grants follow least-privilege: roomJoin, canPublish, canSubscribe, and canPublishData. There is no 'agentConnect' or 'mediaAccess' grant \u2014 agent dispatch is configured separately, not in the token."
+  },
+  {
+    "question": "How does agent audio reach the browser, and what role does auto-subscribe play?",
+    "options": [
+      "The agent publishes a TTS audio track in the room. With auto-subscribe (the default), the SFU notifies the browser that a new track is available and the browser automatically begins receiving audio packets. The frontend SDK decodes and plays the audio through an HTML audio element. No manual subscription logic is needed for two-participant voice sessions.",
+      "The agent streams TTS audio through a data channel as binary packets. The frontend SDK reassembles these packets into a continuous audio stream using the Web Audio API. Auto-subscribe applies only to WebRTC media tracks (video, screen share), not data channel audio. Voice agents use data channels for lower-latency audio delivery.",
+      "The agent publishes a TTS audio track. Auto-subscribe tells the SFU to automatically negotiate codec and bandwidth settings for each subscriber. Without auto-subscribe, the browser still receives the track but at default settings that may not match the TTS output format, causing audio quality degradation.",
+      "The agent writes TTS audio frames to a shared track buffer in the SFU. The browser's client SDK polls this buffer at the audio sample rate (typically 48kHz) and feeds samples to the Web Audio API. Auto-subscribe controls whether this polling starts automatically or requires an explicit startAudio() call."
+    ],
+    "correctIndex": 0,
+    "explanation": "Auto-subscribe is the default behavior. When the agent publishes a TTS audio track, the SFU notifies the browser and media flows automatically via WebRTC (not data channels). For a two-participant voice AI session, this is exactly right \u2014 no manual subscription or polling needed."
+  },
+  {
+    "question": "What is the advantage of using LiveKit RPC over setting up a separate HTTP API for frontend-to-agent communication?",
+    "options": [
+      "The frontend already has an open, low-latency WebRTC connection to the room. RPC reuses this connection to send structured JSON requests directly to the agent and receive typed responses \u2014 no separate API server to build, deploy, or maintain. The agent registers methods, the frontend calls them with performRpc, and bidirectional RPC lets the agent push commands to the frontend too.",
+      "RPC messages are encrypted end-to-end between the browser and agent, bypassing the SFU entirely. HTTP APIs route through the SFU which can inspect and log payloads. For sensitive data like payment information or personal details, RPC's end-to-end encryption is required for compliance. This is the primary reason to choose RPC over HTTP.",
+      "RPC is integrated with the agent's tool system \u2014 when the frontend calls performRpc, it triggers the same @function_tool handler that the LLM uses. This means you write tool logic once and it is callable from both the LLM (via tool calling) and the frontend (via RPC). HTTP APIs would require duplicating the tool logic in a separate server.",
+      "RPC provides automatic request queuing and backpressure that HTTP does not. If the agent is busy processing an LLM response, RPC requests are queued and processed in order. HTTP requests would timeout during LLM processing. RPC also provides automatic retry with exponential backoff for transient failures."
+    ],
+    "correctIndex": 0,
+    "explanation": "RPC leverages the existing room connection \u2014 no separate API server needed. The agent registers methods, the frontend calls them via performRpc, and responses come back through the same connection. RPC and @function_tool are separate systems \u2014 RPC methods are not the same as LLM tools. RPC does not provide end-to-end encryption bypassing the SFU."
+  },
+  {
+    "question": "When should you use data channels instead of RPC for frontend-agent communication?",
+    "options": [
+      "Use data channels when you need guaranteed delivery with ordering. RPC uses unreliable WebRTC data channels under the hood, so messages can arrive out of order or be dropped. Data channels (via the text stream API) use reliable, ordered delivery. For any communication where message loss is unacceptable, prefer data channels over RPC.",
+      "Use data channels for large binary payloads (images, files, audio clips) that exceed RPC's 64KB message size limit. RPC is designed for small JSON payloads and will reject messages larger than the limit. Data channels handle chunking and reassembly automatically for large payloads.",
+      "Use data channels when the frontend and agent are in different rooms. RPC only works between participants in the same room. Data channels can be established cross-room through the LiveKit server API, enabling communication patterns like supervisor monitoring or multi-room orchestration.",
+      "Use data channels for streaming or publish/subscribe messaging that does not fit RPC's request/response pattern. RPC is ideal for 'call a method, get a result' interactions. Data channels are better for continuous streams (real-time transcription updates, status broadcasts) or fire-and-forget messages on named topics."
+    ],
+    "correctIndex": 3,
+    "explanation": "RPC and data channels serve different patterns. RPC is request/response: call a method, wait for a result. Data channels are pub/sub on named topics: send messages on 'transcription' or 'ui-commands' channels for streaming or broadcast patterns. Use the right tool for the communication pattern. Both operate within the same room."
+  }
+]

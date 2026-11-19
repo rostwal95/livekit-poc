@@ -1,0 +1,113 @@
+{
+  "review_type": "visual print-quality audit",
+  "pdf": "/Users/rostwal/Downloads/livekit-poc/output/pdf/LiveKit-Academy-Course-Audit-and-Book-Recommendations.pdf",
+  "pdf_sha256": "f8ca09ea663493744f1ccfa9c584704051e6b38882845ee0ffa6575c8a5ba465",
+  "reviewed_range": [
+    1,
+    9
+  ],
+  "all_pages_contact_reviewed": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "full_page_samples": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "contact_sheets": [
+    "/Users/rostwal/Downloads/livekit-poc/output/academy-review/rendered/final-contact-01.png"
+  ],
+  "blocking_findings": [],
+  "nonblocking_findings": [],
+  "checks": [
+    "No clipping, overlap, missing glyphs or broken headings observed.",
+    "No heading-only orphan or content/footer collision observed.",
+    "Mirrored margins and inner gutters are consistent.",
+    "Main body, tables, correction text and dense question pages are readable at the supplied full-page render size.",
+    "Existing-coverage references and links are smaller than body text but legible in full-size samples.",
+    "TOC entries within this range match visible section starts."
+  ],
+  "limits": [
+    "This final pass covers final pages 01\u201309; root coordinates review of the remaining final pages.",
+    "Earlier first-candidate pages 01\u201323 were reviewed separately; their obsolete pagination is retained only in prior_candidate_review.",
+    "No builder, PDF or application changes were made."
+  ],
+  "pdf_pages": 42,
+  "final_verdict": "PASS: compacted course cards retain readable text, complete headings/links and clear spacing with no clipping, overlap or footer/gutter collision. Earlier print-efficiency observation is resolved.",
+  "changed_layout_review": "Final course-card section pages 04\u201309 inspected at full size; three or four complete course cards per page. Pages 01\u201309 checked on the final contact sheet.",
+  "prior_candidate_review": {
+    "pdf_sha256": "14956823b4e6c59c0e222a50acb15b0a658b57dd4a2935ad2c03749506e5bf0e",
+    "reviewed_range": [
+      1,
+      23
+    ],
+    "all_pages_contact_reviewed": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+    ],
+    "full_page_samples": [
+      3,
+      5,
+      13,
+      14,
+      17,
+      18,
+      19,
+      20,
+      21,
+      23
+    ],
+    "nonblocking_findings": [
+      {
+        "pages": [
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "kind": "print efficiency",
+        "finding": "Two course summaries per page leave approximately the lower 45\u201360 percent blank on most of this section.",
+        "recommendation": "Optional: fit three or four course summaries per page to reduce paper, while retaining current body size. Current arrangement is consistent and readable."
+      }
+    ]
+  },
+  "root_final_revision_check": "After peer visual approval, one stale visibility sentence on page38 was replaced with the completed read-only quiz-audit scope. All other41 page content streams are byte-identical; root re-renders/reviews page38."
+}

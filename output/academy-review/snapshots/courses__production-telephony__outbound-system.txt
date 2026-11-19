@@ -1,0 +1,243 @@
+1Production telephony patterns overview
+
+2Warm transfers
+
+3Cold transfers
+
+4Call recording & compliance
+
+5Building the outbound system
+
+6Queue management
+
+7Error handling & retries
+
+8Monitoring & analytics
+
+9Load testing
+
+Building the outbound system
+
+Building an outbound calling system
+
+Inbound calls come to you. Outbound calls go to your customers — appointment reminders, payment follow-ups, satisfaction surveys, and sales campaigns. This chapter shows you how to build an outbound calling system with LiveKit's CreateSIPParticipant, manage call campaigns, and stay compliant with rate limiting regulations like TCPA.
+
+What you'll learn
+
+How to place outbound calls using CreateSIPParticipant
+
+How to design a campaign management system with call lists and scheduling
+
+How to implement rate limiting for TCPA compliance
+
+How to handle outbound call outcomes (answered, voicemail, no answer, busy)
+
+Placing an outbound call
+
+Every outbound call starts by creating a SIP participant in a LiveKit room. The CreateSIPParticipant API tells LiveKit to dial the target number through your outbound SIP trunk and connect the resulting call to a room where your AI agent is waiting.
+
+from livekit.api import LiveKitAPI, CreateSIPParticipantRequest
+
+async def place_outbound_call(
+  phone_number: str,
+  trunk_id: str,
+  room_name: str,
+):
+  api = LiveKitAPI()
+
+  request = CreateSIPParticipantRequest(
+      sip_trunk_id=trunk_id,
+      sip_call_to=phone_number,
+      room_name=room_name,
+      participant_identity=f"caller-{phone_number}",
+      participant_name=phone_number,
+  )
+
+  participant = await api.sip.create_sip_participant(request)
+  return participant
+
+import { LiveKitAPI, CreateSIPParticipantRequest } from "@livekit/server-sdk";
+
+async function placeOutboundCall(
+phoneNumber: string,
+trunkId: string,
+roomName: string,
+) {
+const api = new LiveKitAPI();
+
+const request: CreateSIPParticipantRequest = {
+  sipTrunkId: trunkId,
+  sipCallTo: phoneNumber,
+  roomName,
+  participantIdentity: `caller-${phoneNumber}`,
+  participantName: phoneNumber,
+};
+
+const participant = await api.sip.createSipParticipant(request);
+return participant;
+}
+
+The room must exist before you create the SIP participant, and your AI agent should already be connected to it. When the callee answers, they join the room as a participant and can immediately start talking to the agent. If the callee does not answer, the SIP participant creation will fail or time out — your system needs to handle this.
+
+Campaign management
+
+A single outbound call is straightforward. Thousands of calls per day require a campaign manager — a system that maintains call lists, schedules calls at appropriate times, tracks outcomes, and retries failed attempts.
+
+import asyncio
+from datetime import datetime, time
+from dataclasses import dataclass, field
+
+@dataclass
+class CallRecord:
+  phone_number: str
+  name: str
+  campaign_id: str
+  status: str = "pending"  # pending, calling, completed, failed, retry
+  attempts: int = 0
+  max_attempts: int = 3
+  last_attempt: datetime | None = None
+  outcome: str | None = None  # answered, voicemail, no_answer, busy
+
+@dataclass
+class Campaign:
+  campaign_id: str
+  name: str
+  trunk_id: str
+  call_list: list[CallRecord] = field(default_factory=list)
+  calls_per_minute: int = 10
+  start_time: time = time(9, 0)   # 9:00 AM
+  end_time: time = time(20, 0)    # 8:00 PM
+  active: bool = True
+
+class CampaignManager:
+  def __init__(self):
+      self.campaigns: dict[str, Campaign] = {}
+      self.active_calls: int = 0
+
+  def is_within_calling_hours(self, campaign: Campaign) -> bool:
+      now = datetime.now().time()
+      return campaign.start_time <= now <= campaign.end_time
+
+  def get_next_call(self, campaign: Campaign) -> CallRecord | None:
+      for record in campaign.call_list:
+          if record.status == "pending" or (
+              record.status == "retry"
+              and record.attempts < record.max_attempts
+          ):
+              return record
+      return None
+
+  async def run_campaign(self, campaign_id: str):
+      campaign = self.campaigns[campaign_id]
+      interval = 60.0 / campaign.calls_per_minute
+
+      while campaign.active:
+          if not self.is_within_calling_hours(campaign):
+              await asyncio.sleep(60)
+              continue
+
+          record = self.get_next_call(campaign)
+          if record is None:
+              break  # All calls completed or exhausted retries
+
+          record.status = "calling"
+          record.attempts += 1
+          record.last_attempt = datetime.now()
+
+          try:
+              await place_outbound_call(
+                  record.phone_number,
+                  campaign.trunk_id,
+                  f"campaign-{campaign_id}-{record.phone_number}",
+              )
+              record.status = "completed"
+          except Exception:
+              record.status = "retry" if record.attempts < record.max_attempts else "failed"
+
+          await asyncio.sleep(interval)
+
+Time zone awareness is critical
+
+Calling hours must respect the callee's local time zone, not your server's time zone. The TCPA prohibits calls before 8:00 AM and after 9:00 PM in the callee's time zone. Your campaign manager should resolve each phone number to a time zone before scheduling calls.
+
+Rate limiting for TCPA compliance
+
+The Telephone Consumer Protection Act (TCPA) and similar regulations impose strict rules on automated outbound calling. Violations carry penalties of $500 to $1,500 per call. Rate limiting is not optional.
+
+Cap the number of simultaneous outbound calls. This protects your SIP trunk from overload and ensures you stay within your carrier's rate limits. A typical starting point is 10 to 20 concurrent calls per trunk.
+
+Limit how many new calls you initiate per minute. Even if your trunk supports 100 concurrent calls, firing them all at once creates spikes that degrade call quality and trigger carrier fraud detection.
+
+Before placing any call, check the number against the National Do Not Call Registry and your internal opt-out list. This check must happen at call time, not just at list import time, because people can register at any time.
+
+Never call outside of 8:00 AM to 9:00 PM in the callee's local time zone. Your campaign manager must enforce this per-number, not per-campaign.
+
+import asyncio
+from collections import deque
+from datetime import datetime
+
+class OutboundRateLimiter:
+  def __init__(self, max_concurrent: int = 20, max_per_minute: int = 10):
+      self.max_concurrent = max_concurrent
+      self.max_per_minute = max_per_minute
+      self.active_calls = 0
+      self.call_timestamps: deque[datetime] = deque()
+      self._lock = asyncio.Lock()
+
+  async def acquire(self) -> bool:
+      async with self._lock:
+          now = datetime.now()
+
+          # Remove timestamps older than 60 seconds
+          while self.call_timestamps and (now - self.call_timestamps[0]).seconds >= 60:
+              self.call_timestamps.popleft()
+
+          if self.active_calls >= self.max_concurrent:
+              return False
+          if len(self.call_timestamps) >= self.max_per_minute:
+              return False
+
+          self.active_calls += 1
+          self.call_timestamps.append(now)
+          return True
+
+  async def release(self):
+      async with self._lock:
+          self.active_calls = max(0, self.active_calls - 1)
+
+This rate limiter uses a sliding window for per-minute limits and a simple counter for concurrency. In production, you would likely use Redis-backed counters so that rate limits are enforced across multiple worker processes. The key principle is the same: never exceed the limits, and fail gracefully when throttled by queuing the call for later.
+
+Handling call outcomes
+
+Not every outbound call is answered by a human. Your system needs to detect and handle different outcomes.
+
+Outcome | SIP code | Action
+Answered | 200 OK | Agent begins conversation
+No answer | 408 Timeout | Schedule retry
+Busy | 486 Busy Here | Schedule retry with delay
+Voicemail | 200 OK (AMD) | Leave message or hang up
+Rejected | 603 Decline | Mark as do-not-call
+
+Answering machine detection
+
+Detecting voicemail reliably is one of the hardest problems in outbound calling. LiveKit does not provide built-in answering machine detection (AMD). You can use third-party AMD services or implement a simple heuristic: if the callee does not speak within 3 to 4 seconds of the call connecting, it is likely voicemail.
+
+Test your knowledge
+
+Question 1 of 2
+
+Why must TCPA calling hours be enforced per-phone-number rather than per-campaign?
+
+What you learned
+
+CreateSIPParticipant places outbound calls by dialing through your SIP trunk into a LiveKit room.
+
+Campaign management requires call lists, scheduling, outcome tracking, and retry logic.
+
+TCPA compliance demands rate limiting, Do Not Call checks, and calling hours enforcement.
+
+Call outcomes (answered, busy, no answer, voicemail) each require different handling strategies.
+
+Next up
+
+In the next chapter, you will build a call queue management system that handles overflow when more callers arrive than your agents can serve.

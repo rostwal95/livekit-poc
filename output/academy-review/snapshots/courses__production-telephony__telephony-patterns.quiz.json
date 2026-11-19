@@ -1,0 +1,35 @@
+[
+  {
+    "question": "Why is it important to design your architecture for all production telephony patterns from the start, even if you don't implement them all immediately?",
+    "options": [
+      "Retrofitting patterns like queue management or compliance recording into an architecture not designed for them is painful and error-prone",
+      "It makes the initial demo more impressive to stakeholders",
+      "Regulators require a complete architecture diagram before you can take any calls",
+      "It reduces the number of SIP trunks you need"
+    ],
+    "correctIndex": 0,
+    "explanation": "Production patterns form interconnected subsystems. An architecture that was not designed to accommodate recording, queues, or compliance controls will require significant rework when those features become necessary. Planning ahead avoids costly retrofits."
+  },
+  {
+    "question": "A startup is deploying their first customer-facing voice AI. They can handle basic calls and have a single SIP trunk. Which pattern should they prioritize adding FIRST before scaling further?",
+    "options": [
+      "Outbound campaign management with TCPA compliance",
+      "Load testing with SIPp to find their limits",
+      "Call recording and basic error handling",
+      "Multi-region failover with backup SIP trunks"
+    ],
+    "correctIndex": 2,
+    "explanation": "The chapter's tier progression shows that a 'Pilot' deployment -- the step between proof of concept and production -- requires recording and basic error handling. Recording is often a regulatory requirement, and error handling prevents callers from being dropped silently. Load testing and multi-region failover come at later tiers."
+  },
+  {
+    "question": "What is the primary difference between a proof-of-concept telephony deployment and a production one?",
+    "options": [
+      "Production requires a faster STT engine",
+      "Production demands resilience, compliance, and operational visibility across interconnected subsystems",
+      "Production uses a different LLM provider",
+      "Production needs more powerful hardware for the AI agent"
+    ],
+    "correctIndex": 1,
+    "explanation": "The gap between demo and production is not about raw performance -- it is about handling failures gracefully, meeting regulatory requirements for recording and data handling, and giving operations teams the visibility they need through monitoring and dashboards."
+  }
+]

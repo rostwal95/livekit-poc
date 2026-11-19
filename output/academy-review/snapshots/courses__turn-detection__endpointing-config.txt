@@ -1,0 +1,151 @@
+1Turn detection fundamentals
+
+2VAD configuration
+
+3Multilingual turn detection
+
+4Endpointing configuration
+
+5Adaptive interruption handling
+
+6Backchanneling & natural flow
+
+7A/B testing & quality metrics
+
+Endpointing configuration
+
+Endpointing configuration
+
+VAD tells you when speech stops. Endpointing tells you when the turn is over. The gap between those two decisions is where conversation quality lives. Too short and your agent interrupts. Too long and it feels sluggish. This chapter shows you how to dial in the exact delays that make your agent feel responsive without being rude.
+
+What you'll learn
+
+How min_endpointing_delay and max_endpointing_delay work together to define an endpointing window
+
+Why the two-threshold approach is better than a single fixed delay
+
+How to tune endpointing for different use cases — from snappy Q&A to patient intake forms
+
+How endpointing interacts with VAD padding to determine total response latency
+
+The two-threshold endpointing model
+
+LiveKit Agents uses two endpointing thresholds that work together. The system declares a turn boundary sometime between the minimum and maximum delay, using additional signals (like STT partial results) to decide the optimal moment within that window.
+
+from livekit.agents import AgentSession, TurnDetectionOptions
+
+session = AgentSession(
+  turn_detection=TurnDetectionOptions(
+      min_endpointing_delay=0.5,
+      max_endpointing_delay=1.0,
+  ),
+)
+
+import { AgentSession } from "@livekit/agents";
+
+const session = new AgentSession({
+turnDetection: {
+  minEndpointingDelay: 0.5,
+  maxEndpointingDelay: 1.0,
+},
+});
+
+The min_endpointing_delay is the earliest the system will declare a turn boundary after VAD reports silence. The max_endpointing_delay is the latest — if silence persists this long, the turn is always considered complete. Between these two values, the system uses contextual signals to pick the right moment. This range-based approach balances responsiveness with accuracy.
+
+How the endpointing window works
+
+Here is what happens when a user stops speaking:
+
+Total silence includes VAD padding
+
+Remember that VAD's padding_duration runs first. If your VAD padding is 0.3 seconds and your min endpointing delay is 0.5 seconds, the user will experience 0.8 seconds of total silence before the agent can begin responding. Keep this in mind when calculating perceived latency.
+
+Tuning for specific use cases
+
+The right endpointing delays depend entirely on your application. Here are four common profiles with the reasoning behind each.
+
+from livekit.agents import TurnDetectionOptions
+
+# Quick Q&A bot — speed is everything
+quick_qa = TurnDetectionOptions(
+  min_endpointing_delay=0.3,
+  max_endpointing_delay=0.6,
+)
+
+# Customer service — balanced responsiveness
+customer_service = TurnDetectionOptions(
+  min_endpointing_delay=0.5,
+  max_endpointing_delay=1.0,
+)
+
+# Medical intake — never rush the patient
+medical_intake = TurnDetectionOptions(
+  min_endpointing_delay=0.8,
+  max_endpointing_delay=1.5,
+)
+
+# Elderly users — extra patience for slower speech
+elderly_friendly = TurnDetectionOptions(
+  min_endpointing_delay=1.0,
+  max_endpointing_delay=2.0,
+)
+
+// Quick Q&A bot — speed is everything
+const quickQa = {
+minEndpointingDelay: 0.3,
+maxEndpointingDelay: 0.6,
+};
+
+// Customer service — balanced responsiveness
+const customerService = {
+minEndpointingDelay: 0.5,
+maxEndpointingDelay: 1.0,
+};
+
+// Medical intake — never rush the patient
+const medicalIntake = {
+minEndpointingDelay: 0.8,
+maxEndpointingDelay: 1.5,
+};
+
+// Elderly users — extra patience for slower speech
+const elderlyFriendly = {
+minEndpointingDelay: 1.0,
+maxEndpointingDelay: 2.0,
+};
+
+Do not set min equal to max
+
+If min_endpointing_delay equals max_endpointing_delay, you lose the adaptive window entirely and get a fixed delay. The power of the two-threshold model is the range between them, where contextual signals can fire an early turn boundary for clearly finished sentences while still waiting for users who pause mid-thought.
+
+Measuring the impact
+
+When tuning endpointing delays, track two key metrics:
+
+Metric | What it measures | Desired direction
+Interruption rate | Percentage of turns where the agent spoke before the user finished | Lower is better
+Average response latency | Time from user silence to agent speech onset | Lower is better (but not at the cost of interruptions)
+
+These two metrics pull in opposite directions. Your job is to find the sweet spot for your use case. A/B testing different configurations (covered later in this course) is the most reliable way to find it.
+
+Test your knowledge
+
+Question 1 of 3
+
+If your VAD padding_duration is 0.3 seconds and your min_endpointing_delay is 0.5 seconds, what is the minimum total silence the user experiences before the agent can respond?
+
+What you learned
+
+Endpointing uses a two-threshold model with min_endpointing_delay and max_endpointing_delay
+
+The minimum delay prevents premature turn boundaries; the maximum delay guarantees eventual ones
+
+Between the two thresholds, contextual signals like STT results help determine the optimal boundary
+
+Total perceived silence is VAD padding plus endpointing delay
+
+Different use cases require different delay profiles, from fast Q&A to patient medical intake
+
+Next up
+
+Next, you will tackle interruption handling — what happens when a user starts speaking while the agent is still talking, and how adaptive mode uses the LLM to distinguish real interruptions from background noise.

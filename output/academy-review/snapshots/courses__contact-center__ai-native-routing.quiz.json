@@ -1,0 +1,35 @@
+[
+  {
+    "question": "What is the fundamental advantage of AI intent detection over a DTMF menu tree in a contact center?",
+    "options": [
+      "DTMF menus require special phone hardware that AI does not need",
+      "AI can handle more concurrent calls than DTMF systems",
+      "Callers state their need in natural language and the LLM routes them directly, eliminating multi-level menus and reducing time-to-resolution",
+      "AI intent detection is cheaper to operate than DTMF systems"
+    ],
+    "correctIndex": 2,
+    "explanation": "Traditional IVRs force callers through 'press 1 for billing' trees, often 3+ levels deep. AI intent detection replaces this entirely \u2014 the caller simply states their need ('I got overcharged') and the LLM routes them directly. This eliminates menu navigation, handles ambiguous requests through clarifying questions, and dramatically reduces time-to-resolution."
+  },
+  {
+    "question": "Why does the multi-agent IVR use a valid transitions map that restricts which state changes are allowed?",
+    "options": [
+      "To reduce the number of agents that need to be instantiated at startup",
+      "To prevent nonsensical state jumps \u2014 a bug in intent detection could cause the system to jump to an impossible state, and the constraint keeps the flow predictable and debuggable",
+      "To limit the total number of state transitions per call for billing purposes",
+      "To ensure every call passes through all departments before ending"
+    ],
+    "correctIndex": 1,
+    "explanation": "The transition map enforces a logical call flow. Without it, a bug in intent detection could cause the system to jump to an impossible state. The constraint keeps the flow predictable and makes debugging straightforward \u2014 if you see an invalid transition in your logs, something went wrong in intent detection."
+  },
+  {
+    "question": "What is the primary advantage of giving each department its own specialized agent rather than using a single agent for the entire contact center?",
+    "options": [
+      "Department agents automatically share conversation context without any explicit handoff",
+      "It allows each agent to use a different LLM provider",
+      "It eliminates the need for a state machine to manage transitions",
+      "Each agent is small, focused, and independently testable with domain-specific instructions and tools \u2014 billing resolution rate is measured separately from support resolution rate"
+    ],
+    "correctIndex": 3,
+    "explanation": "Separation of concerns means each agent knows only its own domain, carries only relevant tools, and can be tested and updated independently. The billing agent is tested against resolution rate while the greeting agent is tested against routing accuracy, without one affecting the other."
+  }
+]

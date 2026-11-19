@@ -1,0 +1,24 @@
+[
+  {
+    "question": "What is the key difference between an SFU and an MCU?",
+    "options": [
+      "An SFU uses TCP while an MCU uses UDP",
+      "An SFU can only handle audio while an MCU handles audio and video",
+      "An SFU forwards media packets without decoding them, while an MCU decodes, mixes, and re-encodes all media",
+      "An SFU requires more client-side bandwidth than an MCU"
+    ],
+    "correctIndex": 2,
+    "explanation": "The SFU's defining characteristic is that it never decodes or re-encodes media \u2014 it simply forwards encrypted packets to the appropriate recipients. An MCU decodes every incoming stream, composites them into a single mixed output, and re-encodes it. This decode-composite-encode cycle adds 100-300ms of latency, which is disqualifying for voice AI where every millisecond counts."
+  },
+  {
+    "question": "Why does the SFU architecture win for voice AI specifically?",
+    "options": [
+      "Because it requires less client-side bandwidth than P2P",
+      "Because it produces higher quality audio through server-side mixing",
+      "Because it eliminates the need for WebRTC on the client side",
+      "Because it adds near-zero latency to the media path, preserving the 500ms budget for AI model processing"
+    ],
+    "correctIndex": 3,
+    "explanation": "In voice AI, STT, LLM, and TTS already consume most of the 500ms latency budget. An SFU adds effectively zero latency (microseconds for packet forwarding), while an MCU would add 100-300ms of transcoding overhead. The SFU preserves every millisecond for the AI models that need them. While the SFU does reduce client upload bandwidth compared to P2P, the latency advantage is the decisive factor for voice AI."
+  }
+]

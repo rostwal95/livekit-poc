@@ -1,0 +1,18 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# The entire deployment workflow for LiveKit Cloud\nlk agent deploy"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "# Your agent connects to LiveKit Cloud but runs on your servers\nexport LIVEKIT_URL=wss://your-project.livekit.cloud\nexport LIVEKIT_API_KEY=APIxxxxxxx\nexport LIVEKIT_API_SECRET=xxxxxxxxxxxxxxx\n\npython agent.py start"
+  }
+]

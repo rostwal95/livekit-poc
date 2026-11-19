@@ -1,0 +1,50 @@
+[
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, Agent, RoomInputOptions, inference\n\n# LiveKit Inference \u2014 no per-provider API keys needed\nsession = AgentSession(\n  stt=inference.STT(model=\"deepgram/nova-3\", language=\"en\"),\n  llm=inference.LLM(model=\"openai/gpt-4.1-mini\"),\n  tts=inference.TTS(model=\"cartesia/sonic-3\", voice=\"9626c31c-bec5-4cca-baa8-f8ba9e84c8bc\"),\n)\n\nawait session.start(\n  agent=Agent(instructions=\"You are a helpful assistant.\"),\n  room=ctx.room,\n  room_input_options=RoomInputOptions(),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "session = AgentSession(\n  stt=\"deepgram/nova-3:en\",\n  llm=\"openai/gpt-4.1-mini\",\n  tts=\"cartesia/sonic-3:9626c31c-bec5-4cca-baa8-f8ba9e84c8bc\",\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, Agent, RoomInputOptions\nfrom livekit.plugins import deepgram, openai, cartesia\n\nsession = AgentSession(\n  stt=deepgram.STT(model=\"nova-3\", language=\"en\"),\n  llm=openai.LLM(model=\"gpt-4.1-mini\"),\n  tts=cartesia.TTS(model=\"sonic-3\", voice=\"warm-professional\"),\n)\n\nawait session.start(\n  agent=Agent(instructions=\"You are a helpful assistant.\"),\n  room=ctx.room,\n  room_input_options=RoomInputOptions(),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, Agent, RoomInputOptions\nfrom livekit.plugins import deepgram, anthropic, elevenlabs\n\nsession = AgentSession(\n  stt=deepgram.STT(model=\"nova-3\", language=\"en\"),\n  llm=anthropic.LLM(model=\"claude-sonnet-4-20250514\"),\n  tts=elevenlabs.TTS(model=\"eleven_turbo_v2\", voice_id=\"your-voice-id\"),\n)\n\nawait session.start(\n  agent=Agent(instructions=\"You are a helpful assistant.\"),\n  room=ctx.room,\n  room_input_options=RoomInputOptions(),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, Agent, RoomInputOptions\nfrom livekit.plugins import deepgram, google\n\nsession = AgentSession(\n  stt=deepgram.STT(model=\"nova-3\"),\n  llm=google.LLM(model=\"gemini-2.5-flash\"),\n  tts=deepgram.TTS(model=\"aura-2\", voice=\"asteria\"),\n)\n\nawait session.start(\n  agent=Agent(instructions=\"You are a helpful assistant.\"),\n  room=ctx.room,\n  room_input_options=RoomInputOptions(),\n)"
+  },
+  {
+    "attributes": {
+      "class": "shiki github-dark-default",
+      "style": "background-color:#0d1117;color:#e6edf3",
+      "tabindex": "0"
+    },
+    "text": "from livekit.agents import AgentSession, Agent, RoomInputOptions\nfrom livekit.plugins import openai\n\n# OpenAI Realtime \u2014 single model replaces STT + LLM + TTS\nsession = AgentSession(\n  llm=openai.realtime.RealtimeModel(\n      model=\"gpt-4o-realtime-preview\",\n      voice=\"alloy\",\n  ),\n)\n\nawait session.start(\n  agent=Agent(instructions=\"You are a helpful assistant.\"),\n  room=ctx.room,\n  room_input_options=RoomInputOptions(),\n)"
+  }
+]

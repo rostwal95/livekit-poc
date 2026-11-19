@@ -1,0 +1,24 @@
+[
+  {
+    "question": "When combining multiple node overrides in a single agent, what pattern should every override follow?",
+    "options": [
+      "Buffer all data until the pipeline completes, then process it",
+      "Call Agent.default to run the standard behavior, then add custom logic around it",
+      "Skip the default and delegate to the next node directly",
+      "Replace the default implementation entirely with custom logic"
+    ],
+    "correctIndex": 1,
+    "explanation": "Every node override follows the same pattern: call Agent.default to invoke the built-in implementation, add custom logic around it (before, after, or filtering), and yield the results. This keeps each concern isolated and lets you disable any override without affecting the others."
+  },
+  {
+    "question": "When testing pipeline node overrides, what should you test \u2014 the provider behavior or your custom logic?",
+    "options": [
+      "Neither \u2014 integration tests are sufficient",
+      "Your custom override logic, by mocking the default implementation and verifying your transformations",
+      "The provider behavior to ensure Deepgram and GPT-4o work correctly",
+      "Both equally, with real API calls in every test"
+    ],
+    "correctIndex": 1,
+    "explanation": "You are not testing whether Deepgram transcribes correctly or GPT-4o reasons well. You are testing that your overrides correctly intercept, transform, and pass through data. Mock the provider responses (via Agent.default) and verify that your filtering, enrichment, and transformation logic works correctly."
+  }
+]
