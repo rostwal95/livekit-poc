@@ -9,7 +9,7 @@ from typing import Any, TypeVar
 
 from fastapi import Depends, FastAPI, Query, Request
 from pydantic import BaseModel, ConfigDict, Field
-from starlette.responses import JSONResponse
+from starlette.responses import Response
 
 from continuity_lab.authorization import BearerToken
 from continuity_lab.case_models import MAX_INTEGER, identity
@@ -105,7 +105,7 @@ def business_error(error: Exception) -> ApiError:
     )
 
 
-def response(value: dict[str, object]) -> JSONResponse:
+def response(value: dict[str, object]) -> Response:
     raw = json.dumps(value, ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode()
     if len(raw) > MAX_RESPONSE_BYTES:
         raise ApiError(
@@ -113,7 +113,7 @@ def response(value: dict[str, object]) -> JSONResponse:
             "Projection exceeds the response budget; request a smaller page",
             code="response_too_large",
         )
-    return JSONResponse(value, headers={"Cache-Control": "no-store"})
+    return Response(raw, media_type="application/json", headers={"Cache-Control": "no-store"})
 
 
 def install_business_routes(
@@ -144,7 +144,7 @@ def install_business_routes(
             raise business_error(error) from None
 
     @application.post("/api/business/investigations", dependencies=protected)
-    async def submit(payload: BusinessInvestigation, request: Request) -> JSONResponse:
+    async def submit(payload: BusinessInvestigation, request: Request) -> Response:
         try:
             domain = payload.domain()
         except ValueError:
@@ -166,7 +166,7 @@ def install_business_routes(
         request: Request,
         cursor: str | None = Query(default=None, max_length=512),
         limit: int = Query(default=10, ge=1, le=50),
-    ) -> JSONResponse:
+    ) -> Response:
         value = await call(
             request,
             "get",
@@ -177,7 +177,7 @@ def install_business_routes(
         return response(value.payload())
 
     @application.post("/api/business/cases/{task_id}/quote", dependencies=protected)
-    async def quote(task_id: str, payload: QuoteCommand, request: Request) -> JSONResponse:
+    async def quote(task_id: str, payload: QuoteCommand, request: Request) -> Response:
         revision = int(payload.expected_revision)
         if revision > MAX_INTEGER:
             raise ApiError(422, "Case revision is out of range", code="validation_error")
@@ -206,7 +206,7 @@ def install_business_routes(
         )
 
     @application.post("/api/business/cases/{task_id}/signal", dependencies=protected)
-    async def signal(task_id: str, payload: SignalCommand, request: Request) -> JSONResponse:
+    async def signal(task_id: str, payload: SignalCommand, request: Request) -> Response:
         try:
             confirmation = parse_confirmation_payload(
                 payload.confirmation_payload, explicit=payload.explicit
@@ -240,7 +240,7 @@ def install_business_routes(
         )
 
     @application.post("/api/business/cases/{task_id}/cancel", dependencies=protected)
-    async def cancel(task_id: str, payload: CancelCommand, request: Request) -> JSONResponse:
+    async def cancel(task_id: str, payload: CancelCommand, request: Request) -> Response:
         receipt = await call(
             request,
             "cancel",

@@ -1,15 +1,16 @@
 {
   "schema_version": 1,
   "kind": "synthetic-spoken-input",
-  "source": "Locally generated with macOS say (Albert voice), converted with afconvert. No physical microphone or remote provider was used.",
+  "source": "Offline Kokoro-82M v1.0 synthetic caller, voice am_michael, resampled to mono PCM16 at 16 kHz.",
   "purpose": "Explicit WebAudio media fixture. The native scripted STT maps the first qualified audio turn to investigate and later turns to status; this asset does not demonstrate general speech recognition.",
   "file": "input-investigate.wav",
-  "sha256": "11f5143ef2a1f0bdae93dfa136b5d5bed880c6dca4952ac28fb61340f3efe12f",
-  "bytes": 131826,
+  "sha256": "ed944cfbf9ae195007539884c0c91ee8f312165ceaec38d7859dd6459b6e2107",
+  "bytes": 89210,
   "sample_rate_hz": 16000,
   "channels": 1,
   "sample_width_bytes": 2,
-  "frames": 63865,
-  "duration_seconds": 3.9915625,
-  "canonical_asset": "services/channel_policy_demo/assets/fixtures/input-investigate.wav"
+  "frames": 44583,
+  "duration_seconds": 2.7864375,
+  "canonical_asset": "services/channel_policy_demo/assets/fixtures/input-investigate.wav",
+  "phrase": "Hi, can I move my booking to a later date?"
 }

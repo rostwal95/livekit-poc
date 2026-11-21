@@ -307,6 +307,36 @@ class NativeSdkTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(model.calls, 0)
         self.assertEqual(r.metrics()["genuineFinalSnapshots"], 0)
 
+    async def test_voice_admission_checks_capacity_before_starting_recognition(self):
+        r, *_ = await self.make()
+        first_id = str(uuid4())
+        first_handoff = r._enter_handoff(first_id)
+        for _ in range(31):
+            r._enter_handoff(str(uuid4()))
+        self.assertIs(r._enter_handoff(first_id), first_handoff)
+        voice_id = str(uuid4())
+
+        with patch.object(r, "_begin", wraps=r._begin) as begin:
+            with self.assertRaises(rtc.RpcError) as rejected:
+                await r.start_turn(rpc(voice_id))
+            self.assertEqual(rejected.exception.code, 1429)
+            begin.assert_not_called()
+        self.assertIsNone(r._turn)
+        self.assertNotIn(voice_id, r._turn_history)
+
+        r._leave_handoff(first_id)
+        self.assertFalse(first_handoff.is_set())
+        r._leave_handoff(first_id)
+        self.assertTrue(first_handoff.is_set())
+        self.assertNotIn(first_id, r._input_handoffs)
+        with (
+            patch.object(r, "_begin", side_effect=NativeError("capacity_exhausted")),
+            self.assertRaises(NativeError),
+        ):
+            await r.start_turn(rpc(voice_id))
+        self.assertNotIn(voice_id, r._input_handoffs)
+        self.assertEqual(json.loads(await r.start_turn(rpc(voice_id)))["status"], "turn_started")
+
     async def test_delayed_genuine_final_keeps_original_turn_and_never_generates_automatically(
         self,
     ):
@@ -425,9 +455,10 @@ class NativeSdkTests(unittest.IsolatedAsyncioTestCase):
         r, p, _stt, model, *_ = await self.make()
 
         class Reader:
-            def __init__(self, attributes):
+            def __init__(self, attributes, body="investigate"):
                 self.info = SimpleNamespace(topic="lk.chat", attributes=attributes)
                 self.closed = False
+                self.body = body
 
             def close(self):
                 self.closed = True
@@ -436,7 +467,7 @@ class NativeSdkTests(unittest.IsolatedAsyncioTestCase):
                 return self.iterate()
 
             async def iterate(self):
-                yield "investigate"
+                yield self.body
 
         wrong = Reader({"p2.input_id": str(uuid4())})
         r._on_text(wrong, "other")
@@ -449,6 +480,21 @@ class NativeSdkTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(bad.closed)
         self.assertEqual(p.calls, [])
         self.assertEqual(model.calls, 0)
+
+        empty_id = str(uuid4())
+        empty = Reader({"p2.input_id": empty_id}, body="")
+        await r._read_text(empty)
+        self.assertTrue(empty.closed)
+        self.assertNotIn(empty_id, r._input_handoffs)
+        self.assertEqual(p.calls, [])
+
+        uncertain_id = str(uuid4())
+        uncertain = Reader({"p2.input_id": uncertain_id})
+        with patch.object(p, "accept", side_effect=NativeError("acknowledgement_unknown")):
+            await r._read_text(uncertain)
+        self.assertTrue(uncertain.closed)
+        self.assertTrue(r._input_handoffs[uncertain_id].is_set())
+        self.assertEqual(r._input_bodies[uncertain_id].body, "investigate")
 
     async def test_observer_outages_and_eight_pending_cap_are_real_fixed_counters(self):
         from unittest.mock import patch

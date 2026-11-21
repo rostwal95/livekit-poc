@@ -68,6 +68,9 @@ services:
     network_mode: service:livekit
     user: "999:999"
     entrypoint: [sh, /etc/continuity/prepare-postgres.sh]
+    # This client never stores server data. Override the image's default volume.
+    tmpfs:
+      - /var/lib/postgresql:ro,nosuid,noexec,size=1m
     environment:
       POSTGRES_DB: livekit_lab
       POSTGRES_USER: livekit_lab_admin

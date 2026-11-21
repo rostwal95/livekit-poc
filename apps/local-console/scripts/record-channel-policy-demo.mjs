@@ -44,6 +44,12 @@ function operatorKey() {
 }
 const key = operatorKey();
 const VIEWPORT = { width: 1440, height: 960 };
+const inputFixture = JSON.parse(
+  await fs.readFile(path.join(APP, 'public', 'fixtures', 'manifest.json'), 'utf8'),
+);
+const clipDurationMs = Math.ceil(inputFixture.duration_seconds * 1000);
+if (!Number.isFinite(clipDurationMs) || clipDurationMs <= 0 || clipDurationMs > 12_000)
+  throw new Error('The recorded voice fixture has an invalid duration.');
 
 /** In-page tap: the agent's remote audio elements and the declared voice clip. */
 function audioTap() {
@@ -147,6 +153,8 @@ const view = () =>
       speech: q('[data-cp-speech]'),
       textUnknown: document.querySelector('[data-cp-retry-text]')?.hidden === false,
       policy: q('[data-cp-policy-title]'),
+      policyDetail: q('[data-cp-policy-detail]'),
+      resultReadMs: Date.parse(q('[data-cp-result-time]')),
       progress: q('[data-cp-progress]'),
       sms: q('[data-cp-sms-state]'),
       live: document.querySelectorAll('.cp-message.cp-live').length,
@@ -310,7 +318,7 @@ async function unlockShowcase() {
 async function showcase() {
   await caption(
     'One case across two sessions',
-    'Three local projects: P1 durable case authority, P2 channel continuity, P3 delegated policy checks.',
+    'LiveKit handles the interaction. PostgreSQL retains the case, inputs and background work.',
   );
   await pause(3500);
 
@@ -318,6 +326,7 @@ async function showcase() {
     'Join a LiveKit voice session',
     'LiveKit runs the native voice session. The local demo uses scripted recognition and replies.',
   );
+  ownsRoom = true;
   await page.locator('[data-cp-join]').click();
   const ready = await until('ready', (v) => v.state === 'Ready', 45);
   if (ready.mode !== 'LOCAL / SCRIPTED' || linked(ready) !== 0)
@@ -328,7 +337,7 @@ async function showcase() {
 
   await caption(
     'Ask by text',
-    'P2 durably records the input, dispatches it to P1 as work, and P3 runs the policy check in the background.',
+    'The channel gateway stores the original input before the agent replies. The specialist checks policy in the background.',
   );
   await page.locator('[data-cp-message]').click();
   await page
@@ -354,7 +363,7 @@ async function showcase() {
   await spoken('text-spoken');
   await caption(
     'The background check lands',
-    'P3’s specialist answers against the case revision; the panel shows the applicable result as of its read time.',
+    'The policy result is bound to a revision. The case panel shows when that result was read.',
   );
   await until('policy', (v) => v.policy === 'Eligible under the policy', 45);
   await pause(4000);
@@ -373,7 +382,7 @@ async function showcase() {
   const beforeVoice = await view();
   await page.locator('[data-cp-start-voice]').click();
   mark('voice-started');
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(clipDurationMs + 600);
   await page.locator('[data-cp-commit-voice]').click();
   await until('voice-linked', (v) => linked(v) >= linked(beforeVoice) + 1, 45);
   await until('voice-reply', (v) => v.agents >= beforeVoice.agents + 1, 45);
@@ -383,10 +392,11 @@ async function showcase() {
 
   await caption(
     'Leave the call',
-    'Ending the session releases the room. Durable work and results stay with P1 and P2.',
+    'Ending the session releases the room. The case, accepted inputs and policy work stay in PostgreSQL.',
   );
   await page.locator('[data-cp-end]').click();
   await until('ended', (v) => v.state === 'Session ended', 45);
+  ownsRoom = false;
   await pause(2500);
 
   await caption(
@@ -415,6 +425,8 @@ async function showcase() {
   );
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
   await pause(1200);
+  const joiningAgainAt = Date.now();
+  ownsRoom = true;
   await page.locator('[data-cp-join]').click();
   await until(
     'rejoined',
@@ -422,10 +434,15 @@ async function showcase() {
       v.state === 'Ready' &&
       v.previous >= 2 &&
       linked(v) === 3 &&
-      v.policy === 'Eligible under the policy',
+      v.policy === 'Eligible under the policy' &&
+      v.resultReadMs >= joiningAgainAt &&
+      v.policyDetail.endsWith('observed case revision.'),
     45,
   );
-  await page.screenshot({ path: path.join(out, name + '.png') });
+  await page.screenshot({
+    path: path.join(out, name + '.png'),
+    style: '#demo-caption { visibility: hidden !important }',
+  });
   await pause(3000);
 
   await caption(
@@ -434,6 +451,7 @@ async function showcase() {
   );
   await page.locator('[data-cp-end]').click();
   await until('final-ended', (v) => v.state === 'Session ended', 45);
+  ownsRoom = false;
   await pause(4000);
 }
 
@@ -504,6 +522,7 @@ async function businessCase() {
 
 let failure = null;
 let audio = null;
+let ownsRoom = false;
 try {
   await page.goto(new URL('/', origin).href, { waitUntil: 'networkidle' });
   confirmPage('/');
@@ -546,6 +565,15 @@ try {
       .slice(0, 400),
   });
   await page.screenshot({ path: path.join(out, 'error.png') }).catch(() => {});
+  if (ownsRoom) {
+    try {
+      const end = page.locator('[data-cp-end]');
+      if (await end.isEnabled({ timeout: 1000 })) await end.click({ timeout: 2000 });
+      await until('cleanup-ended', (v) => v.state === 'Session ended', 30);
+    } catch {
+      mark('cleanup-pending');
+    }
+  }
 }
 
 const video = page.video();
@@ -571,7 +599,17 @@ if (!failure && !verify && spawnSync(ffmpeg, ['-version'], { stdio: 'ignore' }).
   const args = ['-y', '-loglevel', 'error', '-i', rawVideo];
   if (rawAudio) args.push('-itsoffset', String(timing.audioOffsetMs / 1000), '-i', rawAudio);
   args.push('-map', '0:v');
-  if (rawAudio) args.push('-map', '1:a', '-c:a', 'aac', '-b:a', '128k');
+  if (rawAudio)
+    args.push(
+      '-map',
+      '1:a',
+      '-af',
+      'highpass=f=65,loudnorm=I=-18:LRA=7:TP=-2,aresample=48000',
+      '-c:a',
+      'aac',
+      '-b:a',
+      '128k',
+    );
   args.push(
     '-ss',
     String(Math.max(0, timing.trimMs - 300) / 1000),

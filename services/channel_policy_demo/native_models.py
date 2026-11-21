@@ -49,8 +49,8 @@ ModelCode = Literal[
 SAMPLE_RATE = 16000
 MAX_TURN_SAMPLES = 12 * SAMPLE_RATE
 MAX_SESSION_SAMPLES = 190 * SAMPLE_RATE
-MANIFEST_SHA256 = "43366be51366074006ba1e9fd3d7f310d531e1db07a6b9453119bcbe4bd76c04"
-# The showcase owns this short reply; P1's pinned conversation assets stay unchanged.
+MANIFEST_SHA256 = "55bec0e9e6f92716acb967d84ba1a91990a7dc227bbd71b47db840a03ffa20e8"
+# The showcase stores its default reply next to the fixture directory.
 OWNED_FIXTURES: Final = frozenset({"checking.wav"})
 # P2's native prepare plays the whole dispatched reply inside a fixed 4-second
 # budget, so the default reply must leave ample headroom for generation and RTC.
@@ -83,67 +83,67 @@ class _Asset:
     text: str
 
 
-# Synthetic macOS Albert PCM assets. P1's pinned manifest owns the conversation
-# agent's files; the showcase pins its own short reply by digest below.
+# Offline synthetic PCM clips. The manifest records speech provenance, and each
+# pinned digest binds the actual WAV bytes used by the scripted adapter.
 _ASSETS = (
     _Asset(
         "input-investigate.wav",
-        "11f5143ef2a1f0bdae93dfa136b5d5bed880c6dca4952ac28fb61340f3efe12f",
-        63865,
+        "ed944cfbf9ae195007539884c0c91ee8f312165ceaec38d7859dd6459b6e2107",
+        44583,
         "investigate",
     ),
     _Asset(
         "input-status.wav",
-        "fb9b5ed6b7824f05fce6fa6c5d3fd061eab3d7bc539f1e223fa5ff6e2cd2b78e",
-        39345,
+        "3a0758e1850b74ad6af50795f6969b7cf021467b69d5ba1582f2858ee3de80c4",
+        32766,
         "status",
     ),
     _Asset(
         "checking.wav",
-        "653ca9a56c40152bad79c0bc4817452e48f7808f0fdb55766cbc99967c90c85c",
-        27246,
+        "ff9dcded37fcca83bad5922e3d3ab260f335f016926247a4f64b9cfb03a1c429",
+        20208,
         "Checking the policy.",
     ),
     _Asset(
         "demo.wav",
-        "16823db29ea200ea34d02aae250e1ffee8fc7b5f267bb208a480da8c4eb8ca98",
-        61219,
+        "ee67f2be62710aed56961aea1368f80777823e23cb87a10e18d53797e239884b",
+        41344,
         "This is a scripted local voice demonstration.",
     ),
     _Asset(
         "accepted.wav",
-        "35322c2d1c74c73cca050f948c7d2ce30387e743b57d0e5855c7e03739e83842",
-        78035,
+        "71e7916fa6c9fd8782e36ee5a24047ec62970ab9052555118e07db28839fc352",
+        63769,
         "Your investigation was accepted and continues independently.",
     ),
     _Asset(
         "status.wav",
-        "5006065301ff499dd682f967ada0fb744e47cc9f7a866f0f2efd75247dce82b2",
-        65863,
+        "11bd59a7e8f658a55971998ab73757fdae8e9232d7fea3d288800e1ec47eb8e0",
+        47591,
         "The workflow panel shows the latest durable state.",
     ),
     _Asset(
         "guard.wav",
-        "9508076b65fafb62c3a89ced214f3d092ee430d2f5d42f51bee4ac9fa558b962",
-        65828,
+        "2d477e73baa82a6e9ec6d175d782afa6fb722addd9dcf8a9ea124364a6dec65b",
+        47674,
         "Confirm the exact quote only in the workflow panel.",
     ),
     _Asset(
         "no-case.wav",
-        "febbea19ec3850836e6808c7e81a3120abff5d333650e2c284874966e4a2b5fd",
-        81756,
+        "a51d39a08b7b9dad2e2e9d20531fad7f0d07d1fa9449c57fc9333280745de934",
+        63563,
         "No investigation has been accepted for this conversation yet.",
     ),
     _Asset(
         "unavailable.wav",
-        "8830882cb5a892dcf749014550820d03cd04e6f4d7598f1199ecd5030b315d56",
-        106359,
+        "74431a1ffb58ba67af4e0a957d591d12997105ee7f3251d3811db684581983c6",
+        67766,
         "The operation could not be completed; please inspect the workflow panel.",
     ),
     _Asset(
         "cancelled.wav",
-        "e8f9d11a49eeb30741fee149121baf918ecf71b2523f50c1af144ecf9ed9d157",
-        88809,
+        "372d0a594cacd7602af000352ad60a2f483ed7656fc464a3dc2f31c3c638ef4a",
+        66560,
         "Your cancellation request was recorded for the current investigation.",
     ),
 )

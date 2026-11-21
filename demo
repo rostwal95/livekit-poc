@@ -128,7 +128,7 @@ case $1 in
     if [ -z "$(compose ps --quiet --status running showcase)" ]; then
       compose up --build --wait --wait-timeout 120 showcase
     else
-      compose exec -T showcase python -c 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:5179/", timeout=2).close()'
+      compose up --no-build --no-recreate --wait --wait-timeout 120 showcase
     fi
     printf '\nOpen http://127.0.0.1:5189/ and use ./demo key for local access.\n'
     ;;

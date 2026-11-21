@@ -8,14 +8,14 @@ interaction. Persistent services own the case, input receipts, and policy work.
 
 ```mermaid
 flowchart LR
-    User[Browser] <-->|WebRTC audio and text| LK[LiveKit]
+    User[Browser] <-->|WebRTC audio and LiveKit text streams| LK[LiveKit]
     LK <-->|Room media and session events| Agent[LiveKit Agents worker]
     User -->|Join, End, simulate SMS| Parent[Python application]
     Parent -->|Owns worker and room| Agent
     Agent -->|Accept native turn| Gateway[Node channel gateway]
     Parent -->|Signed simulated SMS| Gateway
     Gateway -->|Original input and dispatch identity| Parent
-    Parent -->|Issued policy request| Specialist[Fixed-policy specialist]
+    Parent -->|Issued policy request| Specialist[TypeScript policy specialist]
     Specialist -->|Read-only result| Parent
     Gateway <-->|Channel input and receipts| PG[(PostgreSQL)]
     Parent <-->|Case and delegated work| PG
@@ -35,9 +35,10 @@ flowchart LR
 | Policy evaluation | The specialist evaluates fixed rules against the issued request and returns a read-only answer. The orchestration layer retains the work and result. [Delegation Reliability](../projects/delegation-reliability/) |
 
 PostgreSQL separates booking, delegated work, and channel state into three
-schemas installed by baseline `0001_initial`. A one-shot owner initializes the
-schemas. Serving processes use a restricted role and validate the baseline.
-The synthetic supplier and receiver keep independent receipts outside PostgreSQL.
+schemas, each starting at version 1. The one-shot initializer installs them
+with the owner role. Serving processes use a restricted role and validate the
+baseline. The synthetic supplier and receiver keep independent receipts in
+separate SQLite ledgers.
 
 | Schema | Durable records |
 | --- | --- |
@@ -48,8 +49,8 @@ The synthetic supplier and receiver keep independent receipts outside PostgreSQL
 Each accepted channel input has a stable, scoped identity and immutable payload.
 Replaying the same payload can return its original receipt. A changed payload
 with the same identity conflicts. Dispatch binds a work item to that original
-input and its case revision. Room identifiers can change while the case and
-work identifiers remain stable.
+input and its case revision. Rejoining allocates a new room while preserving the
+case and previously issued work identities.
 
 ## End, continue, and rejoin
 
@@ -80,7 +81,9 @@ sequenceDiagram
 An input receipt proves that the input was accepted. A dispatch observation
 reports its handoff to the work authority. A result read reports applicability
 at the time of the read. The three can arrive at different times. Known results
-remain available after the original media session ends.
+remain available after the original media session ends. The UI marks earlier
+captions as **previous session** when rejoining in the same tab. It fetches the
+case and current result from the services on rejoin.
 
 ## Room lifecycle
 
@@ -107,7 +110,22 @@ uncertain and reconcile it with the original operation identity.
 In the operator flow, the browser explicitly confirms the current quote before
 the authority commits booking intent. The fake supplier call runs outside that
 transaction. Supplier outcome and receiver delivery remain separate from the
-confirmation record.
+confirmation record. The read-only verifier joins the original channel inputs
+to their work, result, and delivery records, then checks the synthetic supplier
+and receiver ledgers. [Verification walkthrough](demo.md#verify-the-walkthrough)
+
+## Runtime pins
+
+| Layer | Version |
+| --- | --- |
+| LiveKit | Server 1.13.11, Agents 1.8.11, Python SDK 1.2.0, browser client 2.23.0 |
+| Application containers | Python 3.14.10 and Node.js 26.13.0 |
+| Persistent store | PostgreSQL 18.6 |
+
+Docker Compose builds the app using pinned images and locked dependencies.
+The browser uses Vite with TypeScript. The operator API uses FastAPI and the
+Python PostgreSQL stores use psycopg.
+[Image pins](../local-setup/images.env) · [Python lockfile](../uv.lock) · [TypeScript lockfile](../pnpm-lock.yaml)
 
 ## Source map
 
@@ -115,5 +133,7 @@ confirmation record.
 | --- | --- |
 | [Browser](../apps/local-console/) | LiveKit web client and the showcase and operator views |
 | [Python application](../services/channel_policy_demo/) | Room ownership, origin-bound dispatch and background execution |
-| [Node gateway](../services/channel-policy-gateway/) | Native and SMS intake and fixed-policy service entry point |
-| [Local setup](../local-setup/) | Compose configuration, isolated initialization and lifecycle helpers |
+| [Node gateway](../services/channel-policy-gateway/) | Native and SMS intake, dispatch, and scoped result delivery |
+| [TypeScript specialist](../projects/delegation-reliability/specialist-ts/) | Fixed-policy evaluation |
+| [Operator API](../services/control_api/) | Authenticated case investigation, exact quote approval and cancellation |
+| [Compose](../compose.yaml) and [local setup](../local-setup/) | Loopback services, isolated initialization and lifecycle helpers |

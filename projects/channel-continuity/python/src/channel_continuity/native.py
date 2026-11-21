@@ -68,11 +68,11 @@ __all__ = [
 @dataclass(slots=True)
 class _Turn:
     input_id: str
+    handoff: asyncio.Event
     state: Literal["capturing", "committing", "settled"] = "capturing"
     final: asyncio.Future[bool] = field(
         default_factory=lambda: asyncio.get_running_loop().create_future()
     )
-    handoff: asyncio.Event = field(default_factory=asyncio.Event)
     hook_started: bool = False
     processing: bool = False
     handoff_owned: bool = True
@@ -512,9 +512,14 @@ class NativeRuntime:
         pending = self._handoff_pending.get(input_id, 0)
         if pending <= 0:
             return
-        self._handoff_pending[input_id] = pending - 1
-        if pending == 1:
+        if pending > 1:
+            self._handoff_pending[input_id] = pending - 1
+        else:
+            del self._handoff_pending[input_id]
             self._input_handoffs[input_id].set()
+            # Wake existing observers and free the slot if intake never got the input.
+            if input_id not in self._input_bodies:
+                del self._input_handoffs[input_id]
 
     def _finish_voice_handoff(self, turn: _Turn) -> None:
         if turn.handoff_owned:
@@ -701,11 +706,18 @@ class NativeRuntime:
             raise rtc.RpcError(1409, "A native turn is active")
         if len(self._turn_history) >= 32:
             raise rtc.RpcError(1429, "Native turn capacity")
-        self._begin(value)
-        turn = _Turn(value)
+        try:
+            handoff = self._enter_handoff(value)
+        except NativeError:
+            raise rtc.RpcError(1429, "Native turn capacity") from None
+        try:
+            self._begin(value)
+        except BaseException:
+            self._leave_handoff(value)
+            raise
+        turn = _Turn(value, handoff)
         self._turn = turn
         self._turn_history[value] = "capturing"
-        turn.handoff = self._enter_handoff(value)
         turn.watchdog = asyncio.create_task(
             self._watch_capture(turn), name="native-capture-deadline"
         )
@@ -870,10 +882,12 @@ class NativeRuntime:
         except Exception:  # noqa: BLE001 - Fixed observation, no transcript or credentials.
             self._emit("input", "invalid_input")
         finally:
-            reader.close()
-            if handoff is not None:
-                assert input_id is not None
-                self._leave_handoff(input_id)
+            try:
+                reader.close()
+            finally:
+                if handoff is not None:
+                    assert input_id is not None
+                    self._leave_handoff(input_id)
 
     async def _publish(self, ack: NativeAck) -> None:
         if self._room is None or self._closed:

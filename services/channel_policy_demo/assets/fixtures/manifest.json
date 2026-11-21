@@ -2,98 +2,109 @@
   "schema_version": 1,
   "kind": "synthetic-spoken-fixtures",
   "purpose": "Deterministic local RTC transport and SDK lifecycle verification; these clips do not demonstrate speech recognition or model inference.",
-  "source": "Locally generated with macOS say (Albert voice), converted using afconvert to uncompressed mono PCM16 WAV at 16000 Hz. No microphone or remote provider was used.",
-  "regenerate": "say -v Albert -o <temporary.aiff> <declared phrase>; afconvert -f WAVE -d LEI16@16000 -c 1 <temporary.aiff> <fixture.wav>",
+  "source": "Generated offline with Kokoro-82M v1.0 using kokoro-onnx 0.6.1. Caller clips use am_michael; replies use af_heart. Resampled to mono 16 kHz PCM16 WAV.",
   "files": [
     {
       "file": "accepted.wav",
-      "sha256": "35322c2d1c74c73cca050f948c7d2ce30387e743b57d0e5855c7e03739e83842",
+      "sha256": "71e7916fa6c9fd8782e36ee5a24047ec62970ab9052555118e07db28839fc352",
       "sample_rate_hz": 16000,
       "channels": 1,
       "sample_width_bytes": 2,
-      "frames": 78035,
-      "duration_seconds": 4.877187,
+      "frames": 63769,
+      "duration_seconds": 3.9855625,
       "phrase": "Your investigation was accepted and continues independently."
     },
     {
       "file": "cancelled.wav",
-      "sha256": "e8f9d11a49eeb30741fee149121baf918ecf71b2523f50c1af144ecf9ed9d157",
+      "sha256": "372d0a594cacd7602af000352ad60a2f483ed7656fc464a3dc2f31c3c638ef4a",
       "sample_rate_hz": 16000,
       "channels": 1,
       "sample_width_bytes": 2,
-      "frames": 88809,
-      "duration_seconds": 5.550562,
+      "frames": 66560,
+      "duration_seconds": 4.16,
       "phrase": "Your cancellation request was recorded for the current investigation."
     },
     {
       "file": "demo.wav",
-      "sha256": "16823db29ea200ea34d02aae250e1ffee8fc7b5f267bb208a480da8c4eb8ca98",
+      "sha256": "ee67f2be62710aed56961aea1368f80777823e23cb87a10e18d53797e239884b",
       "sample_rate_hz": 16000,
       "channels": 1,
       "sample_width_bytes": 2,
-      "frames": 61219,
-      "duration_seconds": 3.826188,
+      "frames": 41344,
+      "duration_seconds": 2.584,
       "phrase": "This is a scripted local voice demonstration."
     },
     {
       "file": "guard.wav",
-      "sha256": "9508076b65fafb62c3a89ced214f3d092ee430d2f5d42f51bee4ac9fa558b962",
+      "sha256": "2d477e73baa82a6e9ec6d175d782afa6fb722addd9dcf8a9ea124364a6dec65b",
       "sample_rate_hz": 16000,
       "channels": 1,
       "sample_width_bytes": 2,
-      "frames": 65828,
-      "duration_seconds": 4.11425,
+      "frames": 47674,
+      "duration_seconds": 2.979625,
       "phrase": "Confirm the exact quote only in the workflow panel."
     },
     {
       "file": "input-investigate.wav",
-      "sha256": "11f5143ef2a1f0bdae93dfa136b5d5bed880c6dca4952ac28fb61340f3efe12f",
+      "sha256": "ed944cfbf9ae195007539884c0c91ee8f312165ceaec38d7859dd6459b6e2107",
       "sample_rate_hz": 16000,
       "channels": 1,
       "sample_width_bytes": 2,
-      "frames": 63865,
-      "duration_seconds": 3.991563,
-      "purpose": "Non-silent synthetic spoken input fixture; scripted STT assigns investigate on the first qualified turn and status on subsequent qualified turns."
+      "frames": 44583,
+      "duration_seconds": 2.7864375,
+      "purpose": "Non-silent synthetic spoken input fixture; scripted STT assigns investigate on the first qualified turn and status on subsequent qualified turns.",
+      "phrase": "Hi, can I move my booking to a later date?"
     },
     {
       "file": "input-status.wav",
-      "sha256": "fb9b5ed6b7824f05fce6fa6c5d3fd061eab3d7bc539f1e223fa5ff6e2cd2b78e",
+      "sha256": "3a0758e1850b74ad6af50795f6969b7cf021467b69d5ba1582f2858ee3de80c4",
       "sample_rate_hz": 16000,
       "channels": 1,
       "sample_width_bytes": 2,
-      "frames": 39345,
-      "duration_seconds": 2.459062,
-      "purpose": "Non-silent synthetic spoken input fixture; scripted STT assigns investigate on the first qualified turn and status on subsequent qualified turns."
+      "frames": 32766,
+      "duration_seconds": 2.047875,
+      "purpose": "Non-silent synthetic spoken input fixture; scripted STT assigns investigate on the first qualified turn and status on subsequent qualified turns.",
+      "phrase": "Is there an update on my booking?"
     },
     {
       "file": "no-case.wav",
-      "sha256": "febbea19ec3850836e6808c7e81a3120abff5d333650e2c284874966e4a2b5fd",
+      "sha256": "a51d39a08b7b9dad2e2e9d20531fad7f0d07d1fa9449c57fc9333280745de934",
       "sample_rate_hz": 16000,
       "channels": 1,
       "sample_width_bytes": 2,
-      "frames": 81756,
-      "duration_seconds": 5.10975,
+      "frames": 63563,
+      "duration_seconds": 3.9726875,
       "phrase": "No investigation has been accepted for this conversation yet."
     },
     {
       "file": "status.wav",
-      "sha256": "5006065301ff499dd682f967ada0fb744e47cc9f7a866f0f2efd75247dce82b2",
+      "sha256": "11bd59a7e8f658a55971998ab73757fdae8e9232d7fea3d288800e1ec47eb8e0",
       "sample_rate_hz": 16000,
       "channels": 1,
       "sample_width_bytes": 2,
-      "frames": 65863,
-      "duration_seconds": 4.116437,
+      "frames": 47591,
+      "duration_seconds": 2.9744375,
       "phrase": "The workflow panel shows the latest durable state."
     },
     {
       "file": "unavailable.wav",
-      "sha256": "8830882cb5a892dcf749014550820d03cd04e6f4d7598f1199ecd5030b315d56",
+      "sha256": "74431a1ffb58ba67af4e0a957d591d12997105ee7f3251d3811db684581983c6",
       "sample_rate_hz": 16000,
       "channels": 1,
       "sample_width_bytes": 2,
-      "frames": 106359,
-      "duration_seconds": 6.647437,
+      "frames": 67766,
+      "duration_seconds": 4.235375,
       "phrase": "The operation could not be completed; please inspect the workflow panel."
     }
-  ]
+  ],
+  "model_release": "https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.1",
+  "model_sha256": "f3a290d384fbb27966d462905c71a46cef9e5fd00516b40df32a0b4afe77ac96",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "showcase_reply": {
+    "file": "checking.wav",
+    "phrase": "Checking the policy.",
+    "sha256": "ff9dcded37fcca83bad5922e3d3ab260f335f016926247a4f64b9cfb03a1c429",
+    "frames": 20208,
+    "duration_seconds": 1.263
+  }
 }

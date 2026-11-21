@@ -115,9 +115,9 @@ class ExecutionStore:
 
     def _write(self, operation: str, run: Callable[[Connection, int], T]) -> T:
         def protected(connection: Connection, _: WorkLimits, now: int) -> T:
-            self._validate(connection)
             return run(connection, now)
 
+        # WorkStore validates the full schema before and after locking admission.
         return self.work._write(operation, protected)
 
     def _read(self, operation: str, run: Callable[[Connection, int], T]) -> T:

@@ -3,7 +3,12 @@ import { readFile } from 'node:fs/promises';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createScriptedInput, ScriptedInputError } from './scripted-input';
 
-const fixture = new Uint8Array(await readFile(new URL('../public/fixtures/input-investigate.wav', import.meta.url))), frames = 63865;
+const fixture = new Uint8Array(
+  await readFile(new URL('../public/fixtures/input-investigate.wav', import.meta.url)),
+);
+const { frames } = JSON.parse(
+  await readFile(new URL('../public/fixtures/manifest.json', import.meta.url), 'utf8'),
+) as { frames: number };
 function clip(extra: Partial<AudioBuffer> = {}): AudioBuffer { return { length: frames, sampleRate: 16000, numberOfChannels: 1, duration: frames / 16000, ...extra } as AudioBuffer; }
 function deferred<T>() { let resolve!: (value: T) => void; const promise = new Promise<T>((yes) => { resolve = yes; }); return { promise, resolve }; }
 const contexts: FakeContext[] = [], calls: string[] = [];
