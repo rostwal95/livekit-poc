@@ -1,6 +1,6 @@
 """Atomic managed investigation acceptance without mutation consent.
 
-One protected v4 transaction creates the original inquiry, case owner and absolute
+One protected transaction creates the original inquiry, case owner and absolute
 continuation deadline. Public callers cannot override actor, scope or policy.
 """
 
@@ -72,11 +72,6 @@ class PostgresManagedAdmission:
             return sql.Identifier(self.executions.settings.schema, name)
 
         with protected_transaction(self.executions) as connection:
-            metadata = connection.execute(
-                sql.SQL("SELECT version FROM {} WHERE singleton").format(table("schema_metadata"))
-            ).fetchone()
-            if metadata is None or metadata["version"] not in (4, 5):
-                raise UnsupportedOperation("Managed conversational acceptance requires schema v4")
             prior = connection.execute(
                 sql.SQL(
                     "SELECT task_id,payload FROM {} WHERE scope_id=%s AND idempotency_key=%s"

@@ -33,7 +33,7 @@ T = TypeVar("T")
 
 
 class DeliveryClient:
-    """A version-3 scoped client, four retained actual I/O slots and explicit close."""
+    """A scoped client, four retained actual I/O slots and explicit close."""
 
     def __init__(self, work: WorkClient, store: DeliveryStore) -> None:
         if type(work) is not WorkClient or type(store) is not DeliveryStore:
@@ -95,7 +95,7 @@ def open_delivery_client(
     token: BearerToken,
     harness_failpoint: Callable[[str], None] | None = None,
 ) -> DeliveryClient:
-    """Trusted synchronous startup of an already explicitly upgraded v3 profile."""
+    """Trusted synchronous startup against the initialized work schema."""
     work = open_work_client(
         settings=settings, directory=directory, token=token, harness_failpoint=harness_failpoint
     )

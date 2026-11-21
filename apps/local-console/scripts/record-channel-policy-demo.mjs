@@ -1,22 +1,5 @@
 #!/usr/bin/env node
-/**
- * Records the local demo as a narrated video.
- *
- * Needs a running showcase (`make channel-policy-demo-start-provider` or the
- * scripted `make channel-policy-demo-start`) on a fresh profile, because the
- * showcase window holds sixteen inputs and this journey adds four.
- *
- *   node scripts/record-channel-policy-demo.mjs <operator-key-file> <output-dir> [--complete]
- *
- * --complete opens the landing page first and, after the showcase, runs one P1
- * business case in the running console (`stack.py start-business`). The console
- * token is read from `stack.py token` into memory only; it is never logged.
- *
- * Writes the raw page video, the captured showcase audio, steps.json and, when
- * ffmpeg is available (FFMPEG or PATH), the MP4 plus a poster PNG. Credentials
- * are entered only under a title card or before the trimmed start. The narration
- * overlay exists only in the recording, never in the product UI.
- */
+/** Drive the isolated scripted demo and record its observed browser journey. */
 import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import fs from 'node:fs/promises';
@@ -26,18 +9,40 @@ import { fileURLToPath } from 'node:url';
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const REPOSITORY = path.resolve(APP, '../..');
 const { chromium } = createRequire(path.join(APP, 'package.json'))('@playwright/test');
-const ORIGIN = process.env.DEMO_ORIGIN ?? 'http://127.0.0.1:5179';
-const [keyFile, outArg, ...flags] = process.argv.slice(2);
-if (!keyFile || !outArg || flags.some((flag) => flag !== '--complete')) {
-  console.error(
-    'usage: record-channel-policy-demo.mjs <operator-key-file> <output-dir> [--complete]',
-  );
+const origin = new URL(process.env.DEMO_ORIGIN ?? 'http://127.0.0.1:5189');
+if (
+  origin.protocol !== 'http:' ||
+  origin.hostname !== '127.0.0.1' ||
+  origin.username ||
+  origin.password ||
+  origin.pathname !== '/' ||
+  origin.search ||
+  origin.hash
+) {
+  throw new Error('Expected a local demo origin.');
+}
+const [outputDirectory, ...flags] = process.argv.slice(2);
+if (!outputDirectory || flags.some((flag) => flag !== '--verify')) {
+  console.error('usage: record-channel-policy-demo.mjs <private-output-directory> [--verify]');
   process.exit(2);
 }
-const complete = flags.includes('--complete');
-const name = complete ? 'ecosystem-demo' : 'channel-policy-demo';
-const out = path.resolve(outArg);
-await fs.mkdir(out, { recursive: true });
+const verify = flags.includes('--verify');
+const name = 'demo';
+const out = path.resolve(outputDirectory);
+await fs.mkdir(out, { recursive: true, mode: 0o700 });
+
+function operatorKey() {
+  const result = spawnSync(path.join(REPOSITORY, 'demo'), ['key'], {
+    cwd: REPOSITORY,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
+  const key = (result.stdout ?? '').trim();
+  if (result.status !== 0 || !/^[A-Za-z0-9_-]{32,128}$/.test(key))
+    throw new Error('Run ./demo up before recording the demo.');
+  return key;
+}
+const key = operatorKey();
 const VIEWPORT = { width: 1440, height: 960 };
 
 /** In-page tap: the agent's remote audio elements and the declared voice clip. */
@@ -131,7 +136,16 @@ const view = () =>
     return {
       state: q('[data-cp-state]'),
       native: q('[data-cp-native]'),
+      mode: q('[data-cp-mode-label]'),
+      previous: document.querySelectorAll('.cp-previous').length,
+      audioTime: Math.max(
+        0,
+        ...[...document.querySelectorAll('[data-cp-audio] audio')].map(
+          (element) => element.currentTime,
+        ),
+      ),
       speech: q('[data-cp-speech]'),
+      textUnknown: document.querySelector('[data-cp-retry-text]')?.hidden === false,
       policy: q('[data-cp-policy-title]'),
       progress: q('[data-cp-progress]'),
       sms: q('[data-cp-sms-state]'),
@@ -147,6 +161,7 @@ const business = () =>
       stage: q('#business-state-title'),
       inquiry: q('#business-inquiry-state'),
       consent: q('#business-confirmation-state'),
+      consentDisabled: document.querySelector('#business-confirm')?.disabled === true,
       outcome: q('#business-outcome-state'),
       delivery: q('#business-delivery-state'),
       approvable: document.querySelector('#business-approval')?.disabled === false,
@@ -254,7 +269,7 @@ async function titleCard(kicker, title = '', detail = '') {
   );
   mark('title', { title: kicker ? title : null });
 }
-const pause = (ms) => page.waitForTimeout(ms);
+const pause = (ms) => page.waitForTimeout(verify ? Math.min(ms, 500) : ms);
 const collectAudio = () =>
   page
     .evaluate(async () => {
@@ -272,10 +287,19 @@ const collectAudio = () =>
     })
     .catch(() => null);
 
+function confirmPage(expectedPath) {
+  const current = new URL(page.url());
+  if (current.origin !== origin.origin || current.pathname !== expectedPath)
+    throw new Error('The demo redirected to an unexpected page.');
+}
+
 async function unlockShowcase() {
-  const key = JSON.parse(await fs.readFile(keyFile, 'utf8')).bearer;
+  confirmPage('/channel-policy.html');
   await page.locator('[data-cp-setup] > summary').click();
-  await page.locator('[data-cp-access]').fill(key);
+  await page.locator('[data-cp-access]').evaluate((element, value) => {
+    element.value = value;
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+  }, key);
   await page.getByRole('button', { name: 'Use key', exact: true }).click();
   await until('unlocked', (v) => ['Ready to join', 'Session ended'].includes(v.state), 15);
   await page.locator('[data-cp-setup]').evaluate((details) => {
@@ -285,18 +309,21 @@ async function unlockShowcase() {
 
 async function showcase() {
   await caption(
-    'One case. Every conversation.',
+    'One case across two sessions',
     'Three local projects: P1 durable case authority, P2 channel continuity, P3 delegated policy checks.',
   );
   await pause(3500);
 
   await caption(
     'Join a LiveKit voice session',
-    'P2 opens a native agent room. Deepgram, OpenAI and ElevenLabs run for real in this mode.',
+    'LiveKit runs the native voice session. The local demo uses scripted recognition and replies.',
   );
   await page.locator('[data-cp-join]').click();
   const ready = await until('ready', (v) => v.state === 'Ready', 45);
+  if (ready.mode !== 'LOCAL / SCRIPTED' || linked(ready) !== 0)
+    throw new Error('Recording requires a fresh scripted demo.');
   await page.locator('[data-cp-enable-audio]').click();
+  const audioBeforeText = (await view()).audioTime;
   await pause(2500);
 
   await caption(
@@ -309,8 +336,21 @@ async function showcase() {
     .pressSequentially('Hi, can I move my booking to a later date?', { delay: 28 });
   await pause(600);
   await page.locator('[data-cp-send]').click();
+  const firstText = await until(
+    'text-observed',
+    (v) => linked(v) >= linked(ready) + 1 || v.textUnknown,
+    30,
+  );
+  if (linked(firstText) === linked(ready)) {
+    await caption(
+      'Reconcile the original text turn',
+      'The browser retries the original input identity after an unknown acknowledgement.',
+    );
+    await page.locator('[data-cp-retry-text]').click();
+  }
   await until('text-linked', (v) => linked(v) >= linked(ready) + 1, 30);
   await until('text-reply', (v) => v.agents >= 1, 30);
+  await until('text-audio-advanced', (v) => v.audioTime > audioBeforeText + 0.2, 30);
   await spoken('text-spoken');
   await caption(
     'The background check lands',
@@ -321,7 +361,7 @@ async function showcase() {
 
   await caption(
     'Speak instead',
-    'A declared recorded clip plays into the real RTC track. Deepgram transcribes it; the agent answers from the trusted result.',
+    'A local clip travels over WebRTC. Scripted recognition assigns its transcript and the agent replies.',
   );
   await page.locator('[data-cp-mode-voice]').click();
   await page.locator('[data-cp-prepare-voice]').click();
@@ -333,10 +373,11 @@ async function showcase() {
   const beforeVoice = await view();
   await page.locator('[data-cp-start-voice]').click();
   mark('voice-started');
-  await pause(5000);
+  await page.waitForTimeout(5000);
   await page.locator('[data-cp-commit-voice]').click();
   await until('voice-linked', (v) => linked(v) >= linked(beforeVoice) + 1, 45);
   await until('voice-reply', (v) => v.agents >= beforeVoice.agents + 1, 45);
+  await until('voice-audio-advanced', (v) => v.audioTime > beforeVoice.audioTime + 0.2, 30);
   await spoken('voice-spoken');
   await pause(2500);
 
@@ -375,17 +416,15 @@ async function showcase() {
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
   await pause(1200);
   await page.locator('[data-cp-join]').click();
-  const rejoined = await until('rejoined', (v) => v.state === 'Ready', 45);
-  await page.locator('[data-cp-enable-audio]').click();
-  await page.locator('[data-cp-mode-text]').click();
-  await page.locator('[data-cp-message]').click();
-  await page
-    .locator('[data-cp-message]')
-    .pressSequentially('What did the policy check find?', { delay: 28 });
-  await pause(500);
-  await page.locator('[data-cp-send]').click();
-  await until('question-reply', (v) => v.agents >= rejoined.agents + 1, 45);
-  await spoken('question-spoken');
+  await until(
+    'rejoined',
+    (v) =>
+      v.state === 'Ready' &&
+      v.previous >= 2 &&
+      linked(v) === 3 &&
+      v.policy === 'Eligible under the policy',
+    45,
+  );
   await page.screenshot({ path: path.join(out, name + '.png') });
   await pause(3000);
 
@@ -398,28 +437,16 @@ async function showcase() {
   await pause(4000);
 }
 
-/** The console token comes from the private stack settings and stays in memory. */
-function consoleToken() {
-  const python = process.env.PYTHON ?? 'python3.14';
-  const result = spawnSync(python, [path.join(REPOSITORY, 'local-setup/stack.py'), 'token'], {
-    cwd: REPOSITORY,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'ignore'],
-  });
-  const token = (result.stdout ?? '').trim();
-  if (result.status !== 0 || !/^[A-Za-z0-9_-]{16,512}$/.test(token))
-    throw new Error('The local console token is unavailable; run stack.py start-business first.');
-  return token;
-}
-
-async function businessCase(token) {
+async function businessCase() {
+  confirmPage('/operator.html');
   // A changing future date keeps repeated takes valid against the supplier fixture.
   const day = 10 + (Math.floor(Date.now() / 60000) % 18);
   const checkIn = process.env.DEMO_CHECK_IN ?? `2030-12-${String(day).padStart(2, '0')}`;
   await page.locator('#access-token').evaluate((element, value) => {
     element.value = value;
     element.dispatchEvent(new Event('input', { bubbles: true }));
-  }, token);
+  }, key);
+  await page.getByRole('button', { name: 'Use key', exact: true }).click();
   await page.evaluate(() => {
     const top = document.querySelector('#business-form').getBoundingClientRect().top;
     window.scrollTo({ top: Math.max(0, top + window.scrollY - 210) });
@@ -448,7 +475,12 @@ async function businessCase(token) {
     'The supplier authority prices the exact change and binds its revision. No model output can supply or alter it.',
   );
   await page.locator('#business-request-quote').click();
-  await until('quote-required', (v) => v.consent === 'required' && v.approvable, 30, business);
+  await until(
+    'quote-required',
+    (v) => v.consent === 'required' && v.approvable && v.consentDisabled,
+    30,
+    business,
+  );
   await pause(3000);
 
   await caption(
@@ -466,73 +498,56 @@ async function businessCase(token) {
     'The worker applies the change once, records the supplier outcome and delivers the completion. Each is a separate fact.',
   );
   await until('outcome-succeeded', (v) => v.outcome === 'succeeded', 90, business);
-  await until('delivery-delivered', (v) => v.delivery === 'delivered', 60, business).catch(() =>
-    mark('delivery-pending'),
-  );
+  await until('delivery-delivered', (v) => v.delivery === 'delivered', 60, business);
   await pause(4500);
 }
 
 let failure = null;
 let audio = null;
 try {
-  if (complete) {
-    await page.goto(ORIGIN + '/', { waitUntil: 'networkidle' });
-    mark('trim');
-    await caption(
-      'Three projects. One local stack.',
-      'Durable cases, channel continuity and delegated policy checks for LiveKit agents, all running on this machine.',
-    );
-    await pause(4500);
-    await page.locator('a[href="/channel-policy.html"]').click();
-    await page.waitForLoadState('networkidle');
-    await titleCard(
-      'P1 · P2 · P3',
-      'Joined voice and SMS showcase',
-      'A real voice agent, durable channel input and a background policy check on one case.',
-    );
-    await unlockShowcase();
-    await pause(1800);
-    await titleCard('');
-  } else {
-    await page.goto(ORIGIN + '/channel-policy.html', { waitUntil: 'networkidle' });
-    await unlockShowcase();
-    mark('trim');
-  }
+  await page.goto(new URL('/', origin).href, { waitUntil: 'networkidle' });
+  confirmPage('/');
+  mark('trim');
+  await pause(3000);
+  await page.locator('a[href="/channel-policy.html"]').click();
+  await page.waitForLoadState('networkidle');
+  await titleCard(
+    'CONTINUITY FOR LIVEKIT AGENTS',
+    'Voice, text and simulated SMS',
+    'Follow one travel case through a disconnect, background policy work and a fresh room.',
+  );
+  await unlockShowcase();
+  await pause(1500);
+  await titleCard('');
   await showcase();
-  if (complete) {
-    audio = await collectAudio();
-    const token = consoleToken();
-    await page.goto(ORIGIN + '/', { waitUntil: 'networkidle' });
-    await caption(
-      'P1 on its own: the business console',
-      'The same durable case authority, driven by an operator instead of a conversation.',
-    );
-    await pause(3500);
-    await page.locator('[data-p1-console]').click();
-    await page.waitForLoadState('networkidle');
-    await titleCard(
-      'P1',
-      'Business operator console',
-      'One booking case from investigation to exact confirmation, supplier outcome and delivery.',
-    );
-    await pause(1800);
-    await businessCase(token);
-    await caption('');
-    await titleCard(
-      'LOCAL PROOF OF CONCEPT',
-      'Continuity ecosystem',
-      'P1 agent continuity · P2 channel continuity · P3 delegation reliability. See the README to run every step yourself.',
-    );
-    await pause(4500);
-  }
+  audio = await collectAudio();
+  if (!audio || audio.data.length === 0) throw new Error('LiveKit audio was not captured.');
+  await page.goto(new URL('/operator.html', origin).href, { waitUntil: 'networkidle' });
+  await titleCard(
+    'DURABLE BOOKING CASE',
+    'From investigation to exact approval',
+    'An operator reviews a specific revision and approves the quote.',
+  );
+  await pause(2000);
+  await businessCase();
+  await caption('');
+  await titleCard(
+    'CONTINUITY FOR LIVEKIT AGENTS',
+    'Run the demo with Docker Compose',
+    'The README links the walkthrough, architecture and verification.',
+  );
+  await pause(3600);
   mark('done');
 } catch (error) {
   failure = error;
-  mark('error', { message: String(error?.message ?? error).slice(0, 400) });
+  mark('error', {
+    message: String(error?.message ?? error)
+      .replaceAll(key, '[redacted]')
+      .slice(0, 400),
+  });
   await page.screenshot({ path: path.join(out, 'error.png') }).catch(() => {});
 }
 
-audio ??= complete ? null : await collectAudio();
 const video = page.video();
 await context.close();
 await browser.close();
@@ -552,7 +567,7 @@ if (audio) {
 }
 
 const ffmpeg = process.env.FFMPEG ?? 'ffmpeg';
-if (!failure && spawnSync(ffmpeg, ['-version'], { stdio: 'ignore' }).status === 0) {
+if (!failure && !verify && spawnSync(ffmpeg, ['-version'], { stdio: 'ignore' }).status === 0) {
   const args = ['-y', '-loglevel', 'error', '-i', rawVideo];
   if (rawAudio) args.push('-itsoffset', String(timing.audioOffsetMs / 1000), '-i', rawAudio);
   args.push('-map', '0:v');
@@ -574,7 +589,9 @@ if (!failure && spawnSync(ffmpeg, ['-version'], { stdio: 'ignore' }).status === 
   );
   const result = spawnSync(ffmpeg, args, { stdio: 'inherit' });
   mark(result.status === 0 ? 'mp4' : 'mp4-failed');
-} else if (!failure) {
-  mark('mp4-skipped', { reason: 'ffmpeg not found; set FFMPEG or install ffmpeg' });
+  if (result.status !== 0) failure = new Error('MP4 encoding failed.');
+} else if (!failure && !verify) {
+  mark('mp4-unavailable', { reason: 'Set FFMPEG to an FFmpeg executable.' });
+  failure = new Error('FFmpeg is unavailable.');
 }
 process.exit(failure ? 1 : 0);

@@ -23,9 +23,6 @@
   },
   "include": [
     "src",
-    "vite.config.ts"
-  ],
-  "exclude": [
-    "src/p2-operations*.ts"
+    "vite.channel-policy.config.ts"
   ]
 }

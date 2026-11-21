@@ -257,29 +257,24 @@ export class JoinedRoom {
             }
           };
           // The bounded reader still owns limits and deadlines; this only tees chunks.
-          const live = {
-            withAbortSignal: (signal: AbortSignal): AsyncIterable<string> => {
-              const source = reader.withAbortSignal(signal);
-              return (async function* () {
-                let partial = '';
-                for await (const chunk of source) {
-                  partial += chunk;
-                  report(partial, true);
-                  yield chunk;
-                }
-              })();
-            },
-          };
           void this.#track(async () => {
             try {
-              const { readNativeVoiceText } = await import('./voice');
               if (this.#closing) throw new JoinedUiError('unavailable');
-              const text = await readNativeVoiceText(
-                live,
-                this.#lifetime.signal,
-                () => undefined,
-                this.#mode,
+              const deadline = AbortSignal.timeout(
+                this.#mode === 'provider_real' ? 40_000 : 10_000,
               );
+              const source = reader.withAbortSignal(
+                AbortSignal.any([this.#lifetime.signal, deadline]),
+              );
+              const encoder = new TextEncoder();
+              let bytes = 0;
+              let text = '';
+              for await (const chunk of source) {
+                bytes += encoder.encode(chunk).byteLength;
+                if (bytes > 16_384) throw new JoinedUiError('invalid');
+                text += chunk;
+                report(text, true);
+              }
               report(text, false);
             } finally {
               if (shown) report(shown, false);

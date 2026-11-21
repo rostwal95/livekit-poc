@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Booking operator · LiveKit continuity demo</title>
+  </head>
+  <body>
+    <header class="masthead">
+      <a class="brand" href="/">Continuity for LiveKit agents</a>
+      <nav aria-label="Demo navigation"><a href="/channel-policy.html">Voice and SMS</a></nav>
+    </header>
+    <main class="shell">
+      <section class="intro"><h1>Booking operator</h1></section>
+      <form class="panel operator-form" id="operator-key">
+        <div>
+          <label for="access-token">Local operator key</label>
+          <input id="access-token" type="password" autocomplete="off" spellcheck="false" />
+          <p class="field-note">Run <code>./demo key</code> to retrieve the key.</p>
+        </div>
+        <button type="submit" class="secondary">Use key</button>
+        <button id="forget-key" type="button" class="text-button">Forget key</button>
+        <p id="key-status" class="field-note" role="status">Operator key required.</p>
+      </form>
+      <section id="business"></section>
+    </main>
+    <script type="module" src="/src/operator.ts"></script>
+  </body>
+</html>

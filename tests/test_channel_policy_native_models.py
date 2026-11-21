@@ -113,7 +113,7 @@ print(json.dumps({'cold':True}))
         assets = m._load_assets()
         self.assertEqual(len(assets), 10)
         self.assertEqual(len({item.fixture for item in assets}), 10)
-        original = ROOT / "services/conversation_agent/assets/manifest.json"
+        original = ROOT / "services/channel_policy_demo/assets/fixtures/manifest.json"
         self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(), m.MANIFEST_SHA256)
         provenance = json.loads(original.read_bytes())
         self.assertEqual(provenance["kind"], "synthetic-spoken-fixtures")

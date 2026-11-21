@@ -536,7 +536,7 @@ export class ChannelGateway {
     if (performance.now() >= deadline) throw new GatewayError('storage_unavailable');
   }
   async #bind(port: number, deadline: number): Promise<GatewayEndpoint> {
-    // Preflight existing v2 schema; caller timeout retains actual owned I/O until settlement.
+    // Check the initialized schema; caller timeout retains actual owned I/O until settlement.
     for (const token of this.#tokens) {
       this.#starting(deadline);
       await this.#dispatcher.eligible(token, 1);

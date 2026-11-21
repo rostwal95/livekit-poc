@@ -21,7 +21,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeVar
 
-from .native_models import ScriptedModelBundle, load_scripted_models
+from .native_models import load_scripted_models
 from .native_prepare_http import NativePrepareEndpoint, NativePrepareHttp
 from .native_worker_config import (
     InferenceMode,
@@ -35,9 +35,8 @@ if TYPE_CHECKING:
     from livekit import rtc
     from livekit.agents.voice import CloseEvent
 
-    from channel_continuity.native import NativeRuntime, NativeTiming
+    from channel_continuity.native import NativeRuntime
 
-    from .native_provider_models import ProviderModelBundle
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
@@ -278,20 +277,7 @@ class NativeWorker:
 
         self._check_starting()
         c = self._config
-        models: ScriptedModelBundle | ProviderModelBundle
-        timing: NativeTiming | None = None
-        instructions: str | None = None
-        if c.inference_mode == "provider_real":
-            from .native_provider_models import (
-                PROVIDER_INSTRUCTIONS,
-                load_provider_models,
-                provider_timing,
-            )
-
-            models = await load_provider_models()
-            timing, instructions = provider_timing(), PROVIDER_INSTRUCTIONS
-        else:
-            models = await load_scripted_models(c.model_profile)
+        models = await load_scripted_models(c.model_profile)
         self._own(models.aclose, "dependencies")
         self._check_starting()
         current = WorkerCurrentResultClient(
@@ -311,8 +297,6 @@ class NativeWorker:
             llm=model,
             tts=models.tts,
             rehydration=NativeRehydrationProfile(context),
-            timing=timing,
-            instructions=instructions,
             inference_mode=c.inference_mode,
         )
         self._runtime = runtime

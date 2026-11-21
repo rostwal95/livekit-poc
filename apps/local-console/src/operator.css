@@ -1,0 +1,16 @@
+.operator-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+}
+
+.operator-form > div {
+  flex: 1 1 250px;
+  max-width: 420px;
+}
+
+.operator-form .field-note {
+  margin: 4px 0;
+}

@@ -87,7 +87,6 @@ const observedCase = {
 beforeEach(() => {
   vi.clearAllMocks();
   driver.query.mockImplementation(async (text: string) => {
-    if (text.includes('SELECT version FROM')) return { rows: [{ version: 8 }], rowCount: 1 };
     if (text.includes('SELECT * FROM') && text.includes('outbox_settings'))
       return {
         rows: [{ receiver_id: receiverId, max_replies: 8, max_routes: 8, max_attempts: 3 }],

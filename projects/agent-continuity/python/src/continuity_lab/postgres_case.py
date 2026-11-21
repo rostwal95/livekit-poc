@@ -1,4 +1,4 @@
-"""Scoped case revision and atomic exact-confirmation authority on PostgreSQL v2.
+"""Scoped case revision and atomic exact-confirmation authority on PostgreSQL.
 
 Quote publication is trusted synthetic producer work. The public authenticated
 service deliberately does not expose it as a caller or model tool. No supplier
@@ -434,11 +434,9 @@ class PostgresCaseAuthority:
         _event("case_revised")
         return snapshot
 
-    def _require_proposal_version(self, connection: Connection, quote: QuoteSnapshot) -> None:
-        metadata = connection.execute(
-            sql.SQL("SELECT version FROM {} WHERE singleton").format(self._table("schema_metadata"))
-        ).fetchone()
-        if metadata is None or (metadata["version"] >= 3 and quote.schema_version != 2):
+    @staticmethod
+    def _require_proposal_version(quote: QuoteSnapshot) -> None:
+        if quote.schema_version != 2:
             raise UnsupportedOperation(
                 "New mutation consent requires a supplier-bound version 2 proposal"
             )
@@ -541,7 +539,7 @@ class PostgresCaseAuthority:
             self._quote(connection, quote.quote_id)
             replayed = True
         else:
-            self._require_proposal_version(connection, quote)
+            self._require_proposal_version(quote)
             if quote.schema_version == 2 and quote.case_id != current.case_id:
                 raise InvalidConfirmation("Proposal does not match the immutable case identity")
             if current.quote is not None:
@@ -620,7 +618,7 @@ class PostgresCaseAuthority:
             if current.intent is None or current.intent.quote != confirmation.quote:
                 raise InvalidStoredState("Confirmation receipt has no matching committed intent")
             return current.intent, False
-        self._require_proposal_version(connection, confirmation.quote)
+        self._require_proposal_version(confirmation.quote)
         control = connection.execute(
             sql.SQL("SELECT * FROM {} WHERE task_id=%s FOR UPDATE").format(
                 self._table("execution_controls")

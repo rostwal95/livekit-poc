@@ -1,9 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "rootDir": "examples",
-    "outDir": "dist/examples",
-    "declaration": false
-  },
-  "include": ["examples"]
-}

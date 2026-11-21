@@ -3,7 +3,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 import type { Socket } from 'node:net';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ExternalOperationClient } from '@livekit-ecosystem/channel-continuity/starter';
+import { ExternalOperationClient } from '../src/external-operation-client.js';
 import type {
   PreparedDispatch,
   OperationLookup,

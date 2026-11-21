@@ -1,5 +1,4 @@
 /** Authenticated P1 observations. Only exact operator commands can confirm a quote. */
-import { validateOperatorToken } from './intake';
 
 const encoder = new TextEncoder();
 export const MAX_BUSINESS_RESPONSE_BYTES = 65_536;
@@ -239,7 +238,9 @@ export async function readBusinessResponse(response: Response): Promise<unknown>
 export class BusinessClient {
   constructor(private readonly fetcher: typeof fetch = fetch) {}
   private async call(path: string, token: string, body?: unknown, signal?: AbortSignal): Promise<unknown> {
-    validateOperatorToken(token); const deadline = AbortSignal.timeout(8_000);
+    if (token.length < 16 || token.length > 512 || /\s/.test(token))
+      throw new BusinessError('unauthorized', 'Enter the local operator key.');
+    const deadline = AbortSignal.timeout(8_000);
     try {
       // Native Window.fetch rejects a BusinessClient receiver; invoke the port as a function.
       const fetcher = this.fetcher;

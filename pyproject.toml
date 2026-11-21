@@ -27,9 +27,6 @@ local = [
   "opentelemetry-exporter-otlp-proto-http==1.45.2",
 ]
 agent = ["livekit-agents==1.8.11"]
-inference = ["livekit-plugins-openai==1.8.11", "openai==3.46.0", "httpx2==2.16.0"]
-
-provider = ["livekit-plugins-deepgram==1.8.11", "livekit-plugins-elevenlabs==1.8.11"]
 
 [dependency-groups]
 dev = ["h11==0.16.0", "pytest==9.2.0", "httpx==0.28.1", "ruff==0.17.4", "mypy==2.4.1", "channel-continuity==0.1.0", "delegation-reliability==0.1.0"]
@@ -47,8 +44,7 @@ line-length = 100
 testpaths = ["tests"]
 
 [tool.setuptools.package-data]
-"services.channel_policy_demo" = ["*.md", "py.typed", "assets/*.wav"]
-"services.conversation_agent" = ["assets/*.wav", "assets/*.json"]
+"services.channel_policy_demo" = ["py.typed", "assets/*.wav", "assets/fixtures/*.wav", "assets/fixtures/*.json"]
 
 [tool.uv.workspace]
 members = ["projects/agent-continuity/python", "projects/channel-continuity/python", "projects/delegation-reliability/python"]

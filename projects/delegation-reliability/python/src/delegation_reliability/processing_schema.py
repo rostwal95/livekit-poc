@@ -1,5 +1,0 @@
-"""Compiled owner-only v2 addition; no scheduler, execution lease or retry state."""
-
-PROCESSING_DDL = """CREATE TABLE processing_control(singleton boolean PRIMARY KEY REFERENCES projection_metadata(singleton),policy_json text NOT NULL CHECK(octet_length(policy_json) BETWEEN 1 AND 16384),policy_sha256 text NOT NULL CHECK(policy_sha256 ~ '^[0-9a-f]{64}$'),revision bigint NOT NULL CHECK(revision>=0),terminal_watermark bigint NOT NULL CHECK(terminal_watermark>=0),scan_after bigint NOT NULL CHECK(scan_after>=terminal_watermark),terminal_count integer NOT NULL CHECK(terminal_count BETWEEN 0 AND 30000));
-CREATE TABLE processing_acks(event_sequence bigint PRIMARY KEY REFERENCES projected_results(event_sequence),event_id uuid NOT NULL CONSTRAINT processing_event_key UNIQUE,projected_sha256 text NOT NULL CHECK(projected_sha256 ~ '^[0-9a-f]{64}$'),body_json text NOT NULL CHECK(octet_length(body_json) BETWEEN 1 AND 4096),body_sha256 text NOT NULL CHECK(body_sha256 ~ '^[0-9a-f]{64}$'));"""
-MARKER_V2 = "delegation-result-projection-v2"

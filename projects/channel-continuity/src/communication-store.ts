@@ -109,13 +109,6 @@ export class CommunicationStore {
     this.#grant(token, source);
   }
   async #settings(tx: Tx) {
-    if (
-      ![7, 8, 9].includes(
-        (await tx.client.query(`SELECT version FROM ${this.#q('schema_metadata')} WHERE singleton`))
-          .rows[0]?.version as number,
-      )
-    )
-      throw new ChannelError('UpgradeRequired');
     const row = (
       await tx.client.query(
         `SELECT s.*, (SELECT count(*)::integer FROM ${this.#q('native_responses')}) AS actual_responses,(SELECT count(*)::integer FROM ${this.#q('native_observations')}) AS actual_observations,(SELECT COALESCE(max(n),0)::integer FROM(SELECT count(*) n FROM ${this.#q('native_observations')} GROUP BY response_id)t) AS actual_per_response FROM ${this.#q('communication_settings')} s WHERE singleton`,

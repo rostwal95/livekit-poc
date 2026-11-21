@@ -311,8 +311,8 @@ def _read(path: Path, maximum: int) -> bytes:
 
 def _load_assets() -> tuple[ScriptedAudio, ...]:
     # Fixed installed-package-relative locations, never cwd or a user supplied path.
-    directory = Path(__file__).resolve().parents[1] / "conversation_agent" / "assets"
     owned = Path(__file__).resolve().parent / "assets"
+    directory = owned / "fixtures"
     try:
         manifest = _read(directory / "manifest.json", 16384)
         if hashlib.sha256(manifest).hexdigest() != MANIFEST_SHA256:

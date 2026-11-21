@@ -192,7 +192,7 @@ class PostgresLifecycle:
         )
 
     def worker_slot(self) -> AbstractContextManager[None]:
-        """Legacy session coordination; v4 authority is the explicit DB lease."""
+        """A cooperating session slot is independent of each explicit execution lease."""
         return self.executions.worker_slot() if self.worker_lease is None else nullcontext()
 
     def _guard(self, connection: Connection, scope_id: str, task_id: str) -> None:

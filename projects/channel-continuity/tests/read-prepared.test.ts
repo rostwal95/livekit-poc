@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createHash } from 'node:crypto';
 import { produceTextEvent } from '../src/index.js';
-import { SeededAccounts } from '../src/postgres.js';
+import { ChannelError, SeededAccounts } from '../src/postgres.js';
 import { createFakeSmsIntegration } from '../src/security.js';
 import { createNativeIntegration } from '../src/native-types.js';
 import { ChannelDispatcher, type DispatchPorts } from '../src/dispatch.js';
@@ -118,7 +118,6 @@ function data(native = false) {
       row,
       plan: { payload_json: prepared.canonicalPayload, payload_digest: prepared.payloadDigest },
       planCount: 1,
-      version: 8,
       sourceRevoked: true,
       capacity: 16,
     };
@@ -126,8 +125,6 @@ function data(native = false) {
   driver.query.mockImplementation(async (text: string, parameters: unknown[] = []) => {
     if (text === 'BEGIN' || text === 'COMMIT' || text === 'ROLLBACK')
       return { rows: [], rowCount: 0 };
-    if (text.includes('SELECT version FROM'))
-      return { rows: [{ version: state.version }], rowCount: 1 };
     if (text.includes('SELECT max_active,max_attempts,lease_ms,retry_delay_ms'))
       return {
         rows: [{ max_active: 2, max_attempts: 3, lease_ms: 500, retry_delay_ms: 20 }],
@@ -347,13 +344,13 @@ describe('read-only retained prepared dispatch', () => {
       await store.close();
     }
   });
-  it('preserves explicit schema upgrade rejection before loading source/plan', async () => {
+  it('preserves schema mismatch rejection before loading source/plan', async () => {
     const f = data(),
       store = new DispatchStore(DB, f.integration, f.accounts);
-    f.state.version = 1;
+    driver.validate.mockRejectedValueOnce(new ChannelError('SchemaMismatch'));
     try {
       await expect(store.readPrepared(ACCOUNT, RECEIPT)).rejects.toMatchObject({
-        code: 'UpgradeRequired',
+        code: 'SchemaMismatch',
       });
       expect(sqls().some((sql) => sql.includes('SELECT i.*'))).toBe(false);
     } finally {

@@ -9,7 +9,7 @@ from psycopg import sql
 
 from .result_feed_models import ResultFeedCursor, ResultFeedEvent, ResultFeedPage
 from .work_models import WorkError, WorkScope, work_uuid
-from .work_schema import Connection, execution_limits, validate_work_schema, work_schema_version
+from .work_schema import Connection, execution_limits, validate_work_schema
 from .work_store import WorkStore
 
 
@@ -104,8 +104,6 @@ class ResultFeedStore:
             with closing(work.settings.connect()) as connection, connection.transaction():
                 connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
                 validate_work_schema(connection, work.settings)
-                if work_schema_version(connection, work.settings.schema) != 4:
-                    raise WorkError("schema_mismatch")
                 validate_feed_state(connection, work.settings.schema)
                 self.source_id = source_id(connection, work.settings.schema)
         except WorkError:
@@ -119,8 +117,6 @@ class ResultFeedStore:
             with closing(self.work.settings.connect()) as connection, connection.transaction():
                 connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
                 validate_work_schema(connection, self.work.settings)
-                if work_schema_version(connection, schema) != 4:
-                    raise WorkError("schema_mismatch")
                 if source_id(connection, schema) != self.source_id:
                     raise WorkError("identity_conflict")
                 validate_feed_state(connection, schema)

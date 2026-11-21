@@ -15,7 +15,7 @@ from typing import Any
 import psycopg
 from psycopg import sql
 
-from .execution_models import ExecutionCapacityExceeded, InvalidStoredState, UnsupportedOperation
+from .execution_models import ExecutionCapacityExceeded, InvalidStoredState
 from .lease_models import (
     MAX_EPOCH,
     CoordinationPolicy,
@@ -44,17 +44,6 @@ def _event(event: str, code: str = "ok") -> None:
 
 def _table(executions: PostgresExecutionStore, name: str) -> sql.Identifier:
     return sql.Identifier(executions.settings.schema, name)
-
-
-def _version(connection: Connection, executions: PostgresExecutionStore) -> int:
-    row = connection.execute(
-        sql.SQL("SELECT version FROM {} WHERE singleton").format(
-            _table(executions, "schema_metadata")
-        )
-    ).fetchone()
-    if row is None or type(row["version"]) is not int or row["version"] not in {1, 2, 3, 4, 5}:
-        raise InvalidStoredState("Coordination schema version is unavailable")
-    return row["version"]
 
 
 def _clock(connection: Connection) -> datetime:
@@ -110,19 +99,13 @@ def require_worker_lease(
 ) -> None:
     """Guard one worker write on the caller's existing protected transaction.
 
-    Legacy schemas retain their original single-worker coordination. A v4 grant
-    cannot silently downgrade. The admission lock serializes this short guarded
+    The admission lock serializes this short guarded
     transaction with takeover; no provider call is permitted while it is held.
     """
     scope_id, task_id = identity(scope_id), identity(task_id)
     # Original scoped lookup precedes lease inspection, including malformed or
     # missing grants, so no cross-scope coordination observation is disclosed.
     executions._get(connection, scope_id, task_id)
-    version = _version(connection, executions)
-    if version < 4:
-        if grant is not None:
-            raise UnsupportedOperation("Lease authority requires schema v4")
-        return
     if grant is None:
         raise LeaseRequired("A current explicit execution lease is required")
     if type(grant) is not LeaseGrant:
@@ -164,8 +147,6 @@ class PostgresLeases:
             self.failpoint(name)
 
     def limits_in_transaction(self, connection: Connection) -> CoordinationPolicy:
-        if _version(connection, self.executions) < 4:
-            raise UnsupportedOperation("Execution leases require schema v4")
         row = connection.execute(
             sql.SQL("SELECT * FROM {} WHERE singleton").format(
                 _table(self.executions, "execution_limits")

@@ -1,9 +1,0 @@
-{
-  "source": "https://nodejs.org/dist/v24.22.2/",
-  "archive_sha256": "1f5ac075be50bed4780ea3be19a007fda95ea4d527d28d76d0b91de47d915115",
-  "checksum_manifest_sha256": "aec92ae945293821c22aed4c37b97741688254bac353b861fc9fb25b81ce4567",
-  "node": "/private/tmp/livekit-academy-node-24.22.2-n1rqgu__/node-v24.22.2-darwin-arm64/bin/node",
-  "version": "v24.22.2",
-  "system_node_unchanged": true,
-  "repository_pins_unchanged": true
-}

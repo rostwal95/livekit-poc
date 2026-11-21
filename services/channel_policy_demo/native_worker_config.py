@@ -3,9 +3,8 @@
 Only load_native_worker_config reads the explicitly selected private JSON file.
 The worker receives its own RTC token and three narrow service capabilities,
 never database, case, publisher, discovery, provider or Node room-view secrets.
-JWT syntax does not validate signature, claims or mutation authority. Schema 1
-selects scripted models; schema 2 explicitly selects provider_real, whose keys
-reach the worker only through its process environment, never this file.
+The private configuration selects scripted models. JWT syntax does not
+validate signature, claims or mutation authority.
 """
 
 from __future__ import annotations
@@ -34,7 +33,7 @@ LIVEKIT_URL = "ws://127.0.0.1:17880"
 _APPLICATION_ID = re.compile(r"[a-z][a-z0-9_-]{0,63}", re.ASCII)
 _CAPABILITY = re.compile(r"[A-Za-z0-9_-]{43}", re.ASCII)
 _JWT = re.compile(r"[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+", re.ASCII)
-InferenceMode = Literal["scripted", "provider_real"]
+InferenceMode = Literal["scripted"]
 _FIELDS = {
     "schemaVersion",
     "profileId",
@@ -152,10 +151,7 @@ class NativeWorkerConfig:
 
     def __post_init__(self) -> None:
         try:
-            _need(
-                type(self.inference_mode) is str
-                and self.inference_mode in ("scripted", "provider_real")
-            )
+            _need(self.inference_mode == "scripted")
             profile = uuid_value(self.profile_id)
             binding = _binding(self.binding)
             livekit_url = validate_livekit_url(self.livekit_url)
@@ -293,9 +289,6 @@ def encode_native_worker_config(config: NativeWorkerConfig) -> bytes:
                 "replyFixture": value.model_profile.reply_fixture,
             },
         }
-        if value.inference_mode == "provider_real":
-            payload["schemaVersion"] = 2
-            payload["inferenceMode"] = "provider_real"
         raw = (
             json.dumps(payload, separators=(",", ":"), ensure_ascii=False, allow_nan=False) + "\n"
         ).encode("utf-8", "strict")
@@ -318,7 +311,7 @@ def _constant(_: str) -> object:
 
 
 def parse_native_worker_config(raw: bytes) -> NativeWorkerConfig:
-    """Parse the closed schema1 scripted or schema2 provider_real worker, without I/O."""
+    """Parse the closed scripted worker configuration without I/O."""
     try:
         _need(type(raw) is bytes and 0 < len(raw) <= CONFIG_BYTES)
         payload: object = json.loads(
@@ -326,12 +319,8 @@ def parse_native_worker_config(raw: bytes) -> NativeWorkerConfig:
         )
         _need(type(payload) is dict)
         version = cast(dict[str, object], payload).get("schemaVersion")
-        _need(type(version) is int and version in (1, 2))
-        value = _object(payload, _FIELDS if version == 1 else _FIELDS | {"inferenceMode"})
-        mode: InferenceMode = "scripted"
-        if version == 2:
-            _need(value["inferenceMode"] == "provider_real")
-            mode = "provider_real"
+        _need(type(version) is int and version == 1)
+        value = _object(payload, _FIELDS)
         scope = _object(value["scope"], {"tenantId", "accountId"})
         livekit = _object(value["livekit"], {"url", "token"})
         native = _object(value["native"], {"port", "bearer"})
@@ -368,7 +357,6 @@ def parse_native_worker_config(raw: bytes) -> NativeWorkerConfig:
             NativeEndpoint("127.0.0.1", _port(rehydration["port"])),
             _port(current["port"]),
             cast(str, livekit["url"]),
-            mode,
         )
     except Exception:  # noqa: BLE001 - invalid JSON/public DTOs have one safe code
         raise NativeWorkerConfigError() from None

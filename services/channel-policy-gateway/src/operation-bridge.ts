@@ -10,7 +10,7 @@ import type {
   OperationLookup,
   OperationReceipt,
 } from '@livekit-ecosystem/channel-continuity/dispatch';
-import { ExternalOperationClient } from '@livekit-ecosystem/channel-continuity/starter';
+import { ExternalOperationClient } from './external-operation-client.js';
 import {
   runtimeFields,
   runtimeString,
@@ -598,22 +598,11 @@ export class ChannelPolicyOperationBridge {
     const actual = await this.#attest(call);
     this.#check(call);
     const origin = this.#c.origins[call.source];
-    const client = (call.client = new ExternalOperationClient({
-      schemaVersion: 1,
-      profileId: this.#c.profileId,
-      endpoint: origin.endpoint,
-      callTimeoutMs: this.#timeout,
-      bindings: [
-        {
-          alias: call.source,
-          accountScope: this.#c.scope,
-          caseId: this.#c.caseId,
-          conversationId: this.#c.conversationId,
-          senderId: actual.submission.message.senderId,
-          operationBearer: origin.bearer,
-        },
-      ],
-    }));
+    const client = (call.client = new ExternalOperationClient(
+      origin.endpoint,
+      origin.bearer,
+      this.#timeout,
+    ));
     this.#check(call);
     if (call.write) {
       call.acceptStarted = true;

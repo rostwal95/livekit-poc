@@ -1,7 +1,0 @@
-"""Compiled owner-only v3 addition; hiding preserves every protected record."""
-
-MARKER_V3 = "delegation-result-projection-v3"
-APPLICABILITY_DDL = """CREATE TABLE refresh_control(singleton boolean PRIMARY KEY REFERENCES projection_metadata(singleton),policy_json text NOT NULL CHECK(octet_length(policy_json) BETWEEN 1 AND 1024),policy_sha256 text NOT NULL CHECK(policy_sha256 ~ '^[0-9a-f]{64}$'),command_count integer NOT NULL CHECK(command_count BETWEEN 0 AND 30000));
-CREATE TABLE applicability_heads(event_sequence bigint PRIMARY KEY REFERENCES projected_results(event_sequence),revision smallint NOT NULL CHECK(revision BETWEEN 0 AND 8),latest_command_id uuid,tombstone_json text CHECK(octet_length(tombstone_json) BETWEEN 1 AND 2048),tombstone_sha256 text CHECK(tombstone_sha256 ~ '^[0-9a-f]{64}$'),CHECK((revision=0)=(latest_command_id IS NULL)),CHECK((tombstone_json IS NULL)=(tombstone_sha256 IS NULL)));
-CREATE TABLE applicability_refreshes(command_id uuid PRIMARY KEY,event_sequence bigint NOT NULL REFERENCES projected_results(event_sequence),revision smallint NOT NULL CHECK(revision BETWEEN 1 AND 8),body_json text NOT NULL CHECK(octet_length(body_json) BETWEEN 1 AND 4096),body_sha256 text NOT NULL CHECK(body_sha256 ~ '^[0-9a-f]{64}$'),CONSTRAINT applicability_revision_key UNIQUE(event_sequence,revision));
-ALTER TABLE applicability_heads ADD CONSTRAINT applicability_latest_key FOREIGN KEY(latest_command_id) REFERENCES applicability_refreshes(command_id);"""

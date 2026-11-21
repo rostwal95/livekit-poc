@@ -1,1 +1,0 @@
-{"case_results": [{"code": "ok", "name": "gateway_agent_sigkill_expired_claim_replay", "status": "passed"}], "child_terminations": 1, "cleanup_complete": true, "duration_seconds": 1.446495875, "errors": 0, "failures": 0, "mode": "local_synthetic_postgres_agent", "node_version": "24.22.2", "passed": 1, "schema_version": 1, "skipped": 0, "status": "passed", "tests": 1}

@@ -32,7 +32,7 @@ from .case_models import (
     uuid_identity,
 )
 from .execution_codec import decode_attempt
-from .execution_models import InvalidStoredState, UnsupportedOperation
+from .execution_models import InvalidStoredState
 from .postgres_case import Connection, PostgresCaseAuthority
 from .postgres_effects import PostgresEffects
 from .postgres_leases import _snapshot as lease_snapshot
@@ -366,13 +366,6 @@ class PostgresCaseProjection:
         with protected_transaction(self.executions) as connection:
             case = self.cases.get_in_transaction(connection, actor, task_id)
             supplied = _decode_cursor(cursor)
-            metadata = connection.execute(
-                sql.SQL("SELECT version FROM {} WHERE singleton").format(
-                    self._table("schema_metadata")
-                )
-            ).fetchone()
-            if metadata is None or metadata["version"] not in (4, 5):
-                raise UnsupportedOperation("Business projection requires schema v4")
             execution, control = self.lifecycle._current(connection, actor.scope_id, task_id)
             lease_row = connection.execute(
                 sql.SQL("SELECT * FROM {} WHERE task_id=%s AND scope_id=%s").format(

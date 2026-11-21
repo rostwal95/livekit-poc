@@ -368,7 +368,8 @@ describe('durable fixed-policy peer fixture', () => {
     try {
       const marker = join(path, 'fixed_work_server_ready.reached'),
         end = performance.now() + 3000;
-      while (!existsSync(marker)) {
+      // Publishing links the marker before unlinking its private staging name.
+      while (lstatSync(marker, { throwIfNoEntry: false })?.nlink !== 1) {
         if (settled || performance.now() >= end) throw Error('missing_owned_readiness');
         await delay(5);
       }

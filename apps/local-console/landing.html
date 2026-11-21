@@ -10,18 +10,16 @@
   <body>
     <header class="landing-topbar">
       <img src="/vendor/livekit/lk-logo-dark.svg" alt="LiveKit" width="112" height="28" />
-      <span>LOCAL</span>
+      <span>LOCAL DEMO</span>
     </header>
     <main class="landing">
-      <p class="landing-eyebrow">THREE PROJECTS. ONE LOCAL STACK.</p>
-      <h1>Continuity ecosystem demos</h1>
+      <h1>Continuity for LiveKit agents</h1>
       <p class="landing-lead">
-        Durable cases, channel continuity and delegated policy checks for LiveKit agents. Both demos
-        run on this machine against the same isolated Docker stack.
+        Follow one case across text, voice and simulated SMS. See how background work continues when
+        the caller leaves the room and how an operator approves an exact quote.
       </p>
       <section class="landing-grid" aria-label="Demos">
         <article class="landing-card">
-          <p class="landing-kicker">P1 · P2 · P3</p>
           <h2>Joined voice and SMS showcase</h2>
           <p>
             Talk or type with the agent, send a follow-up SMS and rejoin. One durable case carries
@@ -30,21 +28,17 @@
           <a class="landing-action" href="/channel-policy.html">Open the showcase</a>
         </article>
         <article class="landing-card">
-          <p class="landing-kicker">P1</p>
           <h2>Business operator console</h2>
           <p>
             Run one booking case from investigation to exact quote confirmation, supplier outcome
             and receiver delivery, with every transition read from durable storage.
           </p>
-          <a class="landing-action" data-p1-console href="http://127.0.0.1:13000/"
-            >Open the P1 console</a
+          <a class="landing-action" data-p1-console href="/operator.html"
+            >Open the operator console</a
           >
         </article>
       </section>
-      <p class="landing-note">
-        Start the stack with <code>python3 local-setup/stack.py start</code> and the showcase with
-        <code>make channel-policy-demo-start</code>. The README lists every command.
-      </p>
+      <p class="landing-note">Run <code>./demo key</code> to unlock either walkthrough.</p>
     </main>
     <script type="module" src="/src/channel-policy-landing.ts"></script>
   </body>

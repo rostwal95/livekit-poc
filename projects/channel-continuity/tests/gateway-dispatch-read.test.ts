@@ -83,7 +83,6 @@ function fixture(native: boolean) {
     missing = false;
   driver.query.mockImplementation(async (sql: string) => {
     if (sql === 'BEGIN' || sql === 'COMMIT' || sql === 'ROLLBACK') return { rows: [], rowCount: 0 };
-    if (sql.includes('SELECT version FROM')) return { rows: [{ version: 8 }], rowCount: 1 };
     if (sql.includes('SELECT max_active,max_attempts'))
       return {
         rows: [{ max_active: 4, max_attempts: 3, lease_ms: 5000, retry_delay_ms: 100 }],

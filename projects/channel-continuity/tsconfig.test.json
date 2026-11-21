@@ -4,83 +4,32 @@
     "noEmit": true,
     "rootDir": ".",
     "paths": {
-      "@livekit-ecosystem/channel-continuity": [
-        "./src/index.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/postgres": [
-        "./src/postgres.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/security": [
-        "./src/security.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/standalone": [
-        "./src/standalone.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/migrations": [
-        "./src/migrations.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/dispatch": [
-        "./src/dispatch.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/gateway": [
-        "./src/gateway.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/agent-process": [
-        "./src/agent-process.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/routing": [
-        "./src/routing.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/reference-case": [
-        "./src/reference-case.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/confirmation": [
-        "./src/confirmation.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/prompt-registry": [
-        "./src/prompt-registry.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/outbox": [
-        "./src/outbox.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/fake-sms-send": [
-        "./src/fake-sms-send.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/callbacks": [
-        "./src/callbacks.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/idempotent-fake-sms": [
-        "./src/idempotent-fake-sms.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/native": [
-        "./src/native.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/communication": [
-        "./src/communication.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/rehydration": [
-        "./src/rehydration.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/operations": [
-        "./src/operations.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/operations-types": [
-        "./src/operations-types.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/starter": [
-        "./examples/standalone/application.ts"
-      ],
-      "@livekit-ecosystem/channel-continuity/result-receiver": [
-        "./src/result-receiver.ts"
-      ],
+      "@livekit-ecosystem/channel-continuity": ["./src/index.ts"],
+      "@livekit-ecosystem/channel-continuity/postgres": ["./src/postgres.ts"],
+      "@livekit-ecosystem/channel-continuity/security": ["./src/security.ts"],
+      "@livekit-ecosystem/channel-continuity/standalone": ["./src/standalone.ts"],
+      "@livekit-ecosystem/channel-continuity/migrations": ["./src/migrations.ts"],
+      "@livekit-ecosystem/channel-continuity/dispatch": ["./src/dispatch.ts"],
+      "@livekit-ecosystem/channel-continuity/gateway": ["./src/gateway.ts"],
+      "@livekit-ecosystem/channel-continuity/agent-process": ["./src/agent-process.ts"],
+      "@livekit-ecosystem/channel-continuity/routing": ["./src/routing.ts"],
+      "@livekit-ecosystem/channel-continuity/reference-case": ["./src/reference-case.ts"],
+      "@livekit-ecosystem/channel-continuity/confirmation": ["./src/confirmation.ts"],
+      "@livekit-ecosystem/channel-continuity/prompt-registry": ["./src/prompt-registry.ts"],
+      "@livekit-ecosystem/channel-continuity/outbox": ["./src/outbox.ts"],
+      "@livekit-ecosystem/channel-continuity/fake-sms-send": ["./src/fake-sms-send.ts"],
+      "@livekit-ecosystem/channel-continuity/callbacks": ["./src/callbacks.ts"],
+      "@livekit-ecosystem/channel-continuity/idempotent-fake-sms": ["./src/idempotent-fake-sms.ts"],
+      "@livekit-ecosystem/channel-continuity/native": ["./src/native.ts"],
+      "@livekit-ecosystem/channel-continuity/communication": ["./src/communication.ts"],
+      "@livekit-ecosystem/channel-continuity/rehydration": ["./src/rehydration.ts"],
+      "@livekit-ecosystem/channel-continuity/operations": ["./src/operations.ts"],
+      "@livekit-ecosystem/channel-continuity/operations-types": ["./src/operations-types.ts"],
+      "@livekit-ecosystem/channel-continuity/result-receiver": ["./src/result-receiver.ts"],
       "@livekit-ecosystem/channel-continuity/result-receiver-types": [
         "./src/result-receiver-types.ts"
       ]
     }
   },
-  "include": [
-    "src",
-    "tests/*.ts",
-    "examples/*.ts"
-  ]
+  "include": ["src", "tests/*.ts"]
 }

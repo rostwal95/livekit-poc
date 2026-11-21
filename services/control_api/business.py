@@ -2,17 +2,16 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 from collections.abc import Awaitable, Callable
-from datetime import date, timedelta
-from typing import Any, Protocol, TypeVar
+from datetime import date
+from typing import Any, TypeVar
 
 from fastapi import Depends, FastAPI, Query, Request
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 from starlette.responses import JSONResponse
 
-from continuity_lab.authorization import AuthenticatedActor, BearerToken
+from continuity_lab.authorization import BearerToken
 from continuity_lab.case_models import MAX_INTEGER, identity
 from continuity_lab.case_projection import parse_confirmation_payload
 from continuity_lab.conversation_service import (
@@ -22,14 +21,12 @@ from continuity_lab.conversation_service import (
 )
 from continuity_lab.execution_models import ExecutionError
 from continuity_lab.models import BookingChange, IdempotencyConflict, IntakeCapacityExceeded
-from continuity_lab.session_grants import sign_grant
 from continuity_lab.tracing import TraceRuntime
 
 from .telemetry import ApiError
 
 T = TypeVar("T")
 MAX_RESPONSE_BYTES = 65536
-BUSINESS_AGENT_NAME = "local-business-agent"
 
 
 class StrictBusinessModel(BaseModel):
@@ -62,28 +59,6 @@ class SignalCommand(StrictBusinessModel):
 
 class CancelCommand(StrictBusinessModel):
     command_id: str = Field(min_length=1, max_length=128)
-
-
-class BusinessSessionRequest(StrictBusinessModel):
-    invocation_id: str = Field(
-        pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-    )
-    room: str = Field(pattern=r"^business-[a-z0-9][a-z0-9-]{0,39}$")
-    identity: str = Field(pattern=r"^(?:browser|smoke)-[a-z0-9][a-z0-9-]{0,47}$")
-    task_id: str | None = Field(
-        default=None, pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-    )
-    investigation: BusinessInvestigation | None = None
-
-    @model_validator(mode="after")
-    def exactly_one_binding(self) -> BusinessSessionRequest:
-        if (self.task_id is None) == (self.investigation is None):
-            raise ValueError("One bound case or explicitly authorized investigation is required")
-        return self
-
-
-class BusinessDispatchPort(Protocol):
-    async def dispatch(self, room: str, metadata: str) -> None: ...
 
 
 def business_error(error: Exception) -> ApiError:
@@ -150,7 +125,7 @@ def install_business_routes(
         boundary = getattr(request.app.state, "business", None)
         if boundary is None:
             raise ApiError(503, "Business workspace is offline", code="business_unavailable")
-        return boundary, BearerToken(request.app.state.settings.local_access_token)
+        return boundary, request.app.state.operator_token
 
     async def call(
         request: Request, operation: str, action: Callable[[ConversationService, BearerToken], T]
@@ -287,111 +262,3 @@ def install_business_routes(
                 },
             }
         )
-
-    @application.post("/api/business/session", dependencies=protected)
-    async def session(payload: BusinessSessionRequest, request: Request) -> JSONResponse:
-        configured(request)
-        state = request.app.state
-        state.limiter.accept()
-        try:
-            await asyncio.wait_for(state.session_slots.acquire(), timeout=0.05)
-        except TimeoutError:
-            raise ApiError(503, "Session capacity exhausted", code="capacity_exhausted") from None
-        try:
-            if payload.task_id is not None:
-                selected_task = payload.task_id
-                projection = await call(
-                    request,
-                    "get",
-                    lambda service, token: service.get(token=token, task_id=selected_task),
-                )
-                wire = projection.payload()
-                inquiry = wire.get("inquiry")
-                original = inquiry.get("request") if isinstance(inquiry, dict) else None
-                if (
-                    not isinstance(original, dict)
-                    or type(original.get("booking_reference")) is not str
-                    or type(original.get("new_check_in")) is not str
-                    or original.get("confirmed") is not True
-                ):
-                    raise ApiError(
-                        503, "Original investigation is unavailable", code="invalid_stored_state"
-                    )
-                domain = BookingChange(
-                    original["booking_reference"],
-                    date.fromisoformat(original["new_check_in"]),
-                    True,
-                )
-                try:
-                    key = identity(wire.get("request_key"))
-                except ValueError:
-                    raise ApiError(
-                        503, "Original identity is unavailable", code="invalid_stored_state"
-                    ) from None
-            else:
-                assert payload.investigation is not None
-                try:
-                    domain = payload.investigation.domain()
-                except ValueError:
-                    raise ApiError(
-                        422,
-                        "Explicit investigation authorization is required",
-                        code="validation_error",
-                    ) from None
-                key = payload.investigation.idempotency_key
-            actor = AuthenticatedActor(state.settings.business_actor, state.settings.business_scope)
-            metadata = sign_grant(
-                secret=state.settings.livekit_api_secret,
-                actor=actor,
-                room=payload.room,
-                participant=payload.identity,
-                request=domain,
-                request_key=key,
-                task_id=payload.task_id,
-                grant_id=payload.invocation_id,
-            )
-            try:
-                await state.business_backend.dispatch(payload.room, metadata)
-            except ExecutionError as error:
-                if business_error(error).code == "session_in_use":
-                    raise ApiError(
-                        409, "Room has another active conversation", code="session_in_use"
-                    ) from None
-                raise ApiError(
-                    503, "Conversational agent unavailable", code="dispatch_unavailable"
-                ) from None
-            except Exception:  # noqa: BLE001 - dispatcher details/metadata must remain private
-                raise ApiError(
-                    503, "Conversational agent unavailable", code="dispatch_unavailable"
-                ) from None
-            from livekit import api
-
-            token = (
-                api.AccessToken(state.settings.livekit_api_key, state.settings.livekit_api_secret)
-                .with_identity(payload.identity)
-                .with_ttl(timedelta(seconds=300))
-                .with_grants(
-                    api.VideoGrants(
-                        room_join=True,
-                        room=payload.room,
-                        can_publish=True,
-                        can_subscribe=True,
-                        can_publish_data=True,
-                    )
-                )
-                .to_jwt()
-            )
-            return response(
-                {
-                    "url": state.settings.livekit_public_url,
-                    "token": token,
-                    "room": payload.room,
-                    "identity": payload.identity,
-                    "expires_in": 300,
-                    "agent_name": BUSINESS_AGENT_NAME,
-                    "agent_dispatched": True,
-                    "mode": state.settings.conversation_inference_mode,
-                }
-            )
-        finally:
-            state.session_slots.release()

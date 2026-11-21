@@ -8,19 +8,7 @@ import { decodeStoredMessage } from './postgres-records.js';
 import type { FakeSmsIntegration } from './security.js';
 import { NativeStore } from './native-store.js';
 import { isNativeIntegration, type NativeIntegration } from './native-types.js';
-import {
-  DEFINITION_DIGEST,
-  DISPATCH_DEFINITION_DIGEST,
-  OUTBOX_DEFINITION_DIGEST,
-  CALLBACK_DEFINITION_DIGEST,
-  SEND_POLICY_DEFINITION_DIGEST,
-  NATIVE_DEFINITION_DIGEST,
-  COMMUNICATION_DEFINITION_DIGEST,
-  RESULT_RECEIVER_DEFINITION_DIGEST,
-  INDEX_DEFINITION_DIGEST,
-  dispatchLimits,
-  type DispatchLimits,
-} from './migrations.js';
+import { dispatchLimits, type DispatchLimits } from './migrations.js';
 import {
   dispatchUuid,
   parsePreparedDispatch,
@@ -97,25 +85,7 @@ export class DispatchStore {
     try {
       client = await this.#pool.connect();
       await client.query('BEGIN');
-      await validate(
-        client,
-        this.#value,
-        DEFINITION_DIGEST,
-        false,
-        DISPATCH_DEFINITION_DIGEST,
-        OUTBOX_DEFINITION_DIGEST,
-        CALLBACK_DEFINITION_DIGEST,
-        SEND_POLICY_DEFINITION_DIGEST,
-        NATIVE_DEFINITION_DIGEST,
-        COMMUNICATION_DEFINITION_DIGEST,
-        RESULT_RECEIVER_DEFINITION_DIGEST,
-        INDEX_DEFINITION_DIGEST,
-      );
-      const metadata = await client.query(
-        `SELECT version FROM ${this.#q('schema_metadata')} WHERE singleton`,
-      );
-      if (![2, 3, 4, 5, 6, 7, 8, 9].includes(metadata.rows[0]?.version))
-        throw new ChannelError('UpgradeRequired');
+      await validate(client, this.#value);
       if (write) {
         const lock = await client.query(
           `SELECT singleton FROM ${this.#q('admission')} WHERE singleton FOR UPDATE`,

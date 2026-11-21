@@ -11,5 +11,5 @@
   "sample_width_bytes": 2,
   "frames": 63865,
   "duration_seconds": 3.9915625,
-  "canonical_asset": "services/conversation_agent/assets/input-investigate.wav"
+  "canonical_asset": "services/channel_policy_demo/assets/fixtures/input-investigate.wav"
 }

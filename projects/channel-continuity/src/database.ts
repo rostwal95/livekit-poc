@@ -4,9 +4,14 @@ import pg from 'pg';
 import type { PoolClient, PoolConfig, Client } from 'pg';
 import { ChannelError } from './public-types.js';
 import type { DatabaseSettings, ChannelLimits } from './public-types.js';
+import {
+  CHANNEL_SCHEMA_MARKER,
+  CHANNEL_SCHEMA_SQL,
+  CHANNEL_SCHEMA_VERSION,
+} from './channel-schema.js';
 export { ChannelError, DEFAULT_LIMITS } from './public-types.js';
 export type { DatabaseSettings, ChannelLimits, ChannelErrorCode } from './public-types.js';
-export const MARKER = 'p2-channel-schema-v1';
+export const DEFINITION_DIGEST = digest(CHANNEL_SCHEMA_SQL);
 export function identifier(value: unknown): string {
   if (
     typeof value !== 'string' ||
@@ -121,16 +126,7 @@ export async function catalog(client: Connection, schema: string): Promise<unkno
 export async function validate(
   client: Connection,
   value: DatabaseSettings,
-  definition: string,
   owner = false,
-  dispatchDefinition?: string,
-  outboxDefinition?: string,
-  callbackDefinition?: string,
-  sendPolicyDefinition?: string,
-  nativeDefinition?: string,
-  communicationDefinition?: string,
-  resultReceiverDefinition?: string,
-  indexDefinition?: string,
 ): Promise<ChannelLimits> {
   const role =
     await client.query(`SELECT current_user AS name,rolsuper,rolcreatedb,rolcreaterole,rolreplication,rolbypassrls,
@@ -202,21 +198,10 @@ export async function validate(
   const row = meta.rows[0];
   if (
     meta.rows.length !== 1 ||
-    ![1, 2, 3, 4, 5, 6, 7, 8, 9].includes(row.version) ||
+    row.version !== CHANNEL_SCHEMA_VERSION ||
     row.runtime_role !== 'livekit_lab' ||
-    row.definition_digest !==
-      [
-        definition,
-        dispatchDefinition,
-        outboxDefinition,
-        callbackDefinition,
-        sendPolicyDefinition,
-        nativeDefinition,
-        communicationDefinition,
-        resultReceiverDefinition,
-        indexDefinition,
-      ][row.version - 1] ||
-    row.marker !== (row.version === 1 ? MARKER : 'p2-channel-schema-v' + row.version)
+    row.definition_digest !== DEFINITION_DIGEST ||
+    row.marker !== CHANNEL_SCHEMA_MARKER
   )
     throw new ChannelError('SchemaMismatch');
   if (JSON.stringify(current) !== JSON.stringify(row.catalog_snapshot))

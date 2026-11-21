@@ -22,6 +22,10 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: ['127.0.0.1'],
     proxy: {
+      '/api/business/': {
+        target: 'http://127.0.0.1:18080',
+        changeOrigin: true,
+      },
       '/v1/channel-policy-demo/': {
         target: 'http://127.0.0.1:11033',
         changeOrigin: true,
@@ -39,6 +43,7 @@ export default defineConfig({
       input: {
         showcase: resolve(import.meta.dirname, 'channel-policy.html'),
         landing: resolve(import.meta.dirname, 'landing.html'),
+        operator: resolve(import.meta.dirname, 'operator.html'),
       },
     },
   },

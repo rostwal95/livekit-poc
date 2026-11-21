@@ -10,12 +10,8 @@ import { ChannelDispatcher, type DispatchPorts } from '../src/dispatch.js';
 import { createFakeSmsIntegration } from '../src/security.js';
 import { createNativeIntegration } from '../src/native.js';
 import { createCommunicationIntegration } from '../src/communication.js';
-import {
-  DEFINITION_DIGEST,
-  SEND_POLICY_DEFINITION_DIGEST,
-  NATIVE_DEFINITION_DIGEST,
-  COMMUNICATION_DEFINITION_DIGEST,
-} from '../src/migrations.js';
+import { DEFINITION_DIGEST } from '../src/database.js';
+import { CHANNEL_SCHEMA_MARKER, CHANNEL_SCHEMA_VERSION } from '../src/channel-schema.js';
 
 const pgBoundary = vi.hoisted(() => ({
   query: vi.fn(),
@@ -42,8 +38,8 @@ const scope = { tenantId: 'native-tenant', accountId: 'native-account' };
 const token = 'a'.repeat(43);
 const now = new Date('2030-01-01T00:00:00.000Z');
 const sha = (value: string) => createHash('sha256').update(value).digest('hex');
-function fixture(version: 1 | 5 | 6 | 7 = 6) {
-  const native = version >= 6;
+function fixture(mode: 'sms' | 'native' | 'communication' = 'native') {
+  const native = mode !== 'sms';
   const provider = {
     tenantId: scope.tenantId,
     provider: native ? 'livekit' : 'fake_sms',
@@ -69,16 +65,9 @@ function fixture(version: 1 | 5 | 6 | 7 = 6) {
   );
   assert.equal(produced.event.type, 'text.received');
   const state = {
-    version: version as unknown,
-    marker: 'p2-channel-schema-v' + version,
-    definition:
-      version === 7
-        ? COMMUNICATION_DEFINITION_DIGEST
-        : version === 6
-          ? NATIVE_DEFINITION_DIGEST
-          : version === 5
-            ? SEND_POLICY_DEFINITION_DIGEST
-            : DEFINITION_DIGEST,
+    version: CHANNEL_SCHEMA_VERSION as unknown,
+    marker: CHANNEL_SCHEMA_MARKER,
+    definition: DEFINITION_DIGEST,
     unsafeAcl: false,
     maxInbox: 16,
     metadataRows: 1,
@@ -207,7 +196,6 @@ function fixture(version: 1 | 5 | 6 | 7 = 6) {
           marker: state.marker,
         })),
       );
-    if (sql.includes('SELECT version FROM')) return result([{ version: state.version }]);
     if (sql.includes('SELECT singleton FROM')) return result([{ singleton: true }]);
     if (sql.includes('SELECT max_active,max_attempts'))
       return result([{ max_active: 2, max_attempts: 3, lease_ms: 5000, retry_delay_ms: 20 }]);
@@ -313,7 +301,7 @@ function fixture(version: 1 | 5 | 6 | 7 = 6) {
       ])
     : createFakeSmsIntegration(provider, Buffer.alloc(32, 1));
   const configured =
-    version === 7
+    mode === 'communication'
       ? createCommunicationIntegration(integration as ReturnType<typeof createNativeIntegration>, [
           {
             scope,
@@ -356,31 +344,26 @@ beforeEach(() => {
   for (const fn of Object.values(pgBoundary)) fn.mockReset();
   pgBoundary.end.mockResolvedValue(undefined);
 });
-for (const version of [5, 6, 7] as const) {
+for (const mode of ['sms', 'native', 'communication'] as const) {
+  test(mode + ' dispatcher validates the baseline and reads persisted eligibility', async () => {
+    const f = fixture(mode);
+    try {
+      assert.deepEqual(await f.dispatcher.eligible(token, 1), [f.receiptId]);
+      assert.ok(
+        f.calls.findIndex((q) => q.includes("c.relname='schema_metadata'")) <
+          f.calls.findIndex((q) => q.includes('SELECT m.singleton,m.version')),
+      );
+      assert.ok(f.calls.some((q) => q.includes('SELECT jsonb_build_object(')));
+      assert.equal(f.observed.accept, 0);
+    } finally {
+      await f.dispatcher.close();
+    }
+    assert.equal(pgBoundary.end.mock.calls.length, 1);
+  });
   test(
-    'public dispatcher validates schema v' + version + ' and reads useful persisted eligibility',
+    mode + ' dispatch commits one original operation and replays without new generation',
     async () => {
-      const f = fixture(version);
-      try {
-        assert.deepEqual(await f.dispatcher.eligible(token, 1), [f.receiptId]);
-        assert.ok(
-          f.calls.findIndex((q) => q.includes("c.relname='schema_metadata'")) <
-            f.calls.findIndex((q) => q.includes('SELECT m.singleton,m.version')),
-        );
-        assert.ok(f.calls.some((q) => q.includes('SELECT jsonb_build_object(')));
-        assert.equal(f.observed.accept, 0);
-      } finally {
-        await f.dispatcher.close();
-      }
-      assert.equal(pgBoundary.end.mock.calls.length, 1);
-    },
-  );
-  test(
-    'real store v' +
-      version +
-      ' dispatch commits one original operation and replays without new generation',
-    async () => {
-      const f = fixture(version);
+      const f = fixture(mode);
       try {
         assert.deepEqual(await f.dispatcher.step(token, f.receiptId), {
           status: 'dispatched',
@@ -409,11 +392,11 @@ for (const change of [
   'invalid_limit',
   'duplicate_metadata',
 ] as const) {
-  test('genuine v6 validate rejects ' + change + ' before dispatch or external ports', async () => {
+  test('channel baseline rejects ' + change + ' before dispatch or external ports', async () => {
     const f = fixture();
-    if (change === 'string_version') f.state.version = '6';
-    if (change === 'future_version') f.state.version = 8;
-    if (change === 'wrong_digest') f.state.definition = DEFINITION_DIGEST;
+    if (change === 'string_version') f.state.version = '1';
+    if (change === 'future_version') f.state.version = 2;
+    if (change === 'wrong_digest') f.state.definition = '0'.repeat(64);
     if (change === 'wrong_marker') f.state.marker = 'p2-channel-schema-v5';
     if (change === 'catalog_drift') f.state.savedCatalog = { unit_catalog_identity: 'different' };
     if (change === 'unsafe_metadata_acl') f.state.unsafeAcl = true;
@@ -435,7 +418,7 @@ for (const change of [
   });
 }
 for (const kind of ['expired', 'revoked'] as const)
-  test('v6 ' + kind + ' binding blocks a new dispatch through the real native guard', async () => {
+  test(kind + ' binding blocks a new dispatch through the real native guard', async () => {
     const f = fixture();
     if (kind === 'expired') {
       f.binding.expires_at = now;
@@ -448,7 +431,7 @@ for (const kind of ['expired', 'revoked'] as const)
       await f.dispatcher.close();
     }
   });
-test('v6 revoked binding parks possible external input outside automatic eligibility', async () => {
+test('revoked binding parks possible external input outside automatic eligibility', async () => {
   const f = fixture();
   Object.assign(f.row, {
     state: 'uncertain',
@@ -472,28 +455,3 @@ test('v6 revoked binding parks possible external input outside automatic eligibi
     await f.dispatcher.close();
   }
 });
-test('valid intake-only schema v1 remains upgrade-required for dispatch', async () => {
-  const f = fixture(1);
-  try {
-    await assert.rejects(() => f.dispatcher.eligible(token, 1), { code: 'UpgradeRequired' });
-    assert.deepEqual(f.observed, { agent: 0, accept: 0, lookup: 0 });
-  } finally {
-    await f.dispatcher.close();
-  }
-});
-
-for (const kind of ['communication_digest', 'communication_marker'] as const) {
-  test('genuine v7 validate rejects malformed ' + kind + ' before useful ports', async () => {
-    const f = fixture(7);
-    if (kind === 'communication_digest') f.state.definition = NATIVE_DEFINITION_DIGEST;
-    else f.state.marker = 'p2-channel-schema-v6';
-    try {
-      await assert.rejects(() => f.dispatcher.eligible(token, 1), { code: 'SchemaMismatch' });
-      await assert.rejects(() => f.dispatcher.step(token, f.receiptId), { code: 'SchemaMismatch' });
-      assert.deepEqual(f.observed, { agent: 0, accept: 0, lookup: 0 });
-      assert.ok(f.calls.includes('ROLLBACK'));
-    } finally {
-      await f.dispatcher.close();
-    }
-  });
-}

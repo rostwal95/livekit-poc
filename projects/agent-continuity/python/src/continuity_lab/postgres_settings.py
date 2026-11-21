@@ -19,7 +19,6 @@ _APPLICATION_NAMES = frozenset(
     {
         "continuity-runtime",
         "continuity-migrate",
-        "continuity-cutover",
         "continuity-test",
     }
 )

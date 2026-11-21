@@ -2,17 +2,6 @@
 import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import { ChannelError, PgPool, watchPool, config, settings, table, validate } from './database.js';
-import {
-  DEFINITION_DIGEST,
-  DISPATCH_DEFINITION_DIGEST,
-  OUTBOX_DEFINITION_DIGEST,
-  CALLBACK_DEFINITION_DIGEST,
-  SEND_POLICY_DEFINITION_DIGEST,
-  NATIVE_DEFINITION_DIGEST,
-  COMMUNICATION_DEFINITION_DIGEST,
-  RESULT_RECEIVER_DEFINITION_DIGEST,
-  INDEX_DEFINITION_DIGEST,
-} from './migrations.js';
 import { SeededAccounts } from './postgres.js';
 import type { DatabaseSettings } from './public-types.js';
 import type { FakeSmsIntegration } from './security.js';
@@ -92,7 +81,6 @@ type Tx = {
   bounds: OutboxLimits;
   receiverId: string;
   signal: AbortSignal;
-  version: number;
 };
 export type Reservation = { request: SendRequest } | { result: SendOutcome };
 export class OutboxStore {
@@ -273,33 +261,7 @@ export class OutboxStore {
       client = await this.#pool.connect();
       await client.query(write ? 'BEGIN' : 'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
       began = true;
-      await validate(
-        client,
-        this.#database,
-        DEFINITION_DIGEST,
-        false,
-        DISPATCH_DEFINITION_DIGEST,
-        OUTBOX_DEFINITION_DIGEST,
-        CALLBACK_DEFINITION_DIGEST,
-        SEND_POLICY_DEFINITION_DIGEST,
-        NATIVE_DEFINITION_DIGEST,
-        COMMUNICATION_DEFINITION_DIGEST,
-        RESULT_RECEIVER_DEFINITION_DIGEST,
-        INDEX_DEFINITION_DIGEST,
-      );
-      const version = (
-        await client.query(`SELECT version FROM ${this.#q('schema_metadata')} WHERE singleton`)
-      ).rows[0]?.version;
-      if (
-        version !== 3 &&
-        version !== 4 &&
-        version !== 5 &&
-        version !== 6 &&
-        version !== 7 &&
-        version !== 8 &&
-        version !== 9
-      )
-        throw new OutboxError('UpgradeRequired');
+      await validate(client, this.#database);
       if (write) {
         const guard = await client.query(
           `SELECT singleton FROM ${this.#q('admission')} WHERE singleton FOR UPDATE`,
@@ -318,7 +280,7 @@ export class OutboxStore {
         }),
         receiverId = uuid(p.receiver_id);
       if (isAborted(signal)) throw new OutboxError('Unavailable');
-      const result = await action({ client, bounds, receiverId, signal, version });
+      const result = await action({ client, bounds, receiverId, signal });
       if (isAborted(signal)) throw new OutboxError('Unavailable');
       committing = write;
       await client.query('COMMIT');
@@ -363,7 +325,7 @@ export class OutboxStore {
     );
     if (counts.rows[0]?.replies !== row.reply_count || counts.rows[0]?.routes !== row.route_count)
       throw new OutboxError('Unavailable');
-    if (tx.version >= 5) await this.#policy.policy(tx.client, true);
+    await this.#policy.policy(tx.client, true);
     return row as { reply_count: number; route_count: number };
   }
   async #growth(tx: Tx, kind: 'reply' | 'route'): Promise<void> {
@@ -505,7 +467,6 @@ export class OutboxStore {
     return ref;
   }
   #resultVersion(tx: Tx, receiverId: string): void {
-    if (tx.version < 8) throw new OutboxError('UpgradeRequired');
     if (tx.receiverId !== receiverId) throw new OutboxError('IdentityConflict');
   }
   async #resultWithin(
@@ -889,12 +850,7 @@ export class OutboxStore {
               : carrierResult(JSON.parse(x.canonical_result), request);
           if (
             (x.canonical_result === null) !== (x.observed_at === null) ||
-            (result !== null && JSON.stringify(result) !== x.canonical_result) ||
-            (tx.version < 5 &&
-              i > 0 &&
-              rows.rows[i - 1].canonical_result !== null &&
-              JSON.parse(rows.rows[i - 1].canonical_result).status !== 'definitive_not_accepted') ||
-            (tx.version < 5 && i > 0 && rows.rows[i - 1].canonical_result === null)
+            (result !== null && JSON.stringify(result) !== x.canonical_result)
           )
             throw new Error();
           return Object.freeze({
@@ -909,44 +865,41 @@ export class OutboxStore {
         }
       }),
     );
-    if (tx.version >= 5) {
-      const seen = new Set<string>();
-      const ref = recipient({
-        scope: reply.scope,
-        caseId: reply.caseId,
-        conversationId: reply.conversationId,
-      });
-      for (let index = 0; index < attempts.length; index++) {
-        const current = attempts[index]!.request,
-          { operation: op, firstAttemptId } = await this.#policy.loadOperation(
-            tx.client,
-            current.providerOperationKey,
-            ref,
-          );
-        if (JSON.stringify(operationFrom(current, op.capability)) !== JSON.stringify(op))
-          throw new OutboxError('Unavailable');
-        if (firstAttemptId === current.attemptId) {
-          if (seen.has(op.providerOperationKey)) throw new OutboxError('Unavailable');
-          if (index > 0) {
-            const previous = attempts[index - 1]!.request,
-              proofRow = (
-                await tx.client.query(
-                  `SELECT admission_proof FROM ${this.#q('send_operations')} WHERE provider_operation_key=$1`,
-                  [op.providerOperationKey],
-                )
-              ).rows[0];
-            if (
-              !proofRow ||
-              JSON.parse(proofRow.admission_proof).predecessorAttemptId !== previous.attemptId
-            )
-              throw new OutboxError('Unavailable');
-          }
-          seen.add(op.providerOperationKey);
-        } else {
-          if (index === 0 || !seen.has(op.providerOperationKey))
+    const seen = new Set<string>();
+    const ref = recipient({
+      scope: reply.scope,
+      caseId: reply.caseId,
+      conversationId: reply.conversationId,
+    });
+    for (let index = 0; index < attempts.length; index++) {
+      const current = attempts[index]!.request,
+        { operation: op, firstAttemptId } = await this.#policy.loadOperation(
+          tx.client,
+          current.providerOperationKey,
+          ref,
+        );
+      if (JSON.stringify(operationFrom(current, op.capability)) !== JSON.stringify(op))
+        throw new OutboxError('Unavailable');
+      if (firstAttemptId === current.attemptId) {
+        if (seen.has(op.providerOperationKey)) throw new OutboxError('Unavailable');
+        if (index > 0) {
+          const previous = attempts[index - 1]!.request,
+            proofRow = (
+              await tx.client.query(
+                `SELECT admission_proof FROM ${this.#q('send_operations')} WHERE provider_operation_key=$1`,
+                [op.providerOperationKey],
+              )
+            ).rows[0];
+          if (
+            !proofRow ||
+            JSON.parse(proofRow.admission_proof).predecessorAttemptId !== previous.attemptId
+          )
             throw new OutboxError('Unavailable');
-          await this.#policy.validateRetry(tx.client, current, attempts[index - 1]!.request, op);
         }
+        seen.add(op.providerOperationKey);
+      } else {
+        if (index === 0 || !seen.has(op.providerOperationKey)) throw new OutboxError('Unavailable');
+        await this.#policy.validateRetry(tx.client, current, attempts[index - 1]!.request, op);
       }
     }
     return attempts;
@@ -980,15 +933,8 @@ export class OutboxStore {
     if (!Number.isSafeInteger(limit) || limit < 1 || limit > 32)
       throw new OutboxError('InvalidCommand');
     return this.#run(false, signal, async (tx) => {
-      if (tx.version >= 5) {
-        const rows = await tx.client.query(
-          `SELECT i.outbound_id FROM ${this.#q('reply_intents')} i WHERE i.tenant_id=$1 AND i.account_id=$2 AND i.conversation_id=$3 AND i.case_id=$4 AND NOT EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} pa JOIN ${this.#q('send_results')} pr USING(attempt_id) WHERE pa.tenant_id=i.tenant_id AND pa.account_id=i.account_id AND pa.outbound_id=i.outbound_id AND pr.canonical_result::jsonb->>'status'='accepted_by_provider') AND NOT EXISTS(SELECT 1 FROM ${this.#q('send_recovery_commands')} pc JOIN ${this.#q('send_recovery_observations')} po USING(command_id) WHERE pc.tenant_id=i.tenant_id AND pc.account_id=i.account_id AND pc.outbound_id=i.outbound_id AND (po.canonical_observation::jsonb->>'state'='accepted_by_provider' OR po.canonical_observation::jsonb->>'assessment'='conflicted')) AND NOT EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} ca JOIN ${this.#q('callback_observations')} cb USING(attempt_id) WHERE ca.tenant_id=i.tenant_id AND ca.account_id=i.account_id AND ca.outbound_id=i.outbound_id) AND (NOT EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} a WHERE a.tenant_id=i.tenant_id AND a.account_id=i.account_id AND a.outbound_id=i.outbound_id) OR ((SELECT count(*) FROM ${this.#q('send_attempts')} a WHERE a.tenant_id=i.tenant_id AND a.account_id=i.account_id AND a.outbound_id=i.outbound_id)<$5 AND EXISTS(SELECT 1 FROM ${this.#q('send_operations')} op WHERE op.provider_operation_key=(SELECT a.provider_operation_key FROM ${this.#q('send_attempts')} a WHERE a.tenant_id=i.tenant_id AND a.account_id=i.account_id AND a.outbound_id=i.outbound_id ORDER BY ordinal DESC LIMIT 1) AND (EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} a JOIN ${this.#q('send_results')} r USING(attempt_id) WHERE a.provider_operation_key=op.provider_operation_key AND r.canonical_result::jsonb->>'status'='definitive_not_accepted') OR EXISTS(SELECT 1 FROM ${this.#q('send_recovery_commands')} c JOIN ${this.#q('send_recovery_observations')} r USING(command_id) WHERE c.provider_operation_key=op.provider_operation_key AND r.canonical_observation::jsonb->>'state'='definitive_not_accepted')) AND NOT EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} a JOIN ${this.#q('send_results')} r USING(attempt_id) WHERE a.provider_operation_key=op.provider_operation_key AND r.canonical_result::jsonb->>'status'='accepted_by_provider') AND NOT EXISTS(SELECT 1 FROM ${this.#q('send_recovery_commands')} c JOIN ${this.#q('send_recovery_observations')} r USING(command_id) WHERE c.provider_operation_key=op.provider_operation_key AND (r.canonical_observation::jsonb->>'state'='accepted_by_provider' OR r.canonical_observation::jsonb->>'assessment'='conflicted'))))) ORDER BY i.accepted_at,i.outbound_id LIMIT $6`,
-          [...this.#args(ref), tx.bounds.maxAttempts, limit],
-        );
-        return Object.freeze(rows.rows.map((x) => uuid(x.outbound_id)));
-      }
       const rows = await tx.client.query(
-        `SELECT i.outbound_id FROM ${this.#q('reply_intents')} i WHERE i.tenant_id=$1 AND i.account_id=$2 AND i.conversation_id=$3 AND i.case_id=$4 AND ${tx.version >= 4 ? `NOT EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} ca JOIN ${this.#q('callback_observations')} co USING(attempt_id) WHERE ca.tenant_id=i.tenant_id AND ca.account_id=i.account_id AND ca.outbound_id=i.outbound_id) AND ` : ''}(NOT EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} a WHERE a.tenant_id=i.tenant_id AND a.account_id=i.account_id AND a.outbound_id=i.outbound_id) OR ((SELECT count(*) FROM ${this.#q('send_attempts')} a WHERE a.tenant_id=i.tenant_id AND a.account_id=i.account_id AND a.outbound_id=i.outbound_id)<$5 AND NOT EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} a LEFT JOIN ${this.#q('send_results')} r USING(attempt_id) WHERE a.tenant_id=i.tenant_id AND a.account_id=i.account_id AND a.outbound_id=i.outbound_id AND (r.attempt_id IS NULL OR r.canonical_result::jsonb->>'status'<>'definitive_not_accepted')))) ORDER BY i.accepted_at,i.outbound_id LIMIT $6`,
+        `SELECT i.outbound_id FROM ${this.#q('reply_intents')} i WHERE i.tenant_id=$1 AND i.account_id=$2 AND i.conversation_id=$3 AND i.case_id=$4 AND NOT EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} pa JOIN ${this.#q('send_results')} pr USING(attempt_id) WHERE pa.tenant_id=i.tenant_id AND pa.account_id=i.account_id AND pa.outbound_id=i.outbound_id AND pr.canonical_result::jsonb->>'status'='accepted_by_provider') AND NOT EXISTS(SELECT 1 FROM ${this.#q('send_recovery_commands')} pc JOIN ${this.#q('send_recovery_observations')} po USING(command_id) WHERE pc.tenant_id=i.tenant_id AND pc.account_id=i.account_id AND pc.outbound_id=i.outbound_id AND (po.canonical_observation::jsonb->>'state'='accepted_by_provider' OR po.canonical_observation::jsonb->>'assessment'='conflicted')) AND NOT EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} ca JOIN ${this.#q('callback_observations')} cb USING(attempt_id) WHERE ca.tenant_id=i.tenant_id AND ca.account_id=i.account_id AND ca.outbound_id=i.outbound_id) AND (NOT EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} a WHERE a.tenant_id=i.tenant_id AND a.account_id=i.account_id AND a.outbound_id=i.outbound_id) OR ((SELECT count(*) FROM ${this.#q('send_attempts')} a WHERE a.tenant_id=i.tenant_id AND a.account_id=i.account_id AND a.outbound_id=i.outbound_id)<$5 AND EXISTS(SELECT 1 FROM ${this.#q('send_operations')} op WHERE op.provider_operation_key=(SELECT a.provider_operation_key FROM ${this.#q('send_attempts')} a WHERE a.tenant_id=i.tenant_id AND a.account_id=i.account_id AND a.outbound_id=i.outbound_id ORDER BY ordinal DESC LIMIT 1) AND (EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} a JOIN ${this.#q('send_results')} r USING(attempt_id) WHERE a.provider_operation_key=op.provider_operation_key AND r.canonical_result::jsonb->>'status'='definitive_not_accepted') OR EXISTS(SELECT 1 FROM ${this.#q('send_recovery_commands')} c JOIN ${this.#q('send_recovery_observations')} r USING(command_id) WHERE c.provider_operation_key=op.provider_operation_key AND r.canonical_observation::jsonb->>'state'='definitive_not_accepted')) AND NOT EXISTS(SELECT 1 FROM ${this.#q('send_attempts')} a JOIN ${this.#q('send_results')} r USING(attempt_id) WHERE a.provider_operation_key=op.provider_operation_key AND r.canonical_result::jsonb->>'status'='accepted_by_provider') AND NOT EXISTS(SELECT 1 FROM ${this.#q('send_recovery_commands')} c JOIN ${this.#q('send_recovery_observations')} r USING(command_id) WHERE c.provider_operation_key=op.provider_operation_key AND (r.canonical_observation::jsonb->>'state'='accepted_by_provider' OR r.canonical_observation::jsonb->>'assessment'='conflicted'))))) ORDER BY i.accepted_at,i.outbound_id LIMIT $6`,
         [...this.#args(ref), tx.bounds.maxAttempts, limit],
       );
       return Object.freeze(rows.rows.map((x) => uuid(x.outbound_id)));
@@ -1020,7 +966,7 @@ export class OutboxStore {
       const { reply } = await this.#reply(tx, ref, key),
         attempts = await this.#attempts(tx, reply);
       let state = this.#state(attempts, tx.bounds.maxAttempts);
-      if (tx.version >= 5 && attempts.length) {
+      if (attempts.length) {
         const { operation: op } = await this.#policy.loadOperation(
             tx.client,
             attempts.at(-1)!.request.providerOperationKey,
@@ -1047,7 +993,6 @@ export class OutboxStore {
           }),
         };
       if (
-        tx.version >= 5 &&
         attempts.length &&
         (await this.#priorOperationVeto(
           tx,
@@ -1063,23 +1008,19 @@ export class OutboxStore {
             attemptId: attempts.at(-1)!.request.attemptId,
           }),
         };
-      if (mode === 'idempotent_fake_sms_v1' && tx.version < 5)
-        throw new OutboxError('UpgradeRequired');
       await this.#counts(tx);
-      if (tx.version >= 4) {
-        const callbacks = await tx.client.query(
-          `SELECT 1 FROM ${this.#q('send_attempts')} a JOIN ${this.#q('callback_observations')} c USING(attempt_id) WHERE a.tenant_id=$1 AND a.account_id=$2 AND a.outbound_id=$3 LIMIT 1`,
-          [ref.scope.tenantId, ref.scope.accountId, key],
-        );
-        if (callbacks.rowCount)
-          return {
-            result: Object.freeze({
-              status: 'unknown',
-              outboundId: key,
-              attemptId: attempts.at(-1)?.request.attemptId ?? null,
-            }),
-          };
-      }
+      const callbacks = await tx.client.query(
+        `SELECT 1 FROM ${this.#q('send_attempts')} a JOIN ${this.#q('callback_observations')} c USING(attempt_id) WHERE a.tenant_id=$1 AND a.account_id=$2 AND a.outbound_id=$3 LIMIT 1`,
+        [ref.scope.tenantId, ref.scope.accountId, key],
+      );
+      if (callbacks.rowCount)
+        return {
+          result: Object.freeze({
+            status: 'unknown',
+            outboundId: key,
+            attemptId: attempts.at(-1)?.request.attemptId ?? null,
+          }),
+        };
       const current = await this.#route(tx, ref),
         held = (reason: 'route_missing' | 'association_required' | 'suppressed'): Reservation => ({
           result: Object.freeze({ status: 'held', reason, outboundId: key }),
@@ -1098,13 +1039,12 @@ export class OutboxStore {
           routeVersion: current.version,
         }),
         canonical = JSON.stringify(request);
-      if (tx.version >= 5)
-        await this.#policy.createOperation(
-          tx.client,
-          request,
-          mode,
-          await this.#policy.admissionFor(tx.client, attempts.at(-1)?.request, ref),
-        );
+      await this.#policy.createOperation(
+        tx.client,
+        request,
+        mode,
+        await this.#policy.admissionFor(tx.client, attempts.at(-1)?.request, ref),
+      );
       await tx.client.query(
         `INSERT INTO ${this.#q('send_attempts')} VALUES($1,$2,$3,$4,$5,$6,$7,$8,clock_timestamp())`,
         [
@@ -1167,7 +1107,6 @@ export class OutboxStore {
     const ref = controller ? this.#controller(token) : this.#account(token),
       key = uuid(commandId);
     return this.#run(false, signal, async (tx) => {
-      if (tx.version < 5) throw new OutboxError('UpgradeRequired');
       return this.#policy.command(tx.client, key, ref);
     });
   }
@@ -1179,7 +1118,6 @@ export class OutboxStore {
     const ref = this.#account(token),
       key = uuid(outboundId);
     return this.#run(false, signal, async (tx) => {
-      if (tx.version < 5) throw new OutboxError('UpgradeRequired');
       const { reply } = await this.#reply(tx, ref, key),
         attempts = await this.#attempts(tx, reply),
         keys = [...new Set(attempts.map((x) => x.request.providerOperationKey))],
@@ -1225,7 +1163,6 @@ export class OutboxStore {
       outbound = uuid(outboundId),
       attempt = uuid(sourceAttemptId);
     return this.#run(true, signal, async (tx) => {
-      if (tx.version < 5) throw new OutboxError('UpgradeRequired');
       const original = await this.#policy.command(tx.client, key, ref);
       if (original) {
         this.#policy.match(original, kind, outbound, attempt);
@@ -1370,7 +1307,6 @@ export class OutboxStore {
             }),
       ref = recipient({ scope: op.scope, caseId: op.caseId, conversationId: op.conversationId });
     return this.#record(async (tx) => {
-      if (tx.version < 5) throw new OutboxError('UpgradeRequired');
       const current = await this.#policy.command(tx.client, receipt.commandId, ref);
       if (!current || JSON.stringify(current.receipt) !== JSON.stringify(receipt))
         throw new OutboxError('IdentityConflict');

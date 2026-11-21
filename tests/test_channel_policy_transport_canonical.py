@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import base64
-import importlib.util
 import json
 import subprocess
 import sys
@@ -13,47 +12,16 @@ from pathlib import Path
 
 from continuity_lab.delivery_api import DeliveryIntent, DeliveryReceipt
 from continuity_lab.work_api import WorkScope
-from services.channel_policy_demo import case_bridge, result_receiver
+from services.channel_policy_demo import result_receiver
 
 ROOT = Path(__file__).resolve().parents[1]
 TOKEN = "q" * 43
 
 
-def legacy(name):
-    spec = importlib.util.spec_from_file_location(
-        "canonical_transport_identity_" + name, ROOT / "local-setup/scripts" / (name + ".py")
-    )
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    try:
-        spec.loader.exec_module(module)
-        return module
-    finally:
-        sys.modules.pop(spec.name, None)
-
-
 class CanonicalTransportTests(unittest.TestCase):
-    def test_case_bridge_compatibility_exports_share_one_canonical_identity(self):
-        wrapper = legacy("p2_current_case_bridge")
-        for name in wrapper.__all__:
-            with self.subTest(name=name):
-                self.assertIs(getattr(wrapper, name), getattr(case_bridge, name))
-        self.assertIs(wrapper.CurrentCaseBridge, case_bridge.CurrentCaseBridge)
-        self.assertIs(wrapper.asyncio, asyncio)
-
-    def test_result_receiver_compatibility_exports_share_one_canonical_identity(self):
-        wrapper = legacy("p3_channel_receiver")
-        for name in wrapper.__all__:
-            with self.subTest(name=name):
-                self.assertIs(getattr(wrapper, name), getattr(result_receiver, name))
-        self.assertIs(wrapper.ChannelResultReceiver, result_receiver.ChannelResultReceiver)
-        self.assertIs(wrapper.receipt_from, result_receiver.receipt_from)
-
-    def inert(self, canonical, wrapper):
+    def inert(self, canonical):
         code = """
-import asyncio, importlib, importlib.util, logging, os, socket, subprocess, sys
-from pathlib import Path
+import asyncio, importlib, logging, os, socket, subprocess, sys
 from unittest.mock import patch
 import aiohttp, h11
 from continuity_lab.api import BookingChange, ExecutionCapacityExceeded, ExecutionNotFound
@@ -71,12 +39,7 @@ with (
     patch.object(os, "getenv", side_effect=AssertionError("environment")),
     patch.object(logging, "basicConfig", side_effect=AssertionError("logging")),
 ):
-    canonical = importlib.import_module(sys.argv[1])
-    spec = importlib.util.spec_from_file_location("cold_compatibility_probe", Path(sys.argv[2]))
-    wrapper = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = wrapper
-    spec.loader.exec_module(wrapper)
-    assert all(getattr(wrapper, name) is getattr(canonical, name) for name in wrapper.__all__)
+    importlib.import_module(sys.argv[1])
 print("inert")
 """
         completed = subprocess.run(
@@ -86,7 +49,6 @@ print("inert")
                 "-c",
                 code,
                 canonical,
-                str(ROOT / "local-setup/scripts" / wrapper),
             ],
             cwd=ROOT,
             capture_output=True,
@@ -96,11 +58,11 @@ print("inert")
         )
         self.assertEqual((completed.returncode, completed.stdout), (0, "inert\n"), completed.stderr)
 
-    def test_case_bridge_and_compatibility_imports_are_inert_in_a_cold_interpreter(self):
-        self.inert("services.channel_policy_demo.case_bridge", "p2_current_case_bridge.py")
+    def test_case_bridge_import_is_inert_in_a_cold_interpreter(self):
+        self.inert("services.channel_policy_demo.case_bridge")
 
-    def test_result_receiver_and_compatibility_imports_are_inert_in_a_cold_interpreter(self):
-        self.inert("services.channel_policy_demo.result_receiver", "p3_channel_receiver.py")
+    def test_result_receiver_import_is_inert_in_a_cold_interpreter(self):
+        self.inert("services.channel_policy_demo.result_receiver")
 
 
 class ReceiverWireTests(unittest.IsolatedAsyncioTestCase):

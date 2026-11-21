@@ -1,1 +1,0 @@
-document.getElementById('filter').addEventListener('input',event=>{const term=event.target.value.trim().toLowerCase();document.querySelectorAll('.course').forEach(row=>row.classList.toggle('hidden',!row.textContent.toLowerCase().includes(term)));});

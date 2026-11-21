@@ -34,8 +34,6 @@ from .current_result import (
 from .current_result_http import CurrentResultEndpoint, RoomCurrentResultHttp
 from .current_result_producer import NativeResultReadPort
 from .native_models import ScriptedModelProfile
-from .native_provider_models import PROVIDER_ENVIRONMENT_KEYS
-from .native_provider_models import provider_environment as provider_keys
 from .native_room_admin import LiveKitAdminSettings, LiveKitRoomAdmin, RoomPresence
 from .native_room_state import (
     MAX_GENERATION,
@@ -288,9 +286,7 @@ def _host(
 
 
 def _worker(python: Path, config: Path, environment: Mapping[str, str]) -> WorkerPort:
-    base = {k: v for k, v in environment.items() if k not in PROVIDER_ENVIRONMENT_KEYS}
-    provider = {k: v for k, v in environment.items() if k in PROVIDER_ENVIRONMENT_KEYS}
-    return NativeWorkerProcess(python, config, base, provider_environment=provider or None)
+    return NativeWorkerProcess(python, config, environment)
 
 
 @dataclass(frozen=True, slots=True)
@@ -385,7 +381,6 @@ class NativeRoomOwner:
         startup_timeout_s: float = 15,
         cleanup_timeout_s: float = 30,
         ports: NativeRoomPorts | None = None,
-        provider_environment: Mapping[str, str] | None = None,
     ) -> None:
         try:
             _need(
@@ -430,12 +425,7 @@ class NativeRoomOwner:
             )
             self._directory, self._python = directory, python_executable
             self._environment = _base(base_environment)
-            # Keys exist only for the explicit provider_real route, and only the
-            # native worker child receives them.
-            _need((route.inference_mode == "provider_real") == (provider_environment is not None))
-            self._provider: dict[str, str] = (
-                {} if provider_environment is None else provider_keys(provider_environment)
-            )
+            _need(route.inference_mode == "scripted")
             for value, maximum in ((startup_timeout_s, 15), (cleanup_timeout_s, 30)):
                 _need(
                     type(value) in (int, float)
@@ -756,7 +746,7 @@ class NativeRoomOwner:
             record.worker = self._ports.worker(
                 self._python,
                 record.files.worker_config_path,
-                {**self._environment, **self._provider},
+                self._environment,
             )
             await record.worker.start()
             self._admit(record)

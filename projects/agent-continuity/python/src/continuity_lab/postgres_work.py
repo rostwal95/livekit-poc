@@ -133,26 +133,6 @@ class PostgresWorkQueue:
 
         with protected_transaction(self.executions) as connection:
             self.leases.limits_in_transaction(connection)
-            metadata = connection.execute(
-                sql.SQL("SELECT version FROM {} WHERE singleton").format(table("schema_metadata"))
-            ).fetchone()
-            # v5 holds a paced pending effect until due; cancellation still runs at once.
-            paced = metadata is not None and metadata["version"] >= 5
-            effects_join = (
-                sql.SQL("LEFT JOIN {} m ON m.intent_id=a.intent_id").format(
-                    table("mutation_effects")
-                )
-                if paced
-                else sql.SQL("")
-            )
-            mutation_due = (
-                sql.SQL(
-                    "AND (m.state IS DISTINCT FROM 'pending' OR m.next_attempt_at IS NULL"
-                    " OR m.next_attempt_at<=%(now)s OR c.cancelled)"
-                )
-                if paced
-                else sql.SQL("")
-            )
             row = connection.execute(
                 sql.SQL("""
                 WITH eligible AS (
@@ -162,7 +142,9 @@ class PostgresWorkQueue:
                            (d.state='pending' AND d.next_attempt_at::timestamptz<=%(now)s)
                         THEN 'delivery'
                       WHEN x.state='intent_committed' AND a.intent_id IS NOT NULL
-                           AND a.payload_json::jsonb->>'schema_version'='2' {mutation_due}
+                           AND a.payload_json::jsonb->>'schema_version'='2'
+                           AND (m.state IS DISTINCT FROM 'pending' OR m.next_attempt_at IS NULL
+                             OR m.next_attempt_at<=%(now)s OR c.cancelled)
                         THEN 'mutation'
                       WHEN x.state='waiting' AND EXISTS (
                         SELECT 1 FROM {waits} w WHERE w.task_id=e.task_id AND w.state='pending'
@@ -184,7 +166,7 @@ class PostgresWorkQueue:
                   LEFT JOIN {controls} x ON x.task_id=e.task_id
                   LEFT JOIN {cases} c ON c.task_id=e.task_id AND c.scope_id=t.scope_id
                   LEFT JOIN {intents} a ON a.task_id=e.task_id
-                  {effects_join}
+                  LEFT JOIN {effects} m ON m.intent_id=a.intent_id
                   LEFT JOIN {events} v ON v.task_id=e.task_id
                   LEFT JOIN {deliveries} d ON d.event_id=v.event_id
                   LEFT JOIN {leases} l ON l.task_id=e.task_id
@@ -210,8 +192,7 @@ class PostgresWorkQueue:
                     events=table("completion_events"),
                     deliveries=table("completion_deliveries"),
                     leases=table("execution_leases"),
-                    effects_join=effects_join,
-                    mutation_due=mutation_due,
+                    effects=table("mutation_effects"),
                 ),
                 {"scope": scope_id, "now": now.astimezone(UTC)},
             ).fetchone()

@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
-import importlib.util
 import json
 import os
 import re
@@ -184,26 +183,12 @@ def _repository() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def _load_database(repository: Path) -> SetupDatabase:
-    # The exact maintained loader reads only .env/.secrets.env/images.env.
-    path = repository / "local-setup/stack.py"
-    spec = importlib.util.spec_from_file_location("channel_policy_setup_stack", path)
-    _need(spec is not None and spec.loader is not None)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    try:
-        spec.loader.exec_module(module)
-        values: object = module.load_settings(repository / "local-setup")
-        _need(type(values) is dict)
-        data = cast(dict[str, str], values)
-        return SetupDatabase(
-            int(data["POSTGRES_PORT"]),
-            data["POSTGRES_PASSWORD"],
-            data["POSTGRES_MIGRATION_PASSWORD"],
-        )
-    finally:
-        sys.modules.pop(spec.name, None)
+def _load_database() -> SetupDatabase:
+    return SetupDatabase(
+        int(os.environ["P1_POSTGRES_PORT"]),
+        os.environ["P1_POSTGRES_PASSWORD"],
+        os.environ["POSTGRES_MIGRATION_PASSWORD"],
+    )
 
 
 def _settings(database: SetupDatabase, schema: str, *, owner: bool) -> PostgresSettings:
@@ -229,43 +214,22 @@ def _fresh_namespaces(settings: PostgresSettings, schemas: tuple[str, str, str])
 
 
 async def _install_case(settings: PostgresSettings) -> None:
-    from continuity_lab.postgres_migrations import (
-        activate_import,
-        install_schema,
-        stage_import,
-        upgrade_v2,
-        upgrade_v3,
-        upgrade_v4,
-    )
-    from continuity_lab.transfer import make_snapshot
+    from continuity_lab.postgres_migrations import install_schema
 
     await _retained(asyncio.to_thread(install_schema, settings))
-    snapshot = make_snapshot([], [], [], migration_id=str(uuid4()))
-    await _retained(asyncio.to_thread(stage_import, settings, snapshot))
-    await _retained(
-        asyncio.to_thread(activate_import, settings, snapshot.migration_id, snapshot.source_digest)
-    )
-    await _retained(asyncio.to_thread(upgrade_v2, settings))
-    await _retained(asyncio.to_thread(upgrade_v3, settings))
-    await _retained(asyncio.to_thread(upgrade_v4, settings))
 
 
 async def _install_work(settings: PostgresSettings) -> None:
-    from continuity_lab.work_admin import (
-        ExecutionLimits,
-        WorkLimits,
-        install_work_schema,
-        upgrade_work_schema_v2,
-        upgrade_work_schema_v3,
-        upgrade_work_schema_v4,
-    )
+    from continuity_lab.work_admin import ExecutionLimits, WorkLimits, install_work_schema
 
-    await _retained(asyncio.to_thread(install_work_schema, settings, WorkLimits(16, 16)))
     await _retained(
-        asyncio.to_thread(upgrade_work_schema_v2, settings, ExecutionLimits(4, 2, 10000))
+        asyncio.to_thread(
+            install_work_schema,
+            settings,
+            WorkLimits(16, 16),
+            execution_limits=ExecutionLimits(4, 2, 10000),
+        )
     )
-    await _retained(asyncio.to_thread(upgrade_work_schema_v3, settings))
-    await _retained(asyncio.to_thread(upgrade_work_schema_v4, settings))
 
 
 class _CaseOwner(Protocol):
@@ -333,9 +297,7 @@ async def _close_clients(clients: list[_CaseOwner], journal: Callable[[str], Non
 # Dispatch claims outlive the joined gateways' 5,000 ms step deadline so a
 # receipt returned near that deadline still passes the claim guard.
 _NODE_PROGRAM = r"""
-import { installChannelSchema, upgradeChannelSchemaV2, upgradeChannelSchemaV3,
- upgradeChannelSchemaV4, upgradeChannelSchemaV5, upgradeChannelSchemaV6,
- upgradeChannelSchemaV7, upgradeChannelSchemaV8, upgradeChannelSchemaV9 } from '@livekit-ecosystem/channel-continuity/migrations';
+import { installChannelSchema } from '@livekit-ecosystem/channel-continuity/migrations';
 let stopped=false;process.on('SIGTERM',()=>{stopped=true;});process.on('SIGINT',()=>{stopped=true;});
 try {
  const chunks=[];let size=0;for await(const chunk of process.stdin){size+=chunk.length;if(size>2048)throw Error();chunks.push(chunk);}
@@ -346,16 +308,15 @@ try {
  const password=process.env.CHANNEL_POLICY_SETUP_OWNER_PASSWORD;
  if(typeof password!=='string'||password.length<32||password.length>128)throw Error();
  const settings={host:'127.0.0.1',port:p.port,database:'livekit_lab',user:'continuity_migrator',password,schema:p.schema};
- const steps=[()=>installChannelSchema(settings,{maxInbox:16,maxChallenges:16,maxAssociations:16,maxSenders:16}),
- ()=>upgradeChannelSchemaV2(settings,{maxActive:2,maxAttempts:2,leaseMs:8000,retryDelayMs:100}),
- ()=>upgradeChannelSchemaV3(settings,{maxReplies:16,maxRoutes:16,maxAttempts:2}),
- ()=>upgradeChannelSchemaV4(settings,{maxGlobal:64,maxPerAttempt:8}),
- ()=>upgradeChannelSchemaV5(settings,{maxRecoveryCommands:16,maxPerOperation:2}),
- ()=>upgradeChannelSchemaV6(settings,{maxBindings:16}),
- ()=>upgradeChannelSchemaV7(settings,{maxResponses:16,maxObservations:64,maxObservationsPerResponse:8}),
- ()=>upgradeChannelSchemaV8(settings),
- ()=>upgradeChannelSchemaV9(settings)];
- let receiver;for(const [index,step] of steps.entries()){if(stopped)throw Error();const value=await step();if(index===7)receiver=value;}
+ const receiver=await installChannelSchema(settings,{
+  inbox:{maxInbox:16,maxChallenges:16,maxAssociations:16,maxSenders:16},
+  dispatch:{maxActive:2,maxAttempts:2,leaseMs:8000,retryDelayMs:100},
+  outbox:{maxReplies:16,maxRoutes:16,maxAttempts:2},
+  callback:{maxGlobal:64,maxPerAttempt:8},
+  sendPolicy:{maxRecoveryCommands:16,maxPerOperation:2},
+  native:{maxBindings:16},
+  communication:{maxResponses:16,maxObservations:64,maxObservationsPerResponse:8},
+ });
  if(stopped||typeof receiver!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(receiver))throw Error();
  process.stdout.write(JSON.stringify({schema_version:1,receiver_id:receiver})+'\n');
 } catch { process.stderr.write('{"schema_version":1,"code":"unavailable"}\n');process.exitCode=1; }
@@ -724,6 +685,7 @@ async def _prepare(
     database: SetupDatabase | None = None,
     repository: Path | None = None,
     migrations: NodeMigrationPort | None = None,
+    case_schema: Literal["continuity"] | None = None,
 ) -> OwnerProfile:
     from continuity_lab.api import BookingChange
     from continuity_lab.case_control_api import open_case_control_client
@@ -742,6 +704,7 @@ async def _prepare(
 
     repository = (_repository() if repository is None else repository).resolve(strict=True)
     _need(type(directory) is type(repository) and node.is_absolute())
+    _need(case_schema is None or case_schema == "continuity")
     executable = node.resolve(strict=True)
     _need(executable.is_file() and os.access(executable, os.X_OK))
     cwd = repository / "services/channel-policy-gateway"
@@ -750,7 +713,7 @@ async def _prepare(
     identity = {
         "profile_id": str(uuid4()),
         "app_owner_id": str(uuid4()),
-        "case_schema": "cp45_case_" + uuid4().hex,
+        "case_schema": case_schema or "cp45_case_" + uuid4().hex,
         "work_schema": "p1_work_cp45_" + uuid4().hex,
         "channel_schema": "cp45_channel_" + uuid4().hex,
     }
@@ -776,12 +739,12 @@ async def _prepare(
     clients: list[_CaseOwner] = []
     try:
         journal("planned")
-        db = _load_database(repository) if database is None else database
+        db = _load_database() if database is None else database
         _need(type(db) is SetupDatabase)
         db = SetupDatabase(db.port, db.runtime_password, db.owner_password)
         schemas = (identity["case_schema"], identity["work_schema"], identity["channel_schema"])
         for schema in schemas:
-            _need(_SCHEMA.fullmatch(schema) is not None)
+            _need(schema == case_schema or _SCHEMA.fullmatch(schema) is not None)
         await _retained(
             asyncio.to_thread(_fresh_namespaces, _settings(db, schemas[0], owner=True), schemas)
         )
@@ -896,12 +859,18 @@ async def prepare(
     database: SetupDatabase | None = None,
     repository: Path | None = None,
     migrations: NodeMigrationPort | None = None,
+    case_schema: Literal["continuity"] | None = None,
 ) -> OwnerProfile:
     """Finite owner boundary; actual resources drain inside the implementation."""
     try:
         _admit_business()
         return await _prepare(
-            directory, node, database=database, repository=repository, migrations=migrations
+            directory,
+            node,
+            database=database,
+            repository=repository,
+            migrations=migrations,
+            case_schema=case_schema,
         )
     except Exception as error:  # noqa: BLE001 - path/dependency details never escape this boundary
         raise SetupError(_safe_code(error)) from None
@@ -1001,7 +970,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     {
                         "schema_version": 1,
                         "event": "plan",
-                        "schemas": {"booking": 4, "work": 4, "channel": 8},
+                        "schemas": {"booking": 1, "work": 1, "channel": 1},
                         "node_deadline_ms": 60000,
                         "node_reap_ms": 5000,
                         "stream_bytes": 32768,

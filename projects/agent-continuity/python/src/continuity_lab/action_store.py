@@ -26,7 +26,7 @@ from .postgres_settings import PostgresSettings
 from .postgres_store import PostgresExecutionStore
 from .postgres_unit_of_work import protected_transaction
 from .work_models import WorkError, WorkLimits, WorkScope, work_identifier, work_uuid
-from .work_schema import Connection, validate_work_schema, work_schema_version
+from .work_schema import Connection, validate_work_schema
 from .work_store import WorkStore
 
 LOGGER = logging.getLogger(__name__)
@@ -82,9 +82,7 @@ class ActionStore:
         with closing(work.settings.connect()) as connection:
             self._validate_work(connection)
         with closing(case_settings.connect()) as connection:
-            validate_schema(
-                connection, case_settings.schema, require_active=True, minimum_version=4
-            )
+            validate_schema(connection, case_settings.schema)
 
     @property
     def telemetry_failures(self) -> int:
@@ -106,10 +104,7 @@ class ActionStore:
             self.failpoint(stage)
 
     def _validate_work(self, connection: Connection) -> WorkLimits:
-        bounds = validate_work_schema(connection, self.work.settings)
-        if work_schema_version(connection, self.work.settings.schema) not in (3, 4):
-            raise ActionError("schema_mismatch")
-        return bounds
+        return validate_work_schema(connection, self.work.settings)
 
     def _table(self) -> sql.Identifier:
         return sql.Identifier(self.work.settings.schema, "result_actions")
@@ -222,9 +217,7 @@ class ActionStore:
             with protected_transaction(self.cases) as connection:
                 # Both profiles are known before any metadata/payload use. All case writes
                 # share the booking lock; work-only writes never acquire it in reverse.
-                validate_schema(
-                    connection, self.case_settings.schema, require_active=True, minimum_version=4
-                )
+                validate_schema(connection, self.case_settings.schema)
                 self._validate_work(connection)
                 guard = connection.execute(
                     sql.SQL(

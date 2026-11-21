@@ -284,7 +284,7 @@ class SetupTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse((self.directory / "owner-profile.json").exists())
         self.assertEqual(len(self.migrations.calls), 0)
 
-    async def test_cancelled_ddl_waiter_retains_actual_thread_and_admits_no_next_upgrade(self):
+    async def test_cancelled_ddl_waiter_retains_actual_thread_before_exit(self):
         self.patches[1].stop()
         from continuity_lab import postgres_migrations as public
 
@@ -297,17 +297,7 @@ class SetupTests(unittest.IsolatedAsyncioTestCase):
             entered.set()
             self.assertTrue(release.wait(2))
 
-        def forbidden(*_, **__):
-            calls.append("later")
-
-        with (
-            patch.object(public, "install_schema", side_effect=install),
-            patch.object(public, "stage_import", side_effect=forbidden),
-            patch.object(public, "activate_import", side_effect=forbidden),
-            patch.object(public, "upgrade_v2", side_effect=forbidden),
-            patch.object(public, "upgrade_v3", side_effect=forbidden),
-            patch.object(public, "upgrade_v4", side_effect=forbidden),
-        ):
+        with patch.object(public, "install_schema", side_effect=install):
             task = asyncio.create_task(self.run_setup())
             self.tasks.append(task)
             async with asyncio.timeout(1):
@@ -331,15 +321,12 @@ class SetupTests(unittest.IsolatedAsyncioTestCase):
         from continuity_lab import work_admin as public
 
         calls = []
-        names = (
-            "install_work_schema",
-            "upgrade_work_schema_v2",
-            "upgrade_work_schema_v3",
-            "upgrade_work_schema_v4",
-        )
         patches = [
-            patch.object(public, name, side_effect=lambda *args, label=name: calls.append(label))
-            for name in names
+            patch.object(
+                public,
+                "install_work_schema",
+                side_effect=lambda *args, **kwargs: calls.append("install"),
+            )
         ]
         for item in patches:
             item.start()
@@ -362,7 +349,7 @@ class SetupTests(unittest.IsolatedAsyncioTestCase):
                     self.tasks.append(task)
                     with self.assertRaises(asyncio.CancelledError):
                         await task
-                self.assertEqual(len(calls) - before, 0 if stage == "work_install_started" else 4)
+                self.assertEqual(len(calls) - before, 0 if stage == "work_install_started" else 1)
                 self.assertEqual(self.migrations.calls, [])
                 self.assertEqual(self.journals()[-1]["stage"], "aborted_unknown")
                 if stage == "node_upgrade_started":
@@ -491,77 +478,24 @@ class SetupTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse((self.directory / "owner-profile.json").exists())
         self.assertEqual(len(self.migrations.calls), 1)
 
-    async def test_booking_install_activates_only_an_empty_public_snapshot_then_upgrades_to_v4(
-        self,
-    ):
+    async def test_booking_setup_installs_one_baseline_under_the_owner(self):
         self.patches[1].stop()
         from continuity_lab import postgres_migrations as public
 
-        calls = []
-        names = (
-            "install_schema",
-            "stage_import",
-            "activate_import",
-            "upgrade_v2",
-            "upgrade_v3",
-            "upgrade_v4",
-        )
-        patches = [
-            patch.object(
-                public, name, side_effect=lambda *args, label=name: calls.append((label, args))
-            )
-            for name in names
-        ]
-        for item in patches:
-            item.start()
-        try:
-            await m._install_case(m._settings(self.database, "cp45_case_" + "c" * 32, owner=True))
-        finally:
-            for item in reversed(patches):
-                item.stop()
-        self.assertEqual(tuple(name for name, _ in calls), names)
-        snapshot = calls[1][1][1]
-        self.assertEqual((snapshot.tasks, snapshot.executions, snapshot.attempts), ((), (), ()))
-        self.assertEqual(calls[2][1][1:], (snapshot.migration_id, snapshot.source_digest))
+        owner = m._settings(self.database, "cp45_case_" + "c" * 32, owner=True)
+        with patch.object(public, "install_schema") as install:
+            await m._install_case(owner)
+        install.assert_called_once_with(owner)
 
-    async def test_real_public_work_limits_and_upgrade_order_are_used_without_any_connection(self):
+    async def test_work_installs_one_baseline_with_execution_limits(self):
         self.patches[2].stop()
         from continuity_lab import work_admin as public
 
-        calls = []
-        patches = [
-            patch.object(
-                public, name, side_effect=lambda *args, label=name: calls.append((label, args))
-            )
-            for name in (
-                "install_work_schema",
-                "upgrade_work_schema_v2",
-                "upgrade_work_schema_v3",
-                "upgrade_work_schema_v4",
-            )
-        ]
-        for item in patches:
-            item.start()
-        try:
-            await m._install_work(
-                m._settings(self.database, "p1_work_cp45_" + "a" * 32, owner=True)
-            )
-        finally:
-            for item in reversed(patches):
-                item.stop()
-        self.assertEqual(
-            [name for name, _ in calls],
-            [
-                "install_work_schema",
-                "upgrade_work_schema_v2",
-                "upgrade_work_schema_v3",
-                "upgrade_work_schema_v4",
-            ],
-        )
-        self.assertEqual((calls[0][1][1].max_records, calls[0][1][1].max_cancel_commands), (16, 16))
-        self.assertEqual(
-            (calls[1][1][1].max_active, calls[1][1][1].max_attempts, calls[1][1][1].lease_ms),
-            (4, 2, 10000),
+        owner = m._settings(self.database, "p1_work_cp45_" + "a" * 32, owner=True)
+        with patch.object(public, "install_work_schema") as install:
+            await m._install_work(owner)
+        install.assert_called_once_with(
+            owner, public.WorkLimits(16, 16), execution_limits=public.ExecutionLimits(4, 2, 10_000)
         )
 
     async def test_case_clients_close_independently_and_retry_failed_observer_without_resubmit(
@@ -645,7 +579,7 @@ class LocalContracts(unittest.TestCase):
             with redirect_stdout(output):
                 self.assertEqual(m.main(["--plan"]), 0)
             value = json.loads(output.getvalue())
-            self.assertEqual(value["schemas"], {"booking": 4, "work": 4, "channel": 8})
+            self.assertEqual(value["schemas"], {"booking": 1, "work": 1, "channel": 1})
             self.assertFalse(value["provider_access"])
         for args in (
             [],
@@ -736,15 +670,7 @@ class OwnedNodeTests(unittest.IsolatedAsyncioTestCase):
         node = shutil.which("node")
         self.assertIsNotNone(node)
         self.node = Path(node).resolve()
-        names = ["installChannelSchema", *[f"upgradeChannelSchemaV{i}" for i in range(2, 10)]]
-        module = "\n".join(
-            "export async function "
-            + name
-            + "(){"
-            + ("return " + json.dumps(self.receiver) + ";" if name.endswith("V8") else "")
-            + "}"
-            for name in names
-        )
+        module = f"export async function installChannelSchema() {{ return {json.dumps(self.receiver)}; }}"
         # Replace only the imported producers: original environment validation,
         # staged calls, stdout bytes and Python success parsing all execute.
         program = m._NODE_PROGRAM.replace(
@@ -782,19 +708,11 @@ class OwnedNodeTests(unittest.IsolatedAsyncioTestCase):
         self.node = Path(node).resolve()
         with tempfile.TemporaryDirectory() as name:
             capture = Path(name) / "limits.jsonl"
-            names = ["installChannelSchema", *[f"upgradeChannelSchemaV{i}" for i in range(2, 10)]]
-            # Record only the proposed limits; settings carry the owner password.
-            module = "import { appendFileSync } from 'node:fs';\n" + "\n".join(
-                "export async function "
-                + name
-                + "(_settings,limits){appendFileSync("
-                + json.dumps(str(capture))
-                + ",JSON.stringify(["
-                + json.dumps(name)
-                + ",limits??null])+'\\n');"
-                + ("return " + json.dumps(self.receiver) + ";" if name.endswith("V8") else "")
-                + "}"
-                for name in names
+            module = (
+                "import { appendFileSync } from 'node:fs';"
+                "export async function installChannelSchema(_settings, limits) {"
+                f"appendFileSync({json.dumps(str(capture))}, JSON.stringify(limits));"
+                f"return {json.dumps(self.receiver)}; }}"
             )
             program = m._NODE_PROGRAM.replace(
                 "@livekit-ecosystem/channel-continuity/migrations",
@@ -811,10 +729,9 @@ class OwnedNodeTests(unittest.IsolatedAsyncioTestCase):
                 patch.object(m.subprocess, "Popen", side_effect=opened),
             ):
                 self.assertEqual(await self.upgrade(), self.receiver)
-            observed = dict(json.loads(line) for line in capture.read_text().splitlines())
-        self.assertEqual(list(observed), names)
+            observed = json.loads(capture.read_text())
         self.assertEqual(
-            observed["upgradeChannelSchemaV2"],
+            observed["dispatch"],
             {"maxActive": 2, "maxAttempts": 2, "leaseMs": 8000, "retryDelayMs": 100},
         )
 

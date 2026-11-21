@@ -22,7 +22,6 @@ from channel_continuity.native_models import NativeEndpoint
 
 from ._bounded_loopback_http import Endpoint, LoopbackEndpoint
 from .application import ChannelPolicyApplication
-from .native_provider_models import provider_environment as provider_keys
 from .native_room import CurrentResultAttachmentPort, NativeRoomOwner, NativeRoomRoute
 from .native_room_admin import LiveKitAdminSettings
 from .native_room_state import NodeRoomCursor
@@ -94,22 +93,10 @@ class ParentSettings:
     python_executable: Path = field(repr=False)
     base_environment: Mapping[str, str] = field(repr=False)
     inference_mode: InferenceMode = "scripted"
-    provider_environment: Mapping[str, str] | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         try:
-            _need(
-                type(self.inference_mode) is str
-                and self.inference_mode in ("scripted", "provider_real")
-                and (self.inference_mode == "provider_real")
-                == (self.provider_environment is not None)
-            )
-            if self.provider_environment is not None:
-                object.__setattr__(
-                    self,
-                    "provider_environment",
-                    MappingProxyType(provider_keys(self.provider_environment)),
-                )
+            _need(self.inference_mode == "scripted")
             profile = parse_owner_profile(encode_owner_profile(self.profile))
             _need(type(self.admin) is LiveKitAdminSettings)
             admin = LiveKitAdminSettings(self.admin.api_key, self.admin.api_secret, self.admin.url)
@@ -187,9 +174,8 @@ def _rooms(settings: ParentSettings, app: AppPort, cursor: NodeRoomCursor) -> Ro
         python_executable=settings.python_executable,
         base_environment=settings.base_environment,
         # The room observes its retained worker-process drain before closing
-        # gateway/SFU resources. Both inference modes keep the same hierarchy.
+        # gateway and LiveKit resources.
         cleanup_timeout_s=30,
-        provider_environment=settings.provider_environment,
     )
 
 
@@ -243,7 +229,6 @@ class ChannelPolicyParent:
             settings.python_executable,
             settings.base_environment,
             settings.inference_mode,
-            settings.provider_environment,
         )
         for value, maximum in ((startup_timeout_s, 15), (cleanup_timeout_s, 60)):
             _need(type(value) in (int, float) and 0.02 <= value <= maximum and math.isfinite(value))

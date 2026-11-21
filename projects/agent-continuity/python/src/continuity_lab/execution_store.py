@@ -20,7 +20,7 @@ from .issued_models import (
 )
 from .result_feed_store import append_result_event
 from .work_models import WorkError, WorkLimits, WorkScope, work_identifier, work_uuid
-from .work_schema import Connection, execution_limits, validate_work_schema, work_schema_version
+from .work_schema import Connection, execution_limits, validate_work_schema
 from .work_store import WorkStore
 
 T = TypeVar("T")
@@ -41,8 +41,6 @@ class ExecutionStore:
 
     def _validate(self, connection: Connection) -> None:
         validate_work_schema(connection, self.work.settings)
-        if work_schema_version(connection, self.work.settings.schema) not in (2, 3, 4):
-            raise WorkError("schema_mismatch")
 
     def _table(self, name: str) -> sql.Identifier:
         return self.work._table(name)
@@ -263,14 +261,13 @@ class ExecutionStore:
                     disposition,
                 ],
             )
-            if work_schema_version(connection, self.work.settings.schema) == 4:
-                append_result_event(
-                    connection,
-                    self.work.settings.schema,
-                    scope,
-                    attempt.record.work_id,
-                    attempt.attempt_id,
-                )
+            append_result_event(
+                connection,
+                self.work.settings.schema,
+                scope,
+                attempt.record.work_id,
+                attempt.attempt_id,
+            )
             return result
 
         return self._write("complete", complete)

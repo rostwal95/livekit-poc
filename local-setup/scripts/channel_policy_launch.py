@@ -217,16 +217,15 @@ class LaunchRequest:
     node: Path
     base_environment: Mapping[str, str] = field(repr=False)
     no_ui: bool = False
-    inference_mode: Literal["scripted", "provider_real"] = "scripted"
+    inference_mode: Literal["scripted"] = "scripted"
+    container: bool = False
 
     def __post_init__(self) -> None:
-        need(
-            type(self.inference_mode) is str
-            and self.inference_mode in ("scripted", "provider_real")
-        )
+        need(type(self.inference_mode) is str and self.inference_mode == "scripted")
         for path in (self.repository, self.profile_path, self.node):
             need(type(path) is PosixPath and path.is_absolute())
         need(type(self.no_ui) is bool and isinstance(self.base_environment, Mapping))
+        need(type(self.container) is bool)
         need(
             not set(self.base_environment) - BASE and {"PATH", "LANG"} <= set(self.base_environment)
         )
@@ -252,7 +251,6 @@ class PreparedLaunch:
     sources: Mapping[str, str]
     active_bytes: bytes = field(repr=False)
     active_signature: tuple[int, ...] = field(repr=False)
-    provider_environment: Mapping[str, str] | None = field(default=None, repr=False)
 
     @property
     def operator_file(self) -> Path:
@@ -311,41 +309,12 @@ def helper() -> ModuleType:
     return module
 
 
-def stack_settings(repository: Path) -> dict[str, str]:
-    """Only maintained three-file loader; serving never imports owner DDL tools."""
-    path = repository / "local-setup/stack.py"
-    spec = importlib.util.spec_from_file_location("_channel_policy_launch_stack", path)
-    need(spec is not None and spec.loader is not None)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    try:
-        spec.loader.exec_module(module)
-        result = module.load_settings(repository / "local-setup")
-        need(type(result) is dict)
-        return cast(dict[str, str], result)
-    finally:
-        if sys.modules.get(spec.name) is module:
-            del sys.modules[spec.name]
-
-
-def provider_credentials(repository: Path) -> dict[str, str]:
-    """Explicit provider_real only: the strict owner-only loader, values never echoed."""
-    path = repository / "local-setup/provider_config.py"
-    spec = importlib.util.spec_from_file_location("_channel_policy_launch_provider", path)
-    need(spec is not None and spec.loader is not None)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    try:
-        spec.loader.exec_module(module)
-        loaded = module.read_credentials(repository / "local-setup/.env.providers")
-        result = loaded.environment()
-        need(type(result) is dict and len(result) == 3)
-        return cast(dict[str, str], result)
-    finally:
-        if sys.modules.get(spec.name) is module:
-            del sys.modules[spec.name]
+def stack_settings() -> dict[str, str]:
+    """Read the explicit LiveKit settings supplied to the scripted launcher."""
+    return {
+        name: os.environ[name]
+        for name in ("LIVEKIT_API_KEY", "LIVEKIT_API_SECRET", "LIVEKIT_HTTP_PORT")
+    }
 
 
 def source_bindings(request: LaunchRequest) -> dict[str, str]:
@@ -404,7 +373,7 @@ def prepare(request: LaunchRequest) -> PreparedLaunch:
         python = request.repository / ".venv/bin/python"
         need(python.is_file() and os.access(python, os.X_OK))
         profile = read_owner_profile(request.profile_path)
-        settings = stack_settings(request.repository)
+        settings = stack_settings()
         port = settings["LIVEKIT_HTTP_PORT"]
         need(
             type(port) is str
@@ -447,13 +416,18 @@ def prepare(request: LaunchRequest) -> PreparedLaunch:
             bearer = cast(str, data["bearer"])
             RoomPublisherCredential(bearer)
         else:
-            bearer = secrets.token_urlsafe(32)
+            bearer = (
+                os.environ["LOCAL_ACCESS_TOKEN"] if request.container else secrets.token_urlsafe(32)
+            )
+            RoomPublisherCredential(bearer)
             publish(
                 key_path,
                 encode(
                     {"schemaVersion": 1, "profileId": profile.route.profile_id, "bearer": bearer}
                 ),
             )
+        if request.container:
+            need(bearer == os.environ["LOCAL_ACCESS_TOKEN"])
         credentials = {
             getattr(profile.credentials, item.name) for item in fields(profile.credentials)
         }
@@ -469,11 +443,6 @@ def prepare(request: LaunchRequest) -> PreparedLaunch:
                 "prepareEndpoint": {"host": "127.0.0.1", "port": 11030},
                 "rehydrationPort": 11032,
             },
-        )
-        keys = (
-            provider_credentials(request.repository)
-            if request.inference_mode == "provider_real"
-            else None
         )
         launch_id = str(uuid4())
         active = encode(
@@ -495,7 +464,6 @@ def prepare(request: LaunchRequest) -> PreparedLaunch:
             MappingProxyType(bindings),
             active,
             signature,
-            None if keys is None else MappingProxyType(keys),
         )
     except LaunchError:
         raise
@@ -588,6 +556,7 @@ class JoinedLauncher:
             else None,
             runtime / "room-control.json" if role == "gateway" else None,
             runtime / "native-bridge.json" if role == "gateway" else None,
+            self.request.container and role == "ui",
         )
         owner = self._factories.child(spec)
         need(
@@ -621,7 +590,6 @@ class JoinedLauncher:
             self.request.repository / ".venv/bin/python",
             self.request.base_environment,
             self.request.inference_mode,
-            prepared.provider_environment,
         )
         self._parent = self._factories.parent(settings)
         self._check(deadline)
@@ -675,7 +643,9 @@ class JoinedLauncher:
             if self._ready
             else "starting",
             "mode": self.request.inference_mode,
-            "uiUrl": None if self.request.no_ui else "http://127.0.0.1:5179/channel-policy.html",
+            "uiUrl": None
+            if self.request.no_ui
+            else f"http://127.0.0.1:{5189 if self.request.container else 5179}/",
             "operatorKeyFile": str(self._prepared.operator_file)
             if self._prepared is not None
             else None,
@@ -793,13 +763,10 @@ def plan() -> dict[str, object]:
         "schemaVersion": 1,
         "status": "planned",
         "mode": "scripted",
-        "optionalModes": ["provider_real"],
         "preparedProfileRequired": True,
         "servingDDL": False,
         "providerFiles": False,
         "providerCalls": False,
-        "providerReal": "explicit --provider; keys from local-setup/.env.providers reach only "
-        "the native worker",
         "childrenMaximum": 3,
         "startupSeconds": 60,
         "roleReadySeconds": 15,
@@ -912,7 +879,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             and args[1] == "--profile"
             and args[3] == "--node"
             and len(set(flags)) == len(flags)
-            and set(flags) <= {"--no-ui", "--provider"},
+            and set(flags) <= {"--no-ui", "--container"},
             "invalid_arguments",
         )
         repository = Path(__file__).resolve(strict=True).parents[2]
@@ -922,8 +889,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             Path(args[2]),
             Path(args[4]),
             environment,
-            "--no-ui" in flags,
-            "provider_real" if "--provider" in flags else "scripted",
+            no_ui="--no-ui" in flags,
+            container="--container" in flags,
         )
         return asyncio.run(serve(request))
     except KeyboardInterrupt:

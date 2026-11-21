@@ -1,11 +1,11 @@
-/** Narrow storage authority/temporal invariants; actual SQL joins live in pg_native_cases. */
+/** Native storage authority and database clock invariants. */
 import assert from 'node:assert/strict';
 import { test } from 'vitest';
 import { randomUUID, createHash } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import { NativeStore } from '../src/native-store.js';
 import { createNativeIntegration } from '../src/native.js';
-import { upgradeChannelSchemaV6 } from '../src/migrations.js';
+import { installChannelSchema } from '../src/migrations.js';
 import type { StoredMessage } from '../src/postgres.js';
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
 const providerScope = { tenantId: 'tenant', provider: 'livekit', providerAccountId: 'local' },
@@ -160,7 +160,7 @@ test('corrupt native counter prevents new authority', async () => {
     false,
   );
 });
-test('invalid trusted owner hook is rejected before any PostgreSQL connection', async () => {
+test('invalid owner configuration is rejected before any PostgreSQL connection', async () => {
   const db = {
     host: '127.0.0.1' as const,
     port: 1,
@@ -170,10 +170,10 @@ test('invalid trusted owner hook is rejected before any PostgreSQL connection', 
     schema: 'p2_native_test',
   };
   let read = false;
-  for (const hooks of [
+  for (const options of [
     null,
     { unknown: true },
-    Object.defineProperty({}, 'harnessAfterTables', {
+    Object.defineProperty({}, 'native', {
       enumerable: true,
       get() {
         read = true;
@@ -181,7 +181,7 @@ test('invalid trusted owner hook is rejected before any PostgreSQL connection', 
       },
     }),
   ])
-    await assert.rejects(() => upgradeChannelSchemaV6(db, { maxBindings: 3 }, hooks as never), {
+    await assert.rejects(() => installChannelSchema(db, options as never), {
       code: 'InvalidConfiguration',
     });
   assert.equal(read, false);

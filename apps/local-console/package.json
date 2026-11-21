@@ -4,12 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1 --port 3000 --strictPort",
-    "typecheck": "pnpm --filter @livekit-ecosystem/channel-continuity build && tsc --noEmit && tsc --project tsconfig.e2e.json && tsc --project tsconfig.operations.json && tsc --project tsconfig.channel-policy.json",
-    "build": "tsc --noEmit && vite build",
-    "test": "pnpm --filter @livekit-ecosystem/channel-continuity build && vitest run",
-    "test:e2e": "playwright test",
-    "channel-policy:dev": "vite --config vite.channel-policy.config.ts",
+    "dev": "vite --config vite.channel-policy.config.ts",
+    "typecheck": "tsc --project tsconfig.channel-policy.json",
+    "build": "pnpm run channel-policy:build",
+    "test": "vitest run",
     "channel-policy:build": "tsc --project tsconfig.channel-policy.json && vite build --config vite.channel-policy.config.ts"
   },
   "dependencies": {

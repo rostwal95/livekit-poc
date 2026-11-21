@@ -1,4 +1,4 @@
-"""Single-worker mutation, cancellation and completion authority on PostgreSQL v3.
+"""Mutation, cancellation and completion authority on PostgreSQL.
 
 All state changes use the existing admission/case transaction. Generation is an
 attempt-owner token, not a lease epoch or generic row revision. Supplier and sink
@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import json
 import logging
-from collections.abc import Callable, Iterator
-from contextlib import AbstractContextManager, contextmanager, nullcontext
+from collections.abc import Callable
+from contextlib import AbstractContextManager, nullcontext
 from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import uuid4
@@ -67,7 +67,7 @@ from .postgres_unit_of_work import protected_transaction
 Connection = psycopg.Connection[dict[str, Any]]
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
-# Schema v5 paces known dependency outages: 1 s doubling to 30 s, never past the deadline.
+# Known dependency outages are paced: 1 s doubling to 30 s, never past the deadline.
 RETRY_INITIAL_SECONDS, RETRY_MAX_SECONDS = 1, 30
 _TERMINAL = frozenset(
     {
@@ -126,7 +126,7 @@ class PostgresEffects:
         self.delivery_policy = delivery_policy
 
     def worker_slot(self) -> AbstractContextManager[None]:
-        """Legacy session coordination; v4 authority is the explicit DB lease."""
+        """A cooperating session slot is independent of each explicit execution lease."""
         return self.executions.worker_slot() if self.worker_lease is None else nullcontext()
 
     def _guard(self, connection: Connection, scope_id: str, task_id: str) -> None:
@@ -146,25 +146,6 @@ class PostgresEffects:
     def _hit(self, point: str) -> None:
         if self.failpoint is not None:
             self.failpoint(point)
-
-    @contextmanager
-    def _transaction(self) -> Iterator[Connection]:
-        with protected_transaction(self.executions) as connection:
-            row = connection.execute(
-                sql.SQL("SELECT version FROM {} WHERE singleton").format(
-                    self._table("schema_metadata")
-                )
-            ).fetchone()
-            if row is None or row["version"] not in {3, 4, 5}:
-                raise UnsupportedOperation("Mutation and completion require schema v3 or later")
-            yield connection
-
-    def _paced(self, connection: Connection) -> bool:
-        """Schema v5 persists when a dependency-unavailable retry becomes due."""
-        row = connection.execute(
-            sql.SQL("SELECT version FROM {} WHERE singleton").format(self._table("schema_metadata"))
-        ).fetchone()
-        return row is not None and row["version"] >= 5
 
     def _worker_case(self, connection: Connection, scope_id: str, task_id: str) -> CaseSnapshot:
         self.executions._get(connection, identity(scope_id), identity(task_id))
@@ -438,7 +419,7 @@ class PostgresEffects:
 
     def intent(self, *, scope_id: str, task_id: str) -> ActionIntent:
         """Read the immutable intended target before consuming a worker attempt."""
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             case = self._worker_case(connection, scope_id, task_id)
             if case.intent is None:
                 raise UnsupportedOperation("A committed mutation intent is required")
@@ -446,7 +427,7 @@ class PostgresEffects:
             return case.intent
 
     def get(self, *, scope_id: str, task_id: str) -> EffectSnapshot | None:
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             case = self._worker_case(connection, scope_id, task_id)
             row = self._effect_row(connection, task_id)
             if row is None:
@@ -458,7 +439,7 @@ class PostgresEffects:
             return value
 
     def claim(self, *, scope_id: str, task_id: str) -> EffectClaim | None:
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             case = self._worker_case(connection, scope_id, task_id)
             self._guard(connection, scope_id, task_id)
             if self._completion(connection, case) is not None:
@@ -605,7 +586,7 @@ class PostgresEffects:
     def prepare_dispatch(self, claim: EffectClaim, *, absence_confirmed: bool) -> bool:
         if type(absence_confirmed) is not bool:
             raise ValueError("Dispatch absence evidence must be explicit")
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             case, row = self._claimed(connection, claim)
             if row["state"] != EffectState.CLAIMED:
                 raise TransitionConflict("This attempt already reserved dispatch")
@@ -737,7 +718,7 @@ class PostgresEffects:
 
     def finish_success(self, claim: EffectClaim, result: MutationResult) -> EffectSnapshot:
         require_result_binding(result, claim.intent)
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             case, row = self._claimed(connection, claim)
             # A successful reliable lookup is truth even after cancellation/expiry.
             value = self._finish_row(
@@ -761,7 +742,7 @@ class PostgresEffects:
     def finish_failure(self, claim: EffectClaim, code: EffectFailure) -> EffectSnapshot:
         if type(code) is not EffectFailure:
             raise ValueError("A safe typed mutation failure is required")
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             case, row = self._claimed(connection, claim)
             now = self._now()
             stamp = now.isoformat()
@@ -781,28 +762,16 @@ class PostgresEffects:
                         (stamp, code.value, claim.attempt_id),
                     )
                 )
-                if self._paced(connection):
-                    delay = min(
-                        RETRY_INITIAL_SECONDS * 2 ** (row["attempt_no"] - 1), RETRY_MAX_SECONDS
+                delay = min(RETRY_INITIAL_SECONDS * 2 ** (row["attempt_no"] - 1), RETRY_MAX_SECONDS)
+                due = min(now + timedelta(seconds=delay), self._deadline(connection, case))
+                _one(
+                    connection.execute(
+                        sql.SQL(
+                            "UPDATE {} SET state='pending',generation=generation+1,error_code=%s,updated_at=%s,next_attempt_at=%s WHERE intent_id=%s AND generation=%s"
+                        ).format(self._table("mutation_effects")),
+                        (code.value, stamp, due, claim.intent.intent_id, claim.generation),
                     )
-                    due = min(now + timedelta(seconds=delay), self._deadline(connection, case))
-                    _one(
-                        connection.execute(
-                            sql.SQL(
-                                "UPDATE {} SET state='pending',generation=generation+1,error_code=%s,updated_at=%s,next_attempt_at=%s WHERE intent_id=%s AND generation=%s"
-                            ).format(self._table("mutation_effects")),
-                            (code.value, stamp, due, claim.intent.intent_id, claim.generation),
-                        )
-                    )
-                else:
-                    _one(
-                        connection.execute(
-                            sql.SQL(
-                                "UPDATE {} SET state='pending',generation=generation+1,error_code=%s,updated_at=%s WHERE intent_id=%s AND generation=%s"
-                            ).format(self._table("mutation_effects")),
-                            (code.value, stamp, claim.intent.intent_id, claim.generation),
-                        )
-                    )
+                )
                 fresh = self._effect_row(connection, case.task_id)
                 assert fresh is not None
                 value = self._snapshot(fresh, case)
@@ -847,7 +816,7 @@ class PostgresEffects:
             EffectFailure.ATTEMPTS_EXHAUSTED,
         }:
             raise ValueError("Uncertainty needs a safe ambiguous-outcome classification")
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             case, row = self._claimed(connection, claim)
             value = self._finish_row(
                 connection,
@@ -920,7 +889,7 @@ class PostgresEffects:
         if type(reason) is not CancelReason:
             raise ValueError("A typed cancellation reason is required")
         command_id = identity(command_id)
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             case = self.cases.get_in_transaction(connection, actor, task_id)
             prior = connection.execute(
                 sql.SQL("SELECT * FROM {} WHERE scope_id=%s AND command_id=%s").format(
@@ -1052,7 +1021,7 @@ class PostgresEffects:
         return receipt
 
     def completion(self, *, actor: AuthenticatedActor, task_id: str) -> CompletionEvent | None:
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             case = self.cases.get_in_transaction(connection, actor, task_id)
             return self._completion(connection, case)
 
@@ -1108,14 +1077,14 @@ class PostgresEffects:
             raise InvalidStoredState("Completion delivery contains invalid stored state") from error
 
     def delivery(self, *, actor: AuthenticatedActor, task_id: str) -> DeliverySnapshot | None:
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             case = self.cases.get_in_transaction(connection, actor, task_id)
             event = self._completion(connection, case)
             return None if event is None else self._delivery(connection, event)
 
     def delivery_for_scope(self, *, scope_id: str, task_id: str) -> DeliverySnapshot | None:
         """Trusted worker inspection; application callers use the actor boundary."""
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             case = self._worker_case(connection, scope_id, task_id)
             event = self._completion(connection, case)
             return None if event is None else self._delivery(connection, event)
@@ -1124,7 +1093,7 @@ class PostgresEffects:
         self, *, scope_id: str, task_id: str, target_id: str
     ) -> DeliveryClaim | None:
         target_id = uuid_identity(target_id)
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             case = self._worker_case(connection, scope_id, task_id)
             self._guard(connection, scope_id, task_id)
             event = self._completion(connection, case)
@@ -1204,7 +1173,7 @@ class PostgresEffects:
     def finish_delivery(self, claim: DeliveryClaim, *, delivered: bool) -> DeliverySnapshot:
         if type(delivered) is not bool:
             raise ValueError("Delivery acknowledgement must be explicit")
-        with self._transaction() as connection:
+        with protected_transaction(self.executions) as connection:
             _, current, policy = self._claimed_delivery(connection, claim)
             now = self._now()
             stamp = now.isoformat()

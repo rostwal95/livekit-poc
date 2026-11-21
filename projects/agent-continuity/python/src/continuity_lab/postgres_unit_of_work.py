@@ -10,9 +10,7 @@ from contextlib import contextmanager
 from typing import Any
 
 import psycopg
-from psycopg import sql
 
-from .execution_models import UnsupportedOperation
 from .postgres_store import PostgresExecutionStore
 
 
@@ -20,7 +18,7 @@ from .postgres_store import PostgresExecutionStore
 def protected_transaction(
     executions: PostgresExecutionStore,
 ) -> Iterator[psycopg.Connection[dict[str, Any]]]:
-    """Serialize one bounded authority operation, requiring explicit v2 upgrade.
+    """Serialize one bounded authority operation.
 
     Keep lock ordering consistent: admission lock, case row, control/wait rows.
     Atomic confirmation consumption uses the same connection as intent creation.
@@ -28,11 +26,4 @@ def protected_transaction(
     """
     with executions._connection() as connection, connection.transaction():
         executions._write_lock(connection)
-        row = connection.execute(
-            sql.SQL("SELECT version FROM {} WHERE singleton").format(
-                sql.Identifier(executions.settings.schema, "schema_metadata")
-            )
-        ).fetchone()
-        if row is None or row["version"] not in {2, 3, 4, 5}:
-            raise UnsupportedOperation("Case and lifecycle operations require schema v2 or later")
         yield connection

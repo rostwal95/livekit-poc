@@ -1,0 +1,147 @@
+#!/bin/sh
+set -eu
+umask 077
+
+cd -P "$(dirname "$0")"
+repository=$(pwd -P)
+state=.demo
+settings=$state/environment
+project=continuity-demo-$(printf '%s' "$repository" | cksum | cut -d ' ' -f 1)
+
+fail() { printf '%s\n' "$1" >&2; exit 1; }
+usage() { printf '%s\n' 'Usage: ./demo up | key | status | logs | verify | down | reset --yes'; }
+
+case ${1:-help} in
+  up|key|status|logs|verify|down) [ "$#" -eq 1 ] || { usage >&2; exit 2; } ;;
+  reset) [ "$#" -eq 2 ] && [ "$2" = --yes ] || { usage >&2; exit 2; } ;;
+  help|--help|-h) usage; exit 0 ;;
+  *) usage >&2; exit 2 ;;
+esac
+
+[ ! -L "$state" ] && [ ! -L "$settings" ] || fail 'Demo settings must not be symlinks.'
+if [ ! -f "$settings" ] && [ "$1" != up ]; then
+  fail 'Run ./demo up first.'
+fi
+
+command -v docker >/dev/null 2>&1 || fail 'Docker with Compose is required.'
+docker compose version >/dev/null 2>&1 || fail 'Docker Compose is required.'
+endpoint=${DOCKER_HOST:-$(docker context inspect --format '{{(index .Endpoints "docker").Host}}')}
+case $endpoint in unix://*|npipe://*) ;; *) fail 'Select a local Docker context for the demo.' ;; esac
+docker info --format '{{.ServerVersion}}' >/dev/null || fail 'Start Docker and try again.'
+
+case $1 in
+  up|down|reset)
+    mkdir -p "$state"
+    mkdir "$state/lock" 2>/dev/null || fail 'Another demo command owns this checkout.'
+    trap 'rmdir "$state/lock"' EXIT
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
+    ;;
+esac
+
+random_hex() {
+  value=$(od -An -v -N32 -tx1 /dev/urandom | tr -d ' \n')
+  [ "${#value}" -eq 64 ] || fail 'Could not create local demo credentials.'
+  printf '%s' "$value"
+}
+
+if [ ! -f "$settings" ]; then
+  new_settings=$(mktemp "$state/environment.XXXXXXXX")
+  {
+    printf 'DEMO_PROJECT=%s\n' "$project"
+    printf 'DEMO_OWNER=%s\n' "$(random_hex)"
+    printf 'LIVEKIT_API_SECRET=%s\n' "$(random_hex)"
+    printf 'POSTGRES_ADMIN_PASSWORD=%s\n' "$(random_hex)"
+    printf 'POSTGRES_PASSWORD=%s\n' "$(random_hex)"
+    printf 'POSTGRES_MIGRATION_PASSWORD=%s\n' "$(random_hex)"
+    printf 'LOCAL_ACCESS_TOKEN=%s\n' "$(random_hex | cut -c 1-43)"
+  } >"$new_settings"
+  mv "$new_settings" "$settings"
+fi
+
+mode=$(ls -ld "$settings" | cut -c 1-10)
+[ "$mode" = '-rw-------' ] && [ -O "$settings" ] || fail 'Demo settings must be owner-only.'
+owner=$(sed -n 's/^DEMO_OWNER=//p' "$settings")
+[ "${#owner}" -eq 64 ] || fail 'Demo ownership settings are incomplete.'
+case $owner in *[!0123456789abcdef]*) fail 'Demo ownership settings are invalid.' ;; esac
+[ "$(sed -n 's/^DEMO_PROJECT=//p' "$settings")" = "$project" ] || fail 'Demo settings belong to another checkout.'
+
+unset DEMO_PROJECT DEMO_OWNER LIVEKIT_IMAGE POSTGRES_IMAGE PYTHON_IMAGE NODE_IMAGE \
+  LIVEKIT_API_SECRET POSTGRES_ADMIN_PASSWORD POSTGRES_PASSWORD POSTGRES_MIGRATION_PASSWORD \
+  LOCAL_ACCESS_TOKEN COMPOSE_ENV_FILES COMPOSE_PROFILES
+
+compose() {
+  docker compose --project-directory "$repository" --project-name "$project" \
+    --file "$repository/compose.yaml" --env-file "$repository/local-setup/images.env" \
+    --env-file "$repository/$settings" "$@"
+}
+
+check_ownership() {
+  containers=$(docker ps -aq --filter "label=com.docker.compose.project=$project")
+  for container in $containers; do
+    directory=$(docker inspect --format '{{ index .Config.Labels "com.docker.compose.project.working_dir" }}' "$container")
+    [ "$directory" = "$repository" ] || fail 'The Compose project belongs to another checkout.'
+  done
+  for volume in "${project}_postgres_data" "${project}_demo_data"; do
+    existing=$(docker volume ls -q --filter "name=^$volume$")
+    if [ "$existing" = "$volume" ]; then
+      label=$(docker volume inspect --format '{{ index .Labels "io.continuity-demo.owner" }}' "$volume")
+      [ "$label" = "$owner" ] || fail 'An existing demo volume has a different owner.'
+    fi
+  done
+  network=$(docker network ls -q --filter "name=^${project}_default$")
+  if [ -n "$network" ]; then
+    label=$(docker network inspect --format '{{ index .Labels "io.continuity-demo.owner" }}' "$network")
+    [ "$label" = "$owner" ] || fail 'An existing demo network has a different owner.'
+  fi
+}
+
+stop_service() {
+  service=$1
+  left=$2
+  container=$(compose ps --all --quiet "$service")
+  [ -n "$container" ] || return 0
+  status=$(docker inspect --format '{{.State.Status}}' "$container")
+  [ "$status" != created ] || return 0
+  if [ "$status" = running ]; then
+    docker kill --signal TERM "$container" >/dev/null
+  fi
+  while [ "$left" -gt 0 ]; do
+    outcome=$(docker inspect --format '{{.State.Status}}:{{.State.ExitCode}}' "$container")
+    case $outcome in
+      exited:0) return 0 ;;
+      exited:*|dead:*) fail "$service stopped without confirmed closure. Its state has been retained." ;;
+    esac
+    sleep 1
+    left=$((left - 1))
+  done
+  fail "$service is still closing. Its dependencies and state have been retained."
+}
+
+case $1 in
+  key) sed -n 's/^LOCAL_ACCESS_TOKEN=//p' "$settings" ;;
+  status) compose ps --all ;;
+  logs) compose logs --no-color --tail=40 ;;
+  verify) compose exec -T showcase python local-setup/scripts/verify_demo_state.py ;;
+  up)
+    check_ownership
+    if [ -z "$(compose ps --quiet --status running showcase)" ]; then
+      compose up --build --wait --wait-timeout 120 showcase
+    else
+      compose exec -T showcase python -c 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:5179/", timeout=2).close()'
+    fi
+    printf '\nOpen http://127.0.0.1:5189/ and use ./demo key for local access.\n'
+    ;;
+  down)
+    check_ownership
+    stop_service showcase 150
+    stop_service booking-worker 40
+    compose down --timeout 35
+    ;;
+  reset)
+    check_ownership
+    stop_service showcase 150
+    stop_service booking-worker 40
+    compose down --timeout 35 --volumes
+    ;;
+esac

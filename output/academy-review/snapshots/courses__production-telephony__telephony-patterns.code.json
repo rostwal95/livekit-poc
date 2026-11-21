@@ -1,6 +1,0 @@
-[
-  {
-    "attributes": {},
-    "text": "graph TB\n    subgraph Inbound\n        PSTN[PSTN / Carrier] -->|SIP| TRUNK_IN[Inbound SIP Trunk]\n        TRUNK_IN --> LK[LiveKit Server]\n    end\n\n    subgraph \"AI Agent Layer\"\n        LK --> AGENT[Voice AI Agent]\n        AGENT --> LLM[LLM Provider]\n        AGENT --> STT[STT Provider]\n        AGENT --> TTS[TTS Provider]\n    end\n\n    subgraph \"Call Control\"\n        AGENT -->|Warm/Cold| TRANSFER[Transfer Manager]\n        AGENT --> QUEUE[Queue Manager]\n        QUEUE --> CALLBACK[Callback System]\n        TRANSFER --> TRUNK_OUT[Outbound SIP Trunk]\n    end\n\n    subgraph Outbound\n        CAMPAIGN[Campaign Manager] --> TRUNK_OUT\n        TRUNK_OUT --> PSTN_OUT[PSTN / Carrier]\n    end\n\n    subgraph \"Recording & Compliance\"\n        LK --> EGRESS[LiveKit Egress]\n        EGRESS --> S3[S3 / Object Storage]\n    end\n\n    subgraph Observability\n        LK --> METRICS[Metrics Collector]\n        AGENT --> CDR[CDR Generator]\n        METRICS --> DASH[Dashboard]\n        CDR --> DASH\n    end\n\n    subgraph Resilience\n        TRUNK_IN -.->|Failover| TRUNK_BACKUP[Backup SIP Trunk]\n        AGENT --> RETRY[Retry / Fallback Logic]\n    end\n"
-  }
-]

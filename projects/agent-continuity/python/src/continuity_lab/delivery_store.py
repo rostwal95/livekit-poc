@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from contextlib import closing
 from typing import TypeVar
 from uuid import uuid4
 
@@ -20,7 +19,7 @@ from .delivery_models import (
 from .execution_store import ExecutionStore
 from .issued_models import AttemptResult
 from .work_models import WorkError, WorkScope, work_identifier, work_uuid
-from .work_schema import Connection, work_schema_version
+from .work_schema import Connection
 from .work_store import WorkStore
 
 T = TypeVar("T")
@@ -30,34 +29,15 @@ class DeliveryStore:
     def __init__(self, work: WorkStore) -> None:
         self.work = work
         self.execution = ExecutionStore(work)
-        try:
-            with closing(work.settings.connect()) as connection:
-                self._v3(connection)
-        except WorkError:
-            raise
-        except Exception:  # noqa: BLE001 - Fixed public storage boundary.
-            raise WorkError("storage_unavailable") from None
-
-    def _v3(self, connection: Connection) -> None:
-        if work_schema_version(connection, self.work.settings.schema) not in (3, 4):
-            raise WorkError("schema_mismatch")
 
     def _table(self, name: str) -> sql.Identifier:
         return self.work._table(name)
 
     def _write(self, operation: str, run: Callable[[Connection, int], T]) -> T:
-        def protected(connection: Connection, now: int) -> T:
-            self._v3(connection)
-            return run(connection, now)
-
-        return self.execution._write(operation, protected)
+        return self.execution._write(operation, run)
 
     def _read(self, operation: str, run: Callable[[Connection, int], T]) -> T:
-        def protected(connection: Connection, now: int) -> T:
-            self._v3(connection)
-            return run(connection, now)
-
-        return self.execution._read(operation, protected)
+        return self.execution._read(operation, run)
 
     def _intent(
         self, connection: Connection, scope: WorkScope, work_id: str

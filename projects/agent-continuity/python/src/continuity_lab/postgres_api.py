@@ -1,7 +1,7 @@
 """Supported authenticated managed-case client; requires the postgres extra.
 
 The synchronous factory is trusted startup composition. It validates an existing
-ACTIVE v4 authority and performs no DDL. Offload startup before entering a media
+the initialized booking schema and performs no DDL. Offload startup before entering a media
 turn. The client exposes typed commands, never a callable execution endpoint.
 """
 
@@ -169,7 +169,7 @@ def open_postgres_client(
     ):
         raise ValueError("Validated trusted actor, credential and PostgreSQL settings are required")
     with closing(settings.connect()) as connection:
-        _validate_schema(connection, settings.schema, require_active=True, minimum_version=4)
+        _validate_schema(connection, settings.schema)
     return ManagedCaseClient(
         build_conversation_service(
             actor=actor, token=token, settings=settings, quote_database=quote_database

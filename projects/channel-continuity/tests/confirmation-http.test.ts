@@ -103,8 +103,13 @@ async function fixture(mode: string) {
     calls: () => calls,
     async close() {
       await client.close();
-      for (const socket of sockets) socket.destroy();
-      await new Promise<void>((resolve) => server.close(() => resolve()));
+      const serverClosed = new Promise<void>((resolve) => server.close(() => resolve()));
+      const connectionsClosed = Array.from(sockets, (socket) => {
+        const closed = new Promise<void>((resolve) => socket.once('close', () => resolve()));
+        socket.destroy();
+        return closed;
+      });
+      await Promise.all([serverClosed, ...connectionsClosed]);
       expect(sockets.size).toBe(0);
       expect(client.metrics().active).toBe(0);
     },

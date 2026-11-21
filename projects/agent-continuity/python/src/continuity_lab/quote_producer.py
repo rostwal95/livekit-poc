@@ -10,7 +10,7 @@ from psycopg import sql
 
 from .authorization import AuthenticatedActor
 from .case_models import QuoteSnapshot, StaleRevision, canonical, identity, integer, utc_instant
-from .execution_models import InvalidStoredState, TransitionConflict, UnsupportedOperation
+from .execution_models import InvalidStoredState, TransitionConflict
 from .lifecycle_models import LifecycleState, WaitSnapshot
 from .models import IdempotencyConflict
 from .postgres_case import Connection, PostgresCaseAuthority
@@ -97,13 +97,6 @@ class TrustedQuoteProducer:
         wait_id: str,
     ) -> QuoteReceipt | None:
         case = self.cases.get_in_transaction(connection, actor, task_id)
-        metadata = connection.execute(
-            sql.SQL("SELECT version FROM {} WHERE singleton").format(
-                self.cases._table("schema_metadata")
-            )
-        ).fetchone()
-        if metadata is None or metadata["version"] not in (4, 5):
-            raise UnsupportedOperation("Trusted conversational quotes require schema v4")
         row = connection.execute(
             sql.SQL("SELECT task_id FROM {} WHERE quote_id=%s").format(self.cases._table("quotes")),
             (quote_id,),

@@ -4,9 +4,7 @@
   "private": true,
   "type": "module",
   "files": [
-    "dist",
-    "STARTER.md",
-    "starter/bounded-v1.json"
+    "dist"
   ],
   "exports": {
     ".": {
@@ -93,10 +91,6 @@
       "types": "./dist/operations-types.d.ts",
       "import": "./dist/operations-types.js"
     },
-    "./starter": {
-      "types": "./dist/examples/standalone/application.d.ts",
-      "import": "./dist/examples/standalone/application.js"
-    },
     "./result-receiver": {
       "types": "./dist/result-receiver.d.ts",
       "import": "./dist/result-receiver.js"
@@ -107,10 +101,9 @@
     }
   },
   "scripts": {
-    "typecheck": "tsc --noEmit --project tsconfig.json && tsc --noEmit --project tsconfig.test.json && tsc --noEmit --project tsconfig.examples.json",
+    "typecheck": "tsc --noEmit --project tsconfig.test.json",
     "test": "vitest run",
-    "build": "tsc --project tsconfig.json && tsc --project tsconfig.examples.json && tsc --project tsconfig.starter.json",
-    "demo": "pnpm build && node dist/examples/fake-carrier.js"
+    "build": "tsc --project tsconfig.json"
   },
   "devDependencies": {
     "@types/node": "26.6.6",
@@ -123,8 +116,5 @@
   },
   "engines": {
     "node": "^24.22.2 || >=26.13.0 <27"
-  },
-  "bin": {
-    "p2-channel-starter": "dist/examples/standalone-channel.js"
   }
 }

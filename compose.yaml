@@ -1,0 +1,178 @@
+x-demo-runtime: &demo-runtime
+  image: ${DEMO_PROJECT:?Use ./demo up}-app:local
+  pull_policy: never
+  network_mode: service:livekit
+  init: true
+  read_only: true
+  tmpfs:
+    - /tmp:rw,nosuid,noexec,size=64m,mode=1777
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+
+x-booking-db: &booking-db
+  P1_POSTGRES_HOST: 127.0.0.1
+  P1_POSTGRES_PORT: "5432"
+  P1_POSTGRES_DB: livekit_lab
+  P1_POSTGRES_USER: livekit_lab
+  P1_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Use ./demo up}
+  P1_POSTGRES_SCHEMA: continuity
+  P1_WORKER_SCOPE: demo-traveller
+
+services:
+  livekit:
+    image: ${LIVEKIT_IMAGE:?Missing pinned LiveKit image}
+    command: [--config, /etc/livekit/livekit.yaml]
+    user: "10001:10001"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,noexec,size=16m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      LIVEKIT_KEYS: 'continuity-demo: ${LIVEKIT_API_SECRET:?Use ./demo up}'
+    ports:
+      - 127.0.0.1:5189:5179
+      - 127.0.0.1:17980:17980
+      - 127.0.0.1:17981:17981/tcp
+      - 127.0.0.1:17982:17982/udp
+    volumes:
+      - ./docker/livekit.yaml:/etc/livekit/livekit.yaml:ro
+    healthcheck:
+      test: [CMD, wget, -q, -O, '-', http://127.0.0.1:17980/]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+  postgres:
+    image: ${POSTGRES_IMAGE:?Missing pinned PostgreSQL image}
+    network_mode: service:livekit
+    user: "999:999"
+    environment:
+      POSTGRES_DB: livekit_lab
+      POSTGRES_USER: livekit_lab_admin
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?Use ./demo up}
+      APP_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Use ./demo up}
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    command: [postgres, -c, listen_addresses=127.0.0.1, -c, max_connections=32, -c, shared_buffers=64MB]
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./local-setup/config/010-runtime-role.sh:/docker-entrypoint-initdb.d/010-runtime-role.sh:ro
+    healthcheck:
+      test: [CMD, pg_isready, -h, 127.0.0.1, -U, livekit_lab_admin, -d, livekit_lab]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
+  postgres-roles:
+    image: ${POSTGRES_IMAGE:?Missing pinned PostgreSQL image}
+    network_mode: service:livekit
+    user: "999:999"
+    entrypoint: [sh, /etc/continuity/prepare-postgres.sh]
+    environment:
+      POSTGRES_DB: livekit_lab
+      POSTGRES_USER: livekit_lab_admin
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?Use ./demo up}
+      APP_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Use ./demo up}
+      MIGRATION_POSTGRES_PASSWORD: ${POSTGRES_MIGRATION_PASSWORD:?Use ./demo up}
+    volumes:
+      - ./local-setup/config/020-migration-role.sh:/etc/continuity/prepare-postgres.sh:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  initialize:
+    <<: *demo-runtime
+    command: [local-setup/scripts/demo_runtime.py, initialize]
+    environment:
+      <<: *booking-db
+      POSTGRES_MIGRATION_PASSWORD: ${POSTGRES_MIGRATION_PASSWORD:?Use ./demo up}
+      P1_WORKER_SUPPLIER_DB: /app/.local/booking/supplier.sqlite3
+      P1_WORKER_SINK_DB: /app/.local/booking/completion.sqlite3
+    volumes:
+      - demo_data:/app/.local
+    depends_on:
+      postgres-roles:
+        condition: service_completed_successfully
+
+  booking-worker:
+    <<: *demo-runtime
+    command: [-m, continuity_lab.worker_cli, run]
+    stop_grace_period: 35s
+    environment:
+      <<: *booking-db
+      P1_WORKER_SUPPLIER_DB: /app/.local/booking/supplier.sqlite3
+      P1_WORKER_SINK_DB: /app/.local/booking/completion.sqlite3
+      P1_WORKER_STATE_FILE: /tmp/booking-worker.json
+    volumes:
+      - demo_data:/app/.local
+    depends_on:
+      initialize:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, python, -m, continuity_lab.worker_cli, health]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+  operator:
+    <<: *demo-runtime
+    command: [-m, uvicorn, 'services.control_api.app:app', --host, 127.0.0.1, --port, '18080', --workers, '1', --no-access-log]
+    environment:
+      <<: *booking-db
+      LOCAL_ACCESS_TOKEN: ${LOCAL_ACCESS_TOKEN:?Use ./demo up}
+      P1_BUSINESS_SUPPLIER_DB: /app/.local/booking/supplier.sqlite3
+    volumes:
+      - demo_data:/app/.local:ro
+    depends_on:
+      initialize:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:18080/healthz", timeout=2).close()']
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+  showcase:
+    <<: *demo-runtime
+    build:
+      context: .
+      dockerfile: docker/demo.Dockerfile
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:?Missing pinned Node image}
+        PYTHON_IMAGE: ${PYTHON_IMAGE:?Missing pinned Python image}
+    command: [local-setup/scripts/demo_runtime.py, serve]
+    stop_grace_period: 150s
+    environment:
+      LIVEKIT_API_KEY: continuity-demo
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:?Use ./demo up}
+      LIVEKIT_HTTP_PORT: "17980"
+      LOCAL_ACCESS_TOKEN: ${LOCAL_ACCESS_TOKEN:?Use ./demo up}
+    volumes:
+      - demo_data:/app/.local
+    depends_on:
+      livekit:
+        condition: service_healthy
+      initialize:
+        condition: service_completed_successfully
+      operator:
+        condition: service_healthy
+      booking-worker:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:5179/", timeout=2).close()']
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+volumes:
+  postgres_data:
+    labels:
+      io.continuity-demo.owner: ${DEMO_OWNER:?Use ./demo up}
+  demo_data:
+    labels:
+      io.continuity-demo.owner: ${DEMO_OWNER:?Use ./demo up}
+
+networks:
+  default:
+    labels:
+      io.continuity-demo.owner: ${DEMO_OWNER:?Use ./demo up}

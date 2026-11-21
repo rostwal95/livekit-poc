@@ -121,7 +121,7 @@ def open_execution_client(
     token: BearerToken,
     harness_failpoint: Callable[[str], None] | None = None,
 ) -> ExecutionClient:
-    """Trusted synchronous startup requires an already owner-upgraded known v2 schema."""
+    """Open a trusted runtime client against the initialized work schema."""
     client = open_work_client(
         settings=settings, directory=directory, token=token, harness_failpoint=harness_failpoint
     )

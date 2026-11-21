@@ -58,7 +58,7 @@ describe('explicit spoken WebAudio input ownership', () => {
     expect(context.track.readyState).toBe('ended'); await input.close(); expect(context.close).toHaveBeenCalledOnce(); expect(context.source.disconnect).toHaveBeenCalledOnce();
   });
   it('verifies copied spoken fixture and provenance against the canonical asset', async () => {
-    const original = await readFile(new URL('../../../services/conversation_agent/assets/input-investigate.wav', import.meta.url));
+    const original = await readFile(new URL('../../../services/channel_policy_demo/assets/fixtures/input-investigate.wav', import.meta.url));
     const manifest = JSON.parse(await readFile(new URL('../public/fixtures/manifest.json', import.meta.url), 'utf8')) as Record<string, unknown>;
     expect(Buffer.from(fixture)).toEqual(original); expect(manifest).toMatchObject({ schema_version: 1, kind: 'synthetic-spoken-input', file: 'input-investigate.wav', bytes: fixture.length, frames, sample_rate_hz: 16000, channels: 1, sample_width_bytes: 2 }); expect(createHash('sha256').update(fixture).digest('hex')).toBe(manifest.sha256);
   });

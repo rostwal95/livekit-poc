@@ -1,4 +1,4 @@
-"""Single-worker PostgreSQL inquiry adapter; schema changes are explicit."""
+"""PostgreSQL storage for booking inquiries and their managed execution."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import logging
 from collections.abc import Callable, Iterator
 from contextlib import closing, contextmanager
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Never
 from uuid import uuid4
 
 import psycopg
@@ -20,14 +20,12 @@ from .execution_models import (
     ExecutionCapacityExceeded,
     ExecutionNotFound,
     ExecutionRecord,
-    ExecutionStatus,
     ExecutionSubmission,
     FailureCode,
     InquiryResult,
     InvalidStoredState,
     Operation,
     StorageUnavailable,
-    TransitionConflict,
     UnsupportedOperation,
 )
 from .models import BookingChange, IdempotencyConflict, IntakeCapacityExceeded
@@ -115,7 +113,7 @@ class PostgresExecutionStore:
         try:
             with closing(self.settings.connect()) as connection:
                 self._require_runtime_role(connection)
-                validate_schema(connection, self.settings.schema, require_active=True)
+                validate_schema(connection, self.settings.schema)
                 yield connection
         except StorageUnavailable:
             _event("storage_failed", "storage_unavailable")
@@ -183,8 +181,8 @@ class PostgresExecutionStore:
             )
         except psycopg.errors.LockNotAvailable as error:
             raise ExecutionCapacityExceeded("Execution admission lock is busy") from error
-        # A migration may have changed the gate while this transaction waited.
-        validate_schema(connection, self.settings.schema, require_active=True)
+        # Schema ownership may have changed while this transaction waited.
+        validate_schema(connection, self.settings.schema)
 
     def _stamp(self) -> str:
         instant = self.clock()
@@ -265,42 +263,28 @@ class PostgresExecutionStore:
             (task_id,),
         ).fetchone()
         if existing is None:
-            metadata = connection.execute(
-                sql.SQL("SELECT version FROM {} WHERE singleton").format(
-                    self._table("schema_metadata")
+            from .postgres_leases import PostgresLeases
+
+            limits = PostgresLeases(self).limits_in_transaction(connection)
+            count = connection.execute(
+                sql.SQL("""
+                SELECT (SELECT COUNT(*) FROM {}) AS records, COUNT(*) FILTER (WHERE b.task_id IS NULL
+                  AND (e.status IN ('accepted','running') OR
+                       c.state NOT IN ('completed','cancelled','failed','uncertain'))) AS pending
+                FROM {} e LEFT JOIN {} c ON c.task_id=e.task_id
+                LEFT JOIN {} b ON b.task_id=e.task_id
+            """).format(
+                    self._table("tasks"),
+                    self._table("executions"),
+                    self._table("execution_controls"),
+                    self._table("business_outcomes"),
                 )
             ).fetchone()
-            if metadata is not None and metadata["version"] in (4, 5):
-                from .postgres_leases import PostgresLeases
-
-                limits = PostgresLeases(self).limits_in_transaction(connection)
-                count = connection.execute(
-                    sql.SQL("""
-                    SELECT (SELECT COUNT(*) FROM {}) AS records, COUNT(*) FILTER (WHERE b.task_id IS NULL
-                      AND (e.status IN ('accepted','running') OR
-                           c.state NOT IN ('completed','cancelled','failed','uncertain'))) AS pending
-                    FROM {} e LEFT JOIN {} c ON c.task_id=e.task_id
-                    LEFT JOIN {} b ON b.task_id=e.task_id
-                """).format(
-                        self._table("tasks"),
-                        self._table("executions"),
-                        self._table("execution_controls"),
-                        self._table("business_outcomes"),
-                    )
-                ).fetchone()
-                pending_limit, record_limit = limits.maximum_pending, limits.maximum_records
-            else:
-                pending_limit, record_limit = self.maximum_pending, self.maximum_records
-                count = connection.execute(
-                    sql.SQL(
-                        "SELECT COUNT(*) AS records,COUNT(*) FILTER (WHERE status IN ('accepted','running')) AS pending FROM {}"
-                    ).format(self._table("executions"))
-                ).fetchone()
+            pending_limit, record_limit = limits.maximum_pending, limits.maximum_records
             if count is None:
                 raise InvalidStoredState("Execution count is unavailable")
             if count["pending"] >= pending_limit or (
-                count["records"] >= record_limit
-                and (metadata is None or metadata["version"] not in (4, 5) or prior is None)
+                count["records"] >= record_limit and prior is None
             ):
                 raise IntakeCapacityExceeded("Execution admission capacity exhausted")
             if prior is None:
@@ -331,11 +315,6 @@ class PostgresExecutionStore:
 
     def _check_pending_capacity(self, connection: psycopg.Connection[dict[str, Any]]) -> None:
         """Charge newly managed completed inquiry work without duplicating its ID."""
-        metadata = connection.execute(
-            sql.SQL("SELECT version FROM {} WHERE singleton").format(self._table("schema_metadata"))
-        ).fetchone()
-        if metadata is None or metadata["version"] not in (4, 5):
-            return
         from .postgres_leases import PostgresLeases
 
         limits = PostgresLeases(self).limits_in_transaction(connection)
@@ -388,118 +367,19 @@ class PostgresExecutionStore:
             ).fetchall()
             return tuple(decode_attempt(row) for row in rows)
 
-    def _require_unmanaged(
-        self, connection: psycopg.Connection[dict[str, Any]], task_id: str
-    ) -> None:
-        """Advanced continuation owns its attempts; the legacy worker must stop."""
-        metadata = connection.execute(
-            sql.SQL("SELECT version FROM {} WHERE singleton").format(self._table("schema_metadata"))
-        ).fetchone()
-        if metadata is not None and metadata["version"] in (4, 5):
-            raise UnsupportedOperation(
-                "Schema v4 inquiry writes require an explicit execution lease"
-            )
-        if metadata is not None and metadata["version"] in {2, 3}:
-            managed = connection.execute(
-                sql.SQL("SELECT 1 FROM {} WHERE task_id=%s").format(
-                    self._table("execution_controls")
-                ),
-                (task_id,),
-            ).fetchone()
-            if managed is not None:
-                raise UnsupportedOperation("Managed inquiries require the lifecycle worker")
+    def _require_lease(self, scope_id: str, task_id: str) -> Never:
+        self.get(scope_id=scope_id, task_id=task_id)
+        raise UnsupportedOperation("Inquiry writes require an explicit execution lease")
 
     def start_attempt(self, *, scope_id: str, task_id: str, expected_version: int) -> AttemptStart:
-        scope_id, task_id, expected_version = (
-            _identity(scope_id),
-            _identity(task_id),
-            _version(expected_version),
-        )
-        stamp = self._stamp()
-        with self._connection() as connection, connection.transaction():
-            self._write_lock(connection)
-            execution = self._get(connection, scope_id, task_id)
-            self._require_unmanaged(connection, task_id)
-            if (
-                execution.version != expected_version
-                or execution.status != ExecutionStatus.ACCEPTED
-            ):
-                raise TransitionConflict("Execution cannot start this attempt")
-            attempt_id = str(uuid4())
-            row = connection.execute(
-                sql.SQL(
-                    "INSERT INTO {} (attempt_id,task_id,attempt_no,status,started_at,finished_at,error_code) VALUES (%s,%s,1,'started',%s,NULL,NULL) RETURNING *"
-                ).format(self._table("execution_attempts")),
-                (attempt_id, task_id, stamp),
-            ).fetchone()
-            changed = connection.execute(
-                sql.SQL(
-                    "UPDATE {} SET status='running',version=version+1,updated_at=%s WHERE task_id=%s AND version=%s AND status='accepted'"
-                ).format(self._table("executions")),
-                (stamp, task_id, expected_version),
-            )
-            if changed.rowcount != 1 or row is None:
-                raise TransitionConflict("Execution transition lost its expected version")
-            result = AttemptStart(self._get(connection, scope_id, task_id), decode_attempt(row))
-        _event("attempt_started")
-        return result
+        _version(expected_version)
+        return self._require_lease(scope_id, task_id)
 
     def recover_attempt(
         self, *, scope_id: str, task_id: str, expected_version: int
     ) -> AttemptStart:
-        scope_id, task_id, expected_version = (
-            _identity(scope_id),
-            _identity(task_id),
-            _version(expected_version),
-        )
-        stamp = self._stamp()
-        with self._connection() as connection, connection.transaction():
-            self._write_lock(connection)
-            execution = self._get(connection, scope_id, task_id)
-            self._require_unmanaged(connection, task_id)
-            if execution.version != expected_version or execution.status != ExecutionStatus.RUNNING:
-                raise TransitionConflict("Execution cannot recover this attempt")
-            active = connection.execute(
-                sql.SQL("SELECT * FROM {} WHERE task_id=%s AND status='started' LIMIT 2").format(
-                    self._table("execution_attempts")
-                ),
-                (task_id,),
-            ).fetchall()
-            maximum = connection.execute(
-                sql.SQL("SELECT MAX(attempt_no) AS maximum FROM {} WHERE task_id=%s").format(
-                    self._table("execution_attempts")
-                ),
-                (task_id,),
-            ).fetchone()
-            if len(active) != 1 or maximum is None or active[0]["attempt_no"] != maximum["maximum"]:
-                raise InvalidStoredState("Execution has inconsistent current attempt state")
-            if maximum["maximum"] >= self.maximum_attempts:
-                raise TransitionConflict("Manual inquiry recovery attempt limit reached")
-            changed = connection.execute(
-                sql.SQL(
-                    "UPDATE {} SET status='interrupted',finished_at=%s WHERE attempt_id=%s AND status='started'"
-                ).format(self._table("execution_attempts")),
-                (stamp, active[0]["attempt_id"]),
-            )
-            if changed.rowcount != 1:
-                raise TransitionConflict("Prior attempt no longer owns unfinished state")
-            row = connection.execute(
-                sql.SQL(
-                    "INSERT INTO {} (attempt_id,task_id,attempt_no,status,started_at,finished_at,error_code) VALUES (%s,%s,%s,'started',%s,NULL,NULL) RETURNING *"
-                ).format(self._table("execution_attempts")),
-                (str(uuid4()), task_id, maximum["maximum"] + 1, stamp),
-            ).fetchone()
-            changed = connection.execute(
-                sql.SQL(
-                    "UPDATE {} SET version=version+1,updated_at=%s WHERE task_id=%s AND version=%s AND status='running'"
-                ).format(self._table("executions")),
-                (stamp, task_id, expected_version),
-            )
-            if changed.rowcount != 1 or row is None:
-                raise TransitionConflict("Recovery lost its expected version")
-            result = AttemptStart(self._get(connection, scope_id, task_id), decode_attempt(row))
-        _event("attempt_recovered")
-        return result
+        _version(expected_version)
+        return self._require_lease(scope_id, task_id)
 
     def finish_attempt(
         self,
@@ -511,60 +391,15 @@ class PostgresExecutionStore:
         result: InquiryResult | None = None,
         error_code: FailureCode | None = None,
     ) -> ExecutionRecord:
-        scope_id, task_id, attempt_id = (
-            _identity(scope_id),
-            _identity(task_id),
-            _identity(attempt_id),
-        )
-        expected_version = _version(expected_version)
+        _identity(attempt_id)
+        _version(expected_version)
         if (result is None) == (error_code is None):
             raise ValueError("exactly one result or safe failure code is required")
         if result is not None and type(result) is not InquiryResult:
             raise ValueError("a validated inquiry result is required")
         if error_code is not None and type(error_code) is not FailureCode:
             raise ValueError("an allowlisted failure code is required")
-        stamp = self._stamp()
-        with self._connection() as connection, connection.transaction():
-            self._write_lock(connection)
-            execution = self._get(connection, scope_id, task_id)
-            self._require_unmanaged(connection, task_id)
-            if execution.version != expected_version or execution.status != ExecutionStatus.RUNNING:
-                raise TransitionConflict("Execution cannot accept this attempt outcome")
-            if result is not None and (result.booking_reference, result.new_check_in) != (
-                execution.request.booking_reference,
-                execution.request.new_check_in,
-            ):
-                raise ValueError("inquiry result must match the accepted request")
-            state = ExecutionStatus.SUCCEEDED if result is not None else ExecutionStatus.FAILED
-            code = error_code.value if error_code else None
-            changed = connection.execute(
-                sql.SQL(
-                    "UPDATE {} SET status=%s,finished_at=%s,error_code=%s WHERE attempt_id=%s AND task_id=%s AND status='started'"
-                ).format(self._table("execution_attempts")),
-                (state.value, stamp, code, attempt_id, task_id),
-            )
-            if changed.rowcount != 1:
-                raise TransitionConflict("Attempt is not the current unfinished attempt")
-            changed = connection.execute(
-                sql.SQL(
-                    "UPDATE {} SET status=%s,version=version+1,updated_at=%s,result_json=%s,error_code=%s WHERE task_id=%s AND version=%s AND status='running'"
-                ).format(self._table("executions")),
-                (
-                    state.value,
-                    stamp,
-                    json.dumps(result.payload(), sort_keys=True, separators=(",", ":"))
-                    if result
-                    else None,
-                    code,
-                    task_id,
-                    expected_version,
-                ),
-            )
-            if changed.rowcount != 1:
-                raise TransitionConflict("Execution transition lost its expected version")
-            completed = self._get(connection, scope_id, task_id)
-        _event("attempt_finished", state.value)
-        return completed
+        return self._require_lease(scope_id, task_id)
 
     def cancel(self, *, scope_id: str, task_id: str) -> None:
         self.get(scope_id=scope_id, task_id=task_id)

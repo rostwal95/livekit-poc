@@ -466,7 +466,8 @@ class BoundedLoopbackHttp:
             )
             or "transfer-encoding" in headers
             or self._purpose == "operator"
-            and headers.get("origin", b"http://127.0.0.1:5179") != b"http://127.0.0.1:5179"
+            and headers.get("origin")
+            not in (None, b"http://127.0.0.1:5179", b"http://127.0.0.1:5189")
             or headers["host"] != f"127.0.0.1:{endpoint.port}".encode()
             or headers["content-type"] != b"application/json"
             or headers["connection"].lower() != b"close"

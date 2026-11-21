@@ -111,15 +111,16 @@ const onEnd=()=>{if(!commandReceived)failed=true;stop();};
 process.stdin.on('data',onData);process.stdin.on('end',onEnd);
 process.once('SIGTERM',stop);process.once('SIGINT',stop);
 try{
- if(process.argv.length!==2)throw Error();
- const actual=preview({configFile:process.argv[1],logLevel:'silent',preview:{host:'127.0.0.1',port:5179,strictPort:true}});
+ if(process.argv.length!==3||!['127.0.0.1','0.0.0.0'].includes(process.argv[2]))throw Error();
+ const host=process.argv[2];
+ const actual=preview({configFile:process.argv[1],configLoader:'runner',logLevel:'silent',preview:{host,port:5179,strictPort:true}});
  actual.then(value=>{server=value;},()=>{});
  await Promise.race([actual,stopped]);
  if(!stopRequested){
   server=await actual;
   const endpoint=server.httpServer.address();
-  if(!endpoint||typeof endpoint==='string'||endpoint.address!=='127.0.0.1'||endpoint.port!==5179)throw Error();
-  emit('ready',{endpoint:{host:'127.0.0.1',port:5179}});
+  if(!endpoint||typeof endpoint==='string'||endpoint.address!==host||endpoint.port!==5179)throw Error();
+  emit('ready',{endpoint:{host,port:5179}});
   await stopped;
  }
  await actual.catch(()=>{});
@@ -148,9 +149,11 @@ class ChildSpec:
     configuration: Path | None = field(default=None, repr=False)
     room_control: Path | None = field(default=None, repr=False)
     native_bridge: Path | None = field(default=None, repr=False)
+    bind_all: bool = False
 
     def __post_init__(self) -> None:
         need(type(self.role) is str and self.role in {"specialist", "gateway", "ui"})
+        need(type(self.bind_all) is bool and (not self.bind_all or self.role == "ui"))
         for path in (self.repository, self.node):
             need(type(path) is PosixPath and path.is_absolute())
         need(
@@ -195,6 +198,7 @@ class ChildSpec:
                 "-e",
                 UI_PREVIEW,
                 str(self.repository / "apps/local-console/vite.channel-policy.config.ts"),
+                "0.0.0.0" if self.bind_all else "127.0.0.1",
             )
         entry = "serve.js" if self.role == "gateway" else "specialist-serve.js"
         base = (
@@ -232,11 +236,11 @@ def _fields(value: object, names: set[str]) -> dict[str, object]:
     return cast(dict[str, object], value)
 
 
-def _endpoint(value: object, port: int) -> None:
+def _endpoint(value: object, port: int, host: str = "127.0.0.1") -> None:
     data = _fields(value, {"host", "port"})
     need(
         type(data["host"]) is str
-        and data["host"] == "127.0.0.1"
+        and data["host"] == host
         and type(data["port"]) is int
         and data["port"] == port,
         "unavailable",
@@ -275,7 +279,7 @@ def ready_frame(raw: bytes, spec: ChildSpec, pid: int) -> dict[str, object]:
             _endpoint(data["endpoint"], spec.ports["specialist"])
         elif spec.role == "ui":
             need(data["mode"] == "scripted_ui_preview", "unavailable")
-            _endpoint(data["endpoint"], 5179)
+            _endpoint(data["endpoint"], 5179, "0.0.0.0" if spec.bind_all else "127.0.0.1")
         else:
             need(
                 data["mode"] == "scripted_readonly_policy" and data["profileId"] == spec.profile_id,

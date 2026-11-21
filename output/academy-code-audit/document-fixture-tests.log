@@ -1,9 +1,0 @@
-test_complete_arrival_is_published_without_replacement_and_two_link_window_waits (tests.test_p3_document_fixture.DocumentFixtureTests.test_complete_arrival_is_published_without_replacement_and_two_link_window_waits) ... ok
-test_only_exact_legacy_setup_file_gets_64k_and_the_upper_limit_is_real (tests.test_p3_document_fixture.DocumentFixtureTests.test_only_exact_legacy_setup_file_gets_64k_and_the_upper_limit_is_real) ... ok
-test_proof_is_complete_before_peer_visibility_and_original_bytes_survive (tests.test_p3_document_fixture.DocumentFixtureTests.test_proof_is_complete_before_peer_visibility_and_original_bytes_survive) ... ok
-test_real_node_producer_and_python_contracts_read_complete_legacy_corpus (tests.test_p3_document_fixture.DocumentFixtureTests.test_real_node_producer_and_python_contracts_read_complete_legacy_corpus) ... ok
-
-----------------------------------------------------------------------
-Ran 4 tests in 0.857s
-
-OK

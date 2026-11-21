@@ -108,7 +108,7 @@ def open_case_control_client(
     settings: PostgresSettings,
     quote_database: Path | None = None,
 ) -> CaseControlClient:
-    """Trusted synchronous startup, before conversation I/O. Validate existing ACTIVE v4."""
+    """Validate the initialized booking schema before conversation I/O."""
     # Use the supported factory's preflight without copying authority/migration policy.
     validated = open_postgres_client(
         actor=actor, token=token, settings=settings, quote_database=quote_database

@@ -117,7 +117,7 @@ export PGOPTIONS='-c statement_timeout=5000 -c lock_timeout=1000 -c idle_in_tran
 # No password occurs in the command argv or SQL file. Existing non-null role
 # credentials are verified and never rotated; a pending NULL role can resume.
 if ! printf '%s\n%s\n' "$MIGRATION_POSTGRES_PASSWORD" "$MIGRATION_POSTGRES_PASSWORD" |
-  PGPASSWORD="$POSTGRES_PASSWORD" psql -X -q --no-password --host=/var/run/postgresql \
+  PGPASSWORD="$POSTGRES_PASSWORD" psql -X -q --no-password --host=127.0.0.1 \
     --port=5432 --username=livekit_lab_admin --dbname=livekit_lab --file="$script" >/dev/null 2>&1; then
   fail 'PostgreSQL migration role preparation failed; inspect role policy and retained credentials'
 fi

@@ -9,15 +9,6 @@ from .action_adapter import (
     DelegationAuthorizer,
     ExactManagedCaseAuthority,
 )
-from .applicability_api import ApplicabilityClient, open_applicability_client
-from .applicability_models import (
-    ApplicabilityRefresh,
-    ApplicabilityView,
-    DisplayTombstone,
-    InvalidationEvidence,
-    RefreshPolicy,
-)
-from .applicability_refresher import ApplicabilityRefresher
 from .case_adapter import CaseBinding, ManagedCaseAuthority
 from .completion import (
     ChannelPolicyDeliveryClient,
@@ -28,7 +19,6 @@ from .completion import (
     FixedPolicyDeliveryClient,
     FixedPolicyResultReadPort,
 )
-from .completion_processor import CompletionProcessor, ProcessingDeliveryPort
 from .coordinator import (
     CaseAuthorityPort,
     CaseSnapshot,
@@ -78,26 +68,6 @@ from .models import (
     PolicyResult,
     evaluate_policy,
 )
-from .processing_api import ProcessingClient, open_processing_client
-from .processing_models import (
-    CompletionPolicy,
-    ProcessingAcknowledgement,
-    ProcessingCheckpoint,
-    ProcessingOutcome,
-    ProcessingStep,
-)
-from .projection_api import (
-    ProjectedResult,
-    ProjectionBatch,
-    ProjectionBinding,
-    ProjectionCheckpoint,
-    ProjectionClient,
-    ProjectionError,
-    ProjectionLimits,
-    open_projection_client,
-)
-from .projection_models import ApplicabilityObservation
-from .projector import ProjectionProjector
 from .runner import (
     DelegationExecutionView,
     DelegationRun,
@@ -110,11 +80,6 @@ __all__ = [
     "DOCUMENT_CAPABILITY",
     "DOCUMENT_FIELDS",
     "ActionBinding",
-    "ApplicabilityClient",
-    "ApplicabilityObservation",
-    "ApplicabilityRefresh",
-    "ApplicabilityRefresher",
-    "ApplicabilityView",
     "AttemptObservation",
     "BaselineCleanupError",
     "BaselineError",
@@ -127,8 +92,6 @@ __all__ = [
     "CaseBinding",
     "CaseSnapshot",
     "CompletionError",
-    "CompletionPolicy",
-    "CompletionProcessor",
     "CoordinatorError",
     "DelegationAuthorization",
     "DelegationAuthorizer",
@@ -144,7 +107,6 @@ __all__ = [
     "DelegationView",
     "DeliveryBinding",
     "DeliveryObservation",
-    "DisplayTombstone",
     "DocumentContext",
     "DocumentEvidence",
     "DocumentField",
@@ -157,25 +119,9 @@ __all__ = [
     "ExactManagedCaseAuthority",
     "FixedPolicyDeliveryClient",
     "FixedPolicyResultReadPort",
-    "InvalidationEvidence",
     "ManagedCaseAuthority",
     "PolicyInput",
     "PolicyResult",
-    "ProcessingAcknowledgement",
-    "ProcessingCheckpoint",
-    "ProcessingClient",
-    "ProcessingDeliveryPort",
-    "ProcessingOutcome",
-    "ProcessingStep",
-    "ProjectedResult",
-    "ProjectionBatch",
-    "ProjectionBinding",
-    "ProjectionCheckpoint",
-    "ProjectionClient",
-    "ProjectionError",
-    "ProjectionLimits",
-    "ProjectionProjector",
-    "RefreshPolicy",
     "ResultDeliveryPort",
     "ResultReceiverPort",
     "SpecialistClient",
@@ -187,9 +133,6 @@ __all__ = [
     "encode_document_result",
     "evaluate_policy",
     "match_document_result",
-    "open_applicability_client",
-    "open_processing_client",
-    "open_projection_client",
     "parse_document_request",
     "parse_document_result",
     "parse_observation",

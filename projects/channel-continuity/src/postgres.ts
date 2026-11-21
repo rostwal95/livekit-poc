@@ -12,17 +12,6 @@ import {
   validate,
 } from './database.js';
 import type { ChannelLimits, DatabaseSettings, ProcessingState } from './public-types.js';
-import {
-  DEFINITION_DIGEST,
-  DISPATCH_DEFINITION_DIGEST,
-  OUTBOX_DEFINITION_DIGEST,
-  CALLBACK_DEFINITION_DIGEST,
-  SEND_POLICY_DEFINITION_DIGEST,
-  NATIVE_DEFINITION_DIGEST,
-  COMMUNICATION_DEFINITION_DIGEST,
-  RESULT_RECEIVER_DEFINITION_DIGEST,
-  INDEX_DEFINITION_DIGEST,
-} from './migrations.js';
 import { authenticateFakeSms, WebhookError } from './security.js';
 import type { FakeSmsIntegration, WebhookHeaders } from './security.js';
 import { produceTextEvent } from './index.js';
@@ -375,20 +364,7 @@ export class ChannelInbox {
           : 'BEGIN',
       );
       const committedActions: (() => void)[] = [];
-      const bounds = await validate(
-        client,
-        this.#value,
-        DEFINITION_DIGEST,
-        false,
-        DISPATCH_DEFINITION_DIGEST,
-        OUTBOX_DEFINITION_DIGEST,
-        CALLBACK_DEFINITION_DIGEST,
-        SEND_POLICY_DEFINITION_DIGEST,
-        NATIVE_DEFINITION_DIGEST,
-        COMMUNICATION_DEFINITION_DIGEST,
-        RESULT_RECEIVER_DEFINITION_DIGEST,
-        INDEX_DEFINITION_DIGEST,
-      );
+      const bounds = await validate(client, this.#value);
       const guarded = write
         ? await client.query(`SELECT * FROM ${this.#q('admission')} WHERE singleton FOR UPDATE`)
         : undefined;

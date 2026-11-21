@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import ast
 import copy
 import hashlib
-import importlib.util
 import json
 import subprocess
 import sys
@@ -325,58 +323,13 @@ class ProducerWireTests(unittest.TestCase):
         with self.assertRaises(FrozenInstanceError):
             parsed.case_id = "changed"
 
-    def test_legacy_reexports_share_one_canonical_identity_and_keep_adjacent_paths(self):
-        from services.channel_policy_demo import origin, origin_http
-
-        for old, canonical_module in (
-            ("p2_channel_origin_wire", m),
-            ("p3_channel_origin", origin),
-            ("p3_channel_origin_http", origin_http),
-        ):
-            path = ROOT / "local-setup/scripts" / (old + ".py")
-            spec = importlib.util.spec_from_file_location("compatibility_45a_" + old, path)
-            self.assertIsNotNone(spec)
-            module = importlib.util.module_from_spec(spec)
-            sys.modules[spec.name] = module
-            spec.loader.exec_module(module)
-            self.assertEqual(Path(module.__file__).resolve(), path)
-            self.assertTrue(module.__all__)
-            for name in module.__all__:
-                self.assertIs(getattr(module, name), getattr(canonical_module, name))
-            # Compatibility files may import/re-export; serving classes/functions
-            # must have exactly one definition in the canonical application.
-            self.assertFalse(
-                any(
-                    isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
-                    for node in ast.walk(ast.parse(path.read_text()))
-                )
-            )
-
     def test_import_starts_no_socket_process_or_background_task(self):
-        code = """import asyncio,importlib.util,json,socket,sys
-from pathlib import Path
+        code = """import asyncio,json,socket
 from unittest.mock import patch
 with patch.object(socket.socket,"connect",side_effect=AssertionError("network")),patch.object(socket.socket,"bind",side_effect=AssertionError("listener")),patch("subprocess.Popen",side_effect=AssertionError("process")),patch.object(asyncio,"create_task",side_effect=AssertionError("background task")):
-    import services.channel_policy_demo
     from services.channel_policy_demo import wire,origin,origin_http
-    for name,canonical in (("p2_channel_origin_wire",wire),("p3_channel_origin",origin),("p3_channel_origin_http",origin_http)):
-        path=Path(sys.argv[1])/"local-setup/scripts"/(name+".py")
-        spec=importlib.util.spec_from_file_location(name,path)
-        module=importlib.util.module_from_spec(spec)
-        sys.modules[name]=module
-        spec.loader.exec_module(module)
-        assert Path(module.__file__).resolve()==path
-        for public in module.__all__:assert getattr(module,public)is getattr(canonical,public)
-    path=Path(sys.argv[1])/"local-setup/scripts/p3_channel_origin_host.py"
-    spec=importlib.util.spec_from_file_location("compatibility_45a_isolated_host",path)
-    host=importlib.util.module_from_spec(spec)
-    sys.modules[spec.name]=host
-    spec.loader.exec_module(host)
-    assert host.ChannelOriginBinding is origin.ChannelOriginBinding
-    assert host.ChannelOriginService is origin.ChannelOriginService
-    assert host.ChannelOriginHttp is origin_http.ChannelOriginHttp
 assert wire.FRAME_BYTES==32768
-print(json.dumps({"inert":True,"one_class_identity":True}))
+print(json.dumps({"inert":True}))
 """
         result = subprocess.run(
             [sys.executable, "-I", "-B", "-c", code, str(ROOT)],
@@ -387,7 +340,7 @@ print(json.dumps({"inert":True,"one_class_identity":True}))
             check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(json.loads(result.stdout), {"inert": True, "one_class_identity": True})
+        self.assertEqual(json.loads(result.stdout), {"inert": True})
 
 
 if __name__ == "__main__":
